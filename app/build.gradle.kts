@@ -192,6 +192,11 @@ dependencies {
     implementation(project(":shell"))
     implementation(libs.markdownj.core)
 
+    // logger
+    implementation(libs.kotlin.logging.jvm)
+    implementation(libs.slf4j.api)
+    implementation(libs.logback.android)
+
     // debug依赖
     debugImplementation(libs.leakcanary.android)
 

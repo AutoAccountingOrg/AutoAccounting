@@ -25,12 +25,15 @@ import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.net.URLEncoder
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 账本名称API类，提供账本相关的网络请求操作
  * 所有方法都是挂起函数，需要在协程作用域内调用
  */
 object BookNameAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 获取所有账本列表
      * @return 账本模型列表，如果请求失败则返回空列表
@@ -41,7 +44,7 @@ object BookNameAPI {
             val resp = LocalNetwork.post<List<BookNameModel>>("book/list", "{}").getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("list error: ${it.message}", it)
+            logger.error(it) { "list error: ${it.message}" }
             emptyList()
         }
     }
@@ -58,7 +61,7 @@ object BookNameAPI {
                 name = bookName.ifEmpty { DefaultData.DEFAULT_BOOK_NAME }
             }
         }.getOrElse {
-            Logger.e("getBook error: ${it.message}", it)
+            logger.error(it) { "getBook error: ${it.message}" }
             BookNameModel().apply {
                 name = bookName.ifEmpty { DefaultData.DEFAULT_BOOK_NAME }
             }
@@ -74,7 +77,7 @@ object BookNameAPI {
             val resp = LocalNetwork.get<BookNameModel>("book/default").getOrThrow()
             resp.data ?: BookNameModel().apply { name = DefaultData.DEFAULT_BOOK_NAME }
         }.getOrElse {
-            Logger.e("getDefaultBook error: ${it.message}", it)
+            logger.error(it) { "getDefaultBook error: ${it.message}" }
             BookNameModel().apply { name = DefaultData.DEFAULT_BOOK_NAME }
         }
     }
@@ -92,7 +95,7 @@ object BookNameAPI {
             runCatchingExceptCancel {
                 LocalNetwork.post<String>("book/put?md5=$md5", Gson().toJson(bookList)).getOrThrow()
             }.getOrElse {
-                Logger.e("put error: ${it.message}", it)
+                logger.error(it) { "put error: ${it.message}" }
 
             }
         }
@@ -103,7 +106,7 @@ object BookNameAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("book/add", Gson().toJson(book)).getOrThrow()
         }.getOrElse {
-            Logger.e("add error: ${it.message}", it)
+            logger.error(it) { "add error: ${it.message}" }
 
         }
     }
@@ -114,7 +117,7 @@ object BookNameAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("book/update", Gson().toJson(book)).getOrThrow()
         }.getOrElse {
-            Logger.e("update error: ${it.message}", it)
+            logger.error(it) { "update error: ${it.message}" }
 
         }
     }
@@ -132,7 +135,7 @@ object BookNameAPI {
             }
             LocalNetwork.post<String>("book/delete", Gson().toJson(json)).getOrThrow()
         }.getOrElse {
-            Logger.e("delete error: ${it.message}", it)
+            logger.error(it) { "delete error: ${it.message}" }
 
         }
     }

@@ -30,6 +30,7 @@ import net.ankio.auto.ui.components.MaterialSearchView
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.AppInfo
 import net.ankio.auto.utils.PrefManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 通知来源应用选择 Fragment
@@ -60,7 +61,7 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
     override suspend fun loadData(): List<AppInfo> {
         // 读取配置中的白名单（以逗号分隔）
         selectedApps = PrefManager.appWhiteList
-        Logger.d("selected apps: $selectedApps")
+        logger.debug { "selected apps: $selectedApps" }
 
         val pm = requireContext().packageManager
         val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
@@ -160,7 +161,7 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
                 }
                 .thenBy { it.appName }
         )
-        Logger.d("sorted apps: $mutableList")
+        logger.debug { "sorted apps: $mutableList" }
     }
 }
 

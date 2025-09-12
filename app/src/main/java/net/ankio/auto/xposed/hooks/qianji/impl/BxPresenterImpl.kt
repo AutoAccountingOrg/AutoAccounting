@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.impl
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,8 @@ import net.ankio.auto.http.api.BookBillAPI
 import net.ankio.auto.http.api.SettingAPI
 
 object BxPresenterImpl {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     val baoXiaoImpl by lazy {
         Hooker.loader("com.mutangtech.qianji.bill.baoxiao.BxPresenterImpl")
     }
@@ -104,10 +107,10 @@ object BxPresenterImpl {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_BAOXIAO_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
+            logger.info { "No need to sync BaoXiao, server md5:${server} local md5:${md5}" }
             return@withContext
         }
-        AppRuntime.logD("Sync BaoXiao:$sync")
+        logger.debug { "Sync BaoXiao:$sync" }
         BookBillAPI.put(bills, md5, Setting.HASH_BAOXIAO_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步报销账单到自动记账")
@@ -132,7 +135,7 @@ object BxPresenterImpl {
             billList.filter {
                 val bill = Bill.fromObject(it!!)
                 val billId = bill.getBillid()
-                AppRuntime.logD("billId:$billId")
+                logger.debug { "billId:$billId" }
                 // 判断billId是否在list中
                 list.contains(billId.toString())
             }

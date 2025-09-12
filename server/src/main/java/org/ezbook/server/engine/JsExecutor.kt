@@ -18,20 +18,22 @@ package org.ezbook.server.engine
 import com.shiqi.quickjs.JSString
 import com.shiqi.quickjs.QuickJS
 import org.ezbook.server.Server
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.Closeable
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 轻量级 JS 执行器，集中管理 QuickJS 生命周期，避免重复创建 Runtime/Context
  */
 class JsExecutor : Closeable {
 
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     private val quickJs by lazy { QuickJS.Builder().build() }
 
     suspend fun run(code: String, data: String = ""): String =
         runCatchingExceptCancel {
-            ServerLog.d("执行JS：$code")
+            logger.debug { "执行JS：$code" }
             // 每次执行创建独立的 Runtime/Context，避免跨脚本污染
             quickJs.createJSRuntime().use { rt ->
                 rt.createJSContext().use { ctx ->
@@ -57,7 +59,7 @@ class JsExecutor : Closeable {
             }
         }.getOrElse {
             // 失败时打印详细错误，包含异常与堆栈，便于定位问题；返回空串让上层决定回退策略
-            ServerLog.e("JS 执行失败：${it.message}", it)
+            logger.error(it) { "JS 执行失败：${it.message}" }
             it.message ?: ""
         }
 

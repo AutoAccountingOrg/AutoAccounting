@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.impl
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,8 @@ import net.ankio.auto.http.api.SettingAPI
  * 该类负责处理钱迹App中资产相关的业务逻辑，包括资产列表的获取、同步和更新等功能
  */
 object AssetPreviewPresenterImpl {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
 
     // 钱迹App中资产预览Presenter的完整类名
     private const val CLAZZ = "com.mutangtech.qianji.asset.account.mvp.AssetPreviewPresenterImpl"
@@ -120,7 +123,7 @@ object AssetPreviewPresenterImpl {
                 !assetAccount.isVisible()  //不可见
                 || assetAccount.isZhaiWuFinished() //债务结束
             ) {
-                AppRuntime.logD("隐藏的资产不同步:${assetAccount.getName()}")
+                logger.debug { "隐藏的资产不同步:${assetAccount.getName()}" }
                 return@forEach
             }
 
@@ -150,10 +153,10 @@ object AssetPreviewPresenterImpl {
         val server = SettingAPI.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
         if (server == md5  && !AppRuntime.debug || assets.isEmpty() ) { //资产为空也不同步
-            AppRuntime.log("No need to sync Assets, server md5:${server} local md5:${md5}")
+            logger.info { "No need to sync Assets, server md5:${server} local md5:${md5}" }
             return@withContext
         }
-        AppRuntime.logD("Sync Assets:${Gson().toJson(assets)}")
+        logger.debug { "Sync Assets:${Gson().toJson(assets)}" }
         AssetsAPI.put(assets, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步资产信息到自动记账")
@@ -185,8 +188,8 @@ object AssetPreviewPresenterImpl {
                 }
                 account = findAssetInList(name, sType)
                 if (account == null) {
-                    AppRuntime.logD("未找到资产:$name")
-                }
+                    logger.debug { "未找到资产:$name" }
+                    }// 仅解决logger重复定义问题，其它我自己来
             }
 
             account

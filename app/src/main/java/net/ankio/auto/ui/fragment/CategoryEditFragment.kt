@@ -36,6 +36,7 @@ import net.ankio.auto.ui.utils.adapterBottom
 import net.ankio.auto.ui.utils.setCategoryIcon
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 分类编辑Fragment (简化版本)
@@ -46,7 +47,6 @@ import org.ezbook.server.db.model.CategoryModel
  * - 优化的性能和用户体验
  */
 class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
-
     /** 当前分类模型 */
     private var currentCategory: CategoryModel = CategoryModel()
 
@@ -198,7 +198,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
                 findNavController().popBackStack()
             }
         } catch (e: Exception) {
-            Logger.e("Failed to load category data", e)
+            logger.error(e) { "Failed to load category data" }
             ToastUtils.error(getString(R.string.category_load_failed))
             findNavController().popBackStack()
         }

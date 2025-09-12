@@ -43,6 +43,7 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.db.model.RuleModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 规则版本卡片组件
@@ -231,7 +232,7 @@ class RuleVersionCardComponent(
             withMain { ToastUtils.info(R.string.update_success) }
 
         } catch (e: Exception) {
-            Logger.e("更新规则错误", e)
+            logger.error(e) { "更新规则错误" }
             withMain { ToastUtils.error(R.string.update_error) }
         } finally {
             withMain { loading?.close() }

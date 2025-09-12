@@ -21,12 +21,15 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * DatabaseAPI 对象提供了与数据库管理相关的网络请求操作
  * 包括数据库备份、恢复和清理功能
  */
 object DatabaseAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 导出数据库
      * @param targetFile 目标文件路径
@@ -46,7 +49,7 @@ object DatabaseAPI {
     suspend fun import(sourceFile: File) = withContext(Dispatchers.IO) {
         val requestUtils = net.ankio.auto.http.RequestsUtils()
         val result = requestUtils.upload("http://127.0.0.1:52045/db/import", sourceFile)
-        Logger.i(result.toString())
+        logger.info { result.toString() }
     }
 
     /**
@@ -58,7 +61,7 @@ object DatabaseAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("db/clear").getOrThrow()
         }.getOrElse {
-            Logger.e("clear error: ${it.message}", it)
+            logger.error(it) { "clear error: ${it.message}" }
             throw it
         }
     }

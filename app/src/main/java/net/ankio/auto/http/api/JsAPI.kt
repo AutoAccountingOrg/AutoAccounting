@@ -23,8 +23,11 @@ import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.models.BillResultModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object JsAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     suspend fun analysis(
         type: DataType,
@@ -40,7 +43,7 @@ object JsAPI {
             ).getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("analysis error: ${it.message}", it)
+            logger.error(it) { "analysis error: ${it.message}" }
             null
         }
     }
@@ -52,7 +55,7 @@ object JsAPI {
             val resp = LocalNetwork.post<String>("js/run", js).getOrThrow()
             resp.data ?: ""
         }.getOrElse {
-            Logger.e("run error: ${it.message}", it)
+            logger.error(it) { "run error: ${it.message}" }
             ""
         }
     }

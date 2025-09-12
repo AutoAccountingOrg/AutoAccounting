@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.impl
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,8 @@ import net.ankio.auto.http.api.BookBillAPI
 import net.ankio.auto.http.api.SettingAPI
 
 object SearchPresenterImpl {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     val CLAZZ = "com.mutangtech.qianji.bill.search.SearchPresenterImpl"
     val searchImpl = Hooker.loader(CLAZZ)
     suspend fun getLast10DayLists(): List<*> =
@@ -168,7 +171,7 @@ object SearchPresenterImpl {
                 runCatching {
                     getLast10DayLists()
                 }.onFailure {
-                    AppRuntime.logE(it)
+                    logger.error(it) { "异常" }
                 }.getOrDefault(emptyList<Any>())
             }
 
@@ -177,10 +180,10 @@ object SearchPresenterImpl {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.log("No need to sync bill Data, server md5:${server} local md5:${md5}")
+            logger.info { "No need to sync bill Data, server md5:${server} local md5:${md5}" }
             return@withContext
         }
-        AppRuntime.logD("Sync bills:$sync")
+        logger.debug { "Sync bills:$sync" }
         BookBillAPI.put(bills, md5, Setting.HASH_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步支出账单到自动记账")

@@ -20,8 +20,6 @@ import com.google.gson.JsonParser
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.ezbook.server.Server
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**
@@ -36,7 +34,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
      */
     override suspend fun getAvailableModels(): List<String> {
         // 日志：开始获取可用模型列表
-        ServerLog.d("AI Provider: 获取可用模型列表")
+        logger.debug { "AI Provider: 获取可用模型列表" }
         val request = Request.Builder()
             .url("${getApiUri()}/v1/models")
             .addHeader("Authorization", "Bearer ${getApiKey()}")
@@ -56,11 +54,11 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                 }
 
                 // 日志：获取模型成功，记录数量
-                ServerLog.d("AI Provider: 模型获取成功，count=${models.size}")
+                logger.debug { "AI Provider: 模型获取成功，count=${models.size}" }
                 return models
             }
         }.getOrElse {
-            ServerLog.e("AI Provider: 获取模型失败：${it.message}", it)
+            logger.error(it) { "AI Provider: 获取模型失败：${it.message}" }
             emptyList()
         }
     }
@@ -79,7 +77,8 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
         onChunk: ((String) -> Unit)?
     ): Result<String> {
         // 日志：请求发起（不打印内容与密钥）
-        ServerLog.d("AI Provider: 发起请求，model=${getModel()}, stream=${onChunk != null}")
+        val model = getModel()
+        logger.debug { "AI Provider: 发起请求，model=$model, stream=${onChunk != null}" }
         val messages = mutableListOf<Map<String, String>>()
 
         // 添加系统消息
@@ -126,7 +125,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
         return runCatchingExceptCancel {
             if (onChunk != null) {
                 // 流式处理
-                ServerLog.d("AI Provider: 开始流式响应处理")
+                logger.debug { "AI Provider: 开始流式响应处理" }
                 handleStreamResponse(request, onChunk)
                 "" // 流式模式以空串占位
             } else {
@@ -136,13 +135,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                         val body =
                             response.body?.string()?.removeThink() ?: error("Empty response body")
                         // 日志：非流式失败，打印响应片段
-                        ServerLog.e(
-                            "AI Provider: 响应失败 code=${response.code}，body=${
-                                body.take(
-                                    300
-                                )
-                            }"
-                        )
+                        logger.error { "AI Provider: 响应失败 code=${response.code}，body=${body.take(300)}" }
                         val jsonObject = JsonParser.parseString(body).asJsonObject
                         val message = jsonObject.get("error").asJsonObject.get("message").asString
                         error(message)
@@ -151,7 +144,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                     val body =
                         response.body?.string()?.removeThink() ?: error("Empty response body")
                     // 日志：非流式成功，打印响应片段以便排查
-                    ServerLog.d("AI Provider: 响应成功(非流)，片段=${body.take(300)}")
+                    logger.debug { "AI Provider: 响应成功(非流)，片段=${body.take(300)}" }
                     val jsonObject = JsonParser.parseString(body).asJsonObject
 
                     jsonObject
@@ -165,7 +158,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                 }
             }
         }.onFailure {
-            ServerLog.e("AI Provider(Result): 请求失败：${it.message}", it)
+            logger.error(it) { "AI Provider(Result): 请求失败：${it.message}" }
         }
     }
 
@@ -178,52 +171,52 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
         return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    ServerLog.e("AI Provider: Stream 请求失败: ${response.code}")
+                    logger.error { "AI Provider: Stream 请求失败: ${response.code}" }
                     return@withContext
                 }
 
                 val source = response.body?.source()
                 if (source == null) {
-                    ServerLog.e("AI Provider: Stream 响应体为空")
+                    logger.error { "AI Provider: Stream 响应体为空" }
                     return@withContext
                 }
 
                 runCatchingExceptCancel {
-                while (!source.exhausted()) {
-                    val line = source.readUtf8Line() ?: break
+                    while (!source.exhausted()) {
+                        val line = source.readUtf8Line() ?: break
 
-                    // 处理SSE格式的数据
-                    if (line.startsWith("data: ")) {
-                        val data = line.substring(6) // 移除"data: "前缀
+                        // 处理SSE格式的数据
+                        if (line.startsWith("data: ")) {
+                            val data = line.substring(6) // 移除"data: "前缀
 
-                        if (data == "[DONE]") {
-                            break
-                        }
-
-                        runCatchingExceptCancel {
-                            val jsonObject = JsonParser.parseString(data).asJsonObject
-                            val choices = jsonObject.getAsJsonArray("choices")
-                            if (choices != null && choices.size() > 0) {
-                                val choice = choices[0].asJsonObject
-                                val delta = choice.getAsJsonObject("delta")
-                                val content = delta?.get("content")?.asString
-
-                                if (content != null) {
-                                    onChunk(content)
-                                }
+                            if (data == "[DONE]") {
+                                break
                             }
-                        }.onFailure {
-                            ServerLog.e("AI Provider: Stream 解析数据块失败: ${it.message}")
-                        }
 
+                            runCatchingExceptCancel {
+                                val jsonObject = JsonParser.parseString(data).asJsonObject
+                                val choices = jsonObject.getAsJsonArray("choices")
+                                if (choices != null && choices.size() > 0) {
+                                    val choice = choices[0].asJsonObject
+                                    val delta = choice.getAsJsonObject("delta")
+                                    val content = delta?.get("content")?.asString
+
+                                    if (content != null) {
+                                        onChunk(content)
+                                    }
+                                }
+                            }.onFailure {
+                                logger.error { "AI Provider: Stream 解析数据块失败: ${it.message}" }
+                            }
+
+                        }
                     }
-                }
                 }.onFailure {
-                    ServerLog.e("AI Provider: ${it.message}", it)
+                    logger.error(it) { "${"AI Provider: ${it.message}"}" }
                 }
             }
         }
     }
 
 
-} 
+}

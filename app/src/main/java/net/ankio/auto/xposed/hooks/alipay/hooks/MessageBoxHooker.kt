@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.alipay.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import de.robv.android.xposed.XposedHelpers
@@ -24,6 +25,8 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DataType
 
 class MessageBoxHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     override fun hook() {
 
         val syncMessage =
@@ -40,7 +43,7 @@ class MessageBoxHooker : PartHooker() {
                         add(jsonObject)
                     }
 
-                AppRuntime.manifest.logD("Hooked Alipay Message Box：$jsonArray")
+                logger.debug { "Hooked Alipay Message Box：$jsonArray" }
                 // 调用分析服务进行数据分析
                 AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
             }

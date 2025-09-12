@@ -33,8 +33,11 @@ import net.ankio.auto.service.api.IService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class NotificationService : NotificationListenerService() {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return super.onStartCommand(intent, flags, startId)
     }
@@ -57,7 +60,7 @@ class NotificationService : NotificationListenerService() {
 
             checkNotification(app!!, title, text)
         }.onFailure {
-            Logger.e("NotificationService: ${it.message}", it)
+            logger.error(it) { "NotificationService: ${it.message}" }
         }
     }
 
@@ -91,7 +94,7 @@ class NotificationService : NotificationListenerService() {
         }
 
         if (PrefManager.dataFilter.all { !text.contains(it) }) {
-            Logger.d("数据信息不在识别关键字里面，忽略")
+            logger.debug { "数据信息不在识别关键字里面，忽略" }
             return
         }
 
@@ -104,7 +107,7 @@ class NotificationService : NotificationListenerService() {
             App.launch {
                 val billResult =
                     JsAPI.analysis(DataType.DATA, Gson().toJson(json), "com.android.phone")
-                Logger.d("识别结果：${billResult?.billInfoModel}")
+                logger.debug { "识别结果：${billResult?.billInfoModel}" }
             }
             // Analyze.start(DataType.DATA, Gson().toJson(json), "com.android.phone")
         } else {
@@ -115,7 +118,7 @@ class NotificationService : NotificationListenerService() {
             App.launch {
                 val billResult =
                     JsAPI.analysis(DataType.NOTICE, Gson().toJson(json), pkg)
-                Logger.d("识别结果：${billResult?.billInfoModel}")
+                logger.debug { "识别结果：${billResult?.billInfoModel}" }
             }
             //  Analyze.start(DataType.NOTICE, Gson().toJson(json), pkg)
         }

@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -51,6 +52,9 @@ import net.ankio.auto.ui.utils.DisplayUtils
  */
 abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
 
+    companion object {
+        val logger = KotlinLogging.logger(this::class.java.name)
+    }
     private var _binding: FragmentPreferenceBaseBinding? = null
     protected val binding get() = _binding!!
 
@@ -134,11 +138,11 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.d("PreferenceFragment协程已取消: ${e.message}")
+                        logger.debug { "PreferenceFragment协程已取消: ${e.message}" }
                     }
 
                     else -> {
-                        Logger.e("PreferenceFragment协程执行异常: ${javaClass.simpleName}", e)
+                        logger.error(e) { "PreferenceFragment协程执行异常: ${javaClass.simpleName}" }
                     }
                 }
             }

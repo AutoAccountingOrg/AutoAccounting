@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.android.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.app.AndroidAppHelper
 import android.app.AppOpsManager
 import android.content.Context
@@ -26,6 +27,8 @@ import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 
 class PermissionCheckHooker: PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     override fun hook() {
         Hooker.allMethodsEqAfter(Hooker.loader("com.android.server.SystemServer"), "startOtherServices") { it,method ->
             AppRuntime.application = AndroidAppHelper.currentApplication()
@@ -38,8 +41,8 @@ class PermissionCheckHooker: PartHooker() {
         runCatching {
             hookCheckPermission()
         }.onFailure {
-            AppRuntime.manifest.log("hook hookCheckPermission error:${it.message}")
-            AppRuntime.manifest.logE(it)
+            logger.info { "hook hookCheckPermission error:${it.message}" }
+            logger.error(it) { "异常" }
         }
 
 
@@ -47,8 +50,8 @@ class PermissionCheckHooker: PartHooker() {
         runCatching {
             setOverlaysAllowed(BuildConfig.APPLICATION_ID)
         }.onFailure {
-            AppRuntime.manifest.log("hook setOverlaysAllowed error:${it.message}")
-            AppRuntime.manifest.logE(it)
+            logger.info { "hook setOverlaysAllowed error:${it.message}" }
+            logger.error(it) { "异常" }
         }
     }
 

@@ -39,6 +39,7 @@ import androidx.core.graphics.scale
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.ui.utils.load
 import org.ezbook.server.tools.runCatchingExceptCancel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 账本编辑Fragment - 用于创建新账本或编辑现有账本
@@ -149,7 +150,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
             }
             imagePickerLauncher.launch(intent)
         } catch (e: Exception) {
-            Logger.e("Failed to open image picker", e)
+            logger.error(e) { "Failed to open image picker" }
             ToastUtils.error(getString(R.string.icon_select_failed))
         }
     }
@@ -186,7 +187,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
                 }
 
             } catch (e: Exception) {
-                Logger.e("Failed to process selected image", e)
+                logger.error(e) { "Failed to process selected image" }
                 ToastUtils.error(getString(R.string.image_process_failed))
             }
         }
@@ -247,7 +248,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
                 )
                 findNavController().popBackStack()
             } else {
-                Logger.e("Failed to save book")
+                logger.error { "Failed to save book" }
                 ToastUtils.error(
                     getString(if (isEditMode) R.string.book_update_failed else R.string.book_create_failed)
                 )

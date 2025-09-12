@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.android.hooks.permission
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.os.Build
 import android.os.UserHandle
 import androidx.annotation.RequiresApi
@@ -28,6 +29,8 @@ import java.lang.reflect.Method
 
 
 class PermissionHooker34(private val  manifest: HookerManifest, private val mClassLoader: ClassLoader)  {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
 
 
     // IMPORTANT: There are two types of permissions: install and runtime.
@@ -44,16 +47,16 @@ class PermissionHooker34(private val  manifest: HookerManifest, private val mCla
         try {
             hookGrantPermissions()
         } catch (e: Throwable) {
-            manifest.logD("Error in PermissionHooker34: $e")
-            manifest.logE(e)
+            logger.debug { "Error in PermissionHooker34: $e" }
+            logger.error(e) { "异常" }
         }
     }
 
     private fun hookGrantPermissions() {
-        manifest.logD("Hooking grantPermissions() for Android 34+")
+        logger.debug { "Hooking grantPermissions() for Android 34+" }
         val method = findTargetMethod()
         if (method == null) {
-            manifest.logD("Cannot find the method to grant relevant permission")
+            logger.debug { "Cannot find the method to grant relevant permission" }
             return
         }
         XposedBridge.hookMethod(method, object :XC_MethodHook() {
@@ -103,7 +106,7 @@ class PermissionHooker34(private val  manifest: HookerManifest, private val mCla
 
         for (appItems in XposedModule.get()) {
             if (appItems.packageName == _packageName) {
-                manifest.logD("PackageName: ${_packageName}")
+                logger.debug { "PackageName: ${_packageName}" }
 
                 // PermissionManagerServiceImpl 对象
                 val pmsImpl = param.thisObject
@@ -170,10 +173,10 @@ class PermissionHooker34(private val  manifest: HookerManifest, private val mCla
                                     "grantPermission",
                                     bpToGrant
                                 ) as Boolean
-                                manifest.logD("Add $permissionToGrant; result = $result")
+                                logger.debug { "Add $permissionToGrant; result = $result" }
                             } else {
                                 // permission has been granted already
-                                manifest.logD("Already have $permissionToGrant permission")
+                                logger.debug { "Already have $permissionToGrant permission" }
                             }
                         }
                     }

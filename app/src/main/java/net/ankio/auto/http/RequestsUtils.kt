@@ -39,12 +39,15 @@ import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * HTTP请求工具类
  * 提供各种HTTP请求方法的封装
  */
 class RequestsUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     companion object {
         private const val DEFAULT_TIMEOUT = 300L
         private const val DEFAULT_MEDIA_TYPE = "application/json; charset=utf-8"
@@ -229,7 +232,7 @@ class RequestsUtils {
                 .build()
 
             val body = executeAndGetBody(request)
-            Logger.d("body: $body")
+            logger.debug { "body: $body" }
             parseResponse(body)
         }
 

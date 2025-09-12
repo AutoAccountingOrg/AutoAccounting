@@ -24,6 +24,7 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.AppDataModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 应用数据API接口
@@ -31,6 +32,8 @@ import org.ezbook.server.db.model.AppDataModel
  * 所有操作都在IO线程中执行，确保不阻塞主线程
  */
 object AppDataAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 根据条件查询应用数据列表
      * 支持分页查询和多种筛选条件
@@ -64,7 +67,7 @@ object AppDataAPI {
             ).getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("list error: ${it.message}", it)
+            logger.error(it) { "list error: ${it.message}" }
             emptyList()
         }
     }
@@ -80,7 +83,7 @@ object AppDataAPI {
         runCatchingExceptCancel {
             LocalNetwork.get<String>("data/clear").getOrThrow()
         }.getOrElse {
-            Logger.e("clear error: ${it.message}", it)
+            logger.error(it) { "clear error: ${it.message}" }
         }
     }
 
@@ -97,7 +100,7 @@ object AppDataAPI {
             // 将数据模型转换为JSON格式发送到服务器
             LocalNetwork.post<String>("data/put", Gson().toJson(data)).getOrThrow()
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
         }
     }
 
@@ -112,7 +115,7 @@ object AppDataAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("data/delete", Gson().toJson(mapOf("id" to id))).getOrThrow()
         }.getOrElse {
-            Logger.e("delete error: ${it.message}", it)
+            logger.error(it) { "delete error: ${it.message}" }
         }
     }
 
@@ -128,7 +131,7 @@ object AppDataAPI {
             val resp = LocalNetwork.get<JsonObject>("data/apps").getOrThrow()
             resp.data ?: JsonObject()
         }.getOrElse {
-            Logger.e("apps error: ${it.message}", it)
+            logger.error(it) { "apps error: ${it.message}" }
             JsonObject()
         }
     }

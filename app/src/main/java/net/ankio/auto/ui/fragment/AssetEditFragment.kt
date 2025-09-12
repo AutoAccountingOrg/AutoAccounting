@@ -39,6 +39,7 @@ import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.db.model.AssetsModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 资产编辑Fragment
@@ -242,7 +243,7 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
     private suspend fun loadIconData() {
         allIcons = AssetsUtils.list(requireContext())
 
-        Logger.d("icons: " + allIcons.size.toString())
+        logger.debug { "icons: " + allIcons.size.toString() }
 
         // 初始化时根据当前资产类型过滤图标
         updateIconsByAssetType()
@@ -294,7 +295,7 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
                 findNavController().popBackStack()
             }
         } catch (e: Exception) {
-            Logger.e("Failed to load asset data", e)
+            logger.error(e) { "Failed to load asset data" }
             ToastUtils.error(getString(R.string.asset_load_failed))
             findNavController().popBackStack()
         }
@@ -400,7 +401,7 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
                     ToastUtils.error(getString(R.string.save_failed))
                 }
             } catch (e: Exception) {
-                Logger.e("Failed to save asset", e)
+                logger.error(e) { "Failed to save asset" }
                 ToastUtils.error(getString(R.string.save_failed))
             }
         }

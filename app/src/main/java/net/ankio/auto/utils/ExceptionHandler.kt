@@ -4,19 +4,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.tencent.bugly.crashreport.CrashReport
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.autoApp
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.ErrorActivity
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 import kotlin.system.exitProcess
 
-class ExceptionHandler private constructor(private val context: Context) :
-    Thread.UncaughtExceptionHandler {
+
+private val logger = KotlinLogging.logger { }
+
+class ExceptionHandler private constructor(private val context: Context) : Thread.UncaughtExceptionHandler {
 
     private var mDefaultHandler: Thread.UncaughtExceptionHandler? = null
 
@@ -45,8 +45,7 @@ class ExceptionHandler private constructor(private val context: Context) :
             sb.append(
                 "异常时间: ${
                     SimpleDateFormat(
-                        "yyyy-MM-dd HH:mm:ss",
-                        Locale.getDefault()
+                        "yyyy-MM-dd HH:mm:ss", Locale.getDefault()
                     ).format(Date())
                 }\n\n"
             )
@@ -69,7 +68,7 @@ class ExceptionHandler private constructor(private val context: Context) :
                 if (!logDir.exists()) logDir.mkdirs()
                 val file = File(logDir, "${tag}_${System.currentTimeMillis()}.log")
                 FileOutputStream(file).use { it.write(msg.toByteArray()) }
-                Logger.d(msg)
+                logger.debug { msg }
             } catch (ex: Exception) {
                 // ignore
             }
@@ -81,11 +80,10 @@ class ExceptionHandler private constructor(private val context: Context) :
         e: Throwable,
     ) {
         val msg = buildExceptionLog(e, "主线程未捕获异常")
-        Logger.e("Handler UncaughtException", e)
+        logger.error(e) { "Handler UncaughtException" }
         saveLogToLocal(context, msg)
         // Bugly 上报
-        if (!PrefManager.debugMode)
-        CrashReport.postCatchedException(e)
+        if (!PrefManager.debugMode) CrashReport.postCatchedException(e)
 
         // 跳转错误界面
         try {
@@ -96,7 +94,7 @@ class ExceptionHandler private constructor(private val context: Context) :
             intent.putExtra("isErrorActivity", true)
             context.startActivity(intent)
         } catch (ex: Exception) {
-            Logger.e("Failed to start ErrorActivity", ex)
+            logger.error(ex) { "Failed to start ErrorActivity" }
         }
 
         exitProcess(0)

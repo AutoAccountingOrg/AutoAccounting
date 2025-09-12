@@ -35,10 +35,13 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.io.IOException
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.runCatchingExceptCancel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object Db {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     private const val DATABASE_NAME = "autoAccount.db"
     private lateinit var db: AppDatabase
 
@@ -108,9 +111,9 @@ object Db {
 
             // 使用VACUUM INTO进行安全备份，无需关闭数据库
             db.openHelper.writableDatabase.execSQL("VACUUM INTO '${dbNewFile.absolutePath}'")
-            ServerLog.d("数据库已安全复制到：${dbNewFile.absolutePath}")
+            logger.debug { "数据库已安全复制到：${dbNewFile.absolutePath}" }
         }.onFailure { e ->
-            ServerLog.e("数据库VACUUM复制失败，回退到文件复制：${e.message}", e)
+            logger.error(e) { "数据库VACUUM复制失败，回退到文件复制：${e.message}" }
             // 如果VACUUM INTO失败，回退到文件复制（但仍需要同步）
             val originalDbFile = context.getDatabasePath(DATABASE_NAME)
             if (originalDbFile.exists()) {
@@ -150,7 +153,7 @@ object Db {
             runCatchingExceptCancel {
                 // 复制导入文件
                 file.copyTo(dbFile, overwrite = true)
-                ServerLog.d("数据库导入成功：${dbFile.absolutePath}")
+                logger.debug { "数据库导入成功：${dbFile.absolutePath}" }
 
                 // 删除备份文件
                 if (backupFile.exists()) {
@@ -165,7 +168,7 @@ object Db {
                 throw e
             }
         }.onFailure { e ->
-            ServerLog.e("数据库导入失败：${e.message}", e)
+            logger.error(e) { "数据库导入失败：${e.message}" }
             throw e
         }.also {
             // 重新初始化数据库
@@ -194,12 +197,12 @@ object Db {
             filesToDelete.forEach { file ->
                 if (file.exists()) {
                     file.delete()
-                    ServerLog.d("删除文件：${file.absolutePath}")
+                    logger.debug { "删除文件：${file.absolutePath}" }
                 }
             }
-            ServerLog.d("数据库清空成功")
+            logger.debug { "数据库清空成功" }
         }.onFailure { e ->
-            ServerLog.e("清空数据库失败：${e.message}", e)
+            logger.error(e) { "清空数据库失败：${e.message}" }
             throw e
         }.also {
             // 重新初始化数据库

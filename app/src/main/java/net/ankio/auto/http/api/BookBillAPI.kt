@@ -22,12 +22,15 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.BookBillModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * BookBillAPI 是一个用于处理账本账单相关网络请求的API类
  * 提供了获取账单列表和上传账单数据的功能
  */
 object BookBillAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 获取指定类型的账单列表
      *
@@ -41,7 +44,7 @@ object BookBillAPI {
                 .getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("list error: ${it.message}", it)
+            logger.error(it) { "list error: ${it.message}" }
             emptyList()
         }
     }
@@ -62,7 +65,7 @@ object BookBillAPI {
                 LocalNetwork.post<String>("bill/book/put?md5=$md5&type=${typeName}", json)
                     .getOrThrow()
             }.getOrElse {
-                Logger.e("put error: ${it.message}", it)
+                logger.error(it) { "put error: ${it.message}" }
 
             }
         }

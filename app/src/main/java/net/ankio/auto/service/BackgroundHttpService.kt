@@ -12,8 +12,11 @@ import net.ankio.auto.xposed.hooks.auto.AutoHooker
 import net.ankio.auto.xposed.hooks.common.JsEngine
 import net.ankio.auto.xposed.hooks.common.UnLockScreen
 import org.ezbook.server.Server
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class BackgroundHttpService : ICoreService() {
+
+        private val serviceLogger = KotlinLogging.logger {}
 
 
     private lateinit var httpService: Server
@@ -22,7 +25,7 @@ class BackgroundHttpService : ICoreService() {
         super.onCreate(coreService)
 
         if (PrefManager.workMode === WorkMode.Ocr) {
-            Logger.d("Initializing Xposed hooks for OCR mode")
+            logger.debug { "Initializing Xposed hooks for OCR mode" }
             AppRuntime.manifest = AutoHooker()
             AppRuntime.modulePath = coreService.packageManager
                 .getApplicationInfo(BuildConfig.APPLICATION_ID, 0)
@@ -49,20 +52,20 @@ class BackgroundHttpService : ICoreService() {
 
             httpService.startServer()
 
-            Logger.d("Server start success")
+            logger.debug { "Server start success" }
 
         } else {
-            Logger.d("Skipped hook initialization for workMode=${PrefManager.workMode}")
+            logger.debug { "Skipped hook initialization for workMode=${PrefManager.workMode}" }
         }
     }
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
-        Logger.d("onStartCommand invoked - intent=$intent, flags=$flags, startId=$startId")
+        logger.debug { "onStartCommand invoked - intent=$intent, flags=$flags, startId=$startId" }
     }
 
     override fun onDestroy() {
-        Logger.d("onDestroy invoked, cleaning up if necessary")
+        logger.debug { "onDestroy invoked, cleaning up if necessary" }
         if (::httpService.isInitialized) httpService.stopServer()
     }
 }

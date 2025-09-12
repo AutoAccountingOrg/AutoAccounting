@@ -1,13 +1,15 @@
 package net.ankio.auto.http.api
 
 import com.google.gson.Gson
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
-import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 object AiAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 列出所有 AI 提供者名称（后端保留）
@@ -18,7 +20,7 @@ object AiAPI {
             val resp = LocalNetwork.get<List<String>>("/ai/providers").getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("getProviders gson error: ${it.message}", it)
+            logger.error(it) { "getProviders gson error: ${it.message}" }
             emptyList()
         }
     }
@@ -29,11 +31,10 @@ object AiAPI {
     suspend fun getInfo(provider: String): Map<String, String> = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
-            val resp =
-                LocalNetwork.get<Map<String, String>>("/ai/info?provider=${provider}").getOrThrow()
+            val resp = LocalNetwork.get<Map<String, String>>("/ai/info?provider=${provider}").getOrThrow()
             resp.data ?: emptyMap()
         }.getOrElse {
-            Logger.e("getInfo error: ${it.message}", it)
+            logger.error(it) { "getInfo error: ${it.message}" }
             emptyMap()
         }
     }
@@ -46,15 +47,14 @@ object AiAPI {
 
             return@withContext runCatchingExceptCancel {
                 val payload = mutableMapOf(
-                    "provider" to provider,
-                    "apiKey" to apiKey
+                    "provider" to provider, "apiKey" to apiKey
                 )
                 apiUri?.takeIf { it.isNotEmpty() }?.let { payload["apiUri"] = it }
                 val body = Gson().toJson(payload)
                 val resp = LocalNetwork.post<List<String>>("/ai/models", body).getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
-                Logger.e("getModels error: ${it.message}", it)
+                logger.error(it) { "getModels error: ${it.message}" }
                 emptyList()
             }
         }
@@ -73,8 +73,7 @@ object AiAPI {
 
         return@withContext runCatchingExceptCancel {
             val payload = mutableMapOf(
-                "system" to systemPrompt,
-                "user" to userPrompt
+                "system" to systemPrompt, "user" to userPrompt
             )
             provider?.takeIf { it.isNotEmpty() }?.let { payload["provider"] = it }
             apiKey?.takeIf { it.isNotEmpty() }?.let { payload["apiKey"] = it }
@@ -88,7 +87,7 @@ object AiAPI {
             }
             Result.success(resp.data ?: "")
         }.getOrElse {
-            Logger.e("request error: ${it.message}", it)
+            logger.error(it) { "request error: ${it.message}" }
             Result.failure(it)
         }
     }
@@ -113,10 +112,9 @@ object AiAPI {
         model: String? = null
     ) = withContext(Dispatchers.IO) {
         try {
-            Logger.d("开始流式AI请求")
+            logger.debug { "开始流式AI请求" }
             val payload = mutableMapOf(
-                "system" to systemPrompt,
-                "user" to userPrompt
+                "system" to systemPrompt, "user" to userPrompt
             )
             provider?.takeIf { it.isNotEmpty() }?.let { payload["provider"] = it }
             apiKey?.takeIf { it.isNotEmpty() }?.let { payload["apiKey"] = it }
@@ -124,46 +122,50 @@ object AiAPI {
             model?.takeIf { it.isNotEmpty() }?.let { payload["model"] = it }
 
             val body = Gson().toJson(payload)
-            Logger.d("请求体: ${body.take(200)}...")
+            logger.debug { "请求体: ${body.take(200)}..." }
 
             LocalNetwork.postStream("/ai/request/stream", body) { event, data ->
-                Logger.d("收到SSE事件: event=$event, data=${data.take(100)}...")
+                logger.debug { "收到SSE事件: event=$event, data=${data.take(100)}..." }
                 when (event) {
                     "message" -> {
                         // 处理标准SSE消息
                         if (data == "[DONE]") {
-                            Logger.d("流式请求完成")
+                            logger.debug { "流式请求完成" }
                             onComplete()
                         } else if (data.startsWith("{\"type\":\"connected\"}")) {
-                            Logger.d("SSE连接已建立")
+                            logger.debug { "SSE连接已建立" }
                         } else {
-                            Logger.d("收到数据块: ${data.take(50)}...")
+                            logger.debug {
+                                "收到数据块: ${data.take(50)}..."
+                            }
                             onChunk(data)
                         }
                     }
 
                     "chunk" -> {
-                        Logger.d("收到chunk数据: ${data.take(50)}...")
+                        logger.debug {
+                            "收到chunk数据: ${data.take(50)}..."
+                        }
                         onChunk(data)
                     }
 
                     "done" -> {
-                        Logger.d("流式请求完成")
+                        logger.debug { "流式请求完成" }
                         onComplete()
                     }
 
                     "error" -> {
-                        Logger.e("流式请求错误: $data")
+                        logger.error { "流式请求错误: $data" }
                         onError(data)
                     }
 
                     else -> {
-                        Logger.d("未知事件类型: $event, 数据: $data")
+                        logger.debug { "未知事件类型: $event, 数据: $data" }
                     }
                 }
             }
         } catch (e: Exception) {
-            Logger.e("requestStream error: ${e.message}", e)
+            logger.error(e) { "requestStream error: ${e.message}" }
             onError(e.message ?: "Unknown error")
         }
     }

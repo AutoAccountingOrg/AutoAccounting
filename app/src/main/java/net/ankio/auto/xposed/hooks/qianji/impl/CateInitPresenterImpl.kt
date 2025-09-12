@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.impl
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,8 @@ import net.ankio.auto.http.api.CategoryAPI
 import net.ankio.auto.http.api.SettingAPI
 
 object CateInitPresenterImpl {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     private var cateInitPresenterImplClazz: Class<*> =
         Hooker.loader(
             "com.mutangtech.qianji.bill.add.category.CateInitPresenterImpl",
@@ -99,10 +102,10 @@ object CateInitPresenterImpl {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_CATEGORY, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.log("No need to sync categories, Server md5:${server} local md5:${md5}")
+            logger.info { "No need to sync categories, Server md5:${server} local md5:${md5}" }
             return@withContext
         }
-        AppRuntime.logD("Sync categories:$sync")
+        logger.debug { "Sync categories:$sync" }
         CategoryAPI.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步分类信息到自动记账")

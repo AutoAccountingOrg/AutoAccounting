@@ -20,11 +20,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.Server
 import android.os.Process
+import io.github.oshai.kotlinlogging.KotlinLogging
 object AppInstaller {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     private const val TARGET_PACKAGE = BuildConfig.APPLICATION_ID
 
     fun init(context: Context, server: Server) {
@@ -44,7 +46,7 @@ object AppInstaller {
                                     runCatching {
                                         AppRuntime.restart()
                                     }.onFailure { e ->
-                                        Logger.logE("AppInstaller", e)
+                                        logger.error(e) { }
                                         Process.killProcess(Process.myPid())
                                     }
                                 }
@@ -63,7 +65,7 @@ object AppInstaller {
 
             context.registerReceiver(receiver, filter)
         } catch (e: Exception) {
-            Logger.logE("AppInstaller", e)
+            logger.error(e) { }
         }
     }
 }

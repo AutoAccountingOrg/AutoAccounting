@@ -3,6 +3,7 @@
 agp = "8.8.2" # Android Gradle Plugin
 kotlin = "2.1.20"
 core-ktx = "1.16.0"
+kotlinLoggingJvm = "7.0.13"
 ksp = "2.1.20-2.0.0"
 # AndroidX Components
 appcompat = "1.6.1"
@@ -10,6 +11,9 @@ appcompatResources = "1.7.0"
 activity = "1.10.1"
 browser = "1.8.0"
 constraintlayout = "2.2.1"
+logbackAndroid = "3.0.0"
+logbackClassic = "1.5.18"
+slf4jApi = "2.0.17"
 swiperefreshlayout = "1.1.0"
 preferenceKtx = "1.2.1"
 recyclerviewSelection = "1.1.0"
@@ -82,11 +86,14 @@ androidx-browser = { group = "androidx.browser", name = "browser", version.ref =
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+logback-android = { module = "com.github.tony19:logback-android", version.ref = "logbackAndroid" }
+kotlin-logging-jvm = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlinLoggingJvm" }
 preferenceKtx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 
 # UI Components
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApi" }
 toaster = { module = "com.github.getActivity:Toaster", version.ref = "toaster" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 about = { module = "com.drakeet.about:about", version.ref = "about" }

@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +49,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * AI账单分析页面
@@ -91,7 +93,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                 currentPeriodData =
                     gson.fromJson(periodDataJson, PeriodSelectorDialog.PeriodData::class.java)
             } catch (e: Exception) {
-                Logger.e("解析周期数据失败", e)
+                logger.error(e) { "解析周期数据失败" }
                 findNavController().popBackStack()
             }
         } else {
@@ -129,7 +131,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
 
         // 设置返回按钮
         binding.topAppBar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            findNavController().popBackStack()
         }
     }
 
@@ -189,7 +191,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                     currentPeriodData.displayName
                 )
 
-                Logger.d("缓存键：$cacheKey")
+                logger.debug { "缓存键：$cacheKey" }
 
                 // 2) 可选：强制刷新时跳过缓存并清理旧缓存；否则尝试从缓存读取
                 if (forceRefresh) {
@@ -224,7 +226,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                         try {
                             CacheManager.putString(cacheKey, htmlContent, 60 * 60 * 1000L)
                         } catch (e: Exception) {
-                            Logger.e("缓存AI分析HTML失败", e)
+                            logger.error(e) { "缓存AI分析HTML失败" }
                         }
                     }
                 } else {
@@ -233,7 +235,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
 
             } catch (e: Exception) {
                 loading.close()
-                Logger.e("AI分析生成失败", e)
+                logger.error(e) { "AI分析生成失败" }
                 showError(getString(R.string.ai_summary_generate_error, e.message))
             }
         }
@@ -302,7 +304,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                 "" // 如果获取失败，返回空字符串
             }
         } catch (e: Exception) {
-            Logger.e("获取应用logo失败", e)
+            logger.error(e) { "获取应用logo失败" }
             "" // 出错时返回空字符串
         }
     }
@@ -435,7 +437,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                 }
 
             } catch (e: Exception) {
-                Logger.e("生成分享图片失败", e)
+                logger.error(e) { "生成分享图片失败" }
                 ToastUtils.error(getString(R.string.ai_summary_image_error, e.message))
             } finally {
                 loading.close()
@@ -456,6 +458,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
         return try {
             val bitmap = withContext(Dispatchers.Main) {
                 val display = resources.displayMetrics
+                @Suppress("DEPRECATION")
                 val scale = webView.scale
                 val contentHeightPx = (webView.contentHeight * scale).toInt()
 
@@ -490,7 +493,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                     }
                     true
                 } catch (e: Exception) {
-                    Logger.e("保存截屏文件失败", e)
+                    logger.error(e) { "保存截屏文件失败" }
                     false
                 } finally {
                     try {
@@ -501,7 +504,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
             }
             saved
         } catch (e: Exception) {
-            Logger.e("截取 WebView 异常", e)
+            logger.error(e) { "截取 WebView 异常" }
             false
         }
     }
@@ -567,7 +570,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
             startActivity(chooserIntent)
 
         } catch (e: Exception) {
-            Logger.e("分享图片失败", e)
+            logger.error(e) { "分享图片失败" }
             ToastUtils.error(getString(R.string.ai_summary_share_failed))
         }
     }

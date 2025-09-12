@@ -17,8 +17,11 @@ package net.ankio.auto.utils
 
 import com.google.gson.JsonObject
 import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object VersionUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     const val CHANNEL_CANARY = "Canary"
     const val CHANNEL_BETA = "Beta"
     const val CHANNEL_STABLE = "Stable"
@@ -69,7 +72,7 @@ object VersionUtils {
 
     fun fromJSON(jsonObject: JsonObject?): UpdateModel? {
         if (jsonObject == null) return null
-        Logger.i("尝试解析的json数据：$jsonObject")
+        logger.info { "尝试解析的json数据：$jsonObject" }
         return UpdateModel(
             jsonObject.get("log").asString,
             jsonObject.get("date").asString,

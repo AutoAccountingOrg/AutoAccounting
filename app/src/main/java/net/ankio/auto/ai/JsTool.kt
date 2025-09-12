@@ -17,6 +17,7 @@ package net.ankio.auto.ai
 
 import net.ankio.auto.http.api.AiAPI
 import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * AI JavaScript代码优化工具
@@ -27,6 +28,8 @@ import net.ankio.auto.storage.Logger
  * 3. 提高代码可读性和性能
  */
 object JsTool {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /** 系统提示词 - JavaScript代码优化专家 */
     private const val SYSTEM_PROMPT = """你是一个JavaScript代码优化专家，专门优化用于解析账单数据的JS规则。
@@ -56,7 +59,7 @@ object JsTool {
     suspend fun optimizeJsCode(jsCode: String): String? {
         // 检查输入是否有效
         if (jsCode.isBlank()) {
-            Logger.w("JavaScript代码为空")
+            logger.warn { "JavaScript代码为空" }
             return null
         }
 

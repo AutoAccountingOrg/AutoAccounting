@@ -26,8 +26,11 @@ import android.view.View
 import android.view.WindowManager
 import net.ankio.auto.databinding.OcrViewBinding
 import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class OcrViews {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     // 悬浮窗相关变量
     private var floatView: View? = null
     private var windowManager: WindowManager? = null
@@ -46,7 +49,7 @@ class OcrViews {
 
         // 检查悬浮窗权限
         if (!Settings.canDrawOverlays(context)) {
-            Logger.e("不支持显示悬浮窗")
+            logger.error { "不支持显示悬浮窗" }
             return
         }
 
@@ -73,7 +76,7 @@ class OcrViews {
             timeoutHandler.postDelayed({
                 timeoutPosted = false
                 if (floatView != null) {
-                    Logger.w("OCR悬浮窗超时未关闭，已强制结束")
+                    logger.warn { "OCR悬浮窗超时未关闭，已强制结束" }
                     stopOcrView()
                 }
             }, 30_000)
@@ -94,7 +97,7 @@ class OcrViews {
                     windowManager?.removeViewImmediate(view)
                 }
             } catch (e: Exception) {
-                Logger.w("移除OCR悬浮窗失败: ${e.message}")
+                logger.warn { "移除OCR悬浮窗失败: ${e.message}" }
             } finally {
                 floatView = null
                 windowManager = null

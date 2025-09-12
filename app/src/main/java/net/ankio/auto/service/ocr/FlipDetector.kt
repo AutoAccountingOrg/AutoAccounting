@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.SystemClock
 import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 设备翻转检测器：检测设备从朝下翻转到朝上时触发回调
@@ -21,6 +22,8 @@ class FlipDetector(
     private val onFlipChange: () -> Unit
 ) : SensorEventListener {
 
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     private val sensor: Sensor? = manager.getDefaultSensor(Sensor.TYPE_GRAVITY)
         ?: manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
@@ -32,7 +35,7 @@ class FlipDetector(
     fun start(): Boolean = sensor?.let {
         manager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
         true
-    } ?: false.also { Logger.w("No gravity/accelerometer sensor") }
+    } ?: false.also { logger.warn { "No gravity/accelerometer sensor" } }
 
     fun stop() = manager.unregisterListener(this)
 
@@ -51,11 +54,11 @@ class FlipDetector(
         if (face == Face.UNKNOWN || face == lastFace || now - lastTime < debounceMs) return
 
         // 设备朝向发生变化，记录日志
-        Logger.d("Device orientation changed: $lastFace -> $face (z=$z)")
+        logger.debug { "Device orientation changed: $lastFace -> $face (z=$z)"}
 
         // 只有从朝下翻转到朝上时才触发回调（用于OCR功能）
         if (face == Face.UP && lastFace == Face.DOWN) {
-            Logger.d("Device flipped from face-down to face-up, triggering OCR")
+            logger.debug { "Device flipped from face-down to face-up, triggering OCR" }
             onFlipChange()
         }
 

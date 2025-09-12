@@ -18,7 +18,7 @@ package net.ankio.auto.adapter
 import android.content.Intent
 import android.net.Uri
 import androidx.core.net.toUri
-import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.ankio.auto.constant.BookFeatures
 import net.ankio.auto.utils.SystemUtils
 import org.ezbook.server.constant.BillAction
@@ -37,6 +37,8 @@ import java.util.Locale
  * 2. 自动记账弹窗：xxjz://api/dialog?参数
  */
 class XiaoXinAdapter : IAppAdapter {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     override val pkg: String
         get() = "com.cxincx.xxjz" // 小星记账包名，需要根据实际情况调整
@@ -91,7 +93,7 @@ class XiaoXinAdapter : IAppAdapter {
         val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        Logger.i("目标应用uri：$url")
+        logger.info { "目标应用uri：$url" }
         SystemUtils.startActivityIfResolvable(intent, name) {
             AppAdapterManager.markSynced(billInfoModel)
         }

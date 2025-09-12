@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewbinding.ViewBinding
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.components.StatusPage
@@ -25,7 +26,6 @@ import net.ankio.auto.utils.CoroutineUtils.withIO
  * @param VB ViewBinding的类型
  */
 abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
-
     /** 当前页码，从1开始 */
     var page = 1
 
@@ -90,7 +90,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
 
         // 如果已有数据（例如从其他Fragment返回后视图重建），直接展示并尝试恢复滚动
         if (baseAdapter?.itemCount ?: 0 > 0) {
-            Logger.d("检测到已有数据，跳过初始加载并尝试恢复滚动位置")
+            logger.debug { "检测到已有数据，跳过初始加载并尝试恢复滚动位置" }
             restoreScrollPositionIfNeeded()
         } else {
             // 启动首次数据加载
@@ -158,7 +158,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * 清空页码、数据和适配器，为新的数据加载做准备
      */
     protected fun resetPage() {
-        Logger.d("重置分页状态：清空页码和数据")
+        logger.debug { "重置分页状态：清空页码和数据" }
         page = 1
         baseAdapter?.updateItems(emptyList())
     }
@@ -168,7 +168,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * 重置分页状态并重新开始加载，通常用于下拉刷新
      */
     fun reload() {
-        Logger.d("重新加载数据：从第一页开始")
+        logger.debug { "重新加载数据：从第一页开始" }
         resetPage()
         hasMoreData = true
         statusPage.showLoading()
@@ -184,13 +184,13 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     protected open fun loadDataInside(callback: ((success: Boolean, hasMore: Boolean) -> Unit)? = null) {
         // 防护检查：Fragment状态和重复加载
         if (!uiReady() || isLoading) {
-            Logger.d("数据加载中止：Fragment未添加或正在加载中")
+            logger.debug { "数据加载中止：Fragment未添加或正在加载中" }
             callback?.invoke(false, hasMoreData)
             return
         }
 
         isLoading = true
-        Logger.d("开始加载数据：第${page}页")
+        logger.debug { "开始加载数据：第${page}页" }
 
         launch {
 
@@ -199,12 +199,12 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
 
             // 根据加载结果更新UI状态
             if (resultData.isEmpty()) {
-                Logger.d("第${page}页无数据返回")
+                logger.debug { "第${page}页无数据返回" }
                 statusPage.showEmpty()
                 hasMoreData = false
                 callback?.invoke(true, false)
             } else {
-                Logger.d("第${page}页加载成功：${resultData.size}条数据")
+                logger.debug { "第${page}页加载成功：${resultData.size}条数据" }
                 baseAdapter?.submitItems(resultData)
                 statusPage.showContent()
                 hasMoreData = resultData.size >= pageSize
@@ -226,11 +226,11 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         swipeRefreshLayout.setDistanceToTriggerSync(200)
         swipeRefreshLayout.setOnRefreshListener {
             if (isLoading) {
-                Logger.d("下拉刷新忽略：正在加载中")
+                logger.debug { "下拉刷新忽略：正在加载中" }
                 return@setOnRefreshListener
             }
 
-            Logger.d("触发下拉刷新")
+            logger.debug { "触发下拉刷新" }
             reload()
         }
     }
@@ -253,12 +253,12 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
 
                 // 预加载阈值：距离底部5个item时触发
                 if (lastVisibleItem >= totalItemCount - 5) {
-                    Logger.d("触发加载更多：当前位置${lastVisibleItem}，总数${totalItemCount}")
+                    logger.debug { "触发加载更多：当前位置${lastVisibleItem}，总数${totalItemCount}" }
 
                     page++
                     loadDataInside { success, hasMore ->
                         if (!success) {
-                            Logger.d("加载更多失败：回退页码")
+                            logger.debug { "加载更多失败：回退页码" }
                             page--
                         }
                         hasMoreData = hasMore
@@ -332,7 +332,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     protected fun clearItems() {
         baseAdapter?.replaceItems(listOf())
         statusPage.showEmpty()
-        Logger.d("清空所有数据项")
+        logger.debug { "清空所有数据项" }
     }
 
     /**
@@ -362,9 +362,9 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         super.onPause()
         try {
             recyclerViewLayoutState = statusPage.contentView?.layoutManager?.onSaveInstanceState()
-            Logger.d("保存列表滚动位置状态成功")
+            logger.debug { "保存列表滚动位置状态成功" }
         } catch (e: Exception) {
-            Logger.w("保存列表滚动位置状态失败：${e.message}")
+            logger.warn { "保存列表滚动位置状态失败：${e.message}" }
         }
     }
 
@@ -376,9 +376,9 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         val state = recyclerViewLayoutState ?: return
         try {
             lm.onRestoreInstanceState(state)
-            Logger.d("恢复列表滚动位置成功")
+            logger.debug { "恢复列表滚动位置成功" }
         } catch (e: Exception) {
-            Logger.w("恢复列表滚动位置失败：${e.message}")
+            logger.warn { "恢复列表滚动位置失败：${e.message}" }
         }
     }
 }

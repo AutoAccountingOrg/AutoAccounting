@@ -22,16 +22,18 @@ import android.content.IntentFilter
 import kotlinx.coroutines.delay
 import net.ankio.auto.App
 import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.http.api.BillAPI
 import org.ezbook.server.intent.BillInfoIntent
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object UnLockScreen {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     suspend fun launchUnEditedBills(){
         delay(3000)
         val list = BillAPI.edit()
-        Logger.logD(TAG, "BillAPI.edit()：$list")
+        logger.debug { "BillAPI.edit()：$list" }
         list.forEach { billInfoModel ->
             delay(1000)
             val floatIntent =
@@ -40,7 +42,7 @@ object UnLockScreen {
             try {
                 AppRuntime.application!!.baseContext.startActivity(panelIntent)
             } catch (t: Throwable) {
-                Logger.logD(TAG, "Failed to start auto server：$t")
+                logger.debug { "Failed to start auto server：$t" }
             }
         }
     }
@@ -54,10 +56,9 @@ object UnLockScreen {
                 App.launch {
                     try {
                         if (intent.action == Intent.ACTION_USER_PRESENT) {
-                            Logger.logD(
-                                TAG,
+                            logger.debug {
                                 "User unlocked the device and entered the home screen."
-                            )
+                            }
                             launchUnEditedBills()
                         }
                     } finally {

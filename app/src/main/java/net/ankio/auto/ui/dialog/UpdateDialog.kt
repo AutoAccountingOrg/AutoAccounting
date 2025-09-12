@@ -25,6 +25,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.utils.UpdateModel
 import rikka.html.text.toHtml
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 更新对话框
@@ -89,7 +90,7 @@ class UpdateDialog internal constructor(
             dismiss()
         }
 
-        Logger.d("UpdateDialog created")
+        logger.debug { "UpdateDialog created" }
     }
 
     /**

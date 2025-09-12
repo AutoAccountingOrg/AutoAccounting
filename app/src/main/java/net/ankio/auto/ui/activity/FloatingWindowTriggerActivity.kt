@@ -10,6 +10,7 @@ import net.ankio.auto.service.CoreService
 import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class FloatingWindowTriggerActivity : BaseActivity() {
 
@@ -50,11 +51,11 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         val t = intent.getLongExtra(TIMESTAMP_KEY, 0L)
         val type = intent.getStringExtra(INTENT_TYPE_KEY)
 
-        Logger.i("处理Intent: 类型=$type, 时间戳=$t")
+        logger.info { "处理Intent: 类型=$type, 时间戳=$t" }
 
         // 1. 超时检查
         if (t < System.currentTimeMillis() - Constants.INTENT_TIMEOUT) {
-            Logger.e("Intent已超时: 时间戳=$t")
+            logger.error { "Intent已超时: 时间戳=$t" }
             exitActivity()
             return
         }
@@ -65,12 +66,12 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         // 取消悬浮窗权限检查，直接在服务里面catch权限异常进行跳转
 
         // 3. 确保服务就绪后启动服务
-        Logger.i("服务就绪，启动CoreService")
+        logger.info { "服务就绪，启动CoreService" }
         try {
             CoreService.start(this, intent)
-            Logger.i("成功启动CoreService")
+            logger.info { "成功启动CoreService" }
         } catch (e: Exception) {
-            Logger.e("启动服务失败: ${e.message}", e)
+            logger.error(e) { "启动服务失败: ${e.message}" }
         } finally {
             exitActivity()
         }
@@ -80,9 +81,9 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         super.onDestroy()
         // 清理ServiceManager资源
         try {
-            Logger.i("ServiceManager资源已清理")
+            logger.info { "ServiceManager资源已清理" }
         } catch (e: Exception) {
-            Logger.e("清理ServiceManager资源失败: ${e.message}", e)
+            logger.error(e) { "清理ServiceManager资源失败: ${e.message}" }
         }
     }
     private fun exitActivity() {

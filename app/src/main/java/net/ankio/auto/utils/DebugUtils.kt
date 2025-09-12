@@ -17,11 +17,14 @@ package net.ankio.auto.utils
 
 import android.content.Intent
 import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 调试工具类
  */
 object DebugUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 打印 Intent 的详细信息
@@ -38,12 +41,13 @@ object DebugUtils {
         intent.extras?.let { extras ->
             sp.appendLine("Extras:")
             for (key in extras.keySet()) {
+                @Suppress("DEPRECATION")
                 sp.appendLine("  $key: ${extras.get(key)}")
             }
         } ?: run {
             sp.appendLine("No extras")
         }
 
-        Logger.d(sp.toString())
+        logger.debug { sp.toString() }
     }
 }

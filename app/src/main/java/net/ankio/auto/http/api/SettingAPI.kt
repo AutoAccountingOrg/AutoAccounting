@@ -21,8 +21,11 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object SettingAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 获取设置
      */
@@ -32,7 +35,7 @@ object SettingAPI {
             val resp = LocalNetwork.post<String>("setting/get?key=$key", "{}").getOrThrow()
             resp.data ?: default
         }.getOrElse {
-            Logger.e("get error: ${it.message}", it)
+            logger.error(it) { "get error: ${it.message}" }
             default
         }
     }
@@ -45,7 +48,7 @@ object SettingAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("setting/set?key=$key", value).getOrThrow()
         }.getOrElse {
-            Logger.e("set error: ${it.message}", it)
+            logger.error(it) { "set error: ${it.message}" }
 
         }
     }
@@ -55,7 +58,7 @@ object SettingAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("db/clear").getOrThrow()
         }.getOrElse {
-            Logger.e("clearDatabase error: ${it.message}", it)
+            logger.error(it) { "clearDatabase error: ${it.message}" }
 
         }
     }
@@ -73,7 +76,7 @@ object SettingAPI {
                 ).getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
-                Logger.e("list error: ${it.message}", it)
+                logger.error(it) { "list error: ${it.message}" }
                 emptyList()
             }
         }

@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.content.ContentValues
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -26,6 +27,8 @@ import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
 class DatabaseHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     fun xmlToJson(xml: String): String {
         val xmlToJson: XmlToJson = XmlToJson.Builder(xml).build()
         return xmlToJson.toString()
@@ -48,7 +51,7 @@ class DatabaseHooker : PartHooker() {
             val contentValues = param.args[2] as ContentValues
             val tableName = param.args[0] as String
             val arg = if (param.args[1] != null) param.args[1] as String else ""
-            AppRuntime.manifest.logD("table:$tableName, contentValues:$contentValues")
+            logger.debug { "table:$tableName, contentValues:$contentValues" }
             //无效数据表
             val usefulTable = listOf(
                 "message",
@@ -125,7 +128,7 @@ class DatabaseHooker : PartHooker() {
                         val result = JsonObject()
                         result.add("mMap", tpl)
 
-                        AppRuntime.manifest.logD("微信支付数据：$result")
+                        logger.debug { "微信支付数据：$result" }
 
                         AppRuntime.manifest.analysisData(DataType.DATA, result.toString())
                     }

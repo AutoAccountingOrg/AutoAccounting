@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -51,6 +52,8 @@ import androidx.core.net.toUri
 
 
 class AutoHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     lateinit var addBillIntentAct: Class<*>
 
 
@@ -153,7 +156,7 @@ class AutoHooker : PartHooker() {
             param.args[1] = autoTaskLog.toObject()
             val value = autoTaskLog.getValue() ?: return@before
             val uri = value.toUri()
-            AppRuntime.log("hookTaskLog: $value")
+            logger.info { "hookTaskLog: $value" }
             val billInfo = QianJiUri.toAuto(uri)
             if (billInfo.id < 0) return@before
 
@@ -168,7 +171,7 @@ class AutoHooker : PartHooker() {
                 QianJiBillType.Income.value,
                 QianJiBillType.ExpendReimbursement.value
                     -> {
-                    manifest.log("Qianji Error: $msg")
+                    logger.info { "Qianji Error: $msg" }
 
                 }
 
@@ -183,8 +186,8 @@ class AutoHooker : PartHooker() {
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
 
-                            manifest.logD("借出失败 ${it.message}")
-                            manifest.logE(it)
+                            logger.debug { "借出失败 ${it.message}" }
+                            logger.error(it) { "异常" }
                             MessageUtils.toast("借出失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -201,8 +204,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("还款成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("还款失败 ${it.message}")
+                            logger.error(it) { "异常" }
+                            logger.debug { "还款失败 ${it.message}" }
                             MessageUtils.toast("还款失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -219,8 +222,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("借入成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("借入失败 ${it.message}")
+                            logger.error(it) { "异常" }
+                            logger.debug { "借入失败 ${it.message}" }
                             MessageUtils.toast("借入失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -237,8 +240,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("收款成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("收款失败 ${it.message}")
+                            logger.error(it) { "异常" }
+                            logger.debug { "收款失败 ${it.message}" }
                             MessageUtils.toast("收款失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -254,9 +257,9 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("报销成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logD("报销失败 ${it.message}")
+                            logger.debug { "报销失败 ${it.message}" }
                             MessageUtils.toast("报销失败 ${it.message ?: ""}")
-                            manifest.logE(it)
+                            logger.error(it) { "异常" }
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
                     }
@@ -271,8 +274,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("退款成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("退款失败 ${it.message}")
+                            logger.error(it) { "异常" }
+                            logger.debug { "退款失败 ${it.message}" }
                             MessageUtils.toast("退款失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -304,7 +307,7 @@ class AutoHooker : PartHooker() {
             val prop = param.args[0] as String
             val timeout = param.args[1] as Long
             if (prop == "auto_task_last_time") {
-                manifest.logD("hookTimeout: $prop $timeout")
+                logger.debug { "hookTimeout: $prop $timeout" }
                 param.result = true
             }
         }

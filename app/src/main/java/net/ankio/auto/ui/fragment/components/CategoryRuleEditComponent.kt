@@ -38,6 +38,7 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryRuleModel
 import java.util.Calendar
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 分类规则编辑组件 - 支持编辑和只读模式的通用组件
@@ -296,7 +297,7 @@ class CategoryRuleEditComponent(
             2 -> inputShopName(element)        // 商家名称
             3 -> inputShopItem(element)        // 商品名称
             4 -> inputBillType(element, view)        // 账单类型
-            else -> Logger.w("无效的条件类型索引: $typeIndex")
+            else -> logger.warn { "无效的条件类型索引: $typeIndex" }
         }
     }
 
@@ -376,7 +377,7 @@ class CategoryRuleEditComponent(
                 }
             }
 
-            Logger.d("设置账单类型条件: $conditionText")
+            logger.debug { "设置账单类型条件: $conditionText" }
             }
             .toggle()
     }
@@ -531,7 +532,7 @@ class CategoryRuleEditComponent(
             }
         }
 
-        Logger.d("设置文本条件: $displayText")
+        logger.debug { "设置文本条件: $displayText" }
     }
 
     /**
@@ -703,7 +704,7 @@ class CategoryRuleEditComponent(
                     onClickBook(elem)
                 }
 
-                Logger.d("选择账本: ${bookItem.name} (${bookItem.remoteId})")
+                logger.debug { "选择账本: ${bookItem.name} (${bookItem.remoteId})"}
             }
             .show(cancel = true)
     }
@@ -733,7 +734,7 @@ class CategoryRuleEditComponent(
                                 onClickCategory(elem)
                             }
 
-                        Logger.d("选择分类: $categoryName")
+                        logger.debug { "选择分类: $categoryName" }
                     }
                     .show(cancel = true)
             }

@@ -12,9 +12,7 @@ import org.ezbook.server.db.model.BookBillModel
 class BillSelectorAdapter(
     private val selectApp: MutableList<String>,
     private val multipleSelect: Boolean
-) : BaseAdapter<AdapterBookBillBinding, BookBillModel>(
-
-) {
+) : BaseAdapter<AdapterBookBillBinding, BookBillModel>() {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterBookBillBinding, BookBillModel>) {
         val binding = holder.binding
         binding.root.setOnClickListener {

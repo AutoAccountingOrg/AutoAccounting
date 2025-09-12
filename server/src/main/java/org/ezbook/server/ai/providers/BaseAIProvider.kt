@@ -1,11 +1,8 @@
 package org.ezbook.server.ai.providers
 
-import android.util.Log
 import com.google.gson.Gson
+import io.github.oshai.kotlinlogging.KotlinLogging
 import okhttp3.OkHttpClient
-import org.ezbook.server.Server
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.Db
 import org.ezbook.server.tools.SettingUtils
 import java.util.concurrent.TimeUnit
 
@@ -14,6 +11,10 @@ import java.util.concurrent.TimeUnit
  * 提供通用的key获取实现
  */
 abstract class BaseAIProvider {
+    companion object {
+        val logger = KotlinLogging.logger(this::class.java.name)
+    }
+
     /**
      * 提供商名称，用于获取对应的API Key
      */
@@ -51,17 +52,12 @@ abstract class BaseAIProvider {
      * 发送请求到AI服务（返回 Result）。
      */
     abstract suspend fun request(
-        system: String,
-        user: String,
-        onChunk: ((String) -> Unit)? = null
+        system: String, user: String, onChunk: ((String) -> Unit)? = null
     ): Result<String>
 
 
-    protected val client = OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.MINUTES)
-        .writeTimeout(5, TimeUnit.MINUTES)
-        .readTimeout(5, TimeUnit.MINUTES)
-        .build()
+    protected val client = OkHttpClient.Builder().connectTimeout(5, TimeUnit.MINUTES).writeTimeout(5, TimeUnit.MINUTES)
+        .readTimeout(5, TimeUnit.MINUTES).build()
 
     protected val gson = Gson()
 

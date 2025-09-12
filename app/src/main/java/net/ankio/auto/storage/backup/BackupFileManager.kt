@@ -32,11 +32,14 @@ import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.SystemUtils
 import java.io.File
 import java.io.FileOutputStream
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 备份文件管理器，负责打包和解包备份数据
  */
 class BackupFileManager(private val context: Context) {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     companion object {
         const val SUFFIX = "pk"
@@ -91,7 +94,7 @@ class BackupFileManager(private val context: Context) {
             // 解压文件
             loading?.setText(context.getString(R.string.restore_extracting))
             ZipUtils.unzip(file.absolutePath, backupDir.absolutePath) {
-                Logger.d("解压进度: $it")
+                logger.debug { "解压进度: $it" }
             }
             file.delete()
 
@@ -176,7 +179,7 @@ class BackupFileManager(private val context: Context) {
         indexFile.delete()
 
         val backupInfo = Gson().fromJson(json, JsonObject::class.java)
-        Logger.d("备份文件信息: $backupInfo")
+        logger.debug { "备份文件信息: $backupInfo" }
 
         // 检查版本兼容性
         val version = backupInfo.get("version").asInt
@@ -199,7 +202,7 @@ class BackupFileManager(private val context: Context) {
         val dbFile = File(backupDir, "auto.db")
         val requestUtils = RequestsUtils()
         val result = requestUtils.upload("http://127.0.0.1:52045/db/import", dbFile)
-        Logger.d("数据库导入结果: $result")
+        logger.debug { "数据库导入结果: $result" }
     }
 
     /**
@@ -214,12 +217,12 @@ class BackupFileManager(private val context: Context) {
             if (settingsFile.exists()) {
                 val backupPrefsFile = File(backupDir, "settings.xml")
                 settingsFile.copyTo(backupPrefsFile, overwrite = true)
-                Logger.d("配置文件备份完成")
+                logger.debug { "配置文件备份完成" }
             } else {
-                Logger.w("配置文件不存在，跳过备份")
+                logger.warn { "配置文件不存在，跳过备份" }
             }
         } catch (e: Exception) {
-            Logger.w("配置文件备份失败: ${e.message}")
+            logger.warn { "配置文件备份失败: ${e.message}" }
         }
     }
 
@@ -243,12 +246,12 @@ class BackupFileManager(private val context: Context) {
                 // 清理备份文件
                 backupPrefsFile.delete()
 
-                Logger.d("配置文件恢复完成")
+                logger.debug { "配置文件恢复完成" }
             } else {
-                Logger.w("备份中无配置文件，跳过恢复")
+                logger.warn { "备份中无配置文件，跳过恢复" }
             }
         } catch (e: Exception) {
-            Logger.w("配置文件恢复失败: ${e.message}")
+            logger.warn { "配置文件恢复失败: ${e.message}" }
         }
     }
 }

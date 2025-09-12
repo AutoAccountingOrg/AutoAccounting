@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,27 +17,28 @@ package net.ankio.auto.adapter
 
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
 import kotlinx.coroutines.runBlocking
+import net.ankio.auto.App
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.BookFeatures
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.AssetsAPI
-import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.SystemUtils
 import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.core.net.toUri
-import net.ankio.auto.App
-import net.ankio.auto.constant.WorkMode
-import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.SystemUtils
-import net.ankio.auto.storage.Logger
-import org.ezbook.server.constant.BillAction
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class QianJiAdapter : IAppAdapter {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     override val pkg: String
         get() = "com.mutangtech.qianji"
     override val link: String
@@ -46,12 +47,11 @@ class QianJiAdapter : IAppAdapter {
         get() = "https://pp.myapp.com/ma_icon/0/icon_52573842_1744768940/256"
     override val desc: String
         get() = """
-钱迹，一款简洁纯粹的记账 App，是一个 “无广告、无开屏、无理财” 的 “三无” 产品。
+钱迹，一款简洁纯粹的记账 App，是一个 "无广告、无开屏、无理财" 的 "三无" 产品。
 力求极简，专注个人记账，将每一笔收支都清晰记录，消费及资产随时了然于心。
         """.trimIndent()
     override val name: String
         get() = "钱迹"
-
 
     /**
      * 检查指定账户是否为信用卡类型
@@ -107,7 +107,6 @@ class QianJiAdapter : IAppAdapter {
         }
     }
 
-
     override fun syncAssets() {
         if (AppAdapterManager.ocrMode()) {
             return
@@ -120,7 +119,6 @@ class QianJiAdapter : IAppAdapter {
         }
         SystemUtils.startActivityIfResolvable(intent, name)
     }
-
 
     override fun syncWaitBills(billAction: BillAction) {
         if (AppAdapterManager.ocrMode()) {
@@ -145,7 +143,6 @@ class QianJiAdapter : IAppAdapter {
         // 2) 必填参数：type、money
         val uriBuilder = StringBuilder("qianji://publicapi/addbill")
             .append("?type=").append(qjType)
-
 
         // 3) 可选参数：时间（yyyy-MM-dd HH:mm:ss）
         if (billInfoModel.time > 0) {
@@ -194,15 +191,12 @@ class QianJiAdapter : IAppAdapter {
 
         // 9) 手续费（基于配置项）
         if (PrefManager.featureFee && billInfoModel.fee != 0.0) {
-
             if (billInfoModel.fee < 0) {
                 uriBuilder.append("&fee=").append(-billInfoModel.fee)
                 billInfoModel.money -= billInfoModel.fee
             } else {
-                Logger.w("钱迹接口不支持优惠记录")
+                logger.warn { "钱迹接口不支持优惠记录" }
             }
-
-
         }
 
         uriBuilder.append("&money=").append(billInfoModel.money)
@@ -232,21 +226,19 @@ class QianJiAdapter : IAppAdapter {
             uriBuilder.append("&showresult=0")
         }
 
-
         // 14) 发起隐式 Intent 调起钱迹
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        Logger.i("目标应用uri：${uriBuilder}")
+        logger.info { "目标应用uri：${uriBuilder}" }
         SystemUtils.startActivityIfResolvable(intent, name) {
             AppAdapterManager.markSynced(billInfoModel)
         }
     }
+
     override fun supportSyncAssets(): Boolean {
         if (AppAdapterManager.xposedMode()) return true
         //TODO 初始化钱迹默认资产，只有没有账本和分类的时候才初始化
-
-
         return false
     }
 
@@ -268,19 +260,13 @@ class QianJiAdapter : IAppAdapter {
                     2 // 普通转账
                 }
             }
-
             BillType.ExpendReimbursement -> 5
             BillType.IncomeReimbursement -> if (AppAdapterManager.xposedMode()) 19 else 1
-
-            // Xposed模式下支持的扩展类型
             BillType.ExpendLending -> if (AppAdapterManager.xposedMode()) 15 else 0
             BillType.ExpendRepayment -> if (AppAdapterManager.xposedMode()) 16 else 0
             BillType.IncomeLending -> if (AppAdapterManager.xposedMode()) 17 else 1
             BillType.IncomeRepayment -> if (AppAdapterManager.xposedMode()) 18 else 1
             BillType.IncomeRefund -> if (AppAdapterManager.xposedMode()) 20 else 1
-
-            // 默认回退
-            else -> 0
         }
     }
 
@@ -303,8 +289,8 @@ class QianJiAdapter : IAppAdapter {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(date)
     }
+
     override fun sleep(): Long {
         return if (PrefManager.workMode == WorkMode.Xposed) 0L else 3000L
     }
-
 }

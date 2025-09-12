@@ -24,6 +24,7 @@ import java.io.IOException
 import java.io.FileInputStream
 import java.util.Locale
 import kotlin.random.Random
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 简单的文件缓存管理器（支持自动过期）。
@@ -36,6 +37,8 @@ import kotlin.random.Random
  * 5. 不引入复杂策略（LRU/容量限制），坚持简单可预期；若未来需要可在不破坏接口前提下扩展
  */
 object CacheManager {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /** 缓存目录名 */
     private const val DIR_NAME = "kv_cache"
 
@@ -91,7 +94,7 @@ object CacheManager {
             val expireAt = if (durationMs == NO_EXPIRE) Long.MAX_VALUE else now + durationMs
             writeDataWithHeader(dataFile, bytes, expireAt)
         } catch (e: Exception) {
-            Logger.e("写入缓存失败: ${dataFile.name}", e)
+            logger.error(e) { "写入缓存失败: ${dataFile.name}" }
         }
     }
 
@@ -128,7 +131,7 @@ object CacheManager {
         return try {
             readDataPayload(dataFile)
         } catch (e: IOException) {
-            Logger.e("读取缓存失败: ${dataFile.name}", e)
+            logger.error(e) { "读取缓存失败: ${dataFile.name}" }
             null
         }
     }
@@ -224,7 +227,7 @@ object CacheManager {
         return try {
             if (file.exists()) file.delete() else false
         } catch (e: Exception) {
-            Logger.e("删除缓存文件失败: ${file.name}", e)
+            logger.error(e) { "删除缓存文件失败: ${file.name}" }
             false
         }
     }
@@ -237,9 +240,9 @@ object CacheManager {
         if (Random.nextInt(100) == 0) {
             try {
                 val removed = cleanup()
-                if (removed > 0) Logger.d("概率清理完成，删除文件数：$removed")
+                if (removed > 0) logger.debug { "概率清理完成，删除文件数：$removed" }
             } catch (e: Exception) {
-                Logger.e("概率清理失败", e)
+                logger.error(e) { "概率清理失败" }
             }
         }
     }

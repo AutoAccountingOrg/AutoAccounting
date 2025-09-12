@@ -23,6 +23,7 @@ import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.adapterBottom
 import org.ezbook.server.db.model.LogModel
 import java.io.File
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 日志管理Fragment

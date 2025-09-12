@@ -23,12 +23,15 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.CategoryRuleModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 分类规则API客户端
  * 该对象提供了与本地网络API的分类规则端点进行交互的方法
  */
 object CategoryRuleAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 获取分类规则列表，支持分页
      *
@@ -46,7 +49,7 @@ object CategoryRuleAPI {
                 ).getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
-                Logger.e("list error: ${it.message}", it)
+                logger.error(it) { "list error: ${it.message}" }
                 emptyList()
             }
     }
@@ -64,7 +67,7 @@ object CategoryRuleAPI {
                 .getOrThrow()
             resp.data ?: 0L
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
             0L
         }
     }
@@ -80,7 +83,7 @@ object CategoryRuleAPI {
             LocalNetwork.post<String>("category/rule/delete", Gson().toJson(mapOf("id" to id)))
                 .getOrThrow()
         }.getOrElse {
-            Logger.e("remove error: ${it.message}", it)
+            logger.error(it) { "remove error: ${it.message}" }
         }
     }
 }

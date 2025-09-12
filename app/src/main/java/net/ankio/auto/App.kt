@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.tencent.bugly.crashreport.CrashReport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.LicenseNetwork
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CoroutineUtils
@@ -29,8 +29,9 @@ import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.PrefManager.darkTheme
 import net.ankio.auto.utils.SystemUtils
+import net.ankio.auto.xposed.core.logger.LoggerConfig
 import rikka.material.app.LocaleDelegate
-import java.util.Locale
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -51,8 +52,7 @@ open class App : Application() {
          * 在主线程启动协程
          */
         fun launch(
-            context: CoroutineContext = EmptyCoroutineContext,
-            block: suspend CoroutineScope.() -> Unit
+            context: CoroutineContext = EmptyCoroutineContext, block: suspend CoroutineScope.() -> Unit
         ) {
             CoroutineUtils.launchOnMain(context, block)
         }
@@ -61,8 +61,7 @@ open class App : Application() {
             block: suspend CoroutineScope.() -> Unit
         ) {
             CoroutineUtils.launchOnMain(
-                Dispatchers.IO,
-                block
+                Dispatchers.IO, block
             )
         }
 
@@ -73,6 +72,11 @@ open class App : Application() {
 
         // 设置全局实例
         autoApp = this
+
+
+        if (PrefManager.workMode == WorkMode.Xposed) {
+            LoggerConfig.init(BuildConfig.APPLICATION_ID, PrefManager.debugMode)
+        }
 
         // 初始化核心组件（优先初始化PrefManager以获取用户设置）
         initSystemComponents()
@@ -160,10 +164,7 @@ open class App : Application() {
         }
 
         CrashReport.initCrashReport(
-            this,
-            "af9e0f4181",
-            PrefManager.debugMode,
-            strategy
+            this, "af9e0f4181", PrefManager.debugMode, strategy
         )
     }
 }

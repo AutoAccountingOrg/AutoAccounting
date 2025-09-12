@@ -36,6 +36,7 @@ import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DefaultData
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 备份设置页面 - Linus式极简重构
@@ -198,7 +199,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
                 }
             } catch (e: Exception) {
                 ToastUtils.error(getString(R.string.backup_error))
-                Logger.e("WebDAV恢复失败", e)
+                logger.error(e) { "WebDAV恢复失败" }
             }
         }
     }

@@ -24,11 +24,14 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.TagModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 标签相关API接口，封装了对后端标签的增删改查操作。
  */
 object TagAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 分页获取标签列表。
      * @param page 页码，从1开始
@@ -47,7 +50,7 @@ object TagAPI {
                         .getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
-                Logger.e("list error: ${it.message}", it)
+                logger.error(it) { "list error: ${it.message}" }
                 emptyList()
             }
         }
@@ -62,7 +65,7 @@ object TagAPI {
             val resp = LocalNetwork.get<List<TagModel>>("tag/list?limit=0").getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("all error: ${it.message}", it)
+            logger.error(it) { "all error: ${it.message}" }
             emptyList()
         }
     }
@@ -78,7 +81,7 @@ object TagAPI {
             val resp = LocalNetwork.post<JsonObject>("tag/put", Gson().toJson(model)).getOrThrow()
             resp.data ?: JsonObject()
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
             JsonObject()
         }
     }
@@ -92,7 +95,7 @@ object TagAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("tag/delete", Gson().toJson(mapOf("id" to id))).getOrThrow()
         }.getOrElse {
-            Logger.e("remove error: ${it.message}", it)
+            logger.error(it) { "remove error: ${it.message}" }
         }
     }
 
@@ -107,7 +110,7 @@ object TagAPI {
             val resp = LocalNetwork.get<TagModel>("tag/get?id=$id").getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("getById error: ${it.message}", it)
+            logger.error(it) { "getById error: ${it.message}" }
             null
         }
     }
@@ -122,7 +125,7 @@ object TagAPI {
             val resp = LocalNetwork.get<Int>("tag/count").getOrThrow()
             resp.data ?: 0
         }.getOrElse {
-            Logger.e("count error: ${it.message}", it)
+            logger.error(it) { "count error: ${it.message}" }
             0
         }
     }
@@ -142,7 +145,7 @@ object TagAPI {
                         .getOrThrow()
                 resp.data ?: false
             }.getOrElse {
-                Logger.e("checkNameAvailable error: ${it.message}", it)
+                logger.error(it) { "checkNameAvailable error: ${it.message}" }
                 false
             }
         }
@@ -187,7 +190,7 @@ object TagAPI {
             val resp = LocalNetwork.post<JsonObject>("tag/batch", Gson().toJson(tags)).getOrThrow()
             resp.data ?: JsonObject()
         }.getOrElse {
-            Logger.e("batchInsert error: ${it.message}", it)
+            logger.error(it) { "batchInsert error: ${it.message}" }
             JsonObject()
         }
     }

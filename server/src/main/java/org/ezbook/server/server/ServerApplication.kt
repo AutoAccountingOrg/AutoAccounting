@@ -28,17 +28,19 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.BillService
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SettingUtils
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 fun Application.module(context: Context) {
+    val logger = KotlinLogging.logger(this::class.java.name)
+    
     install(StatusPages) {
         exception<Throwable> { cause ->
             call.respond(
                 HttpStatusCode.OK,
                 ResultModel.error(500, cause.message ?: "")
             )
-            ServerLog.e(cause.message ?: "", cause)
+            logger.error(cause) { cause.message ?: "" }
         }
     }
     install(ContentNegotiation) {

@@ -32,6 +32,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.SystemUtils
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 错误页面Activity - 提供用户友好的错误处理界面
@@ -73,7 +74,7 @@ class ErrorActivity : BaseActivity() {
         // 设置完整错误信息
         binding.errorMsg.text = fullErrorMessage
 
-        Logger.e("ErrorActivity显示错误页面", Exception(errorSummary))
+        logger.error(Exception(errorSummary)) { "ErrorActivity显示错误页面" }
     }
 
     /**

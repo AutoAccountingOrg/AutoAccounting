@@ -8,12 +8,15 @@ import androidx.browser.customtabs.CustomTabsIntent
 import net.ankio.auto.storage.Logger
 import androidx.core.net.toUri
 import net.ankio.auto.autoApp
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * CustomTabs 浏览器启动工具
  * 重新设计：明确上下文要求，统一错误处理
  */
 object CustomTabsHelper {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 启动 CustomTabs 浏览器打开链接
@@ -35,7 +38,7 @@ object CustomTabsHelper {
             builder.build().launchUrl(context, finalUri)
             true
         }.getOrElse { e ->
-            Logger.e("CustomTabs启动失败: ${e.message}", e)
+            logger.error(e) { "CustomTabs启动失败: ${e.message}" }
             false
         }
     }
@@ -71,7 +74,7 @@ object CustomTabsHelper {
             context.startActivity(intent)
             true
         }.getOrElse { e ->
-            Logger.e("浏览器启动失败: ${e.message}", e)
+            logger.error(e) { "浏览器启动失败: ${e.message}" }
             false
         }
     }
@@ -92,7 +95,7 @@ object CustomTabsHelper {
         runCatching {
             SystemUtils.copyToClipboard(url)
         }.onFailure { e ->
-            Logger.e("复制到剪贴板失败: ${e.message}", e)
+            logger.error(e) { "复制到剪贴板失败: ${e.message}" }
         }
     }
 }

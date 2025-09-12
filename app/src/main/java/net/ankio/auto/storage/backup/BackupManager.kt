@@ -18,21 +18,23 @@ package net.ankio.auto.storage.backup
 import android.content.Context
 import android.provider.DocumentsContract
 import androidx.core.net.toUri
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
 import net.ankio.auto.exceptions.PermissionException
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.CoroutineUtils
 import net.ankio.auto.utils.CoroutineUtils.withIO
 import net.ankio.auto.utils.CoroutineUtils.withMain
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
 import java.io.File
 import java.io.FileInputStream
+
+
+private val logger = KotlinLogging.logger { }
 
 /**
  * 备份管理器 - Linus式极简重构
@@ -79,7 +81,7 @@ class BackupManager(private val context: Context) {
         val backupFile = File(context.cacheDir, filename)
 
         try {
-            Logger.i("开始本地备份")
+            logger.info { "开始本地备份" }
 
             // 打包数据
             fileManager.packData(backupFile.absolutePath)
@@ -90,13 +92,13 @@ class BackupManager(private val context: Context) {
             // 清理临时文件
             backupFile.delete()
 
-            Logger.i("本地备份完成")
+            logger.info { "本地备份完成" }
             ToastUtils.info(R.string.backup_success)
 
         } catch (e: Exception) {
             // 清理临时文件
             backupFile.delete()
-            Logger.e("本地备份失败", e)
+            logger.error(e) { "本地备份失败" }
             throw e
         }
     }
@@ -113,8 +115,8 @@ class BackupManager(private val context: Context) {
         }
 
         try {
-            Logger.i("开始WebDAV备份")
-            
+            logger.info { "开始WebDAV备份" }
+
             // 显示打包进度
             withMain {
                 loading?.show(R.string.backup_pack)
@@ -130,10 +132,10 @@ class BackupManager(private val context: Context) {
 
             webDAVManager.upload(backupFile, filename).getOrThrow()
 
-            Logger.i("WebDAV备份完成")
+            logger.info { "WebDAV备份完成" }
 
         } catch (e: Exception) {
-            Logger.e("WebDAV备份失败", e)
+            logger.error(e) { "WebDAV备份失败" }
             ToastUtils.error(e.message ?: "")
         } finally {
             // 清理资源
@@ -155,9 +157,7 @@ class BackupManager(private val context: Context) {
             val uri = backupPath.toUri()
             val permissions = context.contentResolver.persistedUriPermissions
             permissions.any { permission ->
-                permission.uri == uri &&
-                        permission.isReadPermission &&
-                        permission.isWritePermission
+                permission.uri == uri && permission.isReadPermission && permission.isWritePermission
             }
         } catch (e: Exception) {
             false
@@ -169,17 +169,13 @@ class BackupManager(private val context: Context) {
      */
     private fun saveToUserDirectory(backupFile: File, filename: String) {
         val uri = PrefManager.localBackupPath.toUri()
-        
+
         val documentUri = DocumentsContract.buildDocumentUriUsingTree(
-            uri,
-            DocumentsContract.getTreeDocumentId(uri)
+            uri, DocumentsContract.getTreeDocumentId(uri)
         )
 
         val newFileUri = DocumentsContract.createDocument(
-            context.contentResolver,
-            documentUri,
-            "application/${BackupFileManager.SUFFIX}",
-            filename
+            context.contentResolver, documentUri, "application/${BackupFileManager.SUFFIX}", filename
         ) ?: throw RuntimeException("无法创建备份文件")
 
         // 写入文件内容
@@ -219,12 +215,12 @@ class BackupManager(private val context: Context) {
          */
         private fun performAutoBackup() {
             if (!PrefManager.autoBackup) {
-                Logger.d("自动备份已关闭")
+                logger.debug { "自动备份已关闭" }
                 return
             }
 
 
-            Logger.i("开始自动备份")
+            logger.info { "开始自动备份" }
 
             // 在协程中执行备份操作
             App.launch {
@@ -239,10 +235,10 @@ class BackupManager(private val context: Context) {
 
                     // 更新最后备份时间
                     PrefManager.lastBackupTime = System.currentTimeMillis()
-                    Logger.i("自动备份完成")
+                    logger.info { "自动备份完成" }
 
                 } catch (e: Exception) {
-                    Logger.e("自动备份失败", e)
+                    logger.error(e) { "自动备份失败" }
                 }
             }
         }

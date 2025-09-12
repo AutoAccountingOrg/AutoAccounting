@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.Executors
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 日志工具类，支持写入本地文件、自动清理（仅保留当天）、分页读取。
@@ -36,13 +37,15 @@ import java.util.concurrent.Executors
  *
  * 使用示例：
  * ```
- * Logger.d("调试信息")
- * Logger.i("普通信息")
- * Logger.w("警告信息")
- * Logger.e("错误信息", exception)
+ * logger.debug { "调试信息" }
+ * logger.info { "普通信息" }
+ * logger.warn { "警告信息" }
+ * logger.error(exception) { "错误信息" }
  * ```
  */
 object Logger {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /** 日志文件存储目录名 */
     private const val LOG_DIR = "logs"
 
@@ -132,115 +135,6 @@ object Logger {
             else -> "D"
         }
         return "[$timestamp] $level/${logModel.app}/${logModel.location}: ${logModel.message}"
-    }
-
-    /**
-     * 输出日志到Logcat并发送到服务器
-     *
-     * @param type 日志级别（Log.VERBOSE, Log.DEBUG, Log.INFO, Log.WARN, Log.ERROR）
-     * @param tag 日志标签
-     * @param message 日志消息
-     */
-    private suspend fun printLog(type: Int, tag: String, header: String, message: String) {
-        // Logcat 输出
-        val suffix = "[ 自动记账 ]$header"
-        val priority = when (type) {
-            Log.VERBOSE, Log.DEBUG, Log.INFO, Log.WARN, Log.ERROR -> type
-            else -> Log.INFO
-        }
-        Log.println(priority, tag, suffix + message)
-
-        // 将日志级别转换为服务器端格式
-        val logLevel = when (type) {
-            Log.DEBUG -> LogLevel.DEBUG
-            Log.INFO -> LogLevel.INFO
-            Log.WARN -> LogLevel.WARN
-            Log.ERROR -> LogLevel.ERROR
-            else -> LogLevel.DEBUG
-        }
-        LogAPI.add(logLevel, BuildConfig.APPLICATION_ID, tag, message)
-    }
-
-
-    /**
-     * 一次性捕获调用方信息：TAG 与 位置头部。
-     * 通过跳过日志自身与协程栈，取第一个业务帧，避免重复创建 Throwable。
-     */
-    private fun getCallerInfo(): Pair<String, String> {
-        // 0:getStackTrace,1:<init>,2:getCallerInfo,3:Logger.d/i/w/e,4:业务调用方
-        val frames = Throwable().stackTrace
-        var index = 0
-        while (index < frames.size && frames[index].className == Logger::class.java.name) {
-            index++
-        }
-        val f = frames.getOrNull(index) ?: frames.getOrNull(3)
-        val tag = f?.className?.substringAfterLast('.')?.substringBefore('$') ?: "Logger"
-        val header = f?.let { "(${it.fileName}:${it.lineNumber})" } ?: ""
-        return tag to header
-    }
-
-    /**
-     * 获取调用者的类名作为日志标签
-     *
-     * @return 调用者的类名（去掉包名和内部类标识）
-     */
-    // 已用 getCallerInfo 统一提供 TAG，无需单独 getTag()
-
-    /**
-     * 输出DEBUG级别日志
-     * 注意：仅在DEBUG模式下输出
-     *
-     * @param message 日志消息
-     */
-    fun d(message: String) {
-        if (!PrefManager.debugMode) return
-        val (tag, header) = getCallerInfo()
-
-        App.launchIO {
-            printLog(Log.DEBUG, tag, header, message)
-        }
-
-    }
-
-    /**
-     * 输出INFO级别日志
-     *
-     * @param message 日志消息
-     */
-    fun i(message: String) {
-        val (tag, header) = getCallerInfo()
-        App.launchIO {
-            printLog(Log.INFO, tag, header, message)
-        }
-    }
-
-    /**
-     * 输出WARN级别日志
-     *
-     * @param message 日志消息
-     */
-    fun w(message: String) {
-        val (tag, header) = getCallerInfo()
-        App.launchIO {
-            printLog(Log.WARN, tag, header, message)
-        }
-    }
-
-    /**
-     * 输出ERROR级别日志
-     *
-     * @param message 日志消息
-     * @param throwable 异常对象（可选）
-     */
-    fun e(message: String, throwable: Throwable? = null) {
-        val (tag, header) = getCallerInfo()
-        App.launchIO {
-            val builder = StringBuilder().apply {
-                append(message)
-                throwable?.let { append("\n").append(Log.getStackTraceString(it)) }
-            }
-            printLog(Log.ERROR, tag, header, builder.toString())
-        }
     }
 
     /**

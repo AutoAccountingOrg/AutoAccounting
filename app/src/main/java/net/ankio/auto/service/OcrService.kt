@@ -28,6 +28,7 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.intent.IntentType
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * OCR服务类，用于实现屏幕文字识别功能
@@ -38,6 +39,8 @@ import java.io.File
  * 4. 显示识别动画界面
  */
 class OcrService : ICoreService() {
+
+    private val serviceLogger = KotlinLogging.logger {}
 
     // OCR处理器
     private lateinit var ocrProcessor: OcrProcessor
@@ -67,18 +70,18 @@ class OcrService : ICoreService() {
         if (PrefManager.workMode == WorkMode.Ocr) {
             // 启动翻转检测
             if (!detector.start()) {
-                Logger.e("设备不支持重力/加速度传感器")
+                logger.error { "设备不支持重力/加速度传感器" }
             }
         }
 
         serverStarted = true
-        Logger.d("OCR服务初始化成功，等待触发")
+        logger.debug { "OCR服务初始化成功，等待触发" }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
 
         if (intent?.getStringExtra("intentType") == IntentType.OCR.name) {
-            Logger.d("收到Intent启动OCR请求")
+            logger.debug { "收到Intent启动OCR请求" }
             //延迟1秒启动，等activity退出
             coreService.lifecycleScope.launch {
                 delay(1000)
@@ -122,7 +125,7 @@ class OcrService : ICoreService() {
 
             // 检查设备是否支持振动
             if (!vibrator.hasVibrator()) {
-                Logger.d("设备不支持振动功能")
+                logger.debug { "设备不支持振动功能" }
                 return
             }
 
@@ -132,9 +135,9 @@ class OcrService : ICoreService() {
                 VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE)
             vibrator.vibrate(vibrationEffect)
 
-            Logger.d("振动反馈已触发")
+            logger.debug { "振动反馈已触发" }
         } catch (e: Exception) {
-            Logger.e("振动反馈失败: ${e.message}")
+            logger.error { "振动反馈失败: ${e.message}" }
         }
     }
 
@@ -144,14 +147,14 @@ class OcrService : ICoreService() {
      */
     private suspend fun triggerOcr() {
         if (ocrDoing) {
-            Logger.d("OCR正在处理中，跳过本次请求")
+            logger.debug { "OCR正在处理中，跳过本次请求" }
             return
         }
 
         // 验证前台应用
         val packageName = validateForegroundApp() ?: return
 
-        Logger.d("检测到白名单应用 [$packageName]，开始OCR")
+        logger.debug { "检测到白名单应用 [$packageName]，开始OCR" }
         ocrDoing = true
 
         // 执行OCR流程
@@ -164,12 +167,12 @@ class OcrService : ICoreService() {
      */
     private suspend fun validateForegroundApp(): String? {
         val pkg = getTopPackagePostL() ?: run {
-            Logger.w("无法获取前台应用")
+            logger.warn { "无法获取前台应用" }
             return null
         }
 
         if (pkg !in PrefManager.appWhiteList) {
-            Logger.d("前台应用 $pkg 不在监控白名单")
+            logger.debug { "前台应用 $pkg 不在监控白名单" }
             return null
         }
 
@@ -187,7 +190,7 @@ class OcrService : ICoreService() {
         coreService.lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
             try {
-                Logger.d("开始OCR流程")
+                logger.debug { "开始OCR流程" }
                 // 显示OCR界面
                 ocrView.startOcrView(coreService)
 
@@ -197,20 +200,20 @@ class OcrService : ICoreService() {
                 // 处理识别结果
                 if (ocrResult != null) {
                     if (PrefManager.dataFilter.any { !ocrResult.contains(it) }) {
-                        Logger.d("识别文本长度: ${ocrResult.length}")
+                        logger.debug { "识别文本长度: ${ocrResult.length}" }
                         send2JsEngine(ocrResult, packageName)
                     } else {
-                        Logger.d("数据信息不在识别关键字里面，忽略")
+                        logger.debug { "数据信息不在识别关键字里面，忽略" }
                     }
                 } else {
-                    Logger.d("识别结果为空，跳过处理")
+                    logger.debug { "识别结果为空，跳过处理" }
                 }
 
                 val totalTime = System.currentTimeMillis() - startTime
-                Logger.d("OCR处理完成，总耗时: ${totalTime}ms")
+                logger.debug { "OCR处理完成，总耗时: ${totalTime}ms" }
 
             } catch (e: Exception) {
-                Logger.e("OCR处理异常: ${e.message}")
+                logger.error { "OCR处理异常: ${e.message}" }
             } finally {
                 ocrView.stopOcrView()
                 ocrDoing = false
@@ -237,23 +240,23 @@ class OcrService : ICoreService() {
         }.onFailure {
             // 提醒用户未授权root或者shizuku未运行（使用资源字符串，避免硬编码）
             ToastUtils.info(coreService.getString(net.ankio.auto.R.string.toast_shell_not_ready))
-            Logger.e(it.message ?: "", it)
+            logger.error(it) { it.message ?: "" }
             return null
         }
 
         val captureTime = System.currentTimeMillis() - captureStartTime
-        Logger.d("截图耗时: ${captureTime}ms")
+        logger.debug { "截图耗时: ${captureTime}ms" }
 
         // 解码并识别
         val bitmap = BitmapFactory.decodeFile(outFile.absolutePath)
         if (bitmap == null) {
-            Logger.e("截图解码失败")
+            logger.error { "截图解码失败" }
             outFile.delete()
             return null
         }
 
         val text = runCatching { ocrProcessor.recognize(bitmap) }.getOrElse {
-            Logger.e("OCR 识别失败: ${it.message}")
+            logger.error { "OCR 识别失败: ${it.message}" }
             outFile.delete()
             bitmap.recycle()
             return null
@@ -273,9 +276,9 @@ class OcrService : ICoreService() {
      * @param app 当前应用包名
      */
     private suspend fun send2JsEngine(text: String, app: String) {
-        Logger.d("app=$app, text=$text")
+        logger.debug { "app=$app, text=$text" }
         val billResult = JsAPI.analysis(DataType.DATA, text, app) ?: return
-        Logger.d("识别结果：${billResult.billInfoModel}")
+        logger.debug { "识别结果：${billResult.billInfoModel}" }
     }
 
     /**
@@ -288,7 +291,7 @@ class OcrService : ICoreService() {
         }.onFailure {
             // 提醒用户未授权root或者shizuku未运行（使用资源字符串，避免硬编码）
             ToastUtils.info(coreService.getString(net.ankio.auto.R.string.toast_shell_not_ready))
-            Logger.e(it.message ?: "", it)
+            logger.error(it) { it.message ?: "" }
         }.getOrNull()
         if (data.isNullOrBlank()) return null
 

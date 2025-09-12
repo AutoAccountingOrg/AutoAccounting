@@ -55,6 +55,7 @@ import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.utils.getAppInfoFromPackageName
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.AppDataModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 插件数据管理Fragment
@@ -247,7 +248,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             val id = it.id
             page = 1
             app = leftData.keySet().elementAt(id - 1)
-            Logger.d("Selected app: $app (id: $id)")
+            logger.debug { "Selected app: $app (id: $id)"}
             reload()
         }
     }
@@ -265,7 +266,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
      * 从API获取应用列表并更新UI
      */
     private fun refreshLeftData() {
-        Logger.d("Refreshing left data")
+        logger.debug { "Refreshing left data" }
         launch {
             try {
                 // 1. 清空列表
@@ -274,31 +275,31 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                 // 2. 拉取 app 数据
                 val result = AppDataAPI.apps()
                 leftData = result
-                Logger.d("Fetched ${result.size()} apps from API")
+                logger.debug { "Fetched ${result.size()} apps from API"}
 
                 var index = 1
                 // 3. 遍历所有 app 包名
                 for (packageName in result.keySet()) {
                     val app = getAppInfoFromPackageName(packageName)
                     if (app == null) {
-                        Logger.w("Failed to get app info for package: $packageName")
+                        logger.warn { "Failed to get app info for package: $packageName" }
                         continue
                     }
 
                     binding.leftList.addMenuItem(
                         RailMenuItem(index, app.icon!!, app.name)
                     )
-                    Logger.d("Added app to left list: ${app.name} ($packageName)")
+                    logger.debug { "Added app to left list: ${app.name} ($packageName)"}
                     index++
                 }
 
                 // 4. 若没有任何 app，展示空状态页
                 if (!binding.leftList.performFirstItem()) {
-                    Logger.w("No apps available, showing empty state")
+                    logger.warn { "No apps available, showing empty state" }
                     statusPage.showEmpty()
                 }
             } catch (e: Exception) {
-                Logger.e("Error refreshing left data", e)
+                logger.error(e) { "Error refreshing left data" }
                 statusPage.showError()
             }
         }
@@ -332,7 +333,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                 2 -> DataType.DATA.name
                 else -> ""
             }
-            Logger.d("Data type filter updated: type='$type'")
+            logger.debug { "Data type filter updated: type='$type'" }
             reload()
         }
         // 默认：全部
@@ -357,7 +358,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                 2 -> false // 未匹配
                 else -> null // 全部
             }
-            Logger.d("Match filter updated: match=$match")
+            logger.debug { "Match filter updated: match=$match" }
             reload()
         }
         // 默认：全部
@@ -376,19 +377,19 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             val searchView = searchItem.actionView as MaterialSearchView
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
-                    Logger.d("Search submitted: '$query'")
+                    logger.debug { "Search submitted: '$query'" }
                     return true
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     searchData = newText ?: ""
-                    Logger.d("Search text changed: '$searchData'")
+                    logger.debug { "Search text changed: '$searchData'" }
                     reload()
                     return true
                 }
             })
         } else {
-            Logger.w("Search menu item not found")
+            logger.warn { "Search menu item not found" }
         }
     }
 
@@ -413,20 +414,20 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
                         launch {
                             AppDataAPI.clear()
-                            Logger.i("Data cleared successfully")
+                            logger.info { "Data cleared successfully" }
                             page = 1
                             reload()
                         }
                     }
                     .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ ->
-                        Logger.d("User cancelled data clear")
+                        logger.debug { "User cancelled data clear" }
                     }
                     .show()
                 return true
             }
 
             else -> {
-                Logger.d("Unknown menu item clicked: ${item?.itemId}")
+                logger.debug { "Unknown menu item clicked: ${item?.itemId}" }
                 return false
             }
         }

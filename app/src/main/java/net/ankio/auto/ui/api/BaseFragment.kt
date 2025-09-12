@@ -27,6 +27,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
 import net.ankio.auto.storage.Logger
 import java.lang.reflect.ParameterizedType
@@ -41,6 +42,9 @@ import java.lang.reflect.ParameterizedType
  */
 abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
+    companion object {
+        val logger = KotlinLogging.logger(this::class.java.name)
+    }
     /**
      * ViewBinding 实例，在 Fragment 销毁时会被置空以防止内存泄漏
      */
@@ -107,7 +111,7 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
             return binding.root
         } catch (e: Exception) {
-            Logger.e("Failed to create view for ${javaClass.simpleName}", e)
+            logger.error(e) { "Failed to create view for ${javaClass.simpleName}" }
             return null
         }
     }
@@ -127,7 +131,7 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
                 }
             }
         } catch (e: Exception) {
-            Logger.w("定位滚动容器失败：${e.message}")
+            logger.warn { "定位滚动容器失败：${e.message}" }
         }
     }
 
@@ -139,7 +143,7 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
      */
     override fun onDestroyView() {
         super.onDestroyView()
-        Logger.d("Destroying view for ${javaClass.simpleName}")
+        logger.debug { "Destroying view for ${javaClass.simpleName}" }
         _binding = null
         _scrollContainer = null
     }
@@ -180,11 +184,11 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.d("Fragment协程已取消: ${e.message}")
+                        logger.debug { "Fragment协程已取消: ${e.message}" }
                     }
 
                     else -> {
-                        Logger.e("Fragmentt协程执行异常: ${javaClass.simpleName}", e)
+                        logger.error(e) { "Fragmentt协程执行异常: ${javaClass.simpleName}" }
                     }
                 }
             }
@@ -204,13 +208,13 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
             val sc = _scrollContainer
             if (sc is NestedScrollView) {
                 _savedScrollY = sc.scrollY
-                Logger.d("保存 NestedScrollView 滚动位置：${_savedScrollY}")
+                logger.debug { "保存 NestedScrollView 滚动位置：${_savedScrollY}" }
             } else if (sc is ScrollView) {
                 _savedScrollY = sc.scrollY
-                Logger.d("保存 ScrollView 滚动位置：${_savedScrollY}")
+                logger.debug { "保存 ScrollView 滚动位置：${_savedScrollY}" }
             }
         } catch (e: Exception) {
-            Logger.w("保存滚动位置失败：${e.message}")
+            logger.warn { "保存滚动位置失败：${e.message}" }
         }
     }
 
@@ -224,9 +228,9 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
                 is NestedScrollView -> sc.scrollTo(0, targetY)
                 is ScrollView -> sc.scrollTo(0, targetY)
             }
-            Logger.d("恢复滚动位置到：${targetY}")
+            logger.debug { "恢复滚动位置到：${targetY}" }
         } catch (e: Exception) {
-            Logger.w("恢复滚动位置失败：${e.message}")
+            logger.warn { "恢复滚动位置失败：${e.message}" }
         }
     }
 

@@ -4,25 +4,19 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import java.lang.reflect.Method
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * Xposed hooker utility for streamlined hooking operations.
  */
 object Hooker {
 
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     private val hookMap = HashMap<String, XC_MethodHook.Unhook>()
-
-
-    /**
-     * 记录日志
-     */
-    private fun log(message: String, e: Throwable) {
-        Logger.log(AppRuntime.name, message)
-        Logger.logE(AppRuntime.name, e)
-    }
+    
 
     /**
      * 加载类
@@ -69,11 +63,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             after(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz", e)
+            logger.error(e) { "Class not found: $clazz" }
         } catch (e: IllegalArgumentException) {
-            log("Invalid parameter type: ${e.message}", e)
+            logger.error(e) { "Invalid parameter type: ${e.message}" }
         } catch (e: Exception) {
-            log("Error hooking method after: $clazz.$method - ${e.message}", e)
+            logger.error(e) { "Error hooking method after: $clazz.$method - ${e.message}" }
         }
     }
 
@@ -101,7 +95,7 @@ object Hooker {
                     }
                 })
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}", e)
+            logger.error(e) { "Error hooking method before: $clazz.$method - ${e.message}" }
         }
     }
 
@@ -123,9 +117,9 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             before(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz", e)
+            logger.error(e) { "Class not found: $clazz" }
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}", e)
+            logger.error(e) { "Error hooking method before: $clazz.$method - ${e.message}" }
         }
     }
 
@@ -153,7 +147,7 @@ object Hooker {
                     }
                 })
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}", e)
+            logger.error(e) { "Error hooking method before: $clazz.$method - ${e.message}" }
         }
     }
 
@@ -188,7 +182,7 @@ object Hooker {
                 })
             hookMap[hookKey] = unhook
         } catch (e: Exception) {
-            log("Error hooking once method after: $clazz.$method - ${e.message}", e)
+            logger.error(e) { "Error hooking once method after: $clazz.$method - ${e.message}" }
         }
     }
 
@@ -223,7 +217,7 @@ object Hooker {
                 })
             hookMap[hookKey] = unhook
         } catch (e: Exception) {
-            log("Error hooking once method before: $clazz.$method - ${e.message}", e)
+            logger.error(e) { "Error hooking once method before: $clazz.$method - ${e.message}" }
         }
     }
 
@@ -244,7 +238,7 @@ object Hooker {
                     }
                 })
             } catch (e: Exception) {
-                log("Error hooking method before: ${method.name} - ${e.message}", e)
+                logger.error(e) { "Error hooking method before: ${method.name} - ${e.message}" }
             }
         }
     }
@@ -266,7 +260,7 @@ object Hooker {
                     }
                 })
             } catch (e: Exception) {
-                log("Error hooking method after: ${method.name} - ${e.message}", e)
+                logger.error(e) { "Error hooking method after: ${method.name} - ${e.message}" }
             }
         }
     }
@@ -349,11 +343,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             replace(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz", e)
+            logger.error(e) { "Class not found: $clazz" }
         } catch (e: IllegalArgumentException) {
-            log("Invalid parameter type: ${e.message}", e)
+            logger.error(e) { "Invalid parameter type: ${e.message}" }
         } catch (e: Exception) {
-            log("Error replacing method: $clazz.$method - ${e.message}", e)
+            logger.error(e) { "Error replacing method: $clazz.$method - ${e.message}" }
         }
     }
 
@@ -400,11 +394,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             replaceReturn(loadedClass, method, value, *types)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz", e)
+            logger.error(e) { "Class not found: $clazz" }
         } catch (e: IllegalArgumentException) {
-            log("Invalid parameter type: ${e.message}", e)
+            logger.error(e) { "Invalid parameter type: ${e.message}" }
         } catch (e: Exception) {
-            log("Error replacing return value: $clazz.$method - ${e.message}", e)
+            logger.error(e) { "Error replacing return value: $clazz.$method - ${e.message}" }
         }
     }
 
@@ -486,8 +480,8 @@ object Hooker {
                 }
         } catch (e: Exception) {
             when (e) {
-                is ClassNotFoundException -> log("Class not found: $clazz", e)
-                else -> log("Error hooking method: $clazz.$methodName", e)
+                is ClassNotFoundException -> logger.error(e) { "Class not found: $clazz" }
+                else -> logger.error(e) { "Error hooking method: $clazz.$methodName" }
             }
         }
     }
@@ -527,8 +521,8 @@ object Hooker {
                 }
         } catch (e: Exception) {
             when (e) {
-                is ClassNotFoundException -> log("Class not found: $clazz", e)
-                else -> log("Error hooking method: $clazz.$methodName", e)
+                is ClassNotFoundException -> logger.error(e) { "Class not found: $clazz" }
+                else -> logger.error(e) { "Error hooking method: $clazz.$methodName" }
             }
         }
     }

@@ -23,12 +23,15 @@ import net.ankio.auto.utils.PrefManager
 import okhttp3.Credentials
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * WebDAV 管理器 - 真正的Linus式简化
  * 只做一件事：上传/下载文件，不管UI，不管Toast
  */
 class WebDAVManager {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     private val requestUtils = RequestsUtils()
     private val backupUrl: String
@@ -53,15 +56,15 @@ class WebDAVManager {
     suspend fun upload(file: File, filename: String): Result<Unit> = withContext(Dispatchers.IO) {
 
         runCatchingExceptCancel {
-            Logger.d("备份路径: $backupUrl")
+            logger.debug { "备份路径: $backupUrl" }
             requestUtils.mkcol(backupUrl).getOrNull()
             requestUtils.put("$backupUrl/$filename", file).getOrThrow()
-            Logger.d("上传成功: $filename")
+            logger.debug { "上传成功: $filename" }
             // 上传成功后自动清理旧备份，保持最多10个文件
             cleanupOldBackups()
             Unit
         }.onFailure {
-            Logger.e("上传失败: ${it.message}", it)
+            logger.error(it) { "上传失败: ${it.message}" }
         }
     }
 
@@ -73,8 +76,8 @@ class WebDAVManager {
         withContext(Dispatchers.IO) {
             runCatchingExceptCancel {
                 requestUtils.download("$backupUrl/$filename", targetFile).getOrThrow()
-                Logger.d("下载成功: $filename")
-            }.onFailure { Logger.e("下载失败: ${it.message}", it) }
+                logger.debug { "下载成功: $filename" }
+            }.onFailure { logger.error(it) { "下载失败: ${it.message}" } }
         }
 
     /**
@@ -86,7 +89,7 @@ class WebDAVManager {
             val files = requestUtils.dir(backupUrl).getOrThrow()
             files.filter { it.endsWith("." + BackupFileManager.SUFFIX) }
                 .maxByOrNull { it }
-        }.onFailure { Logger.w("获取最新备份失败: ${it.message}") }
+        }.onFailure { logger.warn { "获取最新备份失败: ${it.message}" } }
     }
 
     /**
@@ -100,13 +103,13 @@ class WebDAVManager {
                 .sortedDescending()
             if (backupFiles.size > 10) {
                 val filesToDelete = backupFiles.drop(10)
-                Logger.d("清理WebDAV备份: 删除${filesToDelete.size}个旧文件")
+                logger.debug { "清理WebDAV备份: 删除${filesToDelete.size}个旧文件" }
                 var deletedCount = 0
                 filesToDelete.forEach { filename -> if (deleteFile(filename).isSuccess) deletedCount++ }
-                Logger.d("清理完成: 成功删除${deletedCount}个文件")
+                logger.debug { "清理完成: 成功删除${deletedCount}个文件" }
             }
             Unit
-        }.onFailure { Logger.w("清理旧备份失败: ${it.message}") }
+        }.onFailure { logger.warn { "清理旧备份失败: ${it.message}" } }
     }
 
     /**
@@ -117,6 +120,6 @@ class WebDAVManager {
         runCatchingExceptCancel {
             requestUtils.delete("$backupUrl/$filename").getOrThrow()
             Unit
-        }.onFailure { Logger.w("删除文件失败: $filename - ${it.message}") }
+        }.onFailure { logger.warn { "删除文件失败: $filename - ${it.message}" } }
     }
 }

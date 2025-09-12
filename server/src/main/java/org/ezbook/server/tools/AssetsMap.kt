@@ -15,6 +15,7 @@
 
 package org.ezbook.server.tools
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ezbook.server.Server
 import org.ezbook.server.ai.tools.AssetTool
 import org.ezbook.server.constant.BillType
@@ -39,6 +40,8 @@ import org.ezbook.server.db.model.BillInfoModel
  */
 class AssetsMap {
 
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     // 懒加载缓存：首次访问时从数据库加载，后续复用内存数据
     private var assets: List<AssetsModel> = emptyList()
     private var assetsMap: List<AssetsMapModel> = emptyList()
@@ -49,7 +52,7 @@ class AssetsMap {
     private suspend fun getAssets(): List<AssetsModel> {
         if (assets.isEmpty()) {
             assets = Db.get().assetsDao().load()
-            ServerLog.d("资产列表已加载: ${assets.size} 条")
+            logger.debug { "资产列表已加载: ${assets.size} 条" }
         }
         return assets
     }
@@ -60,7 +63,7 @@ class AssetsMap {
     private suspend fun getAssetsMap(): List<AssetsMapModel> {
         if (assetsMap.isEmpty()) {
             assetsMap = Db.get().assetsMapDao().list()
-            ServerLog.d("资产映射列表已加载: ${assetsMap.size} 条")
+            logger.debug { "资产映射列表已加载: ${assetsMap.size} 条" }
         }
         return assetsMap
     }
@@ -77,13 +80,13 @@ class AssetsMap {
     suspend fun setAssetsMap(billInfoModel: BillInfoModel, useAi: Boolean = true) {
         // 检查资产管理器是否启用
         if (!SettingUtils.featureAssetManager()) {
-            ServerLog.d("资产管理未启用，跳过映射处理")
+            logger.debug { "资产管理未启用，跳过映射处理" }
             return
         }
 
         val originalFromAccount = billInfoModel.accountNameFrom
         val originalToAccount = billInfoModel.accountNameTo
-        ServerLog.d("开始资产映射: type=${billInfoModel.type} from='$originalFromAccount' to='$originalToAccount'")
+        logger.debug { "开始资产映射: type=${billInfoModel.type} from='$originalFromAccount' to='$originalToAccount'" }
 
         // 处理来源账户映射
         if (shouldMapFromAccount(billInfoModel)) {
@@ -93,23 +96,23 @@ class AssetsMap {
                 useAi = useAi
             )?.let { mappedName ->
                 billInfoModel.accountNameFrom = mappedName
-                ServerLog.d("来源账户映射: '$originalFromAccount' -> '$mappedName'")
+                logger.debug { "来源账户映射: '$originalFromAccount' -> '$mappedName'" }
             }
         } else {
-            ServerLog.d("跳过来源账户映射: '${billInfoModel.accountNameFrom}' 不需要映射")
+            logger.debug { "跳过来源账户映射: '${billInfoModel.accountNameFrom}' 不需要映射" }
         }
 
         // 处理目标账户映射
         if (shouldMapToAccount(billInfoModel)) {
             mapAccount(billInfoModel.accountNameTo, billInfoModel, true, useAi)?.let { mappedName ->
                 billInfoModel.accountNameTo = mappedName
-                ServerLog.d("目标账户映射: '$originalToAccount' -> '$mappedName'")
+                logger.debug { "目标账户映射: '$originalToAccount' -> '$mappedName'" }
             }
         } else {
-            ServerLog.d("跳过目标账户映射: '${billInfoModel.accountNameTo}' 不需要映射")
+            logger.debug { "跳过目标账户映射: '${billInfoModel.accountNameTo}' 不需要映射" }
         }
 
-        ServerLog.d("资产映射完成: ${billInfoModel.type} | ${billInfoModel.accountNameFrom} -> ${billInfoModel.accountNameTo}")
+        logger.debug { "资产映射完成: ${billInfoModel.type} | ${billInfoModel.accountNameFrom} -> ${billInfoModel.accountNameTo}" }
     }
 
     /**
@@ -155,21 +158,21 @@ class AssetsMap {
         isAccountName2: Boolean = false,
         useAi: Boolean = true
     ): String? {
-        ServerLog.d("映射账户开始: account='$accountName' isAccountName2=$isAccountName2")
+        logger.debug { "映射账户开始: account='$accountName' isAccountName2=$isAccountName2" }
         if (accountName.isBlank()) {
-            ServerLog.d("映射账户跳过: 账户名为空")
+            logger.debug { "映射账户跳过: 账户名为空" }
             return null
         }
 
         // 1. 直接资产查找 - 最高优先级
         getAssets().firstOrNull { it.name == accountName }?.let { asset ->
-            ServerLog.d("直接资产查找命中: '${asset.name}'")
+            logger.debug { "直接资产查找命中: '${asset.name}'" }
             return asset.name
         }
 
         // 2. 自定义映射查找（若 mapName 为空则跳过继续后续策略）
         getAssetsMap().firstOrNull { it.name == accountName && it.mapName.isNotBlank() }?.let {
-            ServerLog.d("自定义映射命中: '${it.name}' -> '${it.mapName}'")
+            logger.debug { "自定义映射命中: '${it.name}' -> '${it.mapName}'" }
             return it.mapName
         }
 
@@ -177,13 +180,13 @@ class AssetsMap {
         getAssetsMap().filter { it.regex && it.mapName.isNotBlank() }.firstOrNull { mapping ->
             runCatchingExceptCancel { Regex(mapping.name).containsMatchIn(accountName) }.getOrElse { false }
         }?.let { mapping ->
-            ServerLog.d("正则映射命中: /${mapping.name}/ -> '${mapping.mapName}'")
+            logger.debug { "正则映射命中: /${mapping.name}/ -> '${mapping.mapName}'" }
             return mapping.mapName
         }
 
         // 3.5 让AI处理
         if (useAi && SettingUtils.aiAssetMapping() && !isAccountName2) {
-            ServerLog.d("通过AI进行资产映射")
+            logger.debug { "通过AI进行资产映射" }
             val json =
                 AssetTool().execute(billInfoModel.accountNameTo, billInfoModel.accountNameFrom)
             if (json != null) {
@@ -193,10 +196,10 @@ class AssetsMap {
                     aiTo.ifBlank { billInfoModel.accountNameTo }
                 billInfoModel.accountNameFrom =
                     aiFrom.ifBlank { billInfoModel.accountNameFrom }
-                ServerLog.d("AI建议: to='$aiTo' from='$aiFrom'")
+                logger.debug { "AI建议: to='$aiTo' from='$aiFrom'" }
                 return null
             } else {
-                ServerLog.d("AI未返回有效结果")
+                logger.debug { "AI未返回有效结果" }
             }
         }
 
@@ -210,7 +213,7 @@ class AssetsMap {
                     name = accountName
                     mapName = ""
                 }
-                ServerLog.d("创建空资产映射占位符: '$accountName'")
+                logger.debug { "创建空资产映射占位符: '$accountName'" }
                 Db.get().assetsMapDao().insert(emptyMapping)
             }
         }
@@ -246,7 +249,7 @@ class AssetsMap {
                 }
                 true
             }?.let { asset ->
-                ServerLog.d("算法映射-卡号命中: ${asset.name}")
+                logger.debug { "算法映射-卡号命中: ${asset.name}" }
                 return asset.name
             }
         }
@@ -281,10 +284,10 @@ class AssetsMap {
         }
 
         bestName?.let {
-            ServerLog.d("算法映射-文本命中: '$accountName' -> '$it' 相似度=$bestSimilarity 差异=$bestDiff")
+            logger.debug { "算法映射-文本命中: '$accountName' -> '$it' 相似度=$bestSimilarity 差异=$bestDiff" }
             return it
         }
-        ServerLog.d("算法映射未命中: '$accountName'")
+        logger.debug { "算法映射未命中: '$accountName'" }
         return null
     }
 

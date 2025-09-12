@@ -29,6 +29,7 @@ import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.tools.MD5HashTable
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 规则编辑页面 - 简洁版
@@ -56,12 +57,12 @@ class RuleEditFragment : BaseFragment<FragmentRuleEditBinding>() {
         rule = when {
 
             arguments?.getString("rule") != null -> {
-                Logger.d("编辑规则")
+                logger.debug { "编辑规则" }
                 Gson().fromJson(arguments?.getString("rule"), RuleModel::class.java)
             }
 
             arguments?.getString("data") != null -> {
-                Logger.d("新建规则")
+                logger.debug { "新建规则" }
                 val appData =
                     Gson().fromJson(arguments?.getString("data"), AppDataModel::class.java)
                 RuleModel().apply {
@@ -78,7 +79,7 @@ class RuleEditFragment : BaseFragment<FragmentRuleEditBinding>() {
                 findNavController().popBackStack(); return
             }
         }
-        Logger.d("初始化规则：$rule")
+        logger.debug { "初始化规则：$rule" }
         binding.toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
     }
 
@@ -139,7 +140,7 @@ class RuleEditFragment : BaseFragment<FragmentRuleEditBinding>() {
             rule.js = bundle.getString("js") ?: ""
             rule.systemRuleName = bundle.getString("name") ?: ""
             updateJsDisplay()
-            Logger.d("恢复数据：${rule.systemRuleName}")
+            logger.debug { "恢复数据：${rule.systemRuleName}" }
         }
     }
 

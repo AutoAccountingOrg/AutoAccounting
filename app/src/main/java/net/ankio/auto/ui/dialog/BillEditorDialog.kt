@@ -32,6 +32,7 @@ import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 
 /**
@@ -125,11 +126,11 @@ class BillEditorDialog internal constructor(
         // 设置全局刷新监听 - 直接调用各组件的刷新方法
         launch {
             refreshEvent.collect {
-                Logger.d("refresh all components")
+                logger.debug { "refresh all components" }
                 refreshAllComponents()
             }
         }
-        Logger.d("账单编辑器初始化")
+        logger.debug { "账单编辑器初始化" }
     }
 
     /**
@@ -166,7 +167,7 @@ class BillEditorDialog internal constructor(
      */
     private fun refreshAllComponents() {
         val billInfo = billInfoModel ?: return
-        Logger.d("刷新组件时的账单：$billInfo")
+        logger.debug { "刷新组件时的账单：$billInfo" }
         // 更新基础状态
         currentBillType = BillTool.getType(billInfo.type)
         transactionTypeSelectorComponent.refresh()

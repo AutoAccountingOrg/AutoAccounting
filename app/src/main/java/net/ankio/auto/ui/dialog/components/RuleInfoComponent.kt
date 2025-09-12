@@ -34,6 +34,7 @@ import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.RuleModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 规则信息组件 - 专用于账单编辑对话框
@@ -135,9 +136,9 @@ class RuleInfoComponent(
                         val updatedRule = rule.apply { enabled = false }
                         RuleManageAPI.put(updatedRule)
                         disabledCount++
-                        Logger.d("禁用规则: ${rule.name} (ID: ${rule.id})")
+                        logger.debug { "禁用规则: ${rule.name} (ID: ${rule.id})"}
                     } catch (e: Exception) {
-                        Logger.e("禁用规则失败: ${rule.name}", e)
+                        logger.error(e) { "禁用规则失败: ${rule.name}" }
                     }
                 }
 
@@ -155,7 +156,7 @@ class RuleInfoComponent(
                 }
 
             } catch (e: Exception) {
-                Logger.e("禁用规则异常", e)
+                logger.error(e) { "禁用规则异常" }
                 ToastUtils.error(R.string.rule_disable_failed)
             }
         }

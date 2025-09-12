@@ -29,6 +29,7 @@ import androidx.core.net.toUri
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
 import net.ankio.auto.utils.BillTool
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 悬浮窗服务（OverlayService）。
@@ -43,6 +44,8 @@ import net.ankio.auto.utils.BillTool
  * - 本服务不主动申请权限，由 [hasPermission] 与 [startPermissionActivity] 提供检测与跳转。
  */
 class OverlayService : ICoreService() {
+
+    private val serviceLogger = KotlinLogging.logger {}
 
     /** 悬浮窗窗口控制器，负责具体的视图生命周期与渲染。 */
     private lateinit var billWindowManager: BillWindowManager
@@ -95,10 +98,10 @@ class OverlayService : ICoreService() {
                 ToastUtils.info(coreService.getString(R.string.repeat_bill))
             }
             billWindowManager.updateCurrentBill(parent)
-            Logger.d("Repeat Bill, Parent: $parent")
+            logger.debug { "Repeat Bill, Parent: $parent" }
         } else {
             if (floatIntent.billInfoModel.auto || PrefManager.autoRecordBill) {
-                Logger.d("自动记录账单")
+                logger.debug { "自动记录账单" }
                 BillTool.saveBill(floatIntent.billInfoModel)
             } else {
                 billWindowManager.addBill(floatIntent.billInfoModel)

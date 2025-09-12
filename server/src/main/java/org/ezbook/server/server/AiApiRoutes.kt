@@ -27,11 +27,13 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SettingUtils
 import org.ezbook.server.tools.runCatchingExceptCancel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 fun Route.aiApiRoutes() {
+    val logger = KotlinLogging.logger(this::class.java.name)
+    
     route("/ai") {
         // helpers: 统一解析与应用前端传入的 Provider/Key/URL/Model
         suspend fun applyIncomingSettings(params: Map<String, String>) {
@@ -114,7 +116,7 @@ fun Route.aiApiRoutes() {
                     flush()
 
                 }.onFailure {
-                    ServerLog.e("catch error: ${it.message}", it)
+                    logger.error(it) { "catch error: ${it.message}" }
                     write("event: error\n")
                     write("data: ${it.message}\n\n")
                     flush()

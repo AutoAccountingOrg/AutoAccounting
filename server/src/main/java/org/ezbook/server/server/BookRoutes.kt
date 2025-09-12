@@ -27,14 +27,16 @@ import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SettingUtils
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 账本管理路由配置
  * 提供记账账本的管理功能，包括账本列表和数据同步
  */
 fun Route.bookRoutes() {
+    val logger = KotlinLogging.logger(this::class.java.name)
+    
     route("/book") {
         /**
          * GET /book/get - 根据ID获取单个账本
@@ -116,7 +118,7 @@ fun Route.bookRoutes() {
             val json =
                 com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
             val id = json?.get("id")?.asLong ?: 0
-            ServerLog.d("删除账本：$id")
+            logger.debug { "删除账本：$id" }
             Db.get().bookNameDao().delete(id)
             call.respond(ResultModel.ok(0))
         }

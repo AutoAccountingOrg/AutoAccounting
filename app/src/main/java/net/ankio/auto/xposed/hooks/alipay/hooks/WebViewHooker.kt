@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.alipay.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.webkit.ValueCallback
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,8 @@ import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
 
 class WebViewHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
 
     companion object {
         const val WAIT_TIME = 100L
@@ -85,7 +88,7 @@ class WebViewHooker : PartHooker() {
                         }
 
                         needWait = false
-                        AppRuntime.manifest.logD("Hooked Alipay Bill List Data：$result")
+                        logger.debug { "Hooked Alipay Bill List Data：$result" }
                         AppRuntime.manifest.analysisData(DataType.DATA, result)
                     }
 

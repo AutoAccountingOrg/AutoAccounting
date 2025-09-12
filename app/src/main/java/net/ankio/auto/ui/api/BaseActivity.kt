@@ -18,11 +18,13 @@ package net.ankio.auto.ui.api
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
+import android.os.Build
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.ThemeUtils
 import rikka.material.app.MaterialActivity
 
@@ -38,6 +40,9 @@ import rikka.material.app.MaterialActivity
  * 所有继承此类的Activity都将自动获得这些基础功能
  */
 open class BaseActivity : MaterialActivity() {
+    companion object {
+        val logger = KotlinLogging.logger(this::class.java.name)
+    }
 
     /**
      * 计算用户主题键值
@@ -45,8 +50,7 @@ open class BaseActivity : MaterialActivity() {
      *
      * @return 主题键值字符串
      */
-    override fun computeUserThemeKey() =
-        ThemeUtils.colorTheme + ThemeUtils.getNightThemeStyleRes(this)
+    override fun computeUserThemeKey() = ThemeUtils.colorTheme + ThemeUtils.getNightThemeStyleRes(this)
 
     /**
      * 应用透明系统栏
@@ -55,8 +59,12 @@ open class BaseActivity : MaterialActivity() {
     override fun onApplyTranslucentSystemBars() {
         super.onApplyTranslucentSystemBars()
 
-        window.statusBarColor = Color.TRANSPARENT
-        window.navigationBarColor = Color.TRANSPARENT
+        // 使用现代API替代弃用的statusBarColor和navigationBarColor
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            @Suppress("DEPRECATION") window.statusBarColor = Color.TRANSPARENT
+            @Suppress("DEPRECATION") window.navigationBarColor = Color.TRANSPARENT
+        }
 
     }
 
@@ -71,13 +79,13 @@ open class BaseActivity : MaterialActivity() {
 
         // 如果不是系统强调色，应用自定义颜色主题
         if (!ThemeUtils.isSystemAccent) {
-            Logger.d("Applying custom color theme: ${ThemeUtils.colorThemeStyleRes}")
+            logger.debug { "Applying custom color theme: ${ThemeUtils.colorThemeStyleRes}" }
             theme.applyStyle(ThemeUtils.colorThemeStyleRes, true)
         }
 
         // 应用夜间模式样式
         val nightThemeRes = ThemeUtils.getNightThemeStyleRes(this)
-        Logger.d("Applying night theme: $nightThemeRes")
+        logger.debug { "Applying night theme: $nightThemeRes" }
         theme.applyStyle(nightThemeRes, true)
 
 
@@ -110,17 +118,16 @@ open class BaseActivity : MaterialActivity() {
      * ```
      */
     inline fun <reified T : BaseActivity> BaseActivity.start(
-        finishCurrent: Boolean = false,
-        noinline builder: Intent.() -> Unit = {}
+        finishCurrent: Boolean = false, noinline builder: Intent.() -> Unit = {}
     ) {
         val targetActivity = T::class.java.simpleName
-        Logger.d("Starting activity: $targetActivity, finishCurrent: $finishCurrent")
+        logger.debug { "Starting activity: $targetActivity, finishCurrent: $finishCurrent" }
 
         val intent = Intent(this, T::class.java).apply(builder)
         startActivity(intent)
 
         if (finishCurrent) {
-            Logger.d("Finishing current activity: ${this.javaClass.simpleName}")
+            logger.debug { "Finishing current activity: ${javaClass.simpleName}" }
             finish()
         }
 
@@ -138,11 +145,11 @@ open class BaseActivity : MaterialActivity() {
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is kotlinx.coroutines.CancellationException -> {
-                        Logger.d("Activity协程已取消: ${e.message}")
+                        logger.debug { "Activity协程已取消: ${e.message}" }
                     }
 
                     else -> {
-                        Logger.e("Activity协程执行异常: ${javaClass.simpleName}", e)
+                        logger.error(e) { "Activity协程执行异常: ${javaClass.simpleName}" }
                     }
                 }
             }

@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.sync
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.content.Context
 import android.content.Intent
 import com.google.gson.Gson
@@ -30,6 +31,8 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
 class SyncBillUtils {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     companion object {
         private const val PREFS_NAME = "sync_status"
         private const val LAST_SYNC_TIME_KEY = "last_sync_time"
@@ -79,11 +82,11 @@ class SyncBillUtils {
     suspend fun sync(context: Context) = withContext(Dispatchers.IO) {
         val currentTime = System.currentTimeMillis()
         if (getSyncState(context)) {
-            AppRuntime.log("同步任务正在进行中，忽略本次调用")
+            logger.info { "同步任务正在进行中，忽略本次调用" }
             return@withContext
         }
         if (currentTime - getLastSyncTime(context) < MIN_INTERVAL) {
-            AppRuntime.log("调用过于频繁，请稍后再试")
+            logger.info { "调用过于频繁，请稍后再试" }
             return@withContext
         }
 
@@ -97,11 +100,11 @@ class SyncBillUtils {
             }
             val bills = BillAPI.sync()
             if (bills.isEmpty()) {
-                AppRuntime.log("No bills need to sync")
+                logger.info { "No bills need to sync" }
                 return@withContext
             }
 
-            AppRuntime.log("Sync ${bills.size} bills")
+            logger.info { "Sync ${bills.size} bills" }
             AutoConfig.load()
             bills.forEach {
 

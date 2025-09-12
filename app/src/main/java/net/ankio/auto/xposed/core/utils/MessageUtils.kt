@@ -17,10 +17,11 @@ package net.ankio.auto.xposed.core.utils
 
 import android.widget.Toast
 import com.hjq.toast.Toaster
-import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.xposed.core.logger.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object MessageUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 弹出提示
@@ -35,7 +36,7 @@ object MessageUtils {
         } catch (e: Throwable) {
             Toast.makeText(AppRuntime.application, msg, Toast.LENGTH_LONG).show()
         } finally {
-            Logger.log(TAG, msg)
+            logger.debug { msg }
         }
 
 

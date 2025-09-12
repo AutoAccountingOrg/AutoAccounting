@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.wechat
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
@@ -34,6 +35,8 @@ import java.io.File
 
 
 class WechatHooker : HookerManifest() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     override val packageName: String = DefaultData.WECHAT_PACKAGE
     override val appName: String = "微信"
 
@@ -47,7 +50,7 @@ class WechatHooker : HookerManifest() {
         val tinkerDir = File(application!!.dataDir, "tinker")
 
         if (tinkerDir.exists()) {
-            log("tinkerDir: ${tinkerDir.absolutePath}")
+            logger.info { "tinkerDir: ${tinkerDir.absolutePath}" }
             closeTinker(classLoader)
         }
 

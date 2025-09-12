@@ -20,6 +20,7 @@ import org.ezbook.server.constant.BillAction
 import org.ezbook.server.db.model.BillInfoModel
 
 interface IAppAdapter {
+
     //包名
     val pkg: String
 

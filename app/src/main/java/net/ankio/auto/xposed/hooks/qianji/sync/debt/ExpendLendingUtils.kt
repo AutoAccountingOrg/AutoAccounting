@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -30,6 +31,8 @@ import org.ezbook.server.db.model.BillInfoModel
  */
 class ExpendLendingUtils :
     BaseDebt() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
         // 借出账户
         val accountFrom = getAccountFrom(billModel)
@@ -39,7 +42,7 @@ class ExpendLendingUtils :
         val isNewAssets = isNewAssets(accountTo)
         val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        AppRuntime.logD("借出: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
+        logger.debug { "借出: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets" }
 
         // 更新loan
         updateLoan(billModel, accountTo, isNewAssets)

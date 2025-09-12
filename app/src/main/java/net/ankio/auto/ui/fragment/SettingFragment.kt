@@ -37,6 +37,7 @@ import androidx.core.net.toUri
 import androidx.navigation.fragment.findNavController
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.toThemeColor
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>() {
@@ -147,7 +148,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
             }
             .onFailure { e ->
-                Logger.e("激活码验证异常: ${e.message}", e)
+                logger.error(e) { "激活码验证异常: ${e.message}" }
 
                 ToastUtils.error(
                     getString(
@@ -204,7 +205,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
     private fun createActivationStateFromInfo(info: HashMap<String, String>): ActivationState {
         return if (info.containsKey("error")) {
             val errorMsg = info["error"] ?: getString(R.string.unknown_error)
-            Logger.e("激活信息接口返回错误: $errorMsg")
+            logger.error { "激活信息接口返回错误: $errorMsg" }
             ActivationState(
                 isActivated = false,
                 displayText = getString(R.string.pro_activate_info_failed, errorMsg),

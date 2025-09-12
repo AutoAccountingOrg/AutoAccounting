@@ -25,12 +25,15 @@ import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.FloatingWindowTriggerActivity
 import org.ezbook.server.intent.OCRIntent
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * OCR快速设置磁贴服务
  * 用户可以通过下拉通知栏的快速设置磁贴来启动OCR识别
  */
 class OcrTileService : TileService() {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 磁贴开始监听时调用
@@ -66,7 +69,7 @@ class OcrTileService : TileService() {
     override fun onClick() {
         super.onClick()
 
-        Logger.d("OCR磁贴被点击")
+        logger.debug { "OCR磁贴被点击" }
 
 
         try {
@@ -86,7 +89,7 @@ class OcrTileService : TileService() {
 
 
         } catch (e: Exception) {
-            Logger.e("通过磁贴启动OCR识别失败: ${e.message}")
+            logger.error { "通过磁贴启动OCR识别失败: ${e.message}" }
         }
     }
 
@@ -95,7 +98,7 @@ class OcrTileService : TileService() {
      * 清理资源，防止内存泄露
      */
     override fun onDestroy() {
-        Logger.d("OCR磁贴服务销毁，清理资源")
+        logger.debug { "OCR磁贴服务销毁，清理资源" }
         super.onDestroy()
     }
 }

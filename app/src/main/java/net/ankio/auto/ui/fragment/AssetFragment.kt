@@ -41,6 +41,7 @@ import net.ankio.auto.ui.utils.adapterBottom
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 资产管理Fragment
@@ -204,7 +205,7 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
             // 设置资产选择回调
             assetComponent.setOnAssetSelectedListener { asset ->
                 asset.let {
-                    Logger.d("资产被选中: ${it.name}")
+                    logger.debug { "资产被选中: ${it.name}" }
                 }
             }
 

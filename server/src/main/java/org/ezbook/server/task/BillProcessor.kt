@@ -5,11 +5,12 @@ import kotlinx.coroutines.channels.Channel
 import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.BillManager
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.runCatchingExceptCancel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class BillProcessor {
 
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     private val taskChannel = Channel<BillTask>(Channel.UNLIMITED)
 
@@ -25,7 +26,7 @@ class BillProcessor {
                 runCatchingExceptCancel {
                     task.result = BillManager.groupBillInfo(task.billInfoModel, task.context)
                 }.onFailure {
-                    ServerLog.e("处理任务失败: ${it.message}", it)
+                    logger.error(it) { "处理任务失败: ${it.message}" }
                     task.result = null
                     task.complete()
                 }.onSuccess {

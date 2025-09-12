@@ -23,9 +23,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.xposed.core.logger.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class ThreadUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
@@ -34,7 +36,7 @@ class ThreadUtils {
             runCatching {
                 block()
             }.onFailure {
-                Logger.logE(TAG, it)
+                logger.error(it) { }
             }
         }
     }
@@ -46,7 +48,7 @@ class ThreadUtils {
                 block()
 
             }.onFailure {
-                Logger.logE(TAG, it)
+                logger.error(it) { }
             }
         }
     }

@@ -26,13 +26,15 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.AssetsMap
-import org.ezbook.server.tools.ServerLog
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 资产映射管理路由配置
  * 提供资产名称映射功能，用于将不同来源的资产名称统一到标准资产账户
  */
 fun Route.assetsMapRoutes() {
+    val logger = KotlinLogging.logger(this::class.java.name)
+    
     route("/assets/map") {
         /**
          * GET /assets/map/list - 获取资产映射列表
@@ -140,23 +142,24 @@ private data class DeleteRequest(
  * 只处理最近3个月的账单，分批处理避免内存溢出
  */
 private suspend fun reapplyAssetMappingToHistoryData() {
+    val logger = KotlinLogging.logger("AssetsMapRoutes")
 
-    ServerLog.d("开始重新应用资产映射到最近3个月的历史数据")
+    logger.debug { "开始重新应用资产映射到最近3个月的历史数据" }
 
     val db = Db.get()
 
     // 计算3个月前的时间戳
     val threeMonthsAgo = calculateThreeMonthsAgo()
-    ServerLog.d("处理时间范围: ${java.util.Date(threeMonthsAgo)} 至今")
+    logger.debug { "处理时间范围: ${java.util.Date(threeMonthsAgo)} 至今" }
 
     val totalBills = db.billInfoDao().getRecentBillsCount(threeMonthsAgo)
     val batchSize = 100 // 每批处理100条记录
     var processedCount = 0
 
-    ServerLog.d("最近3个月账单数量: $totalBills")
+    logger.debug { "最近3个月账单数量: $totalBills" }
 
     if (totalBills == 0) {
-        ServerLog.d("没有找到最近3个月的账单，操作结束")
+        logger.debug { "没有找到最近3个月的账单，操作结束" }
         return
     }
     val assetsMap = AssetsMap()
@@ -182,15 +185,15 @@ private suspend fun reapplyAssetMappingToHistoryData() {
 
                 processedCount++
             } catch (e: Exception) {
-                ServerLog.e("处理账单 ${bill.id} 时出错: ${e.message}")
+                logger.error { "处理账单 ${bill.id} 时出错: ${e.message}" }
             }
         }
 
         // 每处理一批后记录进度
-        ServerLog.d("已处理账单: $processedCount / $totalBills")
+        logger.debug { "已处理账单: $processedCount / $totalBills" }
     }
 
-    ServerLog.d("资产映射重新应用完成，共处理最近3个月的 $processedCount 条账单")
+    logger.debug { "资产映射重新应用完成，共处理最近3个月的 $processedCount 条账单" }
 
 
 }

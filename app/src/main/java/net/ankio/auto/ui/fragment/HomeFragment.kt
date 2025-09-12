@@ -37,6 +37,7 @@ import net.ankio.auto.ui.fragment.components.MonthlyCardComponent
 import net.ankio.auto.ui.fragment.components.RuleVersionCardComponent
 import net.ankio.auto.ui.fragment.components.StatusCardComponent
 import net.ankio.auto.utils.PrefManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
     private val gson = Gson()
@@ -125,7 +126,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         launch {
             LocalNetwork.get<String>("/").onSuccess {
                 if (it.data != BuildConfig.VERSION_NAME) {
-                    Logger.d("server:${it.data}, ${BuildConfig.VERSION_NAME}")
+                    logger.debug { "server:${it.data}, ${BuildConfig.VERSION_NAME}" }
                     // 版本不匹配，提示用户重启设备
                     showServerVersionMismatchDialog(it.data ?: "")
                 }

@@ -40,6 +40,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -110,11 +111,11 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.d("Dialog协程已取消: ${e.message}")
+                        logger.debug { "Dialog协程已取消: ${e.message}" }
                     }
 
                     else -> {
-                        Logger.e("Dialog协程执行异常: ${javaClass.simpleName}", e)
+                        logger.error(e) { "Dialog协程执行异常: ${javaClass.simpleName}" }
                         // 可以在这里添加全局异常处理逻辑
                     }
                 }
@@ -154,7 +155,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
             _binding = inflate.invoke(null, LayoutInflater.from(ctx)) as VB
 
         } catch (e: Exception) {
-            Logger.e("为 ${javaClass.simpleName} 创建视图失败", e)
+            logger.error(e) { "为 ${javaClass.simpleName} 创建视图失败" }
             // 初始化失败时抛出异常，避免后续使用时崩溃
             throw IllegalStateException("ViewBinding 初始化失败: ${e.message}", e)
         }
@@ -341,7 +342,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
         val round = PrefManager.uiRoundStyle
         val margin = DisplayUtils.dp2px(20f)
 
-        Logger.d("准备基础视图 - 圆角样式: $round")
+        logger.debug { "准备基础视图 - 圆角样式: $round" }
 
         // 创建各个组件
         val cardView = createCardView(round, margin)
@@ -380,7 +381,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
                 DisplayUtils.getRealScreenSize(ctx).y - DisplayUtils.getStatusBarHeight(ctx)
         }
 
-        Logger.d("BottomSheet 已配置 - 最大高度: ${bottomSheetBehavior.maxHeight}")
+        logger.debug { "BottomSheet 已配置 - 最大高度: ${bottomSheetBehavior.maxHeight}" }
 
         // 监听窗口插入变化（主要是键盘）
         ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { v, insets ->
@@ -396,7 +397,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
 
             // 通知子类键盘状态变化
             if (imeVisible) {
-                Logger.d("输入法可见，高度: $imeHeight")
+                logger.debug { "输入法可见，高度: $imeHeight" }
                 onImeVisible()
             }
             insets
@@ -418,19 +419,19 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
     open fun show(cancel: Boolean = false) {
         // 宿主生命周期安全检查
         if (hostLifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
-            Logger.w("无法显示对话框：宿主生命周期已销毁")
+            logger.warn { "无法显示对话框：宿主生命周期已销毁" }
             return
         }
 
         // Activity状态安全检查：如果 ctx 是 Activity 需检查存活
         (ctx as? Activity)?.let {
             if (it.isFinishing || it.isDestroyed) {
-                Logger.w("无法显示对话框：Activity 未运行")
+                logger.warn { "无法显示对话框：Activity 未运行" }
                 return
             }
         }
 
-        Logger.d("显示对话框 - 悬浮窗模式: $isOverlay, 可取消: $cancel")
+        logger.debug { "显示对话框 - 悬浮窗模式: $isOverlay, 可取消: $cancel" }
 
         // 创建和配置视图
         val cardView = prepareBaseView()
@@ -456,11 +457,11 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
                 if (isOverlay) {
                     // 设置为悬浮窗类型
                     params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                    Logger.d("设置为悬浮窗")
+                    logger.debug { "设置为悬浮窗" }
                 }
                 win.attributes = params
             }.onFailure {
-                Logger.e("设置窗口属性失败", it)
+                logger.error(it) { "设置窗口属性失败" }
             }
         }
 
@@ -496,15 +497,17 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
             if (isShowing && window?.decorView?.isAttachedToWindow == true) {
                 super.dismiss()
             } else {
-                Logger.d("对话框未显示或窗口未附加，跳过关闭操作")
+                logger.debug { "对话框未显示或窗口未附加，跳过关闭操作" }
             }
         }.onFailure {
             it.printStackTrace()
-            Logger.e("关闭对话框出错", it)
+            logger.error(it) { "关闭对话框出错" }
         }
     }
 
     companion object {
+            val logger = KotlinLogging.logger(this::class.java.name)
+
         /**
          * 创建弹窗 - 统一简化的工厂方法
          *

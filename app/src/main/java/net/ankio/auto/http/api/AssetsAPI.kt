@@ -23,12 +23,15 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.tools.runCatchingExceptCancel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 资产相关的API接口
  * 提供资产的查询、添加和获取等操作
  */
 object AssetsAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 获取所有资产列表
      * @return 返回资产模型列表，如果请求失败则返回空列表
@@ -39,7 +42,7 @@ object AssetsAPI {
             val resp = LocalNetwork.get<List<AssetsModel>>("assets/list").getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("list error: ${it.message}", it)
+            logger.error(it) { "list error: ${it.message}" }
             emptyList()
         }
     }
@@ -55,7 +58,7 @@ object AssetsAPI {
             val json = Gson().toJson(data)
             LocalNetwork.post<String>("assets/put?md5=$md5", json).getOrThrow()
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
 
         }
     }
@@ -72,7 +75,7 @@ object AssetsAPI {
                 LocalNetwork.get<AssetsModel>("assets/get?name=${Uri.encode(name)}").getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("getByName error: ${it.message}", it)
+            logger.error(it) { "getByName error: ${it.message}" }
             null
         }
     }
@@ -88,7 +91,7 @@ object AssetsAPI {
             val resp = LocalNetwork.post<Long>("assets/save", Gson().toJson(asset)).getOrThrow()
             resp.data ?: 0L
         }.getOrElse {
-            Logger.e("save error: ${it.message}", it)
+            logger.error(it) { "save error: ${it.message}" }
             0L
         }
     }
@@ -106,7 +109,7 @@ object AssetsAPI {
                     .getOrThrow()
             resp.data ?: 0L
         }.getOrElse {
-            Logger.e("delete error: ${it.message}", it)
+            logger.error(it) { "delete error: ${it.message}" }
             0L
         }
     }
@@ -122,7 +125,7 @@ object AssetsAPI {
             val resp = LocalNetwork.get<AssetsModel>("assets/getById?id=$assetId").getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("getById error: ${it.message}", it)
+            logger.error(it) { "getById error: ${it.message}" }
             null
         }
     }

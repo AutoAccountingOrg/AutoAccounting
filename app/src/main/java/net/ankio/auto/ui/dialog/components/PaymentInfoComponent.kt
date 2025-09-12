@@ -32,6 +32,7 @@ import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 支付信息组件 - 参考BookHeaderComponent的独立设计模式
@@ -74,7 +75,7 @@ class PaymentInfoComponent(
      * 刷新显示 - 根据当前账单信息更新UI
      */
     fun refresh() {
-        Logger.d("刷新：$billInfoModel")
+        logger.debug { "刷新：$billInfoModel" }
         configureUIForBillType()
         updateAccountDisplay()
         updateChooseBillDisplay()

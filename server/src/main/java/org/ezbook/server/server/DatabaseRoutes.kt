@@ -28,8 +28,8 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import org.ezbook.server.db.Db
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**
@@ -37,6 +37,8 @@ import org.ezbook.server.tools.runCatchingExceptCancel
  * 提供数据库的备份、恢复和清理功能，支持完整的数据迁移和管理
  */
 fun Route.databaseRoutes(context: Context) {
+    val logger = KotlinLogging.logger(this::class.java.name)
+    
     route("/db") {
         /**
          * GET /db/export - 导出数据库
@@ -49,7 +51,7 @@ fun Route.databaseRoutes(context: Context) {
                 val file = Db.copy(context)
                 call.respondFile(file.parentFile!!, file.name)
             }.onFailure {
-                ServerLog.e("数据库导出失败：${it.message}", it)
+                logger.error(it) { "数据库导出失败：${it.message}" }
                 call.respond(ResultModel.error(500, "Database export failed: ${it.message}"))
             }
         }
@@ -85,7 +87,7 @@ fun Route.databaseRoutes(context: Context) {
                     part.dispose()
                 }
             }.onFailure {
-                ServerLog.e("数据库导入失败：${it.message}", it)
+                logger.error(it) { "数据库导入失败：${it.message}" }
                 call.respond(ResultModel.error(500, "Database import failed: ${it.message}"))
             }
         }
@@ -101,7 +103,7 @@ fun Route.databaseRoutes(context: Context) {
                 Db.clear(context)
                 call.respond(ResultModel.ok("Database cleared"))
             }.onFailure {
-                ServerLog.e("清空数据库失败：${it.message}", it)
+                logger.error(it) { "清空数据库失败：${it.message}" }
                 call.respond(ResultModel.error(500, "Database clear failed: ${it.message}"))
             }
         }

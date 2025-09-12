@@ -46,6 +46,7 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.ThemeUtils
 import org.eclipse.tm4e.core.registry.IThemeSource
 import rikka.core.util.ResourceUtils
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 
 /**
@@ -167,7 +168,7 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
 
             // 通知子类键盘状态变化
             if (imeVisible) {
-                Logger.d("输入法可见，高度: $imeHeight")
+                logger.debug { "输入法可见，高度: $imeHeight" }
             }
             insets
         }

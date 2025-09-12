@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.android.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.app.Notification
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -30,6 +31,8 @@ import net.ankio.auto.http.api.SettingAPI
 
 
 class NotificationHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     private val hashTable = MD5HashTable()
     override fun hook() {
         Hooker.allMethodsEqBefore(
@@ -63,10 +66,10 @@ class NotificationHooker : PartHooker() {
             }.getOrElse { "" }
 
 
-          //  AppRuntime.manifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
+          //  logger.debug { "app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText" }
             val hash = MD5HashTable.md5("$app$originalTitle$originalText")
             if (hashTable.contains(hash)) {
-                //AppRuntime.manifest.logD("hashTable contains $hash, $originalTitle, $originalText")
+                //logger.debug { "hashTable contains $hash, $originalTitle, $originalText" }
                 return@allMethodsEqBefore null
             }
             hashTable.put(hash)
@@ -125,7 +128,7 @@ class NotificationHooker : PartHooker() {
             json.addProperty("t",System.currentTimeMillis())
 
 
-            AppRuntime.manifest.logD("NotificationHooker: $json")
+            logger.debug { "NotificationHooker: $json" }
             AppRuntime.manifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
         }
 

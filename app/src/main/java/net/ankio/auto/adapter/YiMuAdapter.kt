@@ -18,7 +18,7 @@ package net.ankio.auto.adapter
 import android.content.Intent
 import android.net.Uri
 import net.ankio.auto.constant.BookFeatures
-import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.utils.appendIfNotBlank
@@ -30,6 +30,9 @@ import java.util.Locale
 
 // 一木记账适配接口 https://www.yimuapp.com/doc/import/scheme-url.html
 class YiMuAdapter : IAppAdapter {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     override val pkg: String
         get() = "com.wangc.bill"
     override val link: String
@@ -101,7 +104,7 @@ class YiMuAdapter : IAppAdapter {
                 appendIfNotBlank("tags", tags)
             }
             .build()
-        Logger.i("目标应用uri：$uri")
+        logger.info { "目标应用uri：$uri" }
         // 调起目标 App 处理并在成功后标记同步完成
         val intent = Intent(Intent.ACTION_VIEW, uri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
         SystemUtils.startActivityIfResolvable(intent, name) {

@@ -20,8 +20,11 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object HomeAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 响应内容为服务器版本号
      */
@@ -31,7 +34,7 @@ object HomeAPI {
             val resp = LocalNetwork.get<String>("/").getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("index error: ${it.message}", it)
+            logger.error(it) { "index error: ${it.message}" }
             null
         }
     }

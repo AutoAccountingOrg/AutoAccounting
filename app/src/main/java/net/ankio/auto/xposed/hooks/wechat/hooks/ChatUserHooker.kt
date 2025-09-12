@@ -1,5 +1,6 @@
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
@@ -7,6 +8,8 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 
 class ChatUserHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
 
     companion object {
         const val CHAT_USER = "hookerUser"
@@ -40,7 +43,7 @@ class ChatUserHooker : PartHooker() {
 
             val field_username = XposedHelpers.getObjectField(obj, "field_username") as? String
 
-           // AppRuntime.manifest.logD("ChatUserHooker: $field_conRemark $field_username $field_nickname")
+           // logger.debug { "ChatUserHooker: $field_conRemark $field_username $field_nickname" }
 
             if(field_username.isNullOrEmpty()) return@after
 

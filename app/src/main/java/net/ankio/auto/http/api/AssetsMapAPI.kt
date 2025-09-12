@@ -24,11 +24,14 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.AssetsMapModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 资产映射相关API接口，封装了对后端资产映射的增删改查操作。
  */
 object AssetsMapAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 分页获取资产映射列表。
      * @param page 页码，从1开始
@@ -47,7 +50,7 @@ object AssetsMapAPI {
                         .getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
-                Logger.e("list error: ${it.message}", it)
+                logger.error(it) { "list error: ${it.message}" }
                 emptyList()
             }
         }
@@ -62,7 +65,7 @@ object AssetsMapAPI {
             val resp = LocalNetwork.get<List<AssetsMapModel>>("assets/map/empty").getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("empty error: ${it.message}", it)
+            logger.error(it) { "empty error: ${it.message}" }
             emptyList()
         }
     }
@@ -79,7 +82,7 @@ object AssetsMapAPI {
                 LocalNetwork.post<Long>("assets/map/put", Gson().toJson(model)).getOrThrow()
             resp.data ?: 0L
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
             0L
         }
     }
@@ -94,7 +97,7 @@ object AssetsMapAPI {
             LocalNetwork.post<Long>("assets/map/delete", Gson().toJson(mapOf("id" to id)))
                 .getOrThrow()
         }.getOrElse {
-            Logger.e("remove error: ${it.message}", it)
+            logger.error(it) { "remove error: ${it.message}" }
 
         }
     }
@@ -112,7 +115,7 @@ object AssetsMapAPI {
                     .getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("getByName error: ${it.message}", it)
+            logger.error(it) { "getByName error: ${it.message}" }
             null
         }
     }
@@ -128,7 +131,7 @@ object AssetsMapAPI {
             val resp = LocalNetwork.post<Boolean>("assets/map/reapply", "{}").getOrThrow()
             resp.data ?: false
         }.getOrElse {
-            Logger.e("reapply error: ${it.message}", it)
+            logger.error(it) { "reapply error: ${it.message}" }
             false
         }
     }

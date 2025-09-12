@@ -4,8 +4,11 @@ import net.lingala.zip4j.ZipFile
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import java.io.File
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object ZipUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 压缩目录或文件，支持可选密码
@@ -56,7 +59,7 @@ object ZipUtils {
                 }
             }
         } catch (e: Exception) {
-            Logger.e("Zip failed: ${e.message}")
+            logger.error { "Zip failed: ${e.message}" }
         }
     }
 
@@ -80,7 +83,7 @@ object ZipUtils {
             zipFile.extractAll(desDirectory)
             zipFile.fileHeaders.forEach { callback?.invoke(it.fileName) }
         } catch (e: Exception) {
-            Logger.e("Unzip failed: ${e.message}")
+            logger.error { "Unzip failed: ${e.message}" }
         }
     }
 }

@@ -30,6 +30,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.BillInfoModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 浮动提示视图控制器
@@ -46,6 +47,8 @@ class FloatingTip(
     private val context: Context,
     private val windowManager: WindowManager
 ) {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /** 浮窗视图绑定（右侧），按需延迟创建 */
     private val rightBinding: FloatTipBinding by lazy {
         FloatTipBinding.inflate(LayoutInflater.from(context))
@@ -107,7 +110,7 @@ class FloatingTip(
         bill: BillInfoModel,
         onEvent: (Event) -> Unit
     ) {
-        Logger.d("为账单显示浮动提示: ${bill.id}")
+        logger.debug { "为账单显示浮动提示: ${bill.id}" }
 
         // 使用当前侧的绑定
         val b = currentBinding()
@@ -129,7 +132,7 @@ class FloatingTip(
             }
 
             override fun onFinish() {
-                Logger.d("倒计时结束，显示编辑器")
+                logger.debug { "倒计时结束，显示编辑器" }
                 dismiss()
                 onEvent(Event.Timeout)
             }
@@ -137,13 +140,13 @@ class FloatingTip(
 
         // 3) 交互事件
         b.root.setOnClickListener {
-            Logger.d("提示被点击")
+            logger.debug { "提示被点击" }
             countDownTimer?.cancel()
             dismiss()
             onEvent(Event.Click)
         }
         b.root.setOnLongClickListener {
-            Logger.d("提示被长按")
+            logger.debug { "提示被长按" }
             countDownTimer?.cancel()
             dismiss()
             onEvent(Event.LongClick)
@@ -176,10 +179,10 @@ class FloatingTip(
 
                 b.root.visibility = View.VISIBLE
                 countDownTimer?.start()
-                Logger.d("提示窗口显示成功")
+                logger.debug { "提示窗口显示成功" }
             }
         } catch (e: Exception) {
-            Logger.e("添加提示窗口失败", e)
+            logger.error(e) { "添加提示窗口失败" }
             // 失败时视为超时路径：直接回调上层使用其既有策略
             onEvent(Event.Timeout)
         }
@@ -193,16 +196,16 @@ class FloatingTip(
         runCatching {
             if (rightBinding.root.isAttachedToWindow) {
                 windowManager.removeViewImmediate(rightBinding.root)
-                Logger.d("提示窗口移除成功")
+                logger.debug { "提示窗口移除成功" }
             }
-        }.onFailure { Logger.w("移除提示窗口失败: ${it.message}") }
+        }.onFailure { logger.warn { "移除提示窗口失败: ${it.message}" } }
 
         runCatching {
             if (leftBinding.root.isAttachedToWindow) {
                 windowManager.removeViewImmediate(leftBinding.root)
-                Logger.d("提示窗口移除成功")
+                logger.debug { "提示窗口移除成功" }
             }
-        }.onFailure { Logger.w("移除提示窗口失败: ${it.message}") }
+        }.onFailure { logger.warn { "移除提示窗口失败: ${it.message}" } }
     }
 
     /**

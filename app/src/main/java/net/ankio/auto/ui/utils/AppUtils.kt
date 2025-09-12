@@ -19,8 +19,11 @@ import net.ankio.auto.App
 import net.ankio.auto.autoApp
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.models.AppInfo
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object AppUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     fun get(pkg: String): AppInfo? {
         try {
             val pm = autoApp.packageManager
@@ -32,7 +35,7 @@ object AppUtils {
                 pkg = applicationInfo
             )
         } catch (e: Exception) {
-            Logger.e("Failed to get pkg info: $pkg", e)
+            logger.error(e) { "Failed to get pkg info: $pkg" }
             return null
         }
     }

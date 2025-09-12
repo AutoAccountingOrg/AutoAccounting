@@ -27,14 +27,15 @@ import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SummaryService
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 账单管理路由配置
  * 提供账单的完整生命周期管理，包括增删改查、状态管理、统计分析等功能
  */
 fun Route.billRoutes() {
+    val logger = KotlinLogging.logger(this::class.java.name)
     route("/bill") {
         /**
          * GET /bill/list - 获取账单列表
@@ -56,7 +57,7 @@ fun Route.billRoutes() {
                 listOf(BillState.Edited.name, BillState.Synced.name, BillState.Wait2Edit.name)
             val type = call.request.queryParameters["type"]?.split(", ") ?: defaultStates
 
-            ServerLog.d("获取账单列表：page=$page, limit=$limit, type=$type")
+            logger.debug { "获取账单列表：page=$page, limit=$limit, type=$type" }
             val offset = (page - 1) * limit
             val bills = Db.get().billInfoDao().loadPage(limit, offset, type)
             call.respond(ResultModel.ok(bills))
@@ -121,7 +122,7 @@ fun Route.billRoutes() {
             val json =
                 com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
             val id = json?.get("id")?.asLong ?: 0
-            ServerLog.d("删除账单：$id")
+            logger.debug { "删除账单：$id" }
             Db.get().billInfoDao().deleteId(id)
             Db.get().billInfoDao().deleteGroup(id)
             call.respond(ResultModel.ok(0))

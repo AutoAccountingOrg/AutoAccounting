@@ -26,6 +26,7 @@ import net.ankio.auto.databinding.DialogBottomSheetBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.toThemeColor
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 底部弹窗构建器
@@ -91,7 +92,7 @@ open class BottomSheetDialogBuilder internal constructor(
      * @return 当前构建器实例，支持链式调用
      */
     open fun setMessage(message: String): BottomSheetDialogBuilder {
-        Logger.d("Setting message: '$message'")
+        logger.debug { "Setting message: '$message'" }
         // 确保消息容器存在
         ensureMessageContainer()
         val messageView = createMessageTextView(message)
@@ -119,7 +120,7 @@ open class BottomSheetDialogBuilder internal constructor(
         text: String,
         listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
-        Logger.d("Setting positive button: '$text'")
+        logger.debug { "Setting positive button: '$text'" }
         binding.positiveButton.text = text
         binding.positiveButton.visibility = View.VISIBLE
         binding.positiveButton.setOnClickListener {
@@ -153,7 +154,7 @@ open class BottomSheetDialogBuilder internal constructor(
         text: String,
         listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
-        Logger.d("Setting negative button: '$text'")
+        logger.debug { "Setting negative button: '$text'" }
         binding.negativeButton.text = text
         binding.negativeButton.visibility = View.VISIBLE
         binding.negativeButton.setOnClickListener {
@@ -183,7 +184,7 @@ open class BottomSheetDialogBuilder internal constructor(
      * @return 当前构建器实例，支持链式调用
      */
     open fun addCustomView(view: View): BottomSheetDialogBuilder {
-        Logger.d("Adding custom view: ${view.javaClass.simpleName}")
+        logger.debug { "Adding custom view: ${view.javaClass.simpleName}" }
         ensureMessageContainer()
         binding.container.addView(view)
         return this

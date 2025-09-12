@@ -29,6 +29,7 @@ import net.ankio.auto.http.api.AssetsMapAPI
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.tools.runCatchingExceptCancel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 操作按钮组件 - 专用于账单编辑对话框
@@ -167,7 +168,7 @@ class ActionButtonsComponent(
                     runCatchingExceptCancel {
                         AssetsMapAPI.put(model)
                     }.onFailure { e ->
-                        Logger.d("更新资产映射失败: ${e.message}")
+                        logger.debug { "更新资产映射失败: ${e.message}" }
                     }
                 }
             }
@@ -245,7 +246,7 @@ class ActionButtonsComponent(
         App.launchIO {
             try {
                 CategoryRuleAPI.put(model)
-                Logger.i("已自动记住分类: ${billInfoModel.cateName}")
+                logger.info { "已自动记住分类: ${billInfoModel.cateName}" }
                 // 成功提示
                 ToastUtils.info(
                     context.getString(
@@ -254,7 +255,7 @@ class ActionButtonsComponent(
                     )
                 )
             } catch (e: Exception) {
-                Logger.d("记住分类失败: ${e.message}")
+                logger.debug { "记住分类失败: ${e.message}" }
             }
         }
     }

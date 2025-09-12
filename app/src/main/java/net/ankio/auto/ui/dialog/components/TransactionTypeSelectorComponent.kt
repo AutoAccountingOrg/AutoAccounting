@@ -26,6 +26,7 @@ import net.ankio.auto.utils.BillTool
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 交易类型选择器组件 - 专用于账单编辑对话框
@@ -255,7 +256,7 @@ class TransactionTypeSelectorComponent(
             // 检查是否需要更新主类型和chip显示
             val newMainType = BillTool.getType(selectedType)
             if (newMainType != mainBillType) {
-                Logger.d("子类型选择导致主类型变化: $mainBillType -> $newMainType")
+                logger.debug { "子类型选择导致主类型变化: $mainBillType -> $newMainType" }
                 mainBillType = newMainType
                 setupSubTypesForMainType(mainBillType == BillType.Expend)
             }
@@ -263,7 +264,7 @@ class TransactionTypeSelectorComponent(
             // 通知刷新
             launch {
                 BillEditorDialog.notifyRefresh()
-                Logger.d("账单类型已更新: $oldType -> $selectedType")
+                logger.debug { "账单类型已更新: $oldType -> $selectedType" }
             }
         }
     }

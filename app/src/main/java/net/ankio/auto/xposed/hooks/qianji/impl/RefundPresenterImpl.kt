@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.impl
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,6 +28,8 @@ import java.util.Calendar
 import kotlin.coroutines.suspendCoroutine
 
 object RefundPresenterImpl {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     val CLAZZ = "com.mutangtech.qianji.bill.refund.RefundPresenterImpl"
     val refundImpl = Hooker.loader(CLAZZ)
 
@@ -36,7 +39,7 @@ object RefundPresenterImpl {
             billInfo.extendData.split(", ").firstOrNull() ?: throw Throwable("找不到退款的账单id")
         // 先获取账单列表
         val bills = SearchPresenterImpl.getLast10DayLists()
-        AppRuntime.log("bills: $bills")
+        logger.info { "bills: $bills" }
         //查找退款的账单
         val bill = bills.firstOrNull {
             it != null && Bill.fromObject(it).getBillid() == billId.toLong()

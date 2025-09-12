@@ -24,12 +24,15 @@ import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * CategoryAPI 对象提供了与分类相关的网络请求功能
  * 包括获取分类列表、根据名称获取分类以及更新分类数据
  */
 object CategoryAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 获取指定账本、类型和父分类下的分类列表
@@ -51,7 +54,7 @@ object CategoryAPI {
                     .getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("list error: ${it.message}", it)
+            logger.error(it) { "list error: ${it.message}" }
             emptyList()
         }
     }
@@ -76,7 +79,7 @@ object CategoryAPI {
                     .getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("getByName error: ${it.message}", it)
+            logger.error(it) { "getByName error: ${it.message}" }
             null
         }
     }
@@ -93,7 +96,7 @@ object CategoryAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("category/put?md5=$md5", Gson().toJson(data)).getOrThrow()
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
         }
     }
 
@@ -110,7 +113,7 @@ object CategoryAPI {
                 LocalNetwork.post<Long>("category/save", Gson().toJson(category)).getOrThrow()
             resp.data ?: 0L
         }.getOrElse {
-            Logger.e("save error: ${it.message}", it)
+            logger.error(it) { "save error: ${it.message}" }
             0L
         }
     }
@@ -129,7 +132,7 @@ object CategoryAPI {
                     .getOrThrow()
             resp.data ?: 0L
         }.getOrElse {
-            Logger.e("delete error: ${it.message}", it)
+            logger.error(it) { "delete error: ${it.message}" }
             0L
         }
     }
@@ -147,7 +150,7 @@ object CategoryAPI {
                 LocalNetwork.get<CategoryModel>("category/getById?id=$categoryId").getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("getById error: ${it.message}", it)
+            logger.error(it) { "getById error: ${it.message}" }
             null
         }
     }

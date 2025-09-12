@@ -15,12 +15,15 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 
 class PayToolsHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
 
     companion object{
         const val PAY_TOOLS = "cachedPayTools"
@@ -38,19 +41,19 @@ class PayToolsHooker : PartHooker() {
             String::class.java,
         ){ param ->
             val text = param.args[0] as String
-            AppRuntime.manifest.logD("Text: $text")
+            logger.debug { "Text: $text" }
             // 这里的数据只缓存2分钟，超过2分钟自动失效
             when {
                 Regex(".*(卡|零钱).*").matches(text) -> {
-                    AppRuntime.manifest.logD("支付方式Hook: $text")
+                    logger.debug { "支付方式Hook: $text" }
                     AppRuntime.memoryCache.put(PAY_TOOLS, text, DURATION_SECONDS)
                 }
                 Regex(".*([￥$]).*").matches(text) -> {
-                    AppRuntime.manifest.logD("支付金额Hook: $text")
+                    logger.debug { "支付金额Hook: $text" }
                     AppRuntime.memoryCache.put(PAY_MONEY, text, DURATION_SECONDS)
                 }
                 Regex(".*(转账|红包|付款给).*").matches(text) -> {
-                    AppRuntime.manifest.logD("支付对象hook: $text")
+                    logger.debug { "支付对象hook: $text" }
                     AppRuntime.memoryCache.put(PAY_SHOP, text, DURATION_SECONDS)
                 }
             }

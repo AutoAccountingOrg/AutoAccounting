@@ -23,8 +23,9 @@ import android.security.NetworkSecurityPolicy
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XposedHelpers
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.http.api.SettingAPI
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils.get
 import net.ankio.auto.xposed.core.utils.DataUtils.set
@@ -41,7 +42,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import net.ankio.auto.http.api.SettingAPI
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * HookerManifest
@@ -102,27 +104,6 @@ abstract class HookerManifest {
     open var clazz = HashMap<String, ClazzResult>()
 
     /**
-     * 写日志
-     */
-    fun log(string: String) {
-        Logger.log("$packageName$processName", string)
-    }
-
-    /**
-     * 写调试日志
-     */
-    fun logD(string: String) {
-        Logger.logD("$packageName$processName", string)
-    }
-
-    /**
-     * 写错误日志
-     */
-    fun logE(e: Throwable) {
-        Logger.logE("$packageName$processName", e)
-    }
-
-    /**
      * 附加资源路径
      */
     fun attachResource(context: Context) {
@@ -150,7 +131,7 @@ abstract class HookerManifest {
             if (context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED) {
                 return@forEach
             }
-            logE(Throwable("$appName 权限被拒绝: $it，此Hook可能无法正常工作"))
+            logger.error { "$appName 权限被拒绝: $it，此Hook可能无法正常工作" }
         }
     }
 
@@ -166,21 +147,22 @@ abstract class HookerManifest {
     fun versionCheck(): Boolean {
         val code = AppRuntime.versionCode
         val name = AppRuntime.versionName
-        log("应用版本号: $code, 版本名: $name")
+        logger.info { "应用版本号: $code, 版本名: $name" }
 
         // 检查App版本是否过低，过低无法使用
         if (minVersion != 0 && code < minVersion) {
-            logE(Throwable("自动适配失败，${AppRuntime.manifest.appName}(${code}) 版本过低"))
+            logger.error(Throwable("自动适配失败，${AppRuntime.manifest.appName}(${code}) 版本过低")) { }
             toast("${AppRuntime.manifest.appName}版本过低，无法适配，请升级到最新版本后再试。")
             return false
         }
         return true
     }
+
     /**
      * 在适配之前的操作
      */
-    open  fun beforeAdaption():MutableList<Clazz>{
-       return rules
+    open fun beforeAdaption(): MutableList<Clazz> {
+        return rules
     }
 
     /**
@@ -212,7 +194,7 @@ abstract class HookerManifest {
         val savedVersion = get("adaptation_version", "").toIntOrNull() ?: 0
         val savedRulesHash = get("adaptation_rules_hash", "")
 
-        logD("适配版本: $savedVersion, 规则哈希: $savedRulesHash")
+        logger.debug { "适配版本: $savedVersion, 规则哈希: $savedRulesHash" }
 
         // 版本号相同且规则哈希值相同时，尝试加载缓存的适配结果
         if (savedVersion == code && savedRulesHash == currentRulesHash) {
@@ -222,7 +204,7 @@ abstract class HookerManifest {
                     object : TypeToken<HashMap<String, ClazzResult>>() {}.type
                 )
                 if (clazz.size == rules.size) {
-                    log("从缓存加载适配信息: $clazz")
+                    logger.info { "从缓存加载适配信息: $clazz" }
                     return true
                 }
                 throw Exception("适配失败: 缓存大小不匹配")
@@ -231,7 +213,7 @@ abstract class HookerManifest {
                 set("adaptation_version", "0")
                 set("adaptation_rules_hash", "")
                 set("clazz", "")
-                logE(e)
+                logger.error(e) { }
             }
         }
 
@@ -257,7 +239,7 @@ abstract class HookerManifest {
 
                 val appInfo = AppRuntime.application!!.applicationInfo
                 val path = appInfo.sourceDir
-                logD("应用包路径: $path")
+                logger.debug { "应用包路径: $path" }
 
 
                 try {
@@ -271,7 +253,7 @@ abstract class HookerManifest {
                         ThreadUtils.runOnUiThread {
                             toast("适配进度 $found/$total: 找到 $ruleName")
                         }
-                        logD("适配进度: $found/$total, 找到规则: $ruleName")
+                        logger.debug { "适配进度: $found/$total, 找到规则: $ruleName" }
                     }
 
 
@@ -281,7 +263,7 @@ abstract class HookerManifest {
                         set("adaptation_rules_hash", currentRulesHash)
                         clazz = hashMap
                         set("clazz", Gson().toJson(clazz))
-                        log("适配成功: $hashMap")
+                        logger.info { "适配成功: $hashMap" }
 
                         // 在主线程显示成功提示并重启
                         ThreadUtils.runOnUiThread {
@@ -294,10 +276,10 @@ abstract class HookerManifest {
                             AppRuntime.restart()
                         }
                     } else {
-                        log("适配失败: $hashMap")
+                        logger.info { "适配失败: $hashMap" }
                         rules.forEach { rule ->
                             if (!hashMap.containsKey(rule.name)) {
-                                log("未能适配规则: ${rule.name}")
+                                logger.info { "未能适配规则: ${rule.name}" }
                             }
                         }
                         set("adaptation_version", "0")
@@ -311,7 +293,7 @@ abstract class HookerManifest {
 
                 }
             } catch (e: Exception) {
-                logE(e)
+                logger.error(e) { }
                 // 在主线程显示错误提示
                 ThreadUtils.runOnUiThread {
                     toast("适配过程发生错误: ${e.message}")
@@ -337,7 +319,7 @@ abstract class HookerManifest {
             val filter = SettingAPI.get(Setting.DATA_FILTER, DefaultData.DATA_FILTER).split(",")
 
             if (filter.all { !data.contains(it) }) {
-                log("all filter not contains: $data, $filter")
+                logger.info { "all filter not contains: $data, $filter" }
                 return@launch
             }
 
@@ -351,15 +333,15 @@ abstract class HookerManifest {
                 if (result == null) {
                     retryCount++
                     val delaySeconds = (1L shl (retryCount - 1)) * 10  // 10, 20, 40, 80, 160...
-                    logD("分析尝试第 $retryCount 次失败，将在 $delaySeconds 秒后重试...")
+                    logger.debug { "分析尝试第 $retryCount 次失败，将在 $delaySeconds 秒后重试..." }
                     delay(delaySeconds * 1000L)
                 }
             }
 
             if (result != null) { //会自动拉起
-                logD("分析结果: $result")
+                logger.debug { "分析结果: $result" }
             } else {
-                logD("分析失败，已尝试20次")
+                logger.debug { "分析失败，已尝试20次" }
             }
         }
     }
@@ -378,7 +360,6 @@ abstract class HookerManifest {
             response.body?.string()
 
         } catch (e: Exception) {
-            logE(e)
             null
         }
     }

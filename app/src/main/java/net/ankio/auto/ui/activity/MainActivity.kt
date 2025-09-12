@@ -26,6 +26,7 @@ import net.ankio.auto.ui.adapter.IntroPagerAdapter.IntroPage
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.vm.IntroSharedVm
 import net.ankio.auto.utils.PrefManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 应用主入口 Activity。
@@ -45,7 +46,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         // 非 Xposed 模式下启动核心服务
         if (PrefManager.workMode != WorkMode.Xposed) CoreService.start(this, intent)
-        Logger.d("初始化完成")
+        logger.debug { "初始化完成" }
         if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
             start<HomeActivity>(true)
             return

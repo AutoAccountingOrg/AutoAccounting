@@ -22,15 +22,18 @@ import android.content.res.XmlResourceParser
 import androidx.core.os.ConfigurationCompat
 import net.ankio.auto.R
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ezbook.server.constant.Setting
 import java.util.Locale
 
 object LanguageUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     fun initAppLanguage(context: Context): Context {
         val language = getAppLang()
         val locale = getLocale(language)
-        Logger.i("App Language: $language => ${locale.language}")
+        logger.info { "App Language: $language => ${locale.language}" }
         Locale.setDefault(locale)
         return updateResourcesLocale(context, locale)
     }

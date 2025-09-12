@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.app.Activity
 import android.content.Intent
 import android.view.LayoutInflater
@@ -47,6 +48,8 @@ import org.ezbook.server.Server
  * 3. 监控服务状态并显示
  */
 class SideBarHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
 
     override fun hook() {
         // 获取钱迹MainActivity的类
@@ -86,7 +89,7 @@ class SideBarHooker : PartHooker() {
                 AppRuntime.manifest.attachResource(activity)
                 addSettingMenu(linearLayout, activity)
             }.onFailure { item ->
-                AppRuntime.manifest.logE(item)
+                logger.error(item) { "异常" }
             }
             true
         }

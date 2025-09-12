@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.alipay.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
@@ -23,6 +24,8 @@ import org.ezbook.server.constant.DataType
 
 
 class RedPackageHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
 
 
     override fun hook() {
@@ -33,7 +36,7 @@ class RedPackageHooker : PartHooker() {
         Hooker.before(proguard, "onReceiveMessage", syncMessage) { param ->
             val syncMessageObject = param.args[0]
             val result = XposedHelpers.callMethod(syncMessageObject, "getData") as String
-            AppRuntime.manifest.logD("Hooked Alipay RedPackage： $result")
+            logger.debug { "Hooked Alipay RedPackage： $result" }
             AppRuntime.manifest.analysisData(DataType.DATA, result)
         }
     }

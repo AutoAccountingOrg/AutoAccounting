@@ -23,12 +23,15 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.CategoryMapModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * CategoryMapAPI 对象提供了与分类映射相关的网络请求操作
  * 包括获取分类映射列表、添加/更新分类映射以及删除分类映射等功能
  */
 object CategoryMapAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 获取分类映射列表
      * @param page 页码，从1开始
@@ -49,7 +52,7 @@ object CategoryMapAPI {
                 ).getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
-                Logger.e("list error: ${it.message}", it)
+                logger.error(it) { "list error: ${it.message}" }
                 emptyList()
             }
         }
@@ -64,7 +67,7 @@ object CategoryMapAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("category/map/put", Gson().toJson(model)).getOrThrow()
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
 
         }
     }
@@ -80,7 +83,7 @@ object CategoryMapAPI {
             LocalNetwork.post<String>("category/map/delete", Gson().toJson(mapOf("id" to id)))
                 .getOrThrow()
         }.getOrElse {
-            Logger.e("remove error: ${it.message}", it)
+            logger.error(it) { "remove error: ${it.message}" }
 
         }
     }

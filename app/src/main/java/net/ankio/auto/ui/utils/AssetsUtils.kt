@@ -36,8 +36,11 @@ import net.ankio.auto.http.api.AssetsMapAPI
 import org.ezbook.server.db.model.CategoryModel
 import java.io.IOException
 import java.io.InputStreamReader
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object AssetsUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     suspend fun setMapAssets(
         context: Context,
         float: Boolean,
@@ -114,16 +117,16 @@ object AssetsUtils {
     ): String {
         // 1. 首先尝试通过卡号匹配
         val number = Regex("\\d+").find(raw)?.value ?: ""
-        Logger.d("识别到卡号：$number")
+        logger.debug { "识别到卡号：$number" }
         if (number.isNotEmpty()) {
             list.find { it.name.contains(number.trim()) }?.let { asset ->
-                Logger.d("找到对应数据：${asset.name}")
+                logger.debug { "找到对应数据：${asset.name}" }
                 return asset.name
             }
         }
 
         // 2. 如果卡号匹配失败，进行文本相似度匹配
-        Logger.d("未通过卡号找到数据，开始使用文本匹配查找。")
+        logger.debug { "未通过卡号找到数据，开始使用文本匹配查找。" }
 
         // 预处理输入文本
         val cleanInput = raw.cleanText(number)
@@ -133,7 +136,7 @@ object AssetsUtils {
 
         list.forEach { asset ->
             val cleanAssetName = asset.name.cleanText()
-            Logger.d("尝试匹配：$cleanInput => $cleanAssetName")
+            logger.debug { "尝试匹配：$cleanInput => $cleanAssetName" }
 
             val similarity = calculateConsecutiveSimilarity(cleanAssetName, cleanInput)
 
@@ -141,7 +144,7 @@ object AssetsUtils {
             if (similarity >= bestMatch.similarity && similarity > 0) {
                 val length = cleanAssetName.length
                 val diff = length - similarity
-                Logger.d("相似度（$cleanInput,${asset.name}）：$similarity，差异：$diff")
+                logger.debug { "相似度（$cleanInput,${asset.name}）：$similarity，差异：$diff" }
                 if (diff < bestMatch.diff) {
                     if (similarity == 2 && cleanInput.startsWith("中国")) return@forEach
                     bestMatch = BestMatch(asset.name, similarity, diff)
@@ -175,7 +178,7 @@ object AssetsUtils {
 
     private suspend fun handleEmptyMapping(accountName: String): String? {
         val list = AssetsMapAPI.list(1, 10000)
-        Logger.d("处理空映射：账户名=$accountName，匹配列表=$list")
+        logger.debug { "处理空映射：账户名=$accountName，匹配列表=$list" }
         return list.firstOrNull { it.regex && accountName.contains(it.name) }?.mapName
     }
     /**
@@ -194,7 +197,7 @@ object AssetsUtils {
             val mapName = AssetsMapAPI.getByName(billInfoModel.accountNameFrom)
             val assetName = AssetsAPI.getByName(billInfoModel.accountNameFrom)
 
-            Logger.d("资产映射：账单=$billInfoModel，映射名=$mapName，资产名=$assetName")
+            logger.debug { "资产映射：账单=$billInfoModel，映射名=$mapName，资产名=$assetName" }
             if (assetName == null) {
                 if (mapName == null) {
                     if (!listOf(BillType.IncomeLending, BillType.IncomeRepayment).contains(
@@ -218,7 +221,7 @@ object AssetsUtils {
         if (billInfoModel.accountNameTo.isNotEmpty()) {
             val mapName = AssetsMapAPI.getByName(billInfoModel.accountNameTo)
             val assetName = AssetsAPI.getByName(billInfoModel.accountNameTo)
-            Logger.d("资产映射：账单=$billInfoModel，映射名=$mapName，资产名=$assetName")
+            logger.debug { "资产映射：账单=$billInfoModel，映射名=$mapName，资产名=$assetName" }
             if (assetName == null) {
                 if (mapName == null) {
                     if (!listOf(BillType.ExpendLending, BillType.ExpendRepayment).contains(
@@ -267,7 +270,7 @@ object AssetsUtils {
             assets
 
         } catch (e: Exception) {
-            Logger.e(e.message ?: "", e)
+            logger.error(e) { e.message ?: "" }
             // 处理其他异常，返回空列表
             emptyList()
         }

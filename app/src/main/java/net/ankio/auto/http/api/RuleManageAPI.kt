@@ -24,8 +24,11 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.RuleModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object RuleManageAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 根据条件查询
      * @param app 应用
@@ -51,7 +54,7 @@ object RuleManageAPI {
             ).getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("list error: ${it.message}", it)
+            logger.error(it) { "list error: ${it.message}" }
             emptyList()
         }
     }
@@ -66,7 +69,7 @@ object RuleManageAPI {
                 LocalNetwork.get<RuleModel>("rule/system?name=${Uri.encode(name)}").getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("system error: ${it.message}", it)
+            logger.error(it) { "system error: ${it.message}" }
             null
         }
     }
@@ -76,7 +79,7 @@ object RuleManageAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("rule/deleteSystemRule").getOrThrow()
         }.getOrElse {
-            Logger.e("deleteSystemRule error: ${it.message}", it)
+            logger.error(it) { "deleteSystemRule error: ${it.message}" }
 
         }
     }
@@ -86,7 +89,7 @@ object RuleManageAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("rule/put", Gson().toJson(rule)).getOrThrow()
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
 
         }
     }
@@ -100,7 +103,7 @@ object RuleManageAPI {
             val resp = LocalNetwork.post<Int>("rule/add", Gson().toJson(rule)).getOrThrow()
             resp.data ?: 0
         }.getOrElse {
-            Logger.e("add error: ${it.message}", it)
+            logger.error(it) { "add error: ${it.message}" }
             0
         }
     }
@@ -113,7 +116,7 @@ object RuleManageAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("rule/update", Gson().toJson(rule)).getOrThrow()
         }.getOrElse {
-            Logger.e("update error: ${it.message}", it)
+            logger.error(it) { "update error: ${it.message}" }
 
         }
     }
@@ -126,7 +129,7 @@ object RuleManageAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("rule/delete", Gson().toJson(mapOf("id" to id))).getOrThrow()
         }.getOrElse {
-            Logger.e("delete error: ${it.message}", it)
+            logger.error(it) { "delete error: ${it.message}" }
 
         }
     }
@@ -140,7 +143,7 @@ object RuleManageAPI {
             val resp = LocalNetwork.get<JsonObject>("rule/apps").getOrThrow()
             resp.data ?: JsonObject()
         }.getOrElse {
-            Logger.e("apps error: ${it.message}", it)
+            logger.error(it) { "apps error: ${it.message}" }
             JsonObject()
         }
     }

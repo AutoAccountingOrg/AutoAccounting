@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -30,6 +31,8 @@ import org.ezbook.server.db.model.BillInfoModel
  */
 class IncomeLendingUtils :
     BaseDebt() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
         // 借入账户
         val accountTo = getAccountTo(billModel)
@@ -39,7 +42,7 @@ class IncomeLendingUtils :
         val isNewAssets = isNewAssets(accountFrom)
         val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        AppRuntime.logD("借入: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
+        logger.debug { "借入: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets" }
 
         // 更新loan
         updateLoan(billModel, accountFrom, isNewAssets)
@@ -50,7 +53,7 @@ class IncomeLendingUtils :
             // 构建账单
             val bill = updateBill(billModel, 6, book, accountFrom, accountTo)
 
-            AppRuntime.logD("bill: $bill")
+            logger.debug { "bill: $bill" }
 
             saveBill(bill)
         }
@@ -90,7 +93,7 @@ class IncomeLendingUtils :
     ) = withContext(Dispatchers.IO) {
         // 债务
         val loan = if (isNewAssets) createLoan(billModel.time) else accountFrom.getLoanInfo()
-        AppRuntime.logD("LoanInfo: ${loan}")
+        logger.debug { "LoanInfo: ${loan}" }
         // {"a":0,"b":"2024-07-17","c":"","e":-12.0,"f":0.0}
         // f=TotalPay 已还金额
         // e=money 待还金额

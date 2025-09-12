@@ -39,9 +39,12 @@ import net.ankio.auto.service.api.IService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 
 class SmsReceiver : BroadcastReceiver() {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     override fun onReceive(context: Context?, intent: Intent?) {
         // 验证Intent的action，确保只处理SMS接收广播，防止恶意应用发送伪造Intent
         if (intent?.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
@@ -71,7 +74,7 @@ class SmsReceiver : BroadcastReceiver() {
                 messageBody += smsMessage.messageBody
             }
             if (PrefManager.dataFilter.all { !messageBody.contains(it) }) {
-                Logger.d("数据信息不在识别关键字里面，忽略")
+                logger.debug { "数据信息不在识别关键字里面，忽略" }
                 return
             }
             val json = JsonObject().apply {
@@ -83,7 +86,7 @@ class SmsReceiver : BroadcastReceiver() {
             App.launch {
                 val billResult =
                     JsAPI.analysis(DataType.DATA, Gson().toJson(json), "com.android.phone")
-                Logger.d("识别结果：${billResult?.billInfoModel}")
+                logger.debug { "识别结果：${billResult?.billInfoModel}" }
             }
         }
     }

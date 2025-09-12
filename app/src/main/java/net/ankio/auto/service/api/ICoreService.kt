@@ -20,8 +20,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.service.CoreService
-import net.ankio.auto.storage.Logger
 import kotlin.coroutines.cancellation.CancellationException
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 核心服务的抽象基类
@@ -29,6 +29,8 @@ import kotlin.coroutines.cancellation.CancellationException
  * 用于统一管理各种子服务（如服务器服务、OCR服务、悬浮窗服务等）
  */
 abstract class ICoreService {
+
+    protected val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 服务销毁时调用
@@ -57,7 +59,7 @@ abstract class ICoreService {
             try {
                 block()
             } catch (e: CancellationException) {
-                Logger.d("服务已取消: ${e.message}")
+                logger.debug { "服务已取消: ${e.message}" }
             }
         }
     }

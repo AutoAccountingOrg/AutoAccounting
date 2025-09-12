@@ -15,12 +15,14 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
+private val logger = KotlinLogging.logger {}
 
 class TransferHooker : PartHooker() {
     override fun hook() {
@@ -41,7 +43,7 @@ class TransferHooker : PartHooker() {
             json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
             json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
             json.put("t", System.currentTimeMillis())
-            AppRuntime.manifest.logD("Wechat Transfer hook： $json")
+            logger.debug { "Wechat Transfer hook： $json" }
             AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
         }
     }

@@ -18,11 +18,13 @@ package net.ankio.auto.xposed.hooks.common
 import android.os.Build
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 
 object JsEngine {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     private fun initSoDir() {
         val framework = when {
             Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
@@ -34,14 +36,14 @@ object JsEngine {
 
         // 如果架构不支持，则记录日志并返回
         if (framework == "unsupported") {
-            Logger.logD(TAG, "Unsupported architecture")
+            logger.debug { "Unsupported architecture" }
             return
         }
 
         AppRuntime.moduleSoPath =
             AppRuntime.modulePath.replace("/base.apk", "") + "/lib/$framework/"
 
-        Logger.logD(TAG, "Module so path: ${AppRuntime.moduleSoPath}")
+        logger.debug { "Module so path: ${AppRuntime.moduleSoPath}" }
     }
 
     fun init() {

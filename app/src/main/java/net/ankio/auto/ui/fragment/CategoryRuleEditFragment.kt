@@ -30,6 +30,7 @@ import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.fragment.components.CategoryRuleEditComponent
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.CategoryRuleModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 分类规则编辑Fragment - 重构后的简洁版本
@@ -70,7 +71,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
             parseArgumentsAndSetupComponent()
 
         } catch (e: Exception) {
-            Logger.e("Fragment初始化失败: ${e.message}")
+            logger.error { "Fragment初始化失败: ${e.message}" }
             handleInitializationError(e)
         }
     }
@@ -92,7 +93,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
     private fun parseArgumentsAndSetupComponent() {
         val bundle = arguments
         if (bundle == null) {
-            Logger.d("没有传入参数，创建新规则")
+            logger.debug { "没有传入参数，创建新规则" }
             setupForNewRule()
             return
         }
@@ -100,7 +101,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
         try {
             val dataJson = bundle.getString("data")
             if (dataJson.isNullOrEmpty()) {
-                Logger.d("参数为空，创建新规则")
+                logger.debug { "参数为空，创建新规则" }
                 setupForNewRule()
                 return
             }
@@ -111,9 +112,9 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
 
             setupForExistingRule(categoryRuleModel)
 
-            Logger.d("解析规则数据成功: id=${categoryRuleModel.id}")
+            logger.debug { "解析规则数据成功: id=${categoryRuleModel.id}" }
         } catch (e: Exception) {
-            Logger.w("解析规则数据失败，使用默认值: ${e.message}")
+            logger.warn { "解析规则数据失败，使用默认值: ${e.message}" }
             setupForNewRule()
         }
     }
@@ -126,7 +127,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
         // 设置组件为编辑模式，传入空模型
         categoryRuleEditComponent.setRuleModel(null, readOnly = false)
 
-        Logger.d("设置为新规则创建模式")
+        logger.debug { "设置为新规则创建模式" }
     }
 
     /**
@@ -136,7 +137,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
         // 设置组件为编辑模式，传入现有模型
         categoryRuleEditComponent.setRuleModel(ruleModel, readOnly = false)
 
-        Logger.d("设置为现有规则编辑模式: ${ruleModel.id}")
+        logger.debug { "设置为现有规则编辑模式: ${ruleModel.id}" }
     }
 
     /**
@@ -148,7 +149,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
             // 调用API保存规则
             CategoryRuleAPI.put(categoryRuleModel)
 
-            Logger.i("规则保存成功: ${categoryRuleModel.js}")
+            logger.info { "规则保存成功: ${categoryRuleModel.js}" }
 
             // 显示成功提示
             ToastUtils.info(R.string.save_rule_success)
@@ -162,7 +163,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
      * 处理初始化错误
      */
     private fun handleInitializationError(error: Throwable) {
-        Logger.e("Fragment初始化失败: ${error.message}")
+        logger.error { "Fragment初始化失败: ${error.message}" }
 
         // 显示错误提示
         ToastUtils.error("初始化失败，请重试")
@@ -182,6 +183,6 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
 
         // CategoryRuleEditComponent会通过BaseComponent自动清理，无需手动调用
 
-        Logger.d("CategoryRuleEditFragment销毁完成")
+        logger.debug { "CategoryRuleEditFragment销毁完成" }
     }
 }

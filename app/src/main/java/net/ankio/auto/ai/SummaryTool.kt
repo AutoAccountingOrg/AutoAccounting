@@ -19,6 +19,7 @@ import net.ankio.auto.http.api.AiAPI
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * AI账单总结工具
@@ -29,6 +30,8 @@ import net.ankio.auto.utils.PrefManager
  * 3. 服务端生成摘要，客户端零计算
  */
 object SummaryTool {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
 
     /**
@@ -46,14 +49,14 @@ object SummaryTool {
     ): String? {
         // 检查AI月度总结功能是否启用
         if (!PrefManager.aiMonthlySummary) {
-            Logger.w("AI月度总结功能未启用")
+            logger.warn { "AI月度总结功能未启用" }
             return null
         }
 
         // 获取服务端生成的摘要字符串
         val dataSummary = BillAPI.getBillSummary(startTime, endTime, periodName)
         if (dataSummary == null) {
-            Logger.e("获取账单摘要失败")
+            logger.error { "获取账单摘要失败" }
             return null
         }
 

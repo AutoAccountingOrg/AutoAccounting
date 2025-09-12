@@ -6,13 +6,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import net.ankio.auto.storage.Logger
 import java.lang.reflect.ParameterizedType
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -30,6 +30,10 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHolder<T, E>>() {
 
+    companion object {
+        val logger = KotlinLogging.logger(this::class.java.name)
+    }
+
     // Adapter 级别的协程作用域
     private val adapterScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -45,11 +49,11 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.d("适配器协程已取消: ${e.message}")
+                        logger.debug { "适配器协程已取消: ${e.message}" }
                     }
 
                     else -> {
-                        Logger.e("适配器协程执行异常: ${javaClass.simpleName}", e)
+                        logger.error(e) { "适配器协程执行异常: ${javaClass.simpleName}" }
                         // 可以在这里添加全局异常处理逻辑
                     }
                 }
@@ -81,7 +85,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
 
         diffResult.dispatchUpdatesTo(this)
 
-        Logger.d("已使用 DiffUtil 更新数据项: 旧=${oldItems.size}项, 新=${newList.size}项")
+        logger.debug { "已使用 DiffUtil 更新数据项: 旧=${oldItems.size}项, 新=${newList.size}项" }
     }
     /**
      * 更新指定位置的数据项
@@ -93,10 +97,10 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         if (index in items.indices) {
             items[index] = item
             notifyItemChanged(index)
-            Logger.d("已更新位置 $index 的数据项")
+            logger.debug { "已更新位置 $index 的数据项" }
             return true
         } else {
-            Logger.w("更新数据项失败: 索引 $index 超出范围 (大小: ${items.size})")
+            logger.warn { "更新数据项失败: 索引 $index 超出范围 (大小: ${items.size})"}
             return false
         }
     }
@@ -117,10 +121,10 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         if (index in items.indices) {
             items.removeAt(index)
             notifyItemRemoved(index)
-            Logger.d("已移除位置 $index 的数据项，剩余大小 ${items.size}")
+            logger.debug { "已移除位置 $index 的数据项，剩余大小 ${items.size}" }
             return true
         } else {
-            Logger.w("移除数据项失败: 索引 $index 超出范围 (大小: ${items.size})")
+            logger.warn { "移除数据项失败: 索引 $index 超出范围 (大小: ${items.size})"}
             return false
         }
     }
@@ -135,7 +139,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         if (index >= 0) {
             return removeItem(index)
         } else {
-            Logger.w("移除数据项失败: 在列表中未找到该项")
+            logger.warn { "移除数据项失败: 在列表中未找到该项" }
             return false
         }
     }
@@ -212,7 +216,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
             // 调用 inflate 方法创建 ViewBinding 实例
             method.invoke(null, LayoutInflater.from(parent.context), parent, false) as T
         } catch (e: Exception) {
-            Logger.e("${javaClass.name} 的 ViewBinding 创建失败", e)
+            logger.error(e) { "${javaClass.name} 的 ViewBinding 创建失败" }
             throw IllegalStateException("ViewBinding inflation failed", e)
         }
 

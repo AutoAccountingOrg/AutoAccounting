@@ -10,9 +10,11 @@ import androidx.lifecycle.LifecycleService
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.service.api.ICoreService
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 
+
+private val logger = KotlinLogging.logger {}
 /**
  * 核心服务类，作为应用程序的主要后台服务
  * 负责管理和协调其他子服务的生命周期
@@ -40,7 +42,7 @@ class CoreService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         startForegroundNotification()
-        Logger.i("服务创建，工作模式 = ${PrefManager.workMode}")
+        logger.info { "服务创建，工作模式 = ${PrefManager.workMode}" }
         // 根据工作模式初始化服务列表
         initializeServices()
         // 初始化所有子服务
@@ -93,7 +95,7 @@ class CoreService : LifecycleService() {
                 service.onCreate(this)
                 successCount++
             } catch (e: Exception) {
-                Logger.e("初始化服务 ${service.javaClass.simpleName} 失败: ${e.message}", e)
+                logger.error(e) { "初始化服务 ${service.javaClass.simpleName} 失败: ${e.message}" }
                 failureCount++
             }
         }
@@ -155,15 +157,12 @@ class CoreService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         startForegroundNotification()
-        Logger.i("收到启动命令 - intent=$intent, flags=$flags, startId=$startId")
+        logger.info { "收到启动命令 - intent=$intent, flags=$flags, startId=$startId" }
         services.forEach { service ->
             try {
                 service.onStartCommand(intent, flags, startId)
             } catch (e: Exception) {
-                Logger.e(
-                    "服务 ${service.javaClass.simpleName} 处理启动命令失败: ${e.message}",
-                    e
-                )
+                logger.error(e) { "服务 ${service.javaClass.simpleName} 处理启动命令失败: ${e.message}" }
             }
         }
         return if (PrefManager.workMode === WorkMode.Xposed) START_NOT_STICKY else START_STICKY
@@ -174,13 +173,13 @@ class CoreService : LifecycleService() {
      * 停止前台服务并销毁所有子服务
      */
     override fun onDestroy() {
-        Logger.i("服务销毁，正在清理子服务")
+        logger.info { "服务销毁，正在清理子服务" }
 
         // 停止前台服务
         try {
             stopForeground(STOP_FOREGROUND_REMOVE)
         } catch (e: Exception) {
-            Logger.e("停止前台服务失败: ${e.message}", e)
+            logger.error(e) { "停止前台服务失败: ${e.message}" }
         }
 
         // 销毁所有子服务
@@ -190,18 +189,18 @@ class CoreService : LifecycleService() {
 
             services.forEach { service ->
                 try {
-                    Logger.i("正在销毁服务: ${service.javaClass.simpleName}")
+                    logger.info { "正在销毁服务: ${service.javaClass.simpleName}" }
                     service.onDestroy()
                     successCount++
                 } catch (e: Exception) {
-                    Logger.e("销毁服务 ${service.javaClass.simpleName} 失败: ${e.message}", e)
+                    logger.error(e) { "销毁服务 ${service.javaClass.simpleName} 失败: ${e.message}" }
                     failureCount++
                 }
             }
 
-            Logger.i("服务销毁完成: 成功 $successCount 个，失败 $failureCount 个")
+            logger.info { "服务销毁完成: 成功 $successCount 个，失败 $failureCount 个" }
         } else {
-            Logger.w("服务未初始化，跳过销毁")
+            logger.warn { "服务未初始化，跳过销毁" }
         }
         
         super.onDestroy()
@@ -223,7 +222,7 @@ class CoreService : LifecycleService() {
                 true
 
             } catch (e: Exception) {
-                Logger.e("启动服务时未知异常: ${e.message}", e)
+                logger.error(e) { "启动服务时未知异常: ${e.message}" }
                 false
             }
         }

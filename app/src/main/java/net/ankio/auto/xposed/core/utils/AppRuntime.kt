@@ -15,17 +15,20 @@
 
 package net.ankio.auto.xposed.core.utils
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Process
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.api.HookerManifest
-import net.ankio.auto.xposed.core.logger.Logger
 import org.ezbook.server.tools.MemoryCache
 
 object AppRuntime {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     /**
      * 表示应用程序是否处于调试模式。
      */
@@ -62,6 +65,7 @@ object AppRuntime {
     lateinit var manifest: HookerManifest
 
     var memoryCache = MemoryCache()
+
     /**
      * 表示应用程序的版本代码。
      *
@@ -73,8 +77,7 @@ object AppRuntime {
     public val versionCode by lazy {
         runCatching {
             application!!.packageManager.getPackageInfo(
-                application!!.packageName,
-                0
+                application!!.packageName, 0
             ).longVersionCode.toInt()
         }.getOrElse {
             0
@@ -87,8 +90,7 @@ object AppRuntime {
     val versionName by lazy {
         runCatching {
             application!!.packageManager.getPackageInfo(
-                application!!.packageName,
-                0
+                application!!.packageName, 0
             ).versionName
         }.getOrElse {
             ""
@@ -98,8 +100,7 @@ object AppRuntime {
 
     fun restart() {
         if (application == null) return
-        val intent =
-            application!!.packageManager.getLaunchIntentForPackage(application!!.packageName)
+        val intent = application!!.packageManager.getLaunchIntentForPackage(application!!.packageName)
         intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_NEW_TASK)
         application!!.startActivity(intent)
         Process.killProcess(Process.myPid())
@@ -108,27 +109,15 @@ object AppRuntime {
     /**
      * 加载so库
      */
+    @SuppressLint("UnsafeDynamicallyLoadedCode")
     fun load(name: String) {
         try {
             val file = moduleSoPath + "lib$name.so"
             System.load(file)
-            Logger.logD(TAG, "Load $name success")
+            logger.debug { "Load $name success" }
         } catch (e: Throwable) {
-            Logger.logD(TAG, "Load $name failed : $e")
-            Logger.logE(TAG, e)
+            logger.error(e) { "Load $name failed : $e" }
         }
-    }
-
-    fun log(s: String) {
-        manifest.log(s)
-    }
-
-    fun logD(s: String) {
-        manifest.logD(s)
-    }
-
-    fun logE(e: Throwable) {
-        manifest.logE(e)
     }
 
     fun clazz(name: String): Class<*> {

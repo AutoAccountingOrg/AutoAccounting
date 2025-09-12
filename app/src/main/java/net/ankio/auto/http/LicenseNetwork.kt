@@ -25,8 +25,11 @@ import java.io.File
 import java.util.UUID
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class LicenseNetwork {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     private val client by lazy {
         RequestsUtils()
     }
@@ -90,7 +93,7 @@ class LicenseNetwork {
             client.addHeader("X-Timestamp", timestamp)
             client.form(uri, postData).getOrThrow()
         }.getOrElse {
-            Logger.e("post error: ${it.message}", it)
+            logger.error(it) { "post error: ${it.message}" }
             ""
         }
     }
@@ -109,7 +112,7 @@ class LicenseNetwork {
             client.addHeader("X-Timestamp", timestamp)
             client.get(uri, queryData).getOrThrow()
         }.getOrElse {
-            Logger.e("get error: ${it.message}", it)
+            logger.error(it) { "get error: ${it.message}" }
             ""
         }
     }
@@ -131,7 +134,7 @@ class LicenseNetwork {
             client.download(uri, file).getOrThrow()
             true
         }.getOrElse {
-            Logger.e("download error: ${it.message}", it)
+            logger.error(it) { "download error: ${it.message}" }
             false
         }
     }

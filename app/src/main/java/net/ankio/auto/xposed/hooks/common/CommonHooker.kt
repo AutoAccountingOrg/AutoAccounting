@@ -17,13 +17,15 @@ package net.ankio.auto.xposed.hooks.common
 
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.Server
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 object CommonHooker {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     fun init() {
-        Logger.logD(TAG, "Start server...: ${AppRuntime.manifest.packageName}")
+        logger.debug { "Start server...: ${AppRuntime.manifest.packageName}" }
         try {
             /**
              * js引擎
@@ -42,9 +44,9 @@ object CommonHooker {
             Server.debug = AppRuntime.debug
             server.startServer()
             AppInstaller.init(AppRuntime.application!!, server)
-            Logger.logD(TAG, "Server start success")
+            logger.debug { "Server start success" }
         } catch (e: Throwable) {
-            Logger.logD(TAG, e.message ?: "")
+            logger.debug { e.message ?: "" }
         }
     }
 }

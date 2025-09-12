@@ -22,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.viewbinding.ViewBinding
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +50,9 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
 
+    companion object {
+        val logger = KotlinLogging.logger(this::class.java.name)
+    }
     /**
      * ViewBinding 实例，在组件销毁时会被置空以防止内存泄漏
      */
@@ -97,11 +101,11 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.d("组件协程已取消: ${e.message}")
+                        logger.debug { "组件协程已取消: ${e.message}" }
                     }
 
                     else -> {
-                        Logger.e("组件协程执行异常: ${javaClass.simpleName}", e)
+                        logger.error(e) { "组件协程执行异常: ${javaClass.simpleName}" }
                         // 可以在这里添加全局异常处理逻辑
                     }
                 }
@@ -117,7 +121,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      */
     @CallSuper
     open fun onComponentCreate() {
-        //Logger.d("BaseComponent init called: ${this.javaClass.simpleName}")
+        //logger.debug { "BaseComponent init called: ${this.javaClass.simpleName}" }
     }
 
     /**
@@ -128,7 +132,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      */
     @CallSuper
     open fun onComponentResume() {
-        //Logger.d("BaseComponent resume called: ${this.javaClass.simpleName}")
+        //logger.debug { "BaseComponent resume called: ${this.javaClass.simpleName}" }
     }
 
     /**
@@ -139,7 +143,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      */
     @CallSuper
     open fun onComponentStop() {
-        // Logger.d("BaseComponent stop called: ${this.javaClass.simpleName}")
+        // logger.debug { "BaseComponent stop called: ${this.javaClass.simpleName}" }
     }
 
     /**
@@ -173,7 +177,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
                 clearViewListeners(rootView)
             }
         } catch (e: Exception) {
-            Logger.e("清理 ViewBinding 监听器失败", e)
+            logger.error(e) { "清理 ViewBinding 监听器失败" }
         }
     }
 
@@ -196,7 +200,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
             }
         } catch (e: Exception) {
             // 忽略清理过程中的异常，避免影响正常销毁流程
-            Logger.d("清理视图监听器时出现异常: ${e.message}")
+            logger.debug { "清理视图监听器时出现异常: ${e.message}" }
         }
     }
 
@@ -217,7 +221,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      * 当页面销毁时自动清理资源并移除生命周期观察者
      */
     final override fun onDestroy(owner: LifecycleOwner) {
-        //Logger.d("BaseComponent onDestroy called: ${this.javaClass.simpleName}")
+        //logger.debug { "BaseComponent onDestroy called: ${this.javaClass.simpleName}" }
         // 安全移除观察者
         lifecycle?.removeObserver(this)
         lifecycle = null

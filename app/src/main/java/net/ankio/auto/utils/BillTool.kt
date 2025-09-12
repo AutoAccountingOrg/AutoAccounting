@@ -26,13 +26,15 @@ import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.autoApp
 import net.ankio.auto.http.api.BillAPI
-import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
 object BillTool {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     /**
      * 获取页面显示颜色
@@ -104,7 +106,7 @@ object BillTool {
         delay(AppAdapterManager.adapter().sleep())
     }
     fun saveBill(bill: BillInfoModel) {
-        Logger.d("保存账单: ${bill.id}")
+        logger.debug { "保存账单: ${bill.id}" }
 
         // 更新状态
         bill.state = BillState.Edited
@@ -116,7 +118,7 @@ object BillTool {
             if (!PrefManager.manualSync && !bill.isChild()) {
                 syncBill(bill)
             }
-            Logger.d("账单保存成功: ${bill.id}")
+            logger.debug { "账单保存成功: ${bill.id}" }
         }
 
         // 显示成功提示

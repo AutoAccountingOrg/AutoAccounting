@@ -34,11 +34,14 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import java.math.BigInteger
 import java.security.MessageDigest
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 系统相关工具类
  */
 object SystemUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     private lateinit var application: Application
 
@@ -119,7 +122,7 @@ object SystemUtils {
             }
             application.startActivity(intent)
         } catch (e: Exception) {
-            Logger.e("Failed to start activity", e)
+            logger.error(e) { "Failed to start activity" }
         }
     }
 
@@ -153,7 +156,7 @@ object SystemUtils {
                 onStarted?.invoke()
                 true
             } catch (e: Exception) {
-                Logger.e("Failed to start activity", e)
+                logger.error(e) { "Failed to start activity" }
                 false
             }
         }

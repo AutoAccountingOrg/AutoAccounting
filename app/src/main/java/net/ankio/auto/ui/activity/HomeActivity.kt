@@ -30,6 +30,7 @@ import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.slideDown
 import net.ankio.auto.ui.utils.slideUp
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class HomeActivity : BaseActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -75,7 +76,7 @@ class HomeActivity : BaseActivity() {
     override fun onStop() {
         super.onStop()
 
-        Logger.d("HomeActivity onStop - 触发自动备份检查")
+        logger.debug { "HomeActivity onStop - 触发自动备份检查" }
 
         // 使用全局协程作用域执行备份，避免阻塞UI线程
         App.launch {

@@ -23,12 +23,15 @@ import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.constant.BillState
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 账单API接口对象，提供与账单相关的所有网络请求操作
  * 所有方法都是挂起函数，需要在协程作用域内调用
  */
 object BillAPI {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     /**
      * 添加或更新账单信息
      * @param billInfoModel 账单信息模型
@@ -39,7 +42,7 @@ object BillAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("bill/put", Gson().toJson(billInfoModel)).getOrThrow()
         }.getOrElse {
-            Logger.e("put error: ${it.message}", it)
+            logger.error(it) { "put error: ${it.message}" }
 
         }
     }
@@ -54,7 +57,7 @@ object BillAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("bill/remove", Gson().toJson(mapOf("id" to id))).getOrThrow()
         }.getOrElse {
-            Logger.e("remove error: ${it.message}", it)
+            logger.error(it) { "remove error: ${it.message}" }
 
         }
     }
@@ -70,7 +73,7 @@ object BillAPI {
             val resp = LocalNetwork.get<BillInfoModel>("bill/get?id=$id").getOrThrow()
             resp.data
         }.getOrElse {
-            Logger.e("get error: ${it.message}", it)
+            logger.error(it) { "get error: ${it.message}" }
             null
         }
     }
@@ -97,7 +100,7 @@ object BillAPI {
                         .getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
-                Logger.e("list error: ${it.message}", it)
+                logger.error(it) { "list error: ${it.message}" }
                 emptyList()
             }
         }
@@ -112,7 +115,7 @@ object BillAPI {
             val resp = LocalNetwork.get<List<BillInfoModel>>("bill/sync/list").getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("sync error: ${it.message}", it)
+            logger.error(it) { "sync error: ${it.message}" }
             emptyList()
         }
     }
@@ -131,7 +134,7 @@ object BillAPI {
                 Gson().toJson(mapOf("id" to id, "sync" to sync))
             ).getOrThrow()
         }.getOrElse {
-            Logger.e("status error: ${it.message}", it)
+            logger.error(it) { "status error: ${it.message}" }
 
         }
     }
@@ -147,7 +150,7 @@ object BillAPI {
             val resp = LocalNetwork.get<List<BillInfoModel>>("bill/group?id=$id").getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("getBillByGroup error: ${it.message}", it)
+            logger.error(it) { "getBillByGroup error: ${it.message}" }
             emptyList()
         }
     }
@@ -161,7 +164,7 @@ object BillAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("bill/clear").getOrThrow()
         }.getOrElse {
-            Logger.e("clear error: ${it.message}", it)
+            logger.error(it) { "clear error: ${it.message}" }
 
         }
     }
@@ -176,7 +179,7 @@ object BillAPI {
             val resp = LocalNetwork.get<List<BillInfoModel>>("bill/edit").getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
-            Logger.e("edit error: ${it.message}", it)
+            logger.error(it) { "edit error: ${it.message}" }
             emptyList()
         }
     }
@@ -191,7 +194,7 @@ object BillAPI {
         runCatchingExceptCancel {
             LocalNetwork.post<String>("bill/unGroup", Gson().toJson(mapOf("id" to id))).getOrThrow()
         }.getOrElse {
-            Logger.e("unGroup error: ${it.message}", it)
+            logger.error(it) { "unGroup error: ${it.message}" }
 
         }
     }
@@ -212,7 +215,7 @@ object BillAPI {
                 ).getOrThrow()
                 resp.data
             }.getOrElse {
-                Logger.e("getMonthlyStats error: ${it.message}", it)
+                logger.error(it) { "getMonthlyStats error: ${it.message}" }
                 null
             }
         }
@@ -234,7 +237,7 @@ object BillAPI {
                         .getOrThrow()
                 resp.data
             }.getOrElse {
-                Logger.e("getBillSummary error: ${it.message}", it)
+                logger.error(it) { "getBillSummary error: ${it.message}" }
                 null
             }
         }

@@ -34,6 +34,7 @@ import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.utils.getAppInfoFromPackageName
 import org.ezbook.server.db.model.RuleModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 数据规则页面Fragment
@@ -116,10 +117,10 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
             val index = menuItem.id - 1
             if (index in appList.indices) {
                 app = appList[index].packageName
-                Logger.d("Selected app: $app (${appList[index].name})")
+                logger.debug { "Selected app: $app (${appList[index].name})"}
                 reload()
             } else {
-                Logger.w("Invalid app selection index: $index, list size: ${appList.size}")
+                logger.warn { "Invalid app selection index: $index, list size: ${appList.size}" }
             }
         }
     }
@@ -137,7 +138,7 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
      * 简化的单一数据流 - 从API到UI，无重复数据结构
      */
     private fun refreshLeftData() {
-        Logger.d("Refreshing left data for rules")
+        logger.debug { "Refreshing left data for rules" }
         launch {
             try {
                 // 1. 清空单一数据源
@@ -146,14 +147,14 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
 
                 // 2. 获取应用数据
                 val apiResult = RuleManageAPI.apps()
-                Logger.d("Fetched ${apiResult.size()} apps from rule API")
+                logger.debug { "Fetched ${apiResult.size()} apps from rule API"}
 
                 // 3. 构建应用列表 - 单次遍历，无重复逻辑
                 var index = 1
                 for (packageName in apiResult.keySet()) {
                     val appInfo = getAppInfoFromPackageName(packageName)
                     if (appInfo == null) {
-                        Logger.w("Failed to get app info for package: $packageName")
+                        logger.warn { "Failed to get app info for package: $packageName" }
                         continue
                     }
 
@@ -166,17 +167,17 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
                         RailMenuItem(index, app.icon!!, app.name)
                     )
 
-                    Logger.d("Added app: ${app.name} ($packageName)")
+                    logger.debug { "Added app: ${app.name} ($packageName)"}
                     index++
                 }
 
                 // 4. 处理空状态 - 简化条件判断
                 if (appList.isEmpty() || !binding.leftList.performFirstItem()) {
-                    Logger.w("No apps available, showing empty state")
+                    logger.warn { "No apps available, showing empty state" }
                     statusPage.showEmpty()
                 }
             } catch (e: Exception) {
-                Logger.e("Error refreshing left data", e)
+                logger.error(e) { "Error refreshing left data" }
                 statusPage.showError()
             }
         }
@@ -236,7 +237,7 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
         config.dropdown.setOnItemClickListener { _, _, position, _ ->
             val value = config.valueMap[position]
             config.updateValue(value)
-            Logger.d("Filter updated: position=$position, value='$value'")
+            logger.debug { "Filter updated: position=$position, value='$value'" }
             reload()
         }
 
@@ -254,7 +255,7 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 searchData = s?.toString() ?: ""
-                Logger.d("Rule search text changed: '$searchData'")
+                logger.debug { "Rule search text changed: '$searchData'" }
                 reload()
             }
         })

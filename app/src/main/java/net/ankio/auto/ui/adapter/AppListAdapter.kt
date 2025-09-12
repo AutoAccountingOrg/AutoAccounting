@@ -83,7 +83,7 @@ class AppListAdapter(
         return try {
             context.packageManager.getApplicationIcon(packageName)
         } catch (e: Exception) {
-            Logger.e("获取应用图标失败", e)
+            logger.error(e) { "获取应用图标失败" }
             null
         }
     }

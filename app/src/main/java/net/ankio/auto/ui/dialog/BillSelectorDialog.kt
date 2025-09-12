@@ -30,6 +30,7 @@ import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.Setting
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 账单选择对话框
@@ -109,7 +110,7 @@ class BillSelectorDialog internal constructor(
         adapter = BillSelectorAdapter(selectedBills, multipleSelect)
         recyclerView.adapter = adapter
 
-        Logger.d("RecyclerView设置完成，多选模式: $multipleSelect")
+        logger.debug { "RecyclerView设置完成，多选模式: $multipleSelect" }
     }
 
     /**
@@ -163,10 +164,10 @@ class BillSelectorDialog internal constructor(
                     Setting.HASH_BILL -> {}//BookAppUtils.syncRecentExpenseBill()
                 }
 
-                Logger.d("同步完成，账单类型: $billType")
+                logger.debug { "同步完成，账单类型: $billType" }
             }
         } catch (e: Exception) {
-            Logger.e("同步数据失败", e)
+            logger.error(e) { "同步数据失败" }
         }
     }
 
@@ -180,7 +181,7 @@ class BillSelectorDialog internal constructor(
         while (System.currentTimeMillis() - startTime < timeout) {
             try {
                 val bills = BookBillAPI.list(billType)
-                Logger.d("获取到账单数量: ${bills.size}")
+                logger.debug { "获取到账单数量: ${bills.size}" }
 
                 if (bills.isNotEmpty()) {
                     withContext(Dispatchers.Main) {
@@ -199,7 +200,7 @@ class BillSelectorDialog internal constructor(
                 delay(500)
 
             } catch (e: Exception) {
-                Logger.e("加载账单数据失败", e)
+                logger.error(e) { "加载账单数据失败" }
                 break
             }
         }
@@ -207,7 +208,7 @@ class BillSelectorDialog internal constructor(
         // 显示空状态
         withContext(Dispatchers.Main) {
             binding.statusPage.showEmpty()
-            Logger.d("账单数据为空或加载超时")
+            logger.debug { "账单数据为空或加载超时" }
         }
     }
 

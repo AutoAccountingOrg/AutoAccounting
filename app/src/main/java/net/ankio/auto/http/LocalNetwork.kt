@@ -18,11 +18,12 @@ package net.ankio.auto.http
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.storage.Logger
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.runCatchingExceptCancel
@@ -30,6 +31,9 @@ import java.net.Proxy
 import java.util.concurrent.TimeUnit
 
 object LocalNetwork {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     // 1. 复用同一个 OkHttpClient，按需配置超时 & 禁用代理
     val client by lazy {
         RequestsUtils()
@@ -96,40 +100,31 @@ object LocalNetwork {
      * @param onEvent 事件回调函数，参数为(event, data)
      */
     suspend fun postStream(
-        path: String,
-        payload: String,
-        onEvent: (String, String) -> Unit
+        path: String, payload: String, onEvent: (String, String) -> Unit
     ) = withContext(Dispatchers.IO) {
         val url = "${baseUrl}/${path.trimStart('/')}"
 
         // 创建专用的OkHttpClient用于流式请求
-        val streamClient = OkHttpClient.Builder()
-            .readTimeout(5, TimeUnit.MINUTES)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .proxy(Proxy.NO_PROXY)
-            .build()
+        val streamClient = OkHttpClient.Builder().readTimeout(5, TimeUnit.MINUTES).connectTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS).proxy(Proxy.NO_PROXY).build()
 
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Accept", "text/event-stream")
-            .post(payload.toRequestBody("application/json".toMediaType()))
+        val request = Request.Builder().url(url).addHeader("Content-Type", "application/json")
+            .addHeader("Accept", "text/event-stream").post(payload.toRequestBody("application/json".toMediaType()))
             .build()
 
         runCatchingExceptCancel {
             streamClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    Logger.e("流式请求失败: ${response.code}")
+                    logger.error { "流式请求失败: ${response.code}" }
                     onEvent("error", "HTTP ${response.code}")
                     return@withContext
                 }
 
 
-                Logger.d("流式请求成功，开始读取数据流")
+                logger.debug { "流式请求成功，开始读取数据流" }
                 val source = response.body?.source()
                 if (source == null) {
-                    Logger.e("响应体为空")
+                    logger.error { "响应体为空" }
                     onEvent("error", "Empty response body")
                     return@withContext
                 }
@@ -144,19 +139,19 @@ object LocalNetwork {
                             continue // 跳过空行
                         }
 
-                        Logger.d("读取第${lineCount}行: $line")
+                        logger.debug { "读取第${lineCount}行: $line" }
 
                         // 处理SSE格式的数据
                         when {
                             line.startsWith("data: ") -> {
                                 val data = line.substring(6) // 移除"data: "前缀
-                                Logger.d("处理数据: ${data.take(100)}...")
+                                logger.debug { "处理数据: ${data.take(100)}..." }
 
                                 if (data == "[DONE]") {
-                                    Logger.d("收到完成信号")
+                                    logger.debug { "收到完成信号" }
                                     break
                                 } else if (data == "[START]") {
-                                    Logger.d("SSE连接已建立")
+                                    logger.debug { "SSE连接已建立" }
                                 } else {
                                     onEvent("message", data)
                                 }
@@ -164,27 +159,27 @@ object LocalNetwork {
 
                             line.startsWith("event: ") -> {
                                 val eventType = line.substring(7) // 移除"event: "前缀
-                                Logger.d("事件类型: $eventType")
+                                logger.debug { "事件类型: $eventType" }
                             }
 
                             line.startsWith("id: ") -> {
                                 val id = line.substring(4) // 移除"id: "前缀
-                                Logger.d("事件ID: $id")
+                                logger.debug { "事件ID: $id" }
                             }
 
                             else -> {
-                                Logger.d("未知SSE行: $line")
+                                logger.debug { "未知SSE行: $line" }
                             }
                         }
                     }
-                    Logger.d("流式响应处理完成，共读取${lineCount}行")
-                }.onFailure {
-                    Logger.e("读取流式响应失败: ${it.message}", it)
-                    onEvent("error", it.message ?: "Unknown error")
+                    logger.debug { "流式响应处理完成，共读取${lineCount}行" }
                 }
+            }.onFailure {
+                logger.error(it) { "读取流式响应失败: ${it.message}" }
+                onEvent("error", it.message ?: "Unknown error")
             }
         }.onFailure {
-            Logger.e("创建流式请求失败: ${it.message}", it)
+            logger.error(it) { "创建流式请求失败: ${it.message}" }
             onEvent("error", it.message ?: "Unknown error")
         }
     }

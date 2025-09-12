@@ -19,14 +19,17 @@ import android.content.Context
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 
 class WrapContentLinearLayoutManager(context: Context?) : LinearLayoutManager(context) {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
     override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State?) {
         try {
             super.onLayoutChildren(recycler, state)
         } catch (e: IndexOutOfBoundsException) {
-            Logger.e("onLayoutChildren: IndexOutOfBoundsException", e)
+            logger.error(e) { "onLayoutChildren: IndexOutOfBoundsException" }
         }
     }
 }

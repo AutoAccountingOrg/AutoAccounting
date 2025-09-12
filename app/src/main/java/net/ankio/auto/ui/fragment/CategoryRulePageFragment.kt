@@ -27,6 +27,7 @@ import net.ankio.auto.ui.adapter.CategoryRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import org.ezbook.server.db.model.CategoryRuleModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 分类规则页面Fragment
@@ -65,7 +66,7 @@ class CategoryRulePageFragment :
                 putString("data", item.toJson())
                 putLong("ruleId", item.id)
             }
-            Logger.d("Navigate to category rule edit with item: ${item.id}")
+            logger.debug { "Navigate to category rule edit with item: ${item.id}" }
             // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
             findNavController().navigate(R.id.categoryRuleEditFragment, bundle)
         }
@@ -84,7 +85,7 @@ class CategoryRulePageFragment :
      */
     private fun setupAddButton() {
         binding.addButton.setOnClickListener {
-            Logger.d("Navigate to create new category rule")
+            logger.debug { "Navigate to create new category rule" }
             // 使用目的地 ID 导航
             findNavController().navigate(R.id.categoryRuleEditFragment)
         }

@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.android.hooks.permission
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodHook.MethodHookParam
 import de.robv.android.xposed.XposedBridge
@@ -25,6 +26,8 @@ import java.lang.reflect.Method
 
 
 class PermissionHooker29(private val  manifest: HookerManifest, private val mClassLoader: ClassLoader) {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     // for Android 28+
     private val CLASS_PERMISSION_MANAGER_SERVICE: String =
         "com.android.server.pm.permission.PermissionManagerService"
@@ -38,13 +41,13 @@ class PermissionHooker29(private val  manifest: HookerManifest, private val mCla
         try {
             hookGrantPermissions()
         } catch (e: Throwable) {
-            manifest.log("Error in PermissionHooker29: $e")
-            manifest.logE(e)
+            logger.info { "Error in PermissionHooker29: $e" }
+            logger.error(e) { "异常" }
         }
     }
 
     private fun hookGrantPermissions() {
-        manifest.logD("Hooking grantPermissions() for Android 28+")
+        logger.debug { "Hooking grantPermissions() for Android 28+" }
         val method = findTargetMethod()
         XposedBridge.hookMethod(method, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -103,7 +106,7 @@ class PermissionHooker29(private val  manifest: HookerManifest, private val mCla
 
         for (appItems in XposedModule.get()) {
             if (appItems.packageName == _packageName) {
-                manifest.logD("PackageName: ${_packageName}")
+                logger.debug { "PackageName: ${_packageName}" }
                 // PackageParser$Package.mExtras 实际上是 com.android.server.pm.PackageSetting mExtras 对象
                 val extras = XposedHelpers.getObjectField(pkg, "mExtras")
                 // com.android.server.pm.permission.PermissionsState 对象
@@ -134,9 +137,9 @@ class PermissionHooker29(private val  manifest: HookerManifest, private val mCla
                                 "grantInstallPermission",
                                 bpToGrant
                             ) as Int
-                            manifest.logD("Add $bpToGrant; result = $result")
+                            logger.debug { "Add $bpToGrant; result = $result" }
                         } else {
-                            manifest.logD("Already have $permissionToGrant permission")
+                            logger.debug { "Already have $permissionToGrant permission" }
                         }
                     }
                 }

@@ -28,6 +28,7 @@ import net.ankio.auto.storage.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 协程工具类
@@ -40,6 +41,8 @@ import kotlin.coroutines.cancellation.CancellationException
  * 5. 统一管理：融合了CoroutineManager的功能
  */
 object CoroutineUtils {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -127,7 +130,7 @@ object CoroutineUtils {
             try {
                 block()
             } catch (e: CancellationException) {
-                Logger.d("全局协程已取消: ${e.message}")
+                logger.debug { "全局协程已取消: ${e.message}" }
             }
         }
     }

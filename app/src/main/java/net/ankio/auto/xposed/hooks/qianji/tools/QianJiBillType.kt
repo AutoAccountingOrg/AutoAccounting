@@ -69,7 +69,7 @@ enum class QianJiBillType(val value: Int) {
                 BillType.IncomeReimbursement -> IncomeReimbursement.value
                 BillType.IncomeRepayment -> IncomeRepayment.value
                 BillType.IncomeRefund -> IncomeRefund.value
-                else -> Expend.value
+                // no else branch, exhaustive when
             }
         }
 

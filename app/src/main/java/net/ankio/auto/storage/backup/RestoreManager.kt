@@ -27,11 +27,14 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CoroutineUtils.withIO
 import net.ankio.auto.utils.CoroutineUtils.withMain
 import java.io.File
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * 恢复管理器，负责从备份文件恢复数据
  */
 class RestoreManager(private val context: Context) {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     private val fileManager = BackupFileManager(context)
     private val webDAVManager = WebDAVManager()
@@ -53,11 +56,11 @@ class RestoreManager(private val context: Context) {
                 fileManager.unpackData(file)
             }
 
-            Logger.i("本地恢复完成")
+            logger.info { "本地恢复完成" }
             // BackupFileManager 已经处理了重启逻辑
             ToastUtils.info(R.string.restore_success)
         } catch (throwable: Throwable) {
-            Logger.e("本地恢复失败", throwable)
+            logger.error(throwable) { "本地恢复失败" }
             ToastUtils.error(R.string.backup_error)
             throw throwable
         }
@@ -93,14 +96,14 @@ class RestoreManager(private val context: Context) {
                 fileManager.unpackData(targetFile)
             }.getOrThrow()
 
-            Logger.i("WebDAV恢复完成")
+            logger.info { "WebDAV恢复完成" }
             withMain {
                 loadingUtils?.close()
                 // BackupFileManager 已经处理了重启逻辑
                 ToastUtils.info(R.string.restore_success)
             }
         } catch (throwable: Throwable) {
-            Logger.e("WebDAV恢复失败", throwable)
+            logger.error(throwable) { "WebDAV恢复失败" }
             withMain {
                 loadingUtils?.close()
                 ToastUtils.error(R.string.backup_error)

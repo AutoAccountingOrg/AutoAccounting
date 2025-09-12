@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.android.hooks
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import android.os.Build
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -29,24 +30,26 @@ import net.ankio.auto.xposed.hooks.android.hooks.permission.PermissionHooker34
  * 授权
  */
 class PermissionHooker : PartHooker() {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     /**
      * hook PermissionManagerService，并自动向特定的应用程序授予特定权限。
      */
     override fun hook() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){ //14
-            AppRuntime.manifest.log("PermissionHooker34")
+            logger.info { "PermissionHooker34" }
             PermissionHooker34(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){ //13
-            AppRuntime.manifest.log("PermissionHooker33")
+            logger.info { "PermissionHooker33" }
             PermissionHooker33(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){ //12 - 12L
-            AppRuntime.manifest.log("PermissionHooker31")
+            logger.info { "PermissionHooker31" }
             PermissionHooker31(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){ //11
-            AppRuntime.manifest.log("PermissionHooker30")
+            logger.info { "PermissionHooker30" }
             PermissionHooker30(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else{
-            AppRuntime.manifest.log("PermissionHooker29") // 10
+            logger.info { "PermissionHooker29" } // 10
             PermissionHooker29(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }
 

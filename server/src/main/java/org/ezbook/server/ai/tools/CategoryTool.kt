@@ -15,11 +15,14 @@
 
 package org.ezbook.server.ai.tools
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.db.Db
-import org.ezbook.server.tools.ServerLog
 
 class CategoryTool {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     private val prompt = """
 # Role
 You select exactly one category name from Category Data.
@@ -57,11 +60,11 @@ Fields: ruleName, shopName, shopItem
 
     suspend fun execute(data: String): String? {
         // 记录输入摘要，避免日志过长
-        ServerLog.d("分类匹配请求：data=${data.take(120)}")
+        logger.debug { "分类匹配请求：data=${data.take(120)}" }
 
         val categories = Db.get().categoryDao().all()
         // 记录分类候选规模
-        ServerLog.d("分类候选统计：total=${categories.size}")
+        logger.debug { "分类候选统计：total=${categories.size}" }
         val categoryNames = categories.joinToString(",") { it.name.toString() }
         val user = """
 Input:
@@ -76,15 +79,15 @@ Input:
         """.trimIndent()
 
         // 调用 AI 进行分类选择
-        ServerLog.d("调用AI进行分类匹配...")
+        logger.debug { "调用AI进行分类匹配..." }
         val resp = AiManager.getInstance().request(prompt, user).getOrThrow()
         if (resp.isEmpty()) {
             // AI 无返回
-            ServerLog.d("AI分类返回空响应")
+            logger.debug { "AI分类返回空响应" }
             return null
         }
         // 记录 AI 的原始输出（期望为单行纯文本）
-        ServerLog.d("AI分类结果：$resp")
+        logger.debug { "AI分类结果：$resp" }
         return resp
     }
 }

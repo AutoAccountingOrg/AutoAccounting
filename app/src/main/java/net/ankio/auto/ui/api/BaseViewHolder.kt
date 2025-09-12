@@ -18,6 +18,7 @@ package net.ankio.auto.ui.api
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * RecyclerView ViewHolder 基类
@@ -33,6 +34,9 @@ import androidx.viewbinding.ViewBinding
  */
 open class BaseViewHolder<T : ViewBinding, E>(val binding: T) :
     RecyclerView.ViewHolder(binding.root) {
+    companion object {
+        val logger = KotlinLogging.logger(this::class.java.name)
+    }
 
     /** 当前绑定的数据项 */
     var item: E? = null

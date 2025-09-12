@@ -6,8 +6,11 @@ import com.benjaminwan.ocrlibrary.OcrEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.storage.Logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class OcrProcessor(private val context: Context) {
+
+    private val logger = KotlinLogging.logger(this::class.java.name)
 
     private lateinit var ocrEngine: OcrEngine
 
@@ -16,7 +19,7 @@ class OcrProcessor(private val context: Context) {
         if (!::ocrEngine.isInitialized) {
             // 这里做一次初始化
             ocrEngine = OcrEngine(context)
-            Logger.d("OcrLite OCR引擎初始化完成")
+            logger.debug { "OcrLite OCR引擎初始化完成" }
         }
     }
     /**
@@ -26,16 +29,16 @@ class OcrProcessor(private val context: Context) {
      */
     suspend fun recognize(bitmap: Bitmap): String = withContext(Dispatchers.IO) {
         val recognizeStartTime = System.currentTimeMillis()
-        Logger.d("OCR 开始识别...")
+        logger.debug { "OCR 开始识别..." }
         ensureOcrReady()
         return@withContext try {
             val result = ocrEngine.detect(bitmap, bitmap, 0)
             val text = result.textBlocks.joinToString("\n") { it.text }
             val totalRecognizeTime = System.currentTimeMillis() - recognizeStartTime
-            Logger.d("OCR识别耗时: ${totalRecognizeTime}ms")
+            logger.debug { "OCR识别耗时: ${totalRecognizeTime}ms" }
             text
         } catch (e: Exception) {
-            Logger.e("OCR识别失败: ${e.message}", e)
+            logger.error(e) { "OCR识别失败: ${e.message}" }
             ""
         }
     }

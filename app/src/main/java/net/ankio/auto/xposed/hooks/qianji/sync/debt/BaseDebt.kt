@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,6 +33,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 abstract class BaseDebt {
+    private val logger = KotlinLogging.logger(this::class.java.name)
+
     /**
      * 账单类
      */
@@ -86,7 +89,7 @@ abstract class BaseDebt {
         val json = JSONObject(billModel)
 
 
-        AppRuntime.log("提交资产=>${assetAccount},${book},${json}")
+        logger.info { "提交资产=>${assetAccount},${book},${json}" }
         //提交数据给钱迹
         XposedHelpers.callMethod(
             presenter,
@@ -104,7 +107,7 @@ abstract class BaseDebt {
         ) {
             val code = it.args[0] as Int
             val msg = it.args[1] as String
-            AppRuntime.log("Push Asset => ${code}:${msg}")
+            logger.info { "Push Asset => ${code}:${msg}" }
             true
         }
         Hooker.onceAfter(
@@ -116,7 +119,7 @@ abstract class BaseDebt {
             if (assetsInstance.javaClass == assetsInterface) {
                 // 提交成功
                 val assetsItem = XposedHelpers.callMethod(assetsInstance, "getData")
-                AppRuntime.log("Push Asset Success => ${assetsItem}")
+                logger.info { "Push Asset Success => ${assetsItem}" }
                 continuation.resume(AssetAccount.fromObject(assetsItem))
 
                 return@onceAfter true
