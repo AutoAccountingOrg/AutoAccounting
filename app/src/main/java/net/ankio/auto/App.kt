@@ -74,7 +74,6 @@ open class App : Application() {
         autoApp = this
 
 
-        if (PrefManager.workMode == WorkMode.Xposed) {
             LoggerConfig.init(BuildConfig.APPLICATION_ID, PrefManager.debugMode)
         }
 
