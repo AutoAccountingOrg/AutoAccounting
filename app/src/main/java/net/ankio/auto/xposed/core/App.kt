@@ -72,7 +72,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         when {
             manifest.packageName == "android" -> callback(null)
             manifest.applicationName.isEmpty() -> {
-                XposedBridge.log("[自动记账] 使用当前应用程序: ${manifest.appName}")
+                XposedBridge.log("[ 自动记账 ] 使用当前应用程序: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
 
@@ -85,13 +85,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         if (hooked) return@after
                         hooked = true
                         val application = it.args[0] as Application
-                        XposedBridge.log("[自动记账] Hook成功: ${manifest.applicationName} -> $application")
+                        XposedBridge.log("[ 自动记账 ] Hook成功: ${manifest.applicationName} -> $application")
                         callback(application)
 
                     }
                 } catch (e: Exception) {
                     XposedBridge.log(
-                        "[自动记账] Hook失败: ${e.message}\n${e.stackTrace.joinToString("\n")}"
+                        "[ 自动记账 ] Hook失败: ${e.message}\n${e.stackTrace.joinToString("\n")}"
                     )
                 }
             }
@@ -103,8 +103,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      */
     private fun findTargetApp(pkg: String?, processName: String?): HookerManifest? {
 
-        XposedBridge.log("[自动记账] $pkg$processName")
-        XposedBridge.log("[自动记账] $hookerMap")
+        XposedBridge.log("[ 自动记账 ] $pkg$processName")
+        XposedBridge.log("[ 自动记账 ] $hookerMap")
         if (pkg == null || processName == null) return null
 
         val key = "$pkg$processName"
