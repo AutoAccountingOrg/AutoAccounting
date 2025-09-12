@@ -62,7 +62,7 @@ object LoggerConfig {
         name = appenderName
         tagEncoder = PatternLayoutEncoder().apply {
             context = loggerContext
-            pattern = "%logger{12}"
+            pattern = "%logger{25}"
             start()
         }
         encoder = PatternLayoutEncoder().apply {
@@ -81,9 +81,9 @@ object LoggerConfig {
         encoder = PatternLayout().apply {
             context = loggerContext
             pattern = if (debugging) {
-                "[ 自动记账 ] [$packageName] [%.1level] %logger{12} %file:%line - %msg"
+                "[ 自动记账 ] [$packageName] [%.1level] %logger{18} %file:%line - %msg"
             } else {
-                "[ 自动记账 ] [$packageName] [%.1level] %logger{12} - %msg"
+                "[ 自动记账 ] [$packageName] [%.1level] %logger{18} - %msg"
             }
             start()
         }

@@ -49,8 +49,8 @@ class LogModelAppender(
 
             !packageName.isNullOrEmpty() -> event.loggerName
 
-            else -> event.threadName
-        } ?: "unknown"
+            else -> event.callerData.firstOrNull()?.run { "${fileName}:${lineNumber}" }
+        } ?: event.threadName
 
         val app = packageName ?: event.loggerName
 
