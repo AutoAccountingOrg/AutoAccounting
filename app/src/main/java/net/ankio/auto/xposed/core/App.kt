@@ -67,33 +67,32 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * Hook应用上下文
      */
     private fun hookAppContext(
-        manifest: HookerManifest,
-        callback: (Application?) -> Unit
+        manifest: HookerManifest, callback: (Application?) -> Unit
     ) {
         when {
             manifest.packageName == "android" -> callback(null)
             manifest.applicationName.isEmpty() -> {
-                logger.debug { "使用当前应用程序: ${manifest.appName}" }
+                XposedBridge.log("[自动记账] 使用当前应用程序: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
+
             else -> {
                 try {
                     var hooked = false
                     Hooker.after(
-                        Instrumentation::class.java,
-                        "callApplicationOnCreate",
-                        Application::class.java
+                        Instrumentation::class.java, "callApplicationOnCreate", Application::class.java
                     ) {
                         if (hooked) return@after
                         hooked = true
                         val application = it.args[0] as Application
-                        logger.debug { "Hook成功: ${manifest.applicationName} -> $application" }
+                        XposedBridge.log("[自动记账] Hook成功: ${manifest.applicationName} -> $application")
                         callback(application)
 
                     }
                 } catch (e: Exception) {
-                    logger.info { "Hook失败: ${e.message}" }
-                    logger.error(e) { "Hook异常" }
+                    XposedBridge.log(
+                        "[自动记账] Hook失败: ${e.message}\n${e.stackTrace.joinToString("\n")}"
+                    )
                 }
             }
         }
@@ -104,8 +103,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      */
     private fun findTargetApp(pkg: String?, processName: String?): HookerManifest? {
 
-        logger.info { "$pkg$processName" }
-        logger.info { "$hookerMap" }
+        XposedBridge.log("[自动记账] $pkg$processName")
+        XposedBridge.log("[自动记账] $hookerMap")
         if (pkg == null || processName == null) return null
 
         val key = "$pkg$processName"
@@ -117,8 +116,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 加载包时的回调
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-        LoggerConfig.init(lpparam.packageName, BuildConfig.DEBUG)
-
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
         // 设置运行时环境
         AppRuntime.classLoader = lpparam.classLoader
@@ -128,6 +125,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             AppRuntime.application = application
             application?.let { AppRuntime.classLoader = it.classLoader }
             AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, BuildConfig.DEBUG)
+            LoggerConfig.reinit(lpparam.packageName, AppRuntime.debug)
+
             logger.info {
                 "Hook器: ${targetApp.appName}(${targetApp.packageName}) 运行在${if (AppRuntime.debug) "调试" else "生产"}模式"
             }
@@ -193,9 +192,9 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         logger.debug { "Hook器初始化成功, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})" }
 
         // 成功通知
-        if (!AppRuntime.manifest.systemApp &&
-            AppRuntime.manifest.packageName != BuildConfig.APPLICATION_ID &&
-            DataUtils.configBoolean(Setting.LOAD_SUCCESS, DefaultData.LOAD_SUCCESS)
+        if (!AppRuntime.manifest.systemApp && AppRuntime.manifest.packageName != BuildConfig.APPLICATION_ID && DataUtils.configBoolean(
+                Setting.LOAD_SUCCESS, DefaultData.LOAD_SUCCESS
+            )
         ) {
             MessageUtils.toast("自动记账加载成功")
         }

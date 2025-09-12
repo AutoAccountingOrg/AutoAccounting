@@ -29,6 +29,7 @@ import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.PrefManager.darkTheme
 import net.ankio.auto.utils.SystemUtils
+import net.ankio.auto.xposed.XposedModule
 import net.ankio.auto.xposed.core.logger.LoggerConfig
 import rikka.material.app.LocaleDelegate
 import java.util.*
@@ -74,7 +75,7 @@ open class App : Application() {
         autoApp = this
 
 
-        if (PrefManager.workMode != WorkMode.Xposed) {
+        if (XposedModule.active().not()) {
             LoggerConfig.reinit(BuildConfig.APPLICATION_ID, PrefManager.debugMode)
         }
 

@@ -50,14 +50,14 @@ class Server(private val context: Application) {
         val existingAppender = serverLogger.getAppender(appenderName)
         if (existingAppender != null) return
 
-        serverLogger.isAdditive = false
+//        serverLogger.isAdditive = false
         serverLogger.addAppender(LogModelAppender {
             Db.get().logDao().insert(it)
         }.apply {
             val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
             context = loggerContext
             name = appenderName
-            this.packageName = "AutoServer"
+            this.packageName = null
             this.debugging = debugging
             start()
         })
@@ -121,7 +121,5 @@ class Server(private val context: Application) {
         fun withIO(block: suspend () -> Unit) {
             mainScope.launch(Dispatchers.IO) { block() }
         }
-
-
     }
 }

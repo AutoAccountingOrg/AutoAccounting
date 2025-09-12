@@ -27,9 +27,15 @@ import org.ezbook.server.tools.LogModelAppender
 import org.slf4j.LoggerFactory
 
 object LoggerConfig {
-    fun init(packageName: String, debugging: Boolean) {
+    fun reinit(packageName: String, debugging: Boolean) {
         val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
         loggerContext.reset()
+        val rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME)
+        rootLogger.level = if (debugging) {
+            ch.qos.logback.classic.Level.DEBUG
+        } else {
+            ch.qos.logback.classic.Level.INFO
+        }
 
         when (packageName) {
             BuildConfig.APPLICATION_ID -> listOfNotNull(
@@ -44,9 +50,9 @@ object LoggerConfig {
             else -> listOfNotNull(
                 createXposedAppender(loggerContext, packageName, debugging),
                 createNetworkAppender(loggerContext, packageName, debugging),
-//                if (debugging) createLogcatAppender(loggerContext, true, "[ 自动记账 ] ") else null
+                if (debugging) createLogcatAppender(loggerContext, true, "[ 自动记账 ] ") else null
             )
-        }.forEach(loggerContext.getLogger(Logger.ROOT_LOGGER_NAME)::addAppender)
+        }.forEach(rootLogger::addAppender)
     }
 
     private fun createLogcatAppender(
