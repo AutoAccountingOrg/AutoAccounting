@@ -15,6 +15,27 @@
 
 package net.ankio.auto.xposed.core.api
 
+import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime
+
 abstract class PartHooker {
-    abstract fun hook()
+
+
+    protected val manifest by lazy { AppRuntime.manifest }
+
+
+    fun log(msg: String) {
+        Logger.log(manifest.packageName, msg)
+    }
+
+    fun logD(msg: String) {
+        Logger.logD(manifest.packageName, msg)
+    }
+
+    fun logE(e: Throwable) {
+        Logger.logE(manifest.packageName, e)
+    }
+
+    open fun hook() {}
+
 }

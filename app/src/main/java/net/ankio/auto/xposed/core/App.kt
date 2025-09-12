@@ -23,17 +23,23 @@ import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.XposedModule
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AdaptationUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.CoroutineUtils
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils
+import net.ankio.auto.xposed.core.utils.NetSecurityUtils
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.tools.MD5HashTable
+import org.ezbook.server.tools.MemoryCache
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -105,9 +111,15 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         Logger.log(TAG, "$hookerMap")
         if (pkg == null || processName == null) return null
 
-        val key = "$pkg$processName"
+        // 优先精确匹配 (pkg + processName)
+        val exactKey = "$pkg$processName"
+        hookerMap[exactKey]?.let { return it }
 
-        return hookerMap[key]
+        // 回退主进程 (pkg + pkg)
+        val mainProcKey = "$pkg$pkg"
+        hookerMap[mainProcKey]?.let { return it }
+
+        return null
     }
 
     /**
@@ -115,19 +127,29 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
-        // 设置运行时环境
-        AppRuntime.classLoader = lpparam.classLoader
-        AppRuntime.name = targetApp.appName
-        AppRuntime.manifest = targetApp
+
+
         hookAppContext(targetApp) { application ->
-            AppRuntime.application = application
-            application?.let { AppRuntime.classLoader = it.classLoader }
-            AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, BuildConfig.DEBUG)
-            Logger.logD(
+            val classLoader = application?.classLoader ?: lpparam.classLoader
+            AppRuntime.init(application, classLoader, targetApp)
+            Logger.log(
                 TAG,
-                "Hook器: ${targetApp.appName}(${targetApp.packageName}) 运行在${if (AppRuntime.debug) "调试" else "生产"}模式"
+                "初始化Hook: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}"
             )
-            initHooker()
+            // 设置允许明文
+            NetSecurityUtils.allowCleartextTraffic()
+            // 初始化Toast
+            application?.let { Toaster.init(it) }
+            //
+            if (!AdaptationUtils.autoAdaption(targetApp)) {
+                Logger.log(
+                    TAG,
+                    "自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook"
+                )
+                return@hookAppContext
+            }
+
+            startHooker(targetApp)
         }
     }
 
@@ -135,66 +157,41 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     /**
      * 初始化Hook器
      */
-    private fun initHooker() {
-        Logger.log(
-            TAG,
-            "初始化Hook器: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}"
-        )
+    private fun startHooker(manifest: HookerManifest) {
 
-        // 基础设置
-        try {
-            AppRuntime.manifest.networkError()
-
-            Toaster.init(AppRuntime.application)
-
-            AppRuntime.manifest.permissionCheck()
-
-        } catch (e: Exception) {
-            Logger.logE(TAG, e)
-        }
-
-        // 版本检查
-        if (!AppRuntime.manifest.versionCheck()) return
-
-        // 规则适配
-        val rules = AppRuntime.manifest.beforeAdaption()
-        if (!AppRuntime.manifest.autoAdaption(rules)) {
-            Logger.log(
-                TAG,
-                "自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook"
-            )
-            return
-        }
 
         // 启动Hook
         try {
-            AppRuntime.manifest.hookLoadPackage()
+            manifest.hookLoadPackage()
         } catch (e: Exception) {
-            AppRuntime.manifest.logE(e)
+            manifest.logE(e)
         }
 
-        AppRuntime.manifest.partHookers.forEach { hooker ->
+        manifest.partHookers.forEach { hooker ->
             val hookerName = hooker.javaClass.simpleName
-            AppRuntime.manifest.logD("初始化部分Hook器: $hookerName")
+            manifest.logD("初始化Hook器: $hookerName")
 
             try {
                 hooker.hook()
-                AppRuntime.manifest.logD("部分Hook器初始化成功: $hookerName")
+                manifest.logD("Hook器初始化成功: $hookerName")
             } catch (e: Exception) {
-                AppRuntime.manifest.logD("部分Hook器错误: ${e.message}")
-                AppRuntime.manifest.logE(e)
-                set("adaptation_version", "0")
+                manifest.logD("Hook器错误: ${e.message}")
+                manifest.logE(e)
+                AdaptationUtils.clearCache()
             }
         }
 
-        AppRuntime.manifest.logD("Hook器初始化成功, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")
+        manifest.logD("Hook器初始化成功, ${manifest.appName}")
 
         // 成功通知
-        if (!AppRuntime.manifest.systemApp &&
-            AppRuntime.manifest.packageName != BuildConfig.APPLICATION_ID &&
-            DataUtils.configBoolean(Setting.LOAD_SUCCESS, DefaultData.LOAD_SUCCESS)
+        if (!manifest.systemApp &&
+            manifest.packageName != BuildConfig.APPLICATION_ID
         ) {
-            MessageUtils.toast("自动记账加载成功")
+            CoroutineUtils.withMain {
+                if (DataUtils.configBoolean(Setting.LOAD_SUCCESS, DefaultData.LOAD_SUCCESS)) {
+                    MessageUtils.toast("自动记账加载成功")
+                }
+            }
         }
     }
 

@@ -16,97 +16,132 @@
 package net.ankio.auto.xposed.core.utils
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Process
+import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.logger.Logger
-import org.ezbook.server.tools.MemoryCache
+
 
 object AppRuntime {
     /**
-     * 表示应用程序是否处于调试模式。
+     * 进程级运行时环境单例。
+     *
+     * 职责：
+     * - 暴露应用 `Application`、`ClassLoader`、模块路径等运行时元数据
+     * - 保存当前目标应用的 `HookerManifest`
+     * - 提供便捷能力：进程重启、动态加载 so、查询版本信息
+     *
+     * 线程安全：
+     * - `init` 应在同一进程生命周期内调用一次；其余读取为无锁读，满足发布/订阅即可
+     * - `debug` 值会在 IO 线程异步刷新，初始化后短时间内读取到默认值属预期行为
+     */
+    /**
+     * 是否处于调试模式。
+     *
+     * 来源：默认取 `BuildConfig.DEBUG`，在 `init` 之后通过配置中心异步覆盖。
+     * 注意：初始化后短时间内存在读到默认值的窗口期。
      */
     var debug = BuildConfig.DEBUG
 
     /**
-     * 表示应用程序的实例。
+     * 应用 `Application` 实例。
+     *
+     * 在非应用进程（如系统服务或早期阶段）可能为 null。
      */
     var application: Application? = null
 
     /**
-     * 表示应用程序的类加载器。
+     * 当前使用的类加载器。
+     *
+     * 优先使用应用的 `classLoader`，在应用未就绪时退回为传入的备用 `loader`。
      */
     lateinit var classLoader: ClassLoader
 
     /**
-     * 表示应用程序的模块路径。
+     * 模块安装路径（用于定位资源/文件）。
+     * 约定：建议以 `/` 结尾以便进行路径拼接。
      */
     var modulePath: String = ""
 
     /**
-     * 表示应用程序的模块so路径。
+     * 模块 so 目录路径。
+     * 约定：必须以 `/` 结尾；`load(name)` 会拼接为 `moduleSoPath + "lib$name.so"`。
      */
     var moduleSoPath: String = ""
 
     /**
-     * 表示应用程序的模块名称。
+     * 当前目标应用（或模块）名，来源于 `HookerManifest.appName`。
      */
     var name: String = ""
 
     /**
-     *
+     * 当前目标应用的 Hook 描述信息。
+     * 在 `init` 完成后可用。
      */
     lateinit var manifest: HookerManifest
 
-    var memoryCache = MemoryCache()
     /**
-     * 表示应用程序的版本代码。
+     * 初始化运行时环境。
      *
-     * 该属性通过延迟初始化来获取应用程序的版本代码。它尝试从应用程序的包管理器中获取版本代码，
-     * 如果获取失败，则返回默认值0。
+     * 侧效应：
+     * - 记录 `application`、`classLoader`、`manifest`、`name`
+     * - 在 IO 线程异步刷新 `debug` 值（读取配置项 `debugMode`）
      *
-     * 版本代码是一个整数值，通常用于标识应用程序的不同版本。较高的版本代码表示较新的版本。
+     * @param app 应用实例；在非应用进程可能为 null
+     * @param loader 备用类加载器；当 `app` 为 null 时使用
+     * @param m 目标应用的 `HookerManifest`
      */
-    public val versionCode by lazy {
-        runCatching {
-            application!!.packageManager.getPackageInfo(
-                application!!.packageName,
-                0
-            ).longVersionCode.toInt()
-        }.getOrElse {
-            0
+    fun init(app: Application?, loader: ClassLoader, m: HookerManifest) {
+        application = app
+        classLoader = app?.classLoader ?: loader
+        manifest = m
+        name = m.appName
+        CoroutineUtils.withIO {
+            debug = DataUtils.configBoolean("debugMode", BuildConfig.DEBUG)
+            Logger.logD(
+                TAG,
+                "Hook: ${m.appName}(${m.packageName}) 运行在${if (debug) "调试" else "生产"}模式"
+            )
         }
     }
 
     /**
-     * 表示应用程序的版本名称。
+     * 附加资源路径
      */
-    val versionName by lazy {
-        runCatching {
-            application!!.packageManager.getPackageInfo(
-                application!!.packageName,
-                0
-            ).versionName
-        }.getOrElse {
-            ""
-        }
+    fun attachResource(context: Context) {
+        XposedHelpers.callMethod(
+            context.resources.assets,
+            "addAssetPath",
+            modulePath,
+        )
     }
 
-
+    /**
+     * 重启当前应用进程。
+     *
+     * 当 `application` 为 null 时不执行任何操作。
+     * 实现方式：启动首页 Activity（`CLEAR_TOP | NEW_TASK`），随后杀死当前进程。
+     */
     fun restart() {
-        if (application == null) return
-        val intent =
-            application!!.packageManager.getLaunchIntentForPackage(application!!.packageName)
+        val app = application ?: return
+        val intent = app.packageManager.getLaunchIntentForPackage(app.packageName)
         intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_NEW_TASK)
-        application!!.startActivity(intent)
+        if (intent != null) app.startActivity(intent)
         Process.killProcess(Process.myPid())
     }
 
     /**
-     * 加载so库
+     * 加载指定名称的 so 库。
+     *
+     * 将构造绝对路径：`moduleSoPath + "lib$name.so"` 并调用 `System.load`。
+     * 成功与失败均会记录日志。
+     *
+     * @param name 不含前缀 `lib` 与后缀 `.so` 的库名
      */
     fun load(name: String) {
         try {
@@ -119,20 +154,6 @@ object AppRuntime {
         }
     }
 
-    fun log(s: String) {
-        manifest.log(s)
-    }
 
-    fun logD(s: String) {
-        manifest.logD(s)
-    }
-
-    fun logE(e: Throwable) {
-        manifest.logE(e)
-    }
-
-    fun clazz(name: String): Class<*> {
-        return manifest.clazz(name)!!
-    }
 
 }

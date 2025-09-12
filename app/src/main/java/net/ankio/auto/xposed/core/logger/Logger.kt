@@ -18,7 +18,7 @@ package net.ankio.auto.xposed.core.logger
 import android.util.Log
 import net.ankio.auto.http.api.LogAPI
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.ThreadUtils
+import net.ankio.auto.xposed.core.utils.CoroutineUtils
 import org.ezbook.server.constant.LogLevel
 
 /**
@@ -92,7 +92,7 @@ object Logger {
         val (tag, header) = getCallerInfo()
         callXposedOrLogger(app, msg, Log.DEBUG, tag, header)
         //写入自动记账日志
-        ThreadUtils.launch {
+        CoroutineUtils.withIO {
             LogAPI.add(LogLevel.INFO, app, tag + header, msg)
         }
 
@@ -114,7 +114,7 @@ object Logger {
         xposedLogThrowable(e)
         val formatted = "[ 自动记账 ][ $app ]$header $msg"
         Log.e(tag, formatted)
-        ThreadUtils.launch {
+        CoroutineUtils.withIO {
             val log = StringBuilder()
             log.append(e.message).append("\n")
             e.stackTrace.forEach {
