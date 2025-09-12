@@ -43,7 +43,7 @@ object LoggerConfig {
 
             else -> listOfNotNull(
                 createXposedAppender(loggerContext, packageName, debugging),
-//                createNetworkAppender(loggerContext, packageName, debugging),
+                createNetworkAppender(loggerContext, packageName, debugging),
 //                if (debugging) createLogcatAppender(loggerContext, true, "[ 自动记账 ] ") else null
             )
         }.forEach(loggerContext.getLogger(Logger.ROOT_LOGGER_NAME)::addAppender)
