@@ -18,6 +18,8 @@ package net.ankio.auto.xposed.hooks.wechat.hooks
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.hooks.wechat.models.LuckMoneyModel
+import net.ankio.auto.xposed.hooks.wechat.models.WechatUserModel
 import org.ezbook.server.constant.DataType
 import org.json.JSONObject
 
@@ -30,7 +32,7 @@ class RedPackageHooker: PartHooker() {
          *
          *
          */
-        val clazz = AppRuntime.manifest.clazz("luckymoney.model")
+        val clazz = LuckMoneyModel.clazz()
         //  public void onGYNetEnd(int v, String s, JSONObject jSONObject0) {
         Hooker.before(clazz,
             "onGYNetEnd",
@@ -39,9 +41,9 @@ class RedPackageHooker: PartHooker() {
             JSONObject::class.java
         ){ param ->
             val json = param.args[2] as JSONObject
-            AppRuntime.manifest.logD("hooked red package: $json")
-            json.put(ChatUserHooker.CHAT_USER, ChatUserHooker.get(json.getString("sendUserName")))
-            AppRuntime.manifest.analysisData(DataType.DATA,json.toString())
+            logD("hooked red package: $json")
+            json.put(WechatUserModel.CHAT_USER, WechatUserModel.get(json.getString("sendUserName")))
+            analysisData(DataType.DATA, json.toString())
         }
     }
 }

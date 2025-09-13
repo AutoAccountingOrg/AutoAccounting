@@ -19,12 +19,14 @@ import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
+import net.ankio.auto.xposed.hooks.wechat.models.RemittanceModel
+import net.ankio.auto.xposed.hooks.wechat.models.WechatUserModel
 import org.ezbook.server.constant.DataType
 
 
 class TransferHooker : PartHooker() {
     override fun hook() {
-        val model = AppRuntime.manifest.clazz("remittance.model")
+        val model = RemittanceModel.clazz()
         Hooker.after(
             model,
             "onGYNetEnd",
@@ -36,13 +38,13 @@ class TransferHooker : PartHooker() {
             //payer_name
             val nameKey = if (json.getBoolean("is_payer")) "payer_name" else "receiver_name"
             val nameValue = json.getString(nameKey)
-            json.put(ChatUserHooker.CHAT_USER, ChatUserHooker.get(nameValue))
+            json.put(WechatUserModel.CHAT_USER, WechatUserModel.get(nameValue))
             json.put("cachedPayTools", DataUtils.get("cachedPayTools"))
             json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
             json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
             json.put("t", System.currentTimeMillis())
-            AppRuntime.manifest.logD("Wechat Transfer hook： $json")
-            AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
+            logD("Wechat Transfer hook： $json")
+            analysisData(DataType.DATA, json.toString())
         }
     }
 

@@ -52,7 +52,7 @@ class WebViewHooker:PartHooker() {
                   }
                   md5HashTable.put(md5)
                   AppRuntime.manifest.logD("Wechat WebViewHooker hook： $__json")
-                  AppRuntime.manifest.analysisData(DataType.DATA, __json.toString())
+                  analysisData(DataType.DATA, __json.toString())
               }.onFailure { e ->
                     AppRuntime.manifest.logE(e)
               }
