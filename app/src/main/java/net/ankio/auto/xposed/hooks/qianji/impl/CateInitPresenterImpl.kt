@@ -19,32 +19,28 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.http.api.CategoryAPI
+import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.xposed.core.api.HookerClazz
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
-import net.ankio.auto.xposed.hooks.qianji.models.Category
+import net.ankio.auto.xposed.hooks.qianji.models.QjCategoryModel
+import net.ankio.dex.model.Clazz
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
-import org.ezbook.server.db.model.SettingModel
+import org.ezbook.server.tools.MD5HashTable
 import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import net.ankio.auto.http.api.CategoryAPI
-import net.ankio.auto.http.api.SettingAPI
 
-object CateInitPresenterImpl {
-    private var cateInitPresenterImplClazz: Class<*> =
-        Hooker.loader(
-            "com.mutangtech.qianji.bill.add.category.CateInitPresenterImpl",
-        )
-
-    private val proxyOnGetCategoryListClazz by lazy {
-        AppRuntime.clazz("onGetCategoryList")
-    }
-
+object CateInitPresenterImpl : HookerClazz() {
+    private const val CLAZZ = "com.mutangtech.qianji.bill.add.category.CateInitPresenterImpl"
+    override var rule = Clazz(
+        name = this::class.java.name,
+        nameRule = CLAZZ,
+    )
 
     /**
      * 获取分类列表
@@ -55,7 +51,7 @@ object CateInitPresenterImpl {
             val proxyInstance =
                 Proxy.newProxyInstance(
                     AppRuntime.classLoader,
-                    arrayOf(proxyOnGetCategoryListClazz)
+                    arrayOf(GetCategoryListInterface.clazz())
                 ) { _, method, args ->
                     if (method.name == "onGetCategoryList") {
                         val list1 = args[0]
@@ -70,7 +66,7 @@ object CateInitPresenterImpl {
                     }
                     null
                 }
-            val obj = XposedHelpers.newInstance(cateInitPresenterImplClazz, proxyInstance)
+            val obj = XposedHelpers.newInstance(clazz(), proxyInstance)
             XposedHelpers.callMethod(obj, "loadCategoryList", bookId, false)
         }
 
@@ -99,10 +95,10 @@ object CateInitPresenterImpl {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_CATEGORY, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.log("No need to sync categories, Server md5:${server} local md5:${md5}")
+            AppRuntime.manifest.log("No need to sync categories, Server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.logD("Sync categories:$sync")
+        AppRuntime.manifest.logD("Sync categories:$sync")
         CategoryAPI.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步分类信息到自动记账")
@@ -120,7 +116,7 @@ object CateInitPresenterImpl {
         val categories = arrayListOf<CategoryModel>()
         list.forEach {
             if (it == null) return@forEach
-            val category = Category.fromObject(it)
+            val category = QjCategoryModel.fromObject(it)
             val model = CategoryModel()
             model.type = type
             model.name = category.getName()

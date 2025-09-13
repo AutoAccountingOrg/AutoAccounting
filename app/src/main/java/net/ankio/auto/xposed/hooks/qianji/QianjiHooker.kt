@@ -15,11 +15,41 @@
 
 package net.ankio.auto.xposed.hooks.qianji
 
-import android.content.Intent
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.MessageUtils
+import net.ankio.auto.xposed.hooks.qianji.activity.AddBillIntentAct
+import net.ankio.auto.xposed.hooks.qianji.activity.MainActivity
+import net.ankio.auto.xposed.hooks.qianji.activity.MainDrawerLayout
+import net.ankio.auto.xposed.hooks.qianji.filter.AssetsFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.BillFlagFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.BookFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.DataFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.ImageFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.MoneyFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.PlatformFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.SortFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.TagsFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.TypesFilter
+import net.ankio.auto.xposed.hooks.qianji.helper.AssetDbHelper
 import net.ankio.auto.xposed.hooks.qianji.hooks.AutoHooker
 import net.ankio.auto.xposed.hooks.qianji.hooks.SideBarHooker
+import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.GetCategoryListInterface
+import net.ankio.auto.xposed.hooks.qianji.impl.RefundPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.models.QjAssetAccountModel
+import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLogModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjCategoryModel
+import net.ankio.auto.xposed.hooks.qianji.models.LoanInfoModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjTagModel
+import net.ankio.auto.xposed.hooks.qianji.models.UserModel
+import net.ankio.auto.xposed.hooks.qianji.utils.TimeRecordUtils
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
@@ -29,7 +59,7 @@ class QianjiHooker : HookerManifest() {
         get() = "com.mutangtech.qianji"
     override val appName: String
         get() = "钱迹"
-    override var minVersion: Int = 951
+    override var minVersion: Long = 951
 
     override var applicationName = "com.mutangtech.qianji.app.CoreApp"
     override fun hookLoadPackage() {
@@ -44,151 +74,37 @@ class QianjiHooker : HookerManifest() {
         set(value) {}
     override var rules: MutableList<Clazz>
         get() = mutableListOf(
-            ////////////////////////////////BookManager//////////////////////////////////////
-            Clazz(
-                name = "BookManager",
-                nameRule = "^\\w{0,2}\\..+",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "isFakeDefaultBook",
-                        returnType = "boolean",
-                        parameters =
-                        listOf(
-                            ClazzField(
-                                type = "com.mutangtech.qianji.data.model.Book",
-                            ),
-                        ),
-                    ),
-                    ClazzMethod(
-                        name = "getAllBooks",
-                        returnType = "java.util.List",
-                    ),
-                ),
-            ),
+            // models
+            AutoTaskLogModel.rule,
+            LoanInfoModel.rule,
+            QjAssetAccountModel.rule,
+            QjBillModel.rule,
+            QjBookModel.rule,
+            QjCategoryModel.rule,
+            QjTagModel.rule,
+            UserModel.rule,
 
-            ///////////////////////////onGetCategoryList//////////////////////////////////////
-            Clazz(
-                type = "interface",
-                name = "onGetCategoryList",
-                nameRule = "^\\w{0,2}\\..+",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "onGetCategoryList",
-                        returnType = "void",
-                        parameters =
-                        listOf(
-                            ClazzField(
-                                type = "java.util.List",
-                            ),
-                            ClazzField(
-                                type = "java.util.List",
-                            ),
-                            ClazzField(
-                                type = "boolean",
-                            ),
-                        ),
-                    ),
-                ),
-            ),
+            // Activity
+            MainActivity.rule,
+            MainDrawerLayout.rule,
+            AddBillIntentAct.rule,
+            //impl
+            AssetPreviewPresenterImpl.rule,
+            BookManagerImpl.rule,
+            BxPresenterImpl.rule,
+            CateInitPresenterImpl.rule,
+            RefundPresenterImpl.rule,
+            SearchPresenterImpl.rule,
+            // interface
+            GetCategoryListInterface.rule,
 
-            ///////////////////////////UserManager//////////////////////////////////////
-            Clazz(
-                name = "UserManager",
-                nameRule = "^\\w{0,2}\\..+",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "isLogin",
-                        returnType = "boolean",
-                    ),
-                    ClazzMethod(
-                        name = "isVip",
-                        returnType = "boolean",
-                    ),
-                    ClazzMethod(
-                        name = "isSuperVIP",
-                        returnType = "boolean",
-                    ),
-                ),
-            ),
+
+
             ///////////////////////////Timeout//////////////////////////////////////
-            Clazz(
-                name = "TimeoutApp",
-                nameRule = "^\\w{0,2}\\..+",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "timeoutApp",
-                        returnType = "boolean",
-                    ),
-                    ClazzMethod(
-                        name = "timeoutUser",
-                        returnType = "boolean",
-                    ),
-                    ClazzMethod(
-                        name = "setTimeOutApp",
-                        returnType = "boolean",
-                    ),
-                ),
-            ),
+            TimeRecordUtils.rule,
             ///////////////////////////AssetInsert//////////////////////////////////////
-            Clazz(
-                name = "AssetDbHelper",//com.mutangtech.qianji.data.db.dbhelper
-                nameRule = "com.mutangtech.qianji.data.db.\\w+.\\w+",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "insertOrReplace",
-                        returnType = "boolean",
-                    ),
-                    ClazzMethod(
-                        name = "saveLoanList",
-                        returnType = "boolean",
-                    ),
-                    ClazzMethod(
-                        name = "updateOrders",
-                        returnType = "boolean",
-                    ),
-                ),
-            ),
-            Clazz(
-                name = "BillDbHelper",
-                nameRule = "com.mutangtech.qianji.data.db.dbhelper.\\w+",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "saveOrUpdateBill",
-                        returnType = "boolean",
-                    ),
-                    ClazzMethod(
-                        name = "saveSyncedResult",
-                        returnType = "void",
-                    ),
-                ),
-            ),
-            //////////////////////钱迹BillTools////////////////////////////////////////
-            Clazz(
-                name = "BillTools",
-                nameRule = "^\\w{0,2}\\..+",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "deleteBook",
-                        returnType = "void",
-                    ),
-                    ClazzMethod(
-                        name = "getUnPushCount",
-                    ),
-                ),
-            ),
+            AssetDbHelper.rule,
+
             //////////////////////钱迹RequestInterface////////////////////////////////////////
             Clazz(
                 name = "RequestInterface",
@@ -225,44 +141,18 @@ class QianjiHooker : HookerManifest() {
                     ),
                 ),
             ),
-            Clazz(
-                name = "AddBillIntentAct",
-                nameRule = "com.mutangtech.qianji.bill.auto.AddBillIntentAct",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        findName = "InsertAutoTask",
-                        parameters =
-                        listOf(
-                            ClazzField(
-                                type = "java.lang.String",
-                            ),
-                            ClazzField(
-                                type = "com.mutangtech.qianji.data.model.AutoTaskLog",
-                            ),
-                        ),
-                        regex = "^\\w{2}$",
-                    ),
-                    ClazzMethod(
-                        findName = "doIntent",
-                        parameters =
-                        listOf(
-                            ClazzField(
-                                type = Intent::class.java.name,
-                            ),
-                        ),
-                        regex = "^\\w{2}$",
-                        strings = listOf(
-                            "intent-data:",
-                            "auto_task_last_time",
-                            "getString(...)",
-                        ),
-                    ),
-                ),
 
-            ),
-
+            // Filters
+            AssetsFilter.rule,
+            BillFlagFilter.rule,
+            BookFilter.rule,
+            DataFilter.rule,
+            ImageFilter.rule,
+            MoneyFilter.rule,
+            PlatformFilter.rule,
+            SortFilter.rule,
+            TagsFilter.rule,
+            TypesFilter.rule
         )
         set(value) {}
 

@@ -16,18 +16,22 @@
 package net.ankio.auto.xposed.hooks.qianji.models
 
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.dex.model.Clazz
 
-class Category(private val categoryObj: Any) {
-    companion object {
+class QjCategoryModel(private val categoryObj: Any) {
+    companion object : HookerClazz() {
         const val EDITABLE_NOT = 0
         const val EDITABLE_YES = 1
         const val LEVEL_1 = 1
         const val LEVEL_2 = 2
         const val NON_PARENT_ID = -1
-        val categoryClazz = Hooker.loader("com.mutangtech.qianji.data.model.Category")
+        private const val CLAZZ = "com.mutangtech.qianji.data.model.Category"
+        private val categoryClazz by lazy { clazz() }
 
-        fun fromObject(obj: Any): Category = Category(obj)
+        override var rule = Clazz(name = this::class.java.name, nameRule = CLAZZ)
+
+        fun fromObject(obj: Any): QjCategoryModel = QjCategoryModel(obj)
 
         /**
          * 检查是否支持账单类型
@@ -46,7 +50,7 @@ class Category(private val categoryObj: Any) {
     /**
      * 添加子分类
      */
-    fun addSubCategory(category: Category?, needSort: Boolean): Boolean {
+    fun addSubCategory(category: QjCategoryModel?, needSort: Boolean): Boolean {
         return XposedHelpers.callMethod(
             categoryObj,
             "addSubCategory",
@@ -58,7 +62,7 @@ class Category(private val categoryObj: Any) {
     /**
      * 从其他分类复制
      */
-    fun copyFrom(category: Category) {
+    fun copyFrom(category: QjCategoryModel) {
         XposedHelpers.callMethod(
             categoryObj,
             "copyFrom",
@@ -160,7 +164,7 @@ class Category(private val categoryObj: Any) {
      * 获取子分类列表
      */
     @Suppress("UNCHECKED_CAST")
-    fun getSubList(): List<Category>? {
+    fun getSubList(): List<QjCategoryModel>? {
         return XposedHelpers.callMethod(categoryObj, "getSubList")?.let { list ->
             (list as List<Any>).map { fromObject(it) }
         }
@@ -249,7 +253,7 @@ class Category(private val categoryObj: Any) {
     /**
      * 移除子分类
      */
-    fun removeSubCategory(category: Category): Int {
+    fun removeSubCategory(category: QjCategoryModel): Int {
         return XposedHelpers.callMethod(
             categoryObj,
             "removeSubCategory",

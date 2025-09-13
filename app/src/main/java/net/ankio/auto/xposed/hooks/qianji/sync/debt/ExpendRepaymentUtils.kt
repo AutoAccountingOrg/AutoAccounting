@@ -11,7 +11,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- */
+ *//*
+
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
@@ -20,14 +21,16 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
-import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
-import net.ankio.auto.xposed.hooks.qianji.models.Bill
-import net.ankio.auto.xposed.hooks.qianji.models.Book
+import net.ankio.auto.xposed.hooks.qianji.models.QjAssetAccountModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
 import org.ezbook.server.db.model.BillInfoModel
 
+*/
 /**
  * 还款
- */
+ *//*
+
 class ExpendRepaymentUtils :
     BaseDebt() {
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
@@ -67,7 +70,7 @@ class ExpendRepaymentUtils :
 
     private suspend fun splitBill(
         billModel: BillInfoModel,
-        accountFrom: AssetAccount
+        accountFrom: QjAssetAccountModel
     ): List<BillInfoModel?> = withContext(Dispatchers.IO) {
         val assetMoney = accountFrom.getMoney()
         if (assetMoney < billModel.money) {
@@ -84,29 +87,35 @@ class ExpendRepaymentUtils :
         return@withContext listOf(billModel, null)
     }
 
-    /**
+    */
+/**
      * 获取借入账户
-     */
-    private suspend fun getAccountTo(billModel: BillInfoModel): AssetAccount =
+ *//*
+
+    private suspend fun getAccountTo(billModel: BillInfoModel): QjAssetAccountModel =
         withContext(Dispatchers.IO) {
             return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameTo)
                 ?: throw RuntimeException("债主不存在 key=accountname;value=${billModel.accountNameTo}")
         }
 
-    /**
+    */
+/**
      * 获取借款账户
-     */
-    private suspend fun getAccountFrom(billModel: BillInfoModel): AssetAccount =
+ *//*
+
+    private suspend fun getAccountFrom(billModel: BillInfoModel): QjAssetAccountModel =
         withContext(Dispatchers.IO) {
             return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameFrom)
                 ?: throw RuntimeException("收款账户不存在 key=accountname;value=${billModel.accountNameFrom}")
         }
 
 
-    /**
+    */
+/**
      * 更新债务
-     */
-    private suspend fun updateLoan(billModel: BillInfoModel, accountTo: AssetAccount) =
+ *//*
+
+    private suspend fun updateLoan(billModel: BillInfoModel, accountTo: QjAssetAccountModel) =
         withContext(Dispatchers.IO) {
             // 债务
             val loan = accountTo.getLoanInfo()
@@ -121,12 +130,14 @@ class ExpendRepaymentUtils :
             accountTo.addMoney(-billModel.money)
         }
 
-    /**
+    */
+/**
      * 保存账单
-     */
+ *//*
+
     private suspend fun updateAsset(
-        accountFrom: AssetAccount,
-        accountTo: AssetAccount,
+        accountFrom: QjAssetAccountModel,
+        accountTo: QjAssetAccountModel,
         billModel: BillInfoModel,
     ) = withContext(Dispatchers.IO) {
 
@@ -136,16 +147,18 @@ class ExpendRepaymentUtils :
         updateAssets(accountFrom)
     }
 
-    /**
+    */
+/**
      * 更新账单
-     */
+ *//*
+
     private suspend fun updateBill(
         billModel: BillInfoModel,
         type: Int,
-        book: Book,
-        accountFrom: AssetAccount,
-        accountTo: AssetAccount
-    ): Bill = withContext(Dispatchers.IO) {
+        book: QjBookModel,
+        accountFrom: QjAssetAccountModel,
+        accountTo: QjAssetAccountModel
+    ): QjBillModel = withContext(Dispatchers.IO) {
         val money = billModel.money
 
         val remark = billModel.remark
@@ -155,7 +168,7 @@ class ExpendRepaymentUtils :
         val imageList = ArrayList<String>()
 
         //    bill2 = Bill.newInstance(i12, trim, d12, timeInMillis, imageUrls);
-        val bill = Bill.newInstance(
+        val bill = QjBillModel.newInstance(
             type,
             remark,
             money,
@@ -169,11 +182,11 @@ class ExpendRepaymentUtils :
 
 
         if (billModel.remark.contains("利息")) {
-            Bill.setZhaiwuCurrentAsset(bill, accountTo)
-            Bill.setZhaiwuAboutAsset(bill, accountFrom)
+            QjBillModel.setZhaiwuCurrentAsset(bill, accountTo)
+            QjBillModel.setZhaiwuAboutAsset(bill, accountFrom)
         } else {
-            Bill.setZhaiwuCurrentAsset(bill, accountFrom)
-            Bill.setZhaiwuAboutAsset(bill, accountTo)
+            QjBillModel.setZhaiwuCurrentAsset(bill, accountFrom)
+            QjBillModel.setZhaiwuAboutAsset(bill, accountTo)
         }
 
 
@@ -183,4 +196,4 @@ class ExpendRepaymentUtils :
         bill
 
     }
-}
+}*/

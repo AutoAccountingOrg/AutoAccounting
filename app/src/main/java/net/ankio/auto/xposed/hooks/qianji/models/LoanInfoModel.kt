@@ -16,37 +16,40 @@
 package net.ankio.auto.xposed.hooks.qianji.models
 
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.dex.model.Clazz
 
 /**
  * 借贷信息模型类
  * 用于处理钱迹App中的借贷相关数据
  */
-class LoanInfo {
-    // 钱迹App中借贷信息类的完整类名
-    private val CLAZZ = "com.mutangtech.qianji.asset.model.LoanInfo"
-
-    // 加载钱迹借贷信息类
-    private val loanInfoClazz = Hooker.loader(CLAZZ)
+class LoanInfoModel {
 
     // 存储实际的借贷信息对象
     private var loanInfoObj: Any? = null
 
-    companion object {
+    companion object : HookerClazz() {
+        // 钱迹App中借贷信息类的完整类名
+        private const val CLAZZ = "com.mutangtech.qianji.asset.model.LoanInfo"
+
+        // 加载钱迹借贷信息类
+        private val loanInfoClazz by lazy { clazz() }
+
+        override var rule = Clazz(name = this::class.java.name, nameRule = CLAZZ)
         /**
          * 从现有对象创建LoanInfo实例
          * @param obj 原始借贷信息对象
          * @return 包装后的LoanInfo对象
          */
-        fun fromObject(obj: Any): LoanInfo {
-            val loanInfo = LoanInfo()
+        fun fromObject(obj: Any): LoanInfoModel {
+            val loanInfo = LoanInfoModel()
             loanInfo.loanInfoObj = obj
             return loanInfo
         }
 
-        fun newInstance(): LoanInfo {
-            val loanInfo = LoanInfo()
-            loanInfo.loanInfoObj = XposedHelpers.newInstance(loanInfo.loanInfoClazz)
+        fun newInstance(): LoanInfoModel {
+            val loanInfo = LoanInfoModel()
+            loanInfo.loanInfoObj = XposedHelpers.newInstance(loanInfoClazz)
             return loanInfo
         }
     }

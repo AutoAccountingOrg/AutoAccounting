@@ -21,23 +21,20 @@ import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.MenuItemBinding
 import net.ankio.auto.http.LocalNetwork
-import net.ankio.auto.storage.Constants
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.MessageUtils
-import net.ankio.auto.xposed.core.utils.ThreadUtils
-import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
-import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
-import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
+import net.ankio.auto.xposed.core.utils.CoroutineUtils
+import net.ankio.auto.xposed.hooks.qianji.activity.MainActivity
+import net.ankio.auto.xposed.hooks.qianji.activity.MainDrawerLayout
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUi
-import org.ezbook.server.Server
 
 /**
  * SideBarHooker类用于修改钱迹App的侧边栏菜单
@@ -49,17 +46,14 @@ import org.ezbook.server.Server
 class SideBarHooker : PartHooker() {
 
     override fun hook() {
-        // 获取钱迹MainActivity的类
-        val clazz = Hooker.loader("com.mutangtech.qianji.ui.main.MainActivity")
-
         // Hook MainActivity的onCreate方法，用于初始化菜单
         Hooker.after(
-            clazz,
+            MainActivity.clazz(),
             "onCreate",
             android.os.Bundle::class.java
         ){ param ->
             val activity = param.thisObject as Activity
-            AppRuntime.manifest.attachResource(activity)
+            AppRuntime.attachResource(activity)
             hookMenu(activity)
         }
     }
@@ -71,7 +65,7 @@ class SideBarHooker : PartHooker() {
     private fun hookMenu(
         activity: Activity
     ) {
-        val clazz = Hooker.loader("com.mutangtech.qianji.ui.maindrawer.MainDrawerLayout")
+        val clazz = MainDrawerLayout.clazz()
         // 只hook一次refreshAccount方法，避免重复添加菜单项
         Hooker.onceAfter(clazz, "refreshAccount") {
             val obj = it.thisObject as FrameLayout
@@ -83,7 +77,7 @@ class SideBarHooker : PartHooker() {
                     "main_drawer_content_layout"
                 ) as LinearLayout
             runCatching {
-                AppRuntime.manifest.attachResource(activity)
+                AppRuntime.attachResource(activity)
                 addSettingMenu(linearLayout, activity)
             }.onFailure { item ->
                 AppRuntime.manifest.logE(item)
@@ -121,7 +115,7 @@ class SideBarHooker : PartHooker() {
 
 
         // 设置图标点击事件，打开自动记账
-        itemMenuBinding.appIcon.setOnClickListener {
+        itemMenuBinding.root.setOnClickListener {
             context.startActivity(Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .setClassName(
                     BuildConfig.APPLICATION_ID,
@@ -136,7 +130,7 @@ class SideBarHooker : PartHooker() {
         linearLayout.addView(itemMenuBinding.root)
 
         // 启动持续状态检查
-        ThreadUtils.launch {
+        CoroutineUtils.withIO {
             while (true) {
                 if (!itemMenuBinding.root.isAttachedToWindow) break
                 val result = LocalNetwork.get<String>("/")
@@ -145,7 +139,7 @@ class SideBarHooker : PartHooker() {
                 withContext(Dispatchers.Main) {
                     itemMenuBinding.serviceStatus.setBackgroundResource(background)
                 }
-                kotlinx.coroutines.delay(1000) // 延迟1秒
+                delay(1000) // 延迟1秒
             }
         }
     }

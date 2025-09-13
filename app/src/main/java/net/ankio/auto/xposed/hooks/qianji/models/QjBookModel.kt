@@ -17,27 +17,31 @@ package net.ankio.auto.xposed.hooks.qianji.models
 
 import android.content.Context
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.dex.model.Clazz
 
-class Book {
+class QjBookModel {
     private var bookObj: Any? = null
 
-    companion object {
+    companion object : HookerClazz() {
         const val DEFAULT_BOOK_ID = -1L
         private const val DEMO_BOOK_ID = 1L
         private const val TYPE_DEFAULT = -1
         const val VISIBLE_ALL = -1
         const val VISIBLE_NOT = 0
         const val VISIBLE_YES = 1
-        val CLAZZ = "com.mutangtech.qianji.data.model.Book"
-        val bookClazz = Hooker.loader(CLAZZ)
+        const val CLAZZ = "com.mutangtech.qianji.data.model.Book"
+        private val bookClazz by lazy { clazz() }
 
-        fun fromObject(obj: Any): Book {
+        // 精确类名规则，保持最小实现
+        override var rule = Clazz(name = this::class.java.name, nameRule = CLAZZ)
+
+        fun fromObject(obj: Any): QjBookModel {
             if (obj::class.java.name != CLAZZ) {
                 throw IllegalArgumentException("${obj::class.java.name} is not a Book object")
             }
 
-            val book = Book()
+            val book = QjBookModel()
             book.bookObj = obj
             return book
         }
@@ -45,7 +49,7 @@ class Book {
         /**
          * 获取默认账本
          */
-        fun defaultBook(context: Context?): Book {
+        fun defaultBook(context: Context?): QjBookModel {
             return XposedHelpers.callStaticMethod(
                 bookClazz,
                 "defaultBook",
@@ -56,7 +60,7 @@ class Book {
         /**
          * 生成演示数据
          */
-        fun generateDemoData(context: Context): List<Book> {
+        fun generateDemoData(context: Context): List<QjBookModel> {
             return (XposedHelpers.callStaticMethod(
                 bookClazz,
                 "generateDemoData",
@@ -82,7 +86,7 @@ class Book {
     /**
      * 复制账本信息
      */
-    fun copy(book: Book?) {
+    fun copy(book: QjBookModel?) {
         XposedHelpers.callMethod(
             bookObj,
             "copy",

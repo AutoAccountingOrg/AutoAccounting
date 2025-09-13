@@ -16,9 +16,11 @@
 package net.ankio.auto.xposed.hooks.qianji.models
 
 import de.robv.android.xposed.XposedHelpers
+import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.dex.model.Clazz
 
-class Tag(private val tagObj: Any) {
-    companion object {
+class QjTagModel(private val tagObj: Any) {
+    companion object : HookerClazz() {
         const val MAX_GROUP_NAME_LENGTH = 10
         const val SIZE_LARGE = 3
         const val SIZE_NORMAL = 2
@@ -27,7 +29,12 @@ class Tag(private val tagObj: Any) {
         const val STATUS_ARCHIVE = 2
         const val STATUS_DEFAULT = 1
 
-        fun fromObject(obj: Any): Tag = Tag(obj)
+        private const val CLAZZ = "com.mutangtech.qianji.data.model.Tag"
+        private val tagClazz by lazy { clazz() }
+
+        override var rule = Clazz(name = this::class.java.name, nameRule = CLAZZ)
+
+        fun fromObject(obj: Any): QjTagModel = QjTagModel(obj)
     }
 
     fun toObject(): Any = tagObj

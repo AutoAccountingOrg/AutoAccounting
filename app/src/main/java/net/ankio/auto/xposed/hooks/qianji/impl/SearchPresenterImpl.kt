@@ -15,16 +15,30 @@
 
 package net.ankio.auto.xposed.hooks.qianji.impl
 
+/**
+ * 搜索Presenter实现类，用于钩子钱迹应用的搜索功能
+ * 该类负责获取最近10天的账单列表并同步到自动记账
+ */
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.api.HookerClazz
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl.convert2Bill
+import net.ankio.auto.xposed.hooks.qianji.filter.AssetsFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.BillFlagFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.BookFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.DataFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.ImageFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.MoneyFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.PlatformFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.SortFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.TagsFilter
+import net.ankio.auto.xposed.hooks.qianji.filter.TypesFilter
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookBillModel
 import org.ezbook.server.db.model.SettingModel
@@ -34,20 +48,27 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import net.ankio.auto.http.api.BookBillAPI
 import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.xposed.core.logger.Logger
 
-object SearchPresenterImpl {
-    val CLAZZ = "com.mutangtech.qianji.bill.search.SearchPresenterImpl"
-    val searchImpl = Hooker.loader(CLAZZ)
+object SearchPresenterImpl : HookerClazz() {
+    private const val CLAZZ = "com.mutangtech.qianji.bill.search.SearchPresenterImpl"
+    private val searchImpl by lazy { clazz() }
+    override var rule = net.ankio.dex.model.Clazz(name = this::class.java.name, nameRule = CLAZZ)
+
+    /**
+     * 获取最近10天的账单列表
+     * 通过钩子钱迹应用的SearchPresenterImpl类来搜索本地账单
+     * @return 返回账单列表
+     */
     suspend fun getLast10DayLists(): List<*> =
         suspendCoroutine { continuation ->
             var resumed = false
-            val constructor = searchImpl.constructors.first()!!
+            val constructor = searchImpl.constructors.first()
             //   public SearchPresenterImpl(p pVar) {
             //        super(pVar);
             //    }
 
-            val param1Clazz = constructor.parameterTypes.first()!!
-            // /* loaded from: classes.dex */
+            val param1Clazz = constructor.parameterTypes.first()
             //public interface p extends d {
             //    void onGetListFromLocal(List<? extends Bill> list);
             //}
@@ -86,70 +107,56 @@ object SearchPresenterImpl {
                 throw IllegalStateException("searchLocal method must have at least 12 parameters")
             }
 
-            // 基础参数准备
+            // 基础参数准备（使用包装的 Filter 类构造宿主对象）
             val params = mutableListOf<Any?>().apply {
                 // 0. 搜索字符串
                 add("")
 
                 // 1. BookFilter
-                val bookFilter = XposedHelpers.newInstance(refreshMethod.parameterTypes[1])
-                runBlocking {
-                    BookManagerImpl.getBooks().forEach {
-                        XposedHelpers.callMethod(bookFilter, "add", it)
+                val bookFilter = BookFilter.newInstance().also { wrapper ->
+                    runBlocking {
+                        BookManagerImpl.getBooks().forEach { wrapper.addRaw(it) }
                     }
                 }
-                add(bookFilter)
+                add(bookFilter.toObject())
 
-                // 2. DateFilter
-                val dateFilter = XposedHelpers.newInstance(refreshMethod.parameterTypes[2])
-                val fromCalendar = Calendar.getInstance().apply {
-                    add(Calendar.DAY_OF_MONTH, -10)
-                }
+                // 2. DateFilter（最近10天）
+                val fromCalendar = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -10) }
                 val toCalendar = Calendar.getInstance()
-                XposedHelpers.callMethod(
-                    dateFilter,
-                    "setTimeRangeFilter",
-                    fromCalendar,
-                    toCalendar,
-                    103
-                )
-                add(dateFilter)
+                val dateFilter = DataFilter.newInstance()
+                    .setTimeRangeFilter(fromCalendar, toCalendar, DataFilter.FLAG_ALL)
+                add(dateFilter.toObject())
 
-                // 4-7. 各种Filter
-                // TypesFilter typesFilter, 3
-                // MoneyFilter moneyFilter, 4
-                // ImageFilter imageFilter, 5
-                // PlatformFilter platformFilter, 6
-                // 3 typesFilter
-                val typesFilter = XposedHelpers.newInstance(refreshMethod.parameterTypes[3])
-                XposedHelpers.callMethod(typesFilter, "add", 0)
-                add(typesFilter)
-                // 4 moneyFilter
+                // 3. TypesFilter（示例：添加类型0）
+                val typesFilter = TypesFilter.newInstance().apply { add(0) }
+                add(typesFilter.toObject())
+
+                // 4. MoneyFilter
                 add(null)
-                // 5 imageFilter
+
+                // 5. ImageFilter
                 add(null)
-                // 6 platformFilter
+
+                // 6. PlatformFilter
                 add(null)
-                // 8-9. 布尔值参数
+
+                // 7-9. 布尔值参数
                 add(false) // z10
                 add(false) // z11
                 add(true)  // z12
 
-                // 10. SortFilter
-                add(XposedHelpers.newInstance(refreshMethod.parameterTypes[10], 0, false))
+                // 10. SortFilter（时间降序）
+                val sortFilter = SortFilter.newTimeDesc(false)
+                add(sortFilter.toObject())
 
                 // 11. BillFlagFilter
                 add(null)
 
-                // 12. AssetsFilter
-                if (refreshMethod.parameterTypes.size > 12) {
-                    add(null)
-                }
+                // 12. AssetsFilter（可选）
+                if (refreshMethod.parameterTypes.size > 12) add(null)
 
-                // 13. TagsFilter (如果存在)
-                if (refreshMethod.parameterTypes.size > 13) {
-                    add(null)
-                }
+                // 13. TagsFilter（可选）
+                if (refreshMethod.parameterTypes.size > 13) add(null)
             }
 
             // 触发搜索
@@ -161,6 +168,11 @@ object SearchPresenterImpl {
 
         }
 
+    /**
+     * 同步账单到自动记账服务器
+     * 获取最近10天的账单列表，转换为标准格式，并上传到服务器
+     * 会检查MD5哈希值以避免重复同步
+     */
     suspend fun syncBills() = withContext(Dispatchers.IO) {
         // 报销账单
         val bxList =
@@ -168,7 +180,7 @@ object SearchPresenterImpl {
                 runCatching {
                     getLast10DayLists()
                 }.onFailure {
-                    AppRuntime.logE(it)
+                    AppRuntime.manifest.logE(it)
                 }.getOrDefault(emptyList<Any>())
             }
 
@@ -177,10 +189,10 @@ object SearchPresenterImpl {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.log("No need to sync bill Data, server md5:${server} local md5:${md5}")
+            AppRuntime.manifest.log("No need to sync bill Data, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.logD("Sync bills:$sync")
+        AppRuntime.manifest.logD("Sync bills:$sync")
         BookBillAPI.put(bills, md5, Setting.HASH_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步支出账单到自动记账")

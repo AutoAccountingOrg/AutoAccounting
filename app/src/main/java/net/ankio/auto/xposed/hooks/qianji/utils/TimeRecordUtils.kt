@@ -13,20 +13,14 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.models
+package net.ankio.auto.xposed.hooks.qianji.utils
 
-import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerClazz
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzMethod
 
-class UserModel {
-
+class TimeRecordUtils {
     companion object : HookerClazz() {
-        // 目标类：钱迹应用的 UserManager（使用 Manifest 规则名进行解析）
-        private val userManagerClazz by lazy { clazz() }
-
-        // 提供给 Manifest 的规则定义；使用现有规则名以保持兼容
         override var rule = Clazz(
             name = this::class.java.name,
             nameRule = "^\\w{0,2}\\..+",
@@ -34,46 +28,18 @@ class UserModel {
             methods =
                 listOf(
                     ClazzMethod(
-                        name = "isLogin",
+                        name = "timeoutApp",
                         returnType = "boolean",
                     ),
                     ClazzMethod(
-                        name = "isVip",
+                        name = "timeoutUser",
                         returnType = "boolean",
                     ),
                     ClazzMethod(
-                        name = "isSuperVIP",
+                        name = "setTimeOutApp",
                         returnType = "boolean",
                     ),
                 ),
         )
-
-        /**
-         * 获取 UserManager 单例实例
-         */
-        private fun getInstance(): Any {
-            return XposedHelpers.callStaticMethod(userManagerClazz, "getInstance")
-        }
-
-        /**
-         * 是否已登录
-         */
-        fun isLogin(): Boolean {
-            return XposedHelpers.callMethod(getInstance(), "isLogin") as Boolean
-        }
-
-        /**
-         * 获取已登录用户ID
-         */
-        fun getLoginUserID(): String {
-            return XposedHelpers.callMethod(getInstance(), "getLoginUserID") as String
-        }
-
-        /**
-         * 是否为 VIP 用户
-         */
-        fun isVip(): Boolean {
-            return XposedHelpers.callMethod(getInstance(), "isVip") as Boolean
-        }
     }
 }

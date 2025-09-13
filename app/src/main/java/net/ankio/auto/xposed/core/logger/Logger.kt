@@ -112,7 +112,7 @@ object Logger {
         val msg = e.message ?: ""
         val (tag, header) = getCallerInfo()
         xposedLogThrowable(e)
-        val formatted = "[ 自动记账 ][ $app ]$header $msg"
+        val formatted = "[ 自动记账 ][ $app ]$header $msg\n${e.stackTraceToString()}"
         Log.e(tag, formatted)
         CoroutineUtils.withIO {
             val log = StringBuilder()

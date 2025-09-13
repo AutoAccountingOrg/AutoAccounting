@@ -17,24 +17,28 @@ package net.ankio.auto.xposed.hooks.qianji.models
 
 import android.content.Context
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.dex.model.Clazz
 
 /**
  * 账单信息模型类
  * 用于处理钱迹App中的账单相关数据
  */
-class Bill {
+class QjBillModel {
 
 
     // 存储实际的账单信息对象
     private var billObj: Any? = null
 
-    companion object {
+    companion object : HookerClazz() {
         // 钱迹App中账单信息类的完整类名
-        val CLAZZ = "com.mutangtech.qianji.data.model.Bill"
+        private const val CLAZZ = "com.mutangtech.qianji.data.model.Bill"
 
-        // 加载钱迹账单信息类
-        private val billClazz = Hooker.loader(CLAZZ)
+        // 通过 Hooker 规则加载账单类
+        private val billClazz by lazy { clazz() }
+
+        // 提供给 Manifest 的规则定义（精确类名，保持简洁稳定）
+        override var rule = Clazz(name = this::class.java.name, nameRule = CLAZZ)
 
         // 账户连接符
         const val ACCOUNT_CONNECT = "->"
@@ -74,11 +78,11 @@ class Bill {
          * @param obj 原始账单信息对象
          * @return 包装后的Bill对象
          */
-        fun fromObject(obj: Any): Bill {
+        fun fromObject(obj: Any): QjBillModel {
             if (obj::class.java.name != CLAZZ) {
                 throw IllegalArgumentException("${obj::class.java.name} must be instance of $CLAZZ")
             }
-            val bill = Bill()
+            val bill = QjBillModel()
             bill.billObj = obj
             return bill
         }
@@ -162,7 +166,7 @@ class Bill {
             money: Double,
             timeInSec: Long,
             images: ArrayList<String>
-        ): Bill {
+        ): QjBillModel {
             val obj = XposedHelpers.callStaticMethod(
                 billClazz,
                 "newInstance",
@@ -180,7 +184,7 @@ class Bill {
          * @param bill 账单对象
          * @param assetAccount 资产账户
          */
-        fun setZhaiwuCurrentAsset(bill: Bill, assetAccount: AssetAccount) {
+        fun setZhaiwuCurrentAsset(bill: QjBillModel, assetAccount: QjAssetAccountModel) {
             XposedHelpers.callStaticMethod(
                 billClazz,
                 "setZhaiwuCurrentAsset",
@@ -192,7 +196,7 @@ class Bill {
         /**
          * 获取账单标记导出值
          */
-        private fun getBillFlagExportValue(context: Context, bill: Bill): String? {
+        private fun getBillFlagExportValue(context: Context, bill: QjBillModel): String? {
             return XposedHelpers.callStaticMethod(
                 billClazz,
                 "getBillFlagExportValue",
@@ -238,7 +242,7 @@ class Bill {
         /**
          * 获取支出金额符号
          */
-        fun getOutMoneySign(bill: Bill): String? {
+        fun getOutMoneySign(bill: QjBillModel): String? {
             return XposedHelpers.callStaticMethod(
                 billClazz,
                 "getOutMoneySign",
@@ -249,7 +253,7 @@ class Bill {
         /**
          * 获取源账单ID
          */
-        private fun getSourceBillId(bill: Bill?): String? {
+        private fun getSourceBillId(bill: QjBillModel?): String? {
             return XposedHelpers.callStaticMethod(
                 billClazz,
                 "getSourceBillId",
@@ -272,7 +276,7 @@ class Bill {
         /**
          * 获取用户名
          */
-        private fun getUserName(bill: Bill): String {
+        private fun getUserName(bill: QjBillModel): String {
             return XposedHelpers.callStaticMethod(
                 billClazz,
                 "getUserName",
@@ -285,7 +289,7 @@ class Bill {
         /**
          * 获取债务相关资产ID
          */
-        fun getZhaiwuAboutAssetId(bill: Bill): Long {
+        fun getZhaiwuAboutAssetId(bill: QjBillModel): Long {
             return XposedHelpers.callStaticMethod(
                 billClazz,
                 "getZhaiwuAboutAssetId",
@@ -296,7 +300,7 @@ class Bill {
         /**
          * 获取债务当前资产ID
          */
-        fun getZhaiwuCurrentAssetId(bill: Bill): Long {
+        fun getZhaiwuCurrentAssetId(bill: QjBillModel): Long {
             return XposedHelpers.callStaticMethod(
                 billClazz,
                 "getZhaiwuCurrentAssetId",
@@ -318,7 +322,7 @@ class Bill {
         /**
          * 创建新的打包账单
          */
-        fun newPackBill(bill: Bill): Bill {
+        fun newPackBill(bill: QjBillModel): QjBillModel {
             val newBill = XposedHelpers.callStaticMethod(
                 billClazz,
                 "newPackBill",
@@ -363,7 +367,7 @@ class Bill {
         /**
          * 设置债务相关资产
          */
-        fun setZhaiwuAboutAsset(bill: Bill, assetAccount: AssetAccount) {
+        fun setZhaiwuAboutAsset(bill: QjBillModel, assetAccount: QjAssetAccountModel) {
             XposedHelpers.callStaticMethod(
                 billClazz,
                 "setZhaiwuAboutAsset",
@@ -375,7 +379,7 @@ class Bill {
         /**
          * 导出为CSV
          */
-        fun toExportCsv(context: Context, bill: Bill): Array<String>? {
+        fun toExportCsv(context: Context, bill: QjBillModel): Array<String>? {
             return XposedHelpers.callStaticMethod(
                 billClazz,
                 "toExportCsv",
@@ -394,6 +398,7 @@ class Bill {
                 id
             ) as String
         }
+
     }
 
     fun toObject(): Any? = billObj
@@ -402,7 +407,7 @@ class Bill {
     /**
      * 添加打包账单
      */
-    fun addPackBill(bill: Bill?) {
+    fun addPackBill(bill: QjBillModel?) {
         XposedHelpers.callMethod(
             billObj,
             "addPackBill",
@@ -413,7 +418,7 @@ class Bill {
     /**
      * 克隆账单
      */
-    fun clone(bill: Bill?) {
+    fun clone(bill: QjBillModel?) {
         XposedHelpers.callMethod(
             billObj,
             "clone",
@@ -424,7 +429,7 @@ class Bill {
     /**
      * 比较账单
      */
-    fun compareTo(bill: Bill): Int {
+    fun compareTo(bill: QjBillModel): Int {
         return XposedHelpers.callMethod(
             billObj,
             "compareTo",
@@ -527,11 +532,11 @@ class Bill {
     /**
      * 获取分类
      */
-    fun getCategory(): Category? {
+    fun getCategory(): QjCategoryModel? {
         return XposedHelpers.callMethod(
             billObj,
             "getCategory"
-        )?.let { Category.fromObject(it) }
+        )?.let { QjCategoryModel.fromObject(it) }
     }
 
     /**
@@ -959,6 +964,7 @@ class Bill {
         ) as Boolean
     }
 
+
     /**
      * 检查是否有多个打包账单
      */
@@ -1192,7 +1198,7 @@ class Bill {
     /**
      * 设置资产
      */
-    fun setAsset(assetAccount: AssetAccount?) {
+    fun setAsset(assetAccount: QjAssetAccountModel?) {
         XposedHelpers.callMethod(
             billObj,
             "setAsset",
@@ -1226,7 +1232,7 @@ class Bill {
     /**
      * 设置账本
      */
-    fun setBook(book: Book) {
+    fun setBook(book: QjBookModel) {
         XposedHelpers.callMethod(
             billObj,
             "setBook",
@@ -1259,7 +1265,7 @@ class Bill {
     /**
      * 设置分类
      */
-    fun setCategory(category: Category) {
+    fun setCategory(category: QjCategoryModel) {
         XposedHelpers.callMethod(
             billObj,
             "setCategory",
@@ -1417,7 +1423,7 @@ class Bill {
     /**
      * 设置标签列表
      */
-    fun setTagList(tags: ArrayList<Tag>?) {
+    fun setTagList(tags: ArrayList<QjTagModel>?) {
         XposedHelpers.callMethod(
             billObj,
             "setTagList",
@@ -1462,7 +1468,7 @@ class Bill {
     /**
      * 设置转账资产
      */
-    fun setTransferAsset(from: AssetAccount, to: AssetAccount, fee: Double) {
+    fun setTransferAsset(from: QjAssetAccountModel, to: QjAssetAccountModel, fee: Double) {
         XposedHelpers.callMethod(
             billObj,
             "setTransferAsset",
@@ -1557,8 +1563,11 @@ class Bill {
         )
     }
 
-    fun setZhaiwuCurrentAsset(bill: Bill, accountFrom: AssetAccount) {
-
+    /**
+     * 设置债务当前资产（实例便捷方法，委托到静态实现）
+     */
+    fun setZhaiwuCurrentAsset(bill: QjBillModel, accountFrom: QjAssetAccountModel) {
+        QjBillModel.setZhaiwuCurrentAsset(bill, accountFrom)
     }
 
 

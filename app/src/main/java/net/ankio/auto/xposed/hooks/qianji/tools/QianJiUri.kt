@@ -18,56 +18,12 @@ package net.ankio.auto.xposed.hooks.qianji.tools
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.hooks.qianji.sync.AutoConfig
 import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 object QianJiUri {
-    suspend fun toQianJi(billModel: BillInfoModel): Uri = withContext(Dispatchers.IO) {
-        val uri = StringBuilder("qianji://publicapi/addbill")
-        uri.append("?type=${QianJiBillType.toQianJi(billModel)}")
-        uri.append("&money=${billModel.money}")
-        uri.append("&time=${formatTime(billModel.time)}")
-        uri.append("&remark=${Uri.encode(billModel.remark)}")
-        var category = billModel.cateName
-        if (billModel.cateName.contains("-")) {
-            val categoryNames = billModel.cateName.split("-")
-            category = "${categoryNames[0].trim()}/::/${categoryNames[1].trim()}"
-        }
-        uri.append("&catename=${Uri.encode(category)}")
-        uri.append("&catechoose=0")
-
-        if (billModel.bookName != "默认账本" && billModel.bookName != "日常账本" && AutoConfig.multiBooks) {
-            uri.append("&bookname=${Uri.encode(billModel.bookName)}")
-        }
-
-        if (AutoConfig.assetManagement) {
-            uri.append("&accountname=${Uri.encode(billModel.accountNameFrom)}")
-            uri.append("&accountname2=${Uri.encode(billModel.accountNameTo)}")
-        }
-
-        if (AutoConfig.fee) {
-            uri.append("&fee=${billModel.fee}")
-        }
-
-        if (AutoConfig.multiCurrency) {
-            uri.append("&currency=${billModel.currency}")
-        } else {
-            uri.append("&currency=CNY")
-        }
-
-        // 自动记账添加的拓展字段
-        uri.append("&extendData=${billModel.extendData}")
-
-        uri.append("&showresult=0")
-
-        uri.append("&id=").append(billModel.id)
-
-        Uri.parse(uri.toString())
-    }
-
 
     private fun dateToStamp(
         time: String,

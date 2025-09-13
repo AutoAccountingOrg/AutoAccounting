@@ -17,49 +17,56 @@ package net.ankio.auto.xposed.hooks.qianji.hooks
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import de.robv.android.xposed.XposedHelpers
-import kotlinx.coroutines.Dispatchers
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.AppRuntime.application
-import net.ankio.auto.xposed.core.utils.AppRuntime.manifest
 import net.ankio.auto.xposed.core.utils.MessageUtils
-import net.ankio.auto.xposed.core.utils.ThreadUtils
+import net.ankio.auto.xposed.core.utils.CoroutineUtils
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.RefundPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
-import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLog
-import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
-import net.ankio.auto.xposed.hooks.qianji.sync.debt.ExpendLendingUtils
-import net.ankio.auto.xposed.hooks.qianji.sync.debt.ExpendRepaymentUtils
-import net.ankio.auto.xposed.hooks.qianji.sync.debt.IncomeLendingUtils
-import net.ankio.auto.xposed.hooks.qianji.sync.debt.IncomeRepaymentUtils
+import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLogModel
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import org.ezbook.server.constant.BillAction
-import org.ezbook.server.db.model.BillInfoModel
 import androidx.core.net.toUri
+import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.xposed.hooks.qianji.activity.AddBillIntentAct
+import net.ankio.auto.xposed.hooks.qianji.models.UserModel
+import net.ankio.auto.xposed.hooks.qianji.utils.TimeRecordUtils
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 
+/**
+ * 钱迹模块主 Hook 入口。
+ *
+ * 职责：
+ * - 拦截入口 Intent 按 action 分发任务，并在处理后终止原流程；
+ * - 拦截自动任务日志，补齐来源并分发到具体同步器；
+ * - 初始化界面细节（透明背景）；
+ * - 定向放行宿主的超时检查以保证任务不中断。
+ *
+ * 约束：
+ * - 仅在自动记账场景阻断宿主方法，其他场景完全不干预；
+ * - UI 在主线程执行，网络/IO 使用 withIO；
+ * - 简洁优先，避免过度设计。
+ */
 class AutoHooker : PartHooker() {
-    lateinit var addBillIntentAct: Class<*>
+    private lateinit var addBillIntentAct: Class<*>
 
-
-
-
-
+    /**
+     * 注册所有 Hook，按职责拆分为视图、Intent、日志与超时处理。
+     */
     override fun hook() {
 
-        addBillIntentAct = manifest.clazz("AddBillIntentAct")
+        addBillIntentAct = AddBillIntentAct.clazz()
         // 拦截intent
         hookDoIntent()
         // 超时调用pass
@@ -72,40 +79,47 @@ class AutoHooker : PartHooker() {
     }
 
 
+    /**
+     * 视图初始化：将内容视图背景设为透明，避免遮挡或闪烁。
+     */
     private fun hookView() {
         Hooker.after(addBillIntentAct, "onCreate", Bundle::class.java) {
             val act = it.thisObject as Activity
-            runCatching {
-                val background = ViewUtils.getViewById(
-                    "com.mutangtech.qianji.R\$id",
-                    act,
-                    AppRuntime.classLoader,
-                    "content_view"
-                )
-                // 设置透明背景
-                background.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            val background = ViewUtils.getViewById(
+                "com.mutangtech.qianji.R\$id",
+                act,
+                AppRuntime.classLoader,
+                "content_view"
+            )
+            // 设置透明背景
+            background.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+
+            if (!UserModel.isLogin()) {
+                MessageUtils.toast("未登录的用户无法进行自动记账（钱迹限制）")
             }
         }
     }
 
 
-
-
-
-
+    /**
+     * 拦截入口 Intent：
+     * - 仅处理自动记账 action；匹配成功则由我们在主线程处理并关闭页面；
+     * - 匹配失败不干预，保持宿主原逻辑。
+     */
     private fun hookDoIntent() {
         Hooker.before(
             addBillIntentAct,
-            manifest.method("AddBillIntentAct", "doIntent"),
+            AddBillIntentAct.doIntent(),
             Intent::class.java
         ) {
             val intent = it.args[0] as Intent
             val data = intent.data ?: return@before
             // 只处理来自自动记账的账单
             val action = data.getQueryParameter("action") ?: return@before
+            // 阻断宿主原实现，改由自动记账逻辑接管
             it.result = null
             val actionItem = BillAction.valueOf(action)
-            ThreadUtils.launch(Dispatchers.Main) {
+            CoroutineUtils.withMain {
                 when (actionItem) {
 
                     BillAction.SYNC_BOOK_CATEGORY_ASSET -> {
@@ -127,37 +141,48 @@ class AutoHooker : PartHooker() {
                         SearchPresenterImpl.syncBills()
                     }
                 }
-                // 跳过原始方法执行
+                // 完成后关闭当前任务栈，跳过宿主原流程
 
-                XposedHelpers.callMethod(it.thisObject, "finishAffinity")
+                AddBillIntentAct.fromObj(it.thisObject).finishAffinity()
             }
         }
     }
 
 
+    /**
+     * 拦截自动任务日志：
+     * - 标记来源为本应用包名；
+     * - 解析 URI 得到账单并分发到具体同步器；
+     * - 在 IO 线程汇报状态并在完成后关闭页面。
+     */
     private fun hookTaskLog() {
 
 
         Hooker.before(
-            "com.mutangtech.qianji.bill.auto.AddBillIntentAct",
-            manifest.method(
-                "AddBillIntentAct",
-                "InsertAutoTask",
-            ),
+            AddBillIntentAct.CLAZZ,
+            AddBillIntentAct.insertAutoTask(),
             "java.lang.String",
-            "com.mutangtech.qianji.data.model.AutoTaskLog"
+            AutoTaskLogModel.CLAZZ
         ){ param ->
             val msg = param.args[0] as String
-            val autoTaskLog = AutoTaskLog.fromObject(param.args[1])
+            val autoTaskLog = AutoTaskLogModel.fromObject(param.args[1])
             autoTaskLog.setFrom(BuildConfig.APPLICATION_ID)
             param.args[1] = autoTaskLog.toObject()
-            val value = autoTaskLog.getValue() ?: return@before
-            val uri = value.toUri()
-            AppRuntime.log("hookTaskLog: $value")
+            val value = autoTaskLog.getValue()
+            val uri = value?.toUri()
+            log("hookTaskLog: $value")
+            val addBillIntentAct = AddBillIntentAct.fromObj(param.thisObject)
+            if (uri == null) {
+                addBillIntentAct.finishAffinity()
+                return@before
+            }
             val billInfo = QianJiUri.toAuto(uri)
-            if (billInfo.id < 0) return@before
+            if (billInfo.id <= 0) {
+                addBillIntentAct.finishAffinity()
+                return@before
+            }
 
-            ThreadUtils.launch {
+            CoroutineUtils.withIO {
                 BillAPI.status(billInfo.id, false)
             }
 
@@ -169,51 +194,55 @@ class AutoHooker : PartHooker() {
                 QianJiBillType.ExpendReimbursement.value
                     -> {
                     manifest.log("Qianji Error: $msg")
-
+                    // TODO 根据不同的日志给出不同的错误提示
                 }
 
                 // 支出（借出）,ok
                 QianJiBillType.ExpendLending.value -> {
+                    // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
-                    ThreadUtils.launch {
-                        runCatching {
-                            ExpendLendingUtils().sync(billInfo)
-                        }.onSuccess {
-                            MessageUtils.toast("借出成功")
-                            BillAPI.status(billInfo.id, true)
-                        }.onFailure {
+                    CoroutineUtils.withIO {
+                        /* runCatching {
+                             ExpendLendingUtils().sync(billInfo)
+                         }.onSuccess {
+                             MessageUtils.toast("借出成功")
+                             BillAPI.status(billInfo.id, true)
+                         }.onFailure {
 
-                            manifest.logD("借出失败 ${it.message}")
-                            manifest.logE(it)
-                            MessageUtils.toast("借出失败 ${it.message ?: ""}")
-                        }
-                        XposedHelpers.callMethod(param.thisObject, "finish")
+                             manifest.logD("借出失败 ${it.message}")
+                             manifest.logE(it)
+                             MessageUtils.toast("借出失败 ${it.message ?: ""}")
+
+                         }*/
+                        AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
                     }
 
                 }
                 // 支出（还款）,ok
                 QianJiBillType.ExpendRepayment.value -> {
+                    // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
-                    ThreadUtils.launch {
-                        runCatching {
-                            ExpendRepaymentUtils().sync(billInfo)
-                        }.onSuccess {
-                            MessageUtils.toast("还款成功")
-                            BillAPI.status(billInfo.id, true)
-                        }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("还款失败 ${it.message}")
-                            MessageUtils.toast("还款失败 ${it.message ?: ""}")
-                        }
-                        XposedHelpers.callMethod(param.thisObject, "finish")
+                    CoroutineUtils.withIO {
+                        /*  runCatching {
+                              ExpendRepaymentUtils().sync(billInfo)
+                          }.onSuccess {
+                              MessageUtils.toast("还款成功")
+                              BillAPI.status(billInfo.id, true)
+                          }.onFailure {
+                              manifest.logE(it)
+                              manifest.logD("还款失败 ${it.message}")
+                              MessageUtils.toast("还款失败 ${it.message ?: ""}")
+                          }*/
+                        AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
                     }
                 }
 
                 // 收入（借入）,OK
                 QianJiBillType.IncomeLending.value -> {
+                    // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
-                    ThreadUtils.launch {
-                        runCatching {
+                    CoroutineUtils.withIO {
+                        /*runCatching {
                             IncomeLendingUtils().sync(billInfo)
                         }.onSuccess {
                             MessageUtils.toast("借入成功")
@@ -222,33 +251,35 @@ class AutoHooker : PartHooker() {
                             manifest.logE(it)
                             manifest.logD("借入失败 ${it.message}")
                             MessageUtils.toast("借入失败 ${it.message ?: ""}")
-                        }
-                        XposedHelpers.callMethod(param.thisObject, "finish")
+                        }*/
+                        AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
                     }
 
                 }
                 // 收入（收款）,OK
                 QianJiBillType.IncomeRepayment.value -> {
+                    // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
-                    ThreadUtils.launch {
-                        runCatching {
-                            IncomeRepaymentUtils().sync(billInfo)
-                        }.onSuccess {
-                            MessageUtils.toast("收款成功")
-                            BillAPI.status(billInfo.id, true)
-                        }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("收款失败 ${it.message}")
-                            MessageUtils.toast("收款失败 ${it.message ?: ""}")
-                        }
-                        XposedHelpers.callMethod(param.thisObject, "finish")
+                    CoroutineUtils.withIO {
+                        /* runCatching {
+                             IncomeRepaymentUtils().sync(billInfo)
+                         }.onSuccess {
+                             MessageUtils.toast("收款成功")
+                             BillAPI.status(billInfo.id, true)
+                         }.onFailure {
+                             manifest.logE(it)
+                             manifest.logD("收款失败 ${it.message}")
+                             MessageUtils.toast("收款失败 ${it.message ?: ""}")
+                         }*/
+                        AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
                     }
                 }
-                // 收入（报销),OK
+                // 收入（报销)
                 QianJiBillType.IncomeReimbursement.value -> {
+                    // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
-                    ThreadUtils.launch {
-                        runCatching {
+                    CoroutineUtils.withIO {
+                        runCatchingExceptCancel {
                             BxPresenterImpl.doBaoXiao(billInfo)
                         }.onSuccess {
                             MessageUtils.toast("报销成功")
@@ -258,13 +289,14 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("报销失败 ${it.message ?: ""}")
                             manifest.logE(it)
                         }
-                        XposedHelpers.callMethod(param.thisObject, "finish")
+                        addBillIntentAct.finishAffinity()
                     }
                 }
                 // 收入（退款),OK
                 QianJiBillType.IncomeRefund.value -> {
+                    // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
-                    ThreadUtils.launch {
+                    CoroutineUtils.withIO {
                         runCatching {
                             RefundPresenterImpl.refund(billInfo)
                         }.onSuccess {
@@ -275,7 +307,7 @@ class AutoHooker : PartHooker() {
                             manifest.logD("退款失败 ${it.message}")
                             MessageUtils.toast("退款失败 ${it.message ?: ""}")
                         }
-                        XposedHelpers.callMethod(param.thisObject, "finish")
+                        AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
                     }
                 }
 
@@ -289,14 +321,14 @@ class AutoHooker : PartHooker() {
     /*
     * hookTimeout
      */
+    /**
+     * 宿主超时策略：
+     * - 对 key 为 "auto_task_last_time" 的检测直接放行，避免任务被中断；
+     * - 其他键不做修改。
+     */
     private fun hookTimeout() {
-
-        val clazz by lazy {
-            manifest.clazz("TimeoutApp")
-        }
-
         Hooker.after(
-            clazz,
+            TimeRecordUtils.clazz(),
             "timeoutApp",
             String::class.java,
             Long::class.java
@@ -304,7 +336,7 @@ class AutoHooker : PartHooker() {
             val prop = param.args[0] as String
             val timeout = param.args[1] as Long
             if (prop == "auto_task_last_time") {
-                manifest.logD("hookTimeout: $prop $timeout")
+                logD("hookTimeout: $prop $timeout")
                 param.result = true
             }
         }

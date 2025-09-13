@@ -11,7 +11,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- */
+ *//*
+
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
@@ -20,14 +21,16 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
-import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
-import net.ankio.auto.xposed.hooks.qianji.models.Bill
-import net.ankio.auto.xposed.hooks.qianji.models.Book
+import net.ankio.auto.xposed.hooks.qianji.models.QjAssetAccountModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
 import org.ezbook.server.db.model.BillInfoModel
 
+*/
 /**
  * 收款
- */
+ *//*
+
 class IncomeRepaymentUtils :
     BaseDebt() {
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
@@ -38,7 +41,7 @@ class IncomeRepaymentUtils :
 
         val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        AppRuntime.logD("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
+        AppRuntime.manifest.logD("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
 
         //拆分账单
 
@@ -65,7 +68,7 @@ class IncomeRepaymentUtils :
        pushBill()
     }
 
-    private suspend fun splitBill(billModel: BillInfoModel, accountFrom: AssetAccount): List<BillInfoModel?> = withContext(Dispatchers.IO) {
+    private suspend fun splitBill(billModel: BillInfoModel, accountFrom: QjAssetAccountModel): List<BillInfoModel?> = withContext(Dispatchers.IO) {
         val assetMoney = accountFrom.getMoney()
         if (assetMoney < billModel.money) {
             val interest = billModel.money - assetMoney
@@ -81,27 +84,33 @@ class IncomeRepaymentUtils :
         return@withContext listOf(billModel,null)
     }
 
-    /**
+    */
+/**
      * 获取借入账户
-     */
-    private suspend fun getAccountTo(billModel: BillInfoModel): AssetAccount = withContext(Dispatchers.IO) {
+ *//*
+
+    private suspend fun getAccountTo(billModel: BillInfoModel): QjAssetAccountModel = withContext(Dispatchers.IO) {
         return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameTo)
             ?: throw RuntimeException("收款账户不存在 key=accountname;value=${billModel.accountNameTo}")
     }
 
-    /**
+    */
+/**
      * 获取借款账户
-     */
-    private suspend fun getAccountFrom(billModel: BillInfoModel): AssetAccount = withContext(Dispatchers.IO) {
+ *//*
+
+    private suspend fun getAccountFrom(billModel: BillInfoModel): QjAssetAccountModel = withContext(Dispatchers.IO) {
         return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameFrom)
             ?: throw RuntimeException("欠款人不存在 key=accountname;value=${billModel.accountNameFrom}")
     }
 
 
-    /**
+    */
+/**
      * 更新债务
-     */
-    private suspend fun updateLoan(billModel: BillInfoModel, accountTo: AssetAccount) = withContext(Dispatchers.IO){
+ *//*
+
+    private suspend fun updateLoan(billModel: BillInfoModel, accountTo: QjAssetAccountModel) = withContext(Dispatchers.IO){
         // 债务
         val loan = accountTo.getLoanInfo()
 
@@ -113,12 +122,14 @@ class IncomeRepaymentUtils :
         accountTo.setLoanInfo(loan)
         accountTo.addMoney(billModel.money)
     }
-    /**
+    */
+/**
      * 保存账单
-     */
+ *//*
+
     private suspend fun updateAsset(
-        accountFrom: AssetAccount,
-        accountTo: AssetAccount,
+        accountFrom: QjAssetAccountModel,
+        accountTo: QjAssetAccountModel,
         billModel: BillInfoModel,
     ) = withContext(Dispatchers.IO) {
 
@@ -128,16 +139,18 @@ class IncomeRepaymentUtils :
         updateAssets(accountFrom)
     }
 
-    /**
+    */
+/**
      * 更新账单
-     */
+ *//*
+
     private suspend fun updateBill(
         billModel: BillInfoModel,
         type:Int,
-        book: Book,
-        accountFrom: AssetAccount,
-        accountTo: AssetAccount
-    ): Bill = withContext(Dispatchers.IO) {
+        book: QjBookModel,
+        accountFrom: QjAssetAccountModel,
+        accountTo: QjAssetAccountModel
+    ): QjBillModel = withContext(Dispatchers.IO) {
         val money = billModel.money
 
         val remark = billModel.remark
@@ -146,7 +159,7 @@ class IncomeRepaymentUtils :
 
         val imageList = ArrayList<String>()
 
-        val bill = Bill.newInstance(
+        val bill = QjBillModel.newInstance(
             type,
             remark,
             money,
@@ -159,8 +172,8 @@ class IncomeRepaymentUtils :
 
         // _id=null;billid=1726485028243184123;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726485025;type=4;remark=;money=19.0;status=2;categoryId=0;platform=0;assetId=1726484010133;fromId=-1;targetId=-1;extra=null
 
-        Bill.setZhaiwuCurrentAsset(bill, accountFrom)
-        Bill.setZhaiwuAboutAsset(bill, accountTo)
+        QjBillModel.setZhaiwuCurrentAsset(bill, accountFrom)
+        QjBillModel.setZhaiwuAboutAsset(bill, accountTo)
 
         bill.setBook(book)
         bill.setDescinfo("${accountFrom.getName()}->${accountTo.getName()}")
@@ -168,4 +181,4 @@ class IncomeRepaymentUtils :
         bill
 
     }
-}
+}*/

@@ -13,67 +13,43 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.models
+package net.ankio.auto.xposed.hooks.qianji.helper
 
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.auto.xposed.hooks.qianji.models.QjAssetAccountModel
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzMethod
 
-class UserModel {
-
+class AssetDbHelper(private val obj: Any) {
     companion object : HookerClazz() {
-        // 目标类：钱迹应用的 UserManager（使用 Manifest 规则名进行解析）
-        private val userManagerClazz by lazy { clazz() }
-
-        // 提供给 Manifest 的规则定义；使用现有规则名以保持兼容
         override var rule = Clazz(
             name = this::class.java.name,
-            nameRule = "^\\w{0,2}\\..+",
+            nameRule = "com.mutangtech.qianji.data.db.\\w+.\\w+",
             type = "class",
             methods =
                 listOf(
                     ClazzMethod(
-                        name = "isLogin",
+                        name = "insertOrReplace",
                         returnType = "boolean",
                     ),
                     ClazzMethod(
-                        name = "isVip",
+                        name = "saveLoanList",
                         returnType = "boolean",
                     ),
                     ClazzMethod(
-                        name = "isSuperVIP",
+                        name = "updateOrders",
                         returnType = "boolean",
                     ),
                 ),
         )
 
-        /**
-         * 获取 UserManager 单例实例
-         */
-        private fun getInstance(): Any {
-            return XposedHelpers.callStaticMethod(userManagerClazz, "getInstance")
-        }
+        fun newInstance(): AssetDbHelper = AssetDbHelper(XposedHelpers.newInstance(clazz()))
+    }
 
-        /**
-         * 是否已登录
-         */
-        fun isLogin(): Boolean {
-            return XposedHelpers.callMethod(getInstance(), "isLogin") as Boolean
-        }
+    fun toObject() = obj
 
-        /**
-         * 获取已登录用户ID
-         */
-        fun getLoginUserID(): String {
-            return XposedHelpers.callMethod(getInstance(), "getLoginUserID") as String
-        }
-
-        /**
-         * 是否为 VIP 用户
-         */
-        fun isVip(): Boolean {
-            return XposedHelpers.callMethod(getInstance(), "isVip") as Boolean
-        }
+    fun insertOrReplace(assetAccountModel: QjAssetAccountModel) {
+        XposedHelpers.callMethod(obj, "insertOrReplace", assetAccountModel.assetObj)
     }
 }
