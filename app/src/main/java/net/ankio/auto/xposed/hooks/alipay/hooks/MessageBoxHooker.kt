@@ -17,10 +17,12 @@ package net.ankio.auto.xposed.hooks.alipay.hooks
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.AnalysisUtils
 import org.ezbook.server.constant.DataType
 
 class MessageBoxHooker : PartHooker() {
@@ -29,9 +31,11 @@ class MessageBoxHooker : PartHooker() {
         val syncMessage =
             Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
 
-        Hooker.after(syncMessage, "toString") { methodHookParam ->
+ 
+
+        Hooker.after(syncMessage, "getData") { methodHookParam ->
             // 执行toString,这是支付宝将数据写入到了日志
-            val result = XposedHelpers.callMethod(methodHookParam.thisObject, "getData") as String
+            val result = methodHookParam.result as String
             // 收到的是数组，拆分
             Gson().fromJson(result, JsonArray::class.java).forEach { jsonObject ->
 
@@ -40,9 +44,9 @@ class MessageBoxHooker : PartHooker() {
                         add(jsonObject)
                     }
 
-                AppRuntime.manifest.logD("Hooked Alipay Message Box：$jsonArray")
+                logD("Hooked Alipay Message Box：$jsonArray")
                 // 调用分析服务进行数据分析
-                AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
+                analysisData(DataType.DATA, Gson().toJson(jsonArray))
             }
         }
 
