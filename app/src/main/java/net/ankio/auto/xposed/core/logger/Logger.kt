@@ -66,7 +66,6 @@ object Logger : BaseLogger() {
 
         var prefix = "[ 自动记账 ][ $app ]"
         if (line != -1) prefix = "$prefix($file:$line) "
-
         return "$prefix $msg\n${tr?.stackTrace?.joinToString("\n")}".trimEnd()
     }
 

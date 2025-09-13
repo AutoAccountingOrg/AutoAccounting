@@ -35,7 +35,7 @@ abstract class BaseLogger : ILogger {
 
     companion object {
         val xposedBridgeLogMethod = runCatching {
-            Class.forName("org.robv.android.xposed.XposedBridge").getDeclaredMethod("log", String::class.java)
+            Class.forName("de.robv.android.xposed.XposedBridge").getDeclaredMethod("log", String::class.java)
         }.getOrNull()
     }
 
