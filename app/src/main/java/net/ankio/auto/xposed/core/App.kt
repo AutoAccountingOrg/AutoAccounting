@@ -46,24 +46,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     companion object {
         const val TAG = "HookerEnvironment"
-
-        /**
-         * 目标App映射表，用于快速查找
-         * key: packageName + processName
-         * value: HookerManifest
-         */
-        private val hookerMap: Map<String, HookerManifest> by lazy {
-            buildHookerMap()
-        }
-
-        /**
-         * 构建Hook映射表，使用原始包名映射
-         */
-        private fun buildHookerMap(): Map<String, HookerManifest> {
-            return XposedModule.get().associateBy { manifest ->
-                manifest.packageName + (manifest.processName.ifEmpty { manifest.packageName })
-            }
-        }
     }
 
     /**
@@ -106,19 +88,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 查找目标应用的Hook清单
      */
     private fun findTargetApp(pkg: String?, processName: String?): HookerManifest? {
-
-        Logger.log(TAG, "$pkg$processName")
-        Logger.log(TAG, "$hookerMap")
         if (pkg == null || processName == null) return null
-
-        // 优先精确匹配 (pkg + processName)
-        val exactKey = "$pkg$processName"
-        hookerMap[exactKey]?.let { return it }
-
-        // 回退主进程 (pkg + pkg)
-        val mainProcKey = "$pkg$pkg"
-        hookerMap[mainProcKey]?.let { return it }
-
+        XposedModule.get().forEach {
+            val process = it.processName.ifEmpty { it.packageName }
+            if (it.packageName == pkg && process == processName) {
+                return it
+            }
+        }
         return null
     }
 

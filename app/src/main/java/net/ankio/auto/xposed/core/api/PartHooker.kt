@@ -16,7 +16,9 @@
 package net.ankio.auto.xposed.core.api
 
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AnalysisUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import org.ezbook.server.constant.DataType
 
 abstract class PartHooker {
 
@@ -34,6 +36,10 @@ abstract class PartHooker {
 
     fun logE(e: Throwable) {
         Logger.logE(manifest.packageName, e)
+    }
+
+    fun analysisData(type: DataType, data: String) {
+        AnalysisUtils.analysisData(manifest.packageName, type, data)
     }
 
     open fun hook() {}
