@@ -77,7 +77,7 @@ object Logger : BaseLogger() {
         app = this@Logger.app,
         // location 统一为 "类名(File.kt:行号)"
         location = className + if (line != -1) "($file:$line)" else "",
-        message = "$msg\n${tr?.stackTrace?.joinToString("\n")}".trimEnd()
+        message = "$msg\n${tr?.stackTrace?.joinToString("\n") ?: ""}".trimEnd()
     )
 
     override fun onLogModel(model: LogModel) {
