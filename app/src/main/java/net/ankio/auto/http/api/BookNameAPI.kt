@@ -90,7 +90,10 @@ object BookNameAPI {
         withContext(Dispatchers.IO) {
 
             runCatchingExceptCancel {
-                LocalNetwork.post<String>("book/put?md5=$md5", Gson().toJson(bookList)).getOrThrow()
+                LocalNetwork.post<com.google.gson.JsonObject>(
+                    "book/put?md5=$md5",
+                    Gson().toJson(bookList)
+                ).getOrThrow()
             }.getOrElse {
                 Logger.e("put error: ${it.message}", it)
 
@@ -101,7 +104,7 @@ object BookNameAPI {
     suspend fun add(book: BookNameModel) = withContext(Dispatchers.IO) {
 
         runCatchingExceptCancel {
-            LocalNetwork.post<String>("book/add", Gson().toJson(book)).getOrThrow()
+            LocalNetwork.post<Long>("book/add", Gson().toJson(book)).getOrThrow()
         }.getOrElse {
             Logger.e("add error: ${it.message}", it)
 
@@ -112,7 +115,7 @@ object BookNameAPI {
     suspend fun update(book: BookNameModel) = withContext(Dispatchers.IO) {
 
         runCatchingExceptCancel {
-            LocalNetwork.post<String>("book/update", Gson().toJson(book)).getOrThrow()
+            LocalNetwork.post<Long>("book/update", Gson().toJson(book)).getOrThrow()
         }.getOrElse {
             Logger.e("update error: ${it.message}", it)
 
@@ -130,7 +133,7 @@ object BookNameAPI {
             val json = JsonObject().apply {
                 addProperty("id", bookId)
             }
-            LocalNetwork.post<String>("book/delete", Gson().toJson(json)).getOrThrow()
+            LocalNetwork.post<Int>("book/delete", Gson().toJson(json)).getOrThrow()
         }.getOrElse {
             Logger.e("delete error: ${it.message}", it)
 

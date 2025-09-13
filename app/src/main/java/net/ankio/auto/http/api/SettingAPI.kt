@@ -32,7 +32,7 @@ object SettingAPI {
             val resp = LocalNetwork.post<String>("setting/get?key=$key", "{}").getOrThrow()
             resp.data ?: default
         }.getOrElse {
-            Logger.e("get error: ${it.message}", it)
+            // Logger.e("get error: ${it.message}", it)
             default
         }
     }

@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import net.ankio.auto.databinding.DialogBillSelectBinding
 import net.ankio.auto.http.api.BookBillAPI
 import net.ankio.auto.storage.Constants
@@ -29,7 +30,10 @@ import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.adapter.AppAdapterManager
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.constant.BillAction
+import org.ezbook.server.db.model.BookBillModel
 
 /**
  * 账单选择对话框
@@ -58,7 +62,7 @@ class BillSelectorDialog internal constructor(
 ) : BaseSheetDialog<DialogBillSelectBinding>(context) {
 
     private var selectedBills: MutableList<String> = mutableListOf()
-    private var billType: String = Setting.HASH_BILL // 默认值
+    private var billType: BillAction = BillAction.SYNC_REIMBURSE_BILL
     private var callback: (() -> Unit)? = null
 
     private lateinit var adapter: BillSelectorAdapter
@@ -77,7 +81,7 @@ class BillSelectorDialog internal constructor(
      * @param type 账单类型，如 Setting.HASH_BAOXIAO_BILL 或 Setting.HASH_BILL
      * @return 当前对话框实例，支持链式调用
      */
-    fun setBillType(type: String) = apply {
+    fun setBillType(type: BillAction) = apply {
         this.billType = type
     }
 
@@ -105,7 +109,7 @@ class BillSelectorDialog internal constructor(
         recyclerView.layoutManager = WrapContentLinearLayoutManager(ctx)
 
         // 判断是否支持多选（报销账单支持多选）
-        val multipleSelect = billType == Setting.HASH_BAOXIAO_BILL
+        val multipleSelect = billType == BillAction.SYNC_REIMBURSE_BILL
         adapter = BillSelectorAdapter(selectedBills, multipleSelect)
         recyclerView.adapter = adapter
 
@@ -129,13 +133,8 @@ class BillSelectorDialog internal constructor(
         binding.statusPage.showLoading()
 
         launch {
-            val proactively = PrefManager.featureLeading
-            
-            if (proactively) {
-                syncDataIfNeeded()
-            }
-
-            loadDataWithTimeout(proactively)
+            syncDataIfNeeded()
+            loadDataWithTimeout()
         }
     }
 
@@ -144,12 +143,8 @@ class BillSelectorDialog internal constructor(
      */
     private suspend fun syncDataIfNeeded() = withContext(Dispatchers.IO) {
         try {
-            //TODO 每个Adapter应该自己提供记账数据
-            // 同步基础数据
-            //BookAppUtils.syncData()
-
             // 清空现有数据
-            BookBillAPI.put(arrayListOf(), "", billType)
+            BookBillAPI.put(arrayListOf(), "", billType.name)
 
             // 检查同步间隔
             val lastSyncTime = PrefManager.lastSyncTime
@@ -158,11 +153,10 @@ class BillSelectorDialog internal constructor(
             if (now - lastSyncTime > Constants.SYNC_INTERVAL) {
                 PrefManager.lastSyncTime = now
 
-                when (billType) {
-                    Setting.HASH_BAOXIAO_BILL -> {}//BookAppUtils.syncReimburseBill()
-                    Setting.HASH_BILL -> {}//BookAppUtils.syncRecentExpenseBill()
+                // 通过适配器触发目标应用同步（需在主线程启动 Activity）
+                withContext(Dispatchers.Main) {
+                    AppAdapterManager.adapter().syncWaitBills(billType)
                 }
-
                 Logger.d("同步完成，账单类型: $billType")
             }
         } catch (e: Exception) {
@@ -171,43 +165,57 @@ class BillSelectorDialog internal constructor(
     }
 
     /**
-     * 带超时的数据加载
+     * 带超时的数据加载（withTimeout 版本）
+     * - 主动模式：在超时时间内轮询，直到拿到数据或超时
+     * - 非主动模式：立即拉取一次，若为空直接返回
      */
-    private suspend fun loadDataWithTimeout(proactively: Boolean) = withContext(Dispatchers.IO) {
-        val startTime = System.currentTimeMillis()
-        val timeout = 10000 // 10秒超时
+    private suspend fun loadDataWithTimeout() = withContext(Dispatchers.IO) {
+        val timeoutMs = 3_000L
 
-        while (System.currentTimeMillis() - startTime < timeout) {
-            try {
-                val bills = BookBillAPI.list(billType)
-                Logger.d("获取到账单数量: ${bills.size}")
+        val bills = withTimeoutOrNull(timeoutMs) {
+            val result: List<BookBillModel>
+            while (true) {
+                val list =
+                    runCatching { BookBillAPI.list(if (billType == BillAction.SYNC_RECENT_EXPENSE_BILL) Setting.HASH_BILL else Setting.HASH_BAOXIAO_BILL) }
+                        .onFailure { Logger.e("加载账单数据失败", it) }
+                        .getOrElse { emptyList() }
 
-                if (bills.isNotEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        binding.statusPage.showContent()
-                        adapter.updateItems(bills)
-                    }
-                    return@withContext
-                }
+                Logger.d("获取到账单数量: ${list.size}")
 
-                // 如果不是主动模式且没有数据，直接显示空状态
-                if (!proactively) {
+                if (list.isNotEmpty()) {
+                    result = list
                     break
                 }
 
-                // 等待500ms后重试
                 delay(500)
+            }
+            result
+        } ?: emptyList()
 
-            } catch (e: Exception) {
-                Logger.e("加载账单数据失败", e)
-                break
+        // 清理外部传入但已不存在的报销ID/账单ID
+        // 规则：
+        // - 以服务端返回的账单 remoteId 作为唯一判定依据
+        // - 对于空列表，视为没有可选账单，清空已选列表
+        run {
+            val before = selectedBills.size
+            val validIds: Set<String> = bills.map { it.remoteId }.toSet()
+            selectedBills.removeAll { it !in validIds }
+            val removedCount = before - selectedBills.size
+            if (removedCount > 0) {
+                Logger.d("已移除不存在的账单ID: $removedCount 个")
             }
         }
 
-        // 显示空状态
-        withContext(Dispatchers.Main) {
-            binding.statusPage.showEmpty()
-            Logger.d("账单数据为空或加载超时")
+        if (bills.isNotEmpty()) {
+            withContext(Dispatchers.Main) {
+                binding.statusPage.showContent()
+                adapter.updateItems(bills)
+            }
+        } else {
+            withContext(Dispatchers.Main) {
+                binding.statusPage.showEmpty()
+                Logger.d("账单数据为空或加载超时")
+            }
         }
     }
 

@@ -28,7 +28,9 @@ import net.ankio.auto.ui.dialog.BillSelectorDialog
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
@@ -92,6 +94,7 @@ class PaymentInfoComponent(
      * - 退款/报销：需要关联原始账单，额外显示选择账单按钮
      */
     private fun configureUIForBillType() {
+        if (!PrefManager.featureAssetManage) binding.root.visibility = View.GONE
         // 重置所有容器状态 - 确保UI状态干净
         binding.singleAccountContainer.visibility = View.GONE
         binding.transferContainer.visibility = View.GONE
@@ -376,11 +379,14 @@ class PaymentInfoComponent(
 
         // 根据账单类型确定关联账单的类型
         // 业务规则：收入报销需要关联支出报销账单，其他退款关联普通账单
-        val billType = BillTool.getType(billInfoModel.type)
-        val type = when (billType) {
-            BillType.IncomeReimbursement -> Setting.HASH_BAOXIAO_BILL  // 报销账单
-            else -> Setting.HASH_BILL                                 // 普通账单
+
+        val type = when (billInfoModel.type) {
+            BillType.IncomeReimbursement -> BillAction.SYNC_REIMBURSE_BILL  // 报销账单
+            BillType.IncomeRefund -> BillAction.SYNC_RECENT_EXPENSE_BILL
+            else -> BillAction.SYNC_RECENT_EXPENSE_BILL
         }
+
+
 
         dialog.setSelectedBills(selectedBills)
             .setBillType(type)

@@ -91,7 +91,10 @@ object CategoryAPI {
     suspend fun put(data: List<CategoryModel>, md5: String) = withContext(Dispatchers.IO) {
 
         runCatchingExceptCancel {
-            LocalNetwork.post<String>("category/put?md5=$md5", Gson().toJson(data)).getOrThrow()
+            LocalNetwork.post<com.google.gson.JsonObject>(
+                "category/put?md5=$md5",
+                Gson().toJson(data)
+            ).getOrThrow()
         }.getOrElse {
             Logger.e("put error: ${it.message}", it)
         }

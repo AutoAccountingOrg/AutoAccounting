@@ -73,6 +73,10 @@ class RuleInfoComponent(
 
         binding.ruleName.setText(billInfoModel.ruleName)
 
+        if (billInfoModel.generateByAi()) {
+            binding.close.visibility = View.INVISIBLE
+        }
+
     }
 
     override fun onComponentCreate() {
@@ -84,8 +88,6 @@ class RuleInfoComponent(
      * 设置关闭按钮监听器
      */
     private fun setupCloseButtonListener() {
-
-        binding.close.visibility = View.VISIBLE
         binding.close.setOnClickListener {
             showDisableRuleConfirmation()
         }

@@ -17,6 +17,7 @@ package net.ankio.auto.http.api
 
 import android.net.Uri
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
@@ -53,7 +54,7 @@ object AssetsAPI {
 
         runCatchingExceptCancel {
             val json = Gson().toJson(data)
-            LocalNetwork.post<String>("assets/put?md5=$md5", json).getOrThrow()
+            LocalNetwork.post<JsonObject>("assets/put?md5=$md5", json).getOrThrow()
         }.getOrElse {
             Logger.e("put error: ${it.message}", it)
 
