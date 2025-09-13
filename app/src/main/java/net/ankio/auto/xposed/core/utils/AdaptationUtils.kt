@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
 import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.DataUtils.get
 import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils.toast
@@ -112,7 +113,7 @@ object AdaptationUtils {
                     toast("适配进度 $found/$total: 找到 $ruleName")
                     manifest.logD("适配进度: $found/$total, 找到规则: $ruleName")
                 }
-
+                manifest.log("hashMap.size( ${hashMap.size} ) == rules.size( ${rules.size} )")
                 if (hashMap.size == rules.size) {
                     saveCache(code, currentRulesHash, hashMap)
                     manifest.clazz = hashMap
@@ -122,9 +123,10 @@ object AdaptationUtils {
                     AppRuntime.restart()
                 } else {
                     manifest.log("适配失败: $hashMap")
-                    rules.forEach { rule ->
+                    rules.forEachIndexed { index, rule ->
                         if (!hashMap.containsKey(rule.name)) manifest.log("未能适配规则: ${rule.name}")
                     }
+
                     set(KEY_ADAPT_VERSION, "0")
                     toast("适配失败，请检查应用版本是否支持")
                 }
