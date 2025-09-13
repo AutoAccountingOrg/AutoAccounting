@@ -17,7 +17,6 @@ package net.ankio.auto.xposed.hooks.qianji.hooks
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +26,6 @@ import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.manifest
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.core.utils.ThreadUtils
@@ -38,7 +36,6 @@ import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.RefundPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLog
-import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.debt.ExpendLendingUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.debt.ExpendRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.debt.IncomeLendingUtils
@@ -46,7 +43,6 @@ import net.ankio.auto.xposed.hooks.qianji.sync.debt.IncomeRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import org.ezbook.server.constant.BillAction
-import org.ezbook.server.db.model.BillInfoModel
 import androidx.core.net.toUri
 
 
@@ -153,7 +149,7 @@ class AutoHooker : PartHooker() {
             param.args[1] = autoTaskLog.toObject()
             val value = autoTaskLog.getValue() ?: return@before
             val uri = value.toUri()
-            AppRuntime.log("hookTaskLog: $value")
+            AppRuntime.i("hookTaskLog: $value")
             val billInfo = QianJiUri.toAuto(uri)
             if (billInfo.id < 0) return@before
 
@@ -168,7 +164,7 @@ class AutoHooker : PartHooker() {
                 QianJiBillType.Income.value,
                 QianJiBillType.ExpendReimbursement.value
                     -> {
-                    manifest.log("Qianji Error: $msg")
+                    manifest.i("Qianji Error: $msg")
 
                 }
 
@@ -183,8 +179,8 @@ class AutoHooker : PartHooker() {
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
 
-                            manifest.logD("借出失败 ${it.message}")
-                            manifest.logE(it)
+                            manifest.d("借出失败 ${it.message}")
+                            manifest.e(it)
                             MessageUtils.toast("借出失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -201,8 +197,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("还款成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("还款失败 ${it.message}")
+                            manifest.e(it)
+                            manifest.d("还款失败 ${it.message}")
                             MessageUtils.toast("还款失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -219,8 +215,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("借入成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("借入失败 ${it.message}")
+                            manifest.e(it)
+                            manifest.d("借入失败 ${it.message}")
                             MessageUtils.toast("借入失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -237,8 +233,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("收款成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("收款失败 ${it.message}")
+                            manifest.e(it)
+                            manifest.d("收款失败 ${it.message}")
                             MessageUtils.toast("收款失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -254,9 +250,9 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("报销成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logD("报销失败 ${it.message}")
+                            manifest.d("报销失败 ${it.message}")
                             MessageUtils.toast("报销失败 ${it.message ?: ""}")
-                            manifest.logE(it)
+                            manifest.e(it)
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
                     }
@@ -271,8 +267,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("退款成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("退款失败 ${it.message}")
+                            manifest.e(it)
+                            manifest.d("退款失败 ${it.message}")
                             MessageUtils.toast("退款失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -304,7 +300,7 @@ class AutoHooker : PartHooker() {
             val prop = param.args[0] as String
             val timeout = param.args[1] as Long
             if (prop == "auto_task_last_time") {
-                manifest.logD("hookTimeout: $prop $timeout")
+                manifest.d("hookTimeout: $prop $timeout")
                 param.result = true
             }
         }

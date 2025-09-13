@@ -15,15 +15,6 @@ object Hooker {
 
     private val hookMap = HashMap<String, XC_MethodHook.Unhook>()
 
-
-    /**
-     * 记录日志
-     */
-    private fun log(message: String, e: Throwable) {
-        Logger.log(AppRuntime.name, message)
-        Logger.logE(AppRuntime.name, e)
-    }
-
     /**
      * 加载类
      */
@@ -69,11 +60,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             after(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz", e)
+            Logger.e("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
-            log("Invalid parameter type: ${e.message}", e)
+            Logger.e("Invalid parameter type: ${e.message}", e)
         } catch (e: Exception) {
-            log("Error hooking method after: $clazz.$method - ${e.message}", e)
+            Logger.e("Error hooking method after: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -101,7 +92,7 @@ object Hooker {
                     }
                 })
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}", e)
+            Logger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -123,9 +114,9 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             before(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz", e)
+            Logger.e("Class not found: $clazz", e)
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}", e)
+            Logger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -153,7 +144,7 @@ object Hooker {
                     }
                 })
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}", e)
+            Logger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -188,7 +179,7 @@ object Hooker {
                 })
             hookMap[hookKey] = unhook
         } catch (e: Exception) {
-            log("Error hooking once method after: $clazz.$method - ${e.message}", e)
+            Logger.e("Error hooking once method after: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -223,7 +214,7 @@ object Hooker {
                 })
             hookMap[hookKey] = unhook
         } catch (e: Exception) {
-            log("Error hooking once method before: $clazz.$method - ${e.message}", e)
+            Logger.e("Error hooking once method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -244,7 +235,7 @@ object Hooker {
                     }
                 })
             } catch (e: Exception) {
-                log("Error hooking method before: ${method.name} - ${e.message}", e)
+                Logger.e("Error hooking method before: ${method.name} - ${e.message}", e)
             }
         }
     }
@@ -266,7 +257,7 @@ object Hooker {
                     }
                 })
             } catch (e: Exception) {
-                log("Error hooking method after: ${method.name} - ${e.message}", e)
+                Logger.e("Error hooking method after: ${method.name} - ${e.message}", e)
             }
         }
     }
@@ -349,11 +340,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             replace(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz", e)
+            Logger.e("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
-            log("Invalid parameter type: ${e.message}", e)
+            Logger.e("Invalid parameter type: ${e.message}", e)
         } catch (e: Exception) {
-            log("Error replacing method: $clazz.$method - ${e.message}", e)
+            Logger.e("Error replacing method: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -400,11 +391,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             replaceReturn(loadedClass, method, value, *types)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz", e)
+            Logger.e("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
-            log("Invalid parameter type: ${e.message}", e)
+            Logger.e("Invalid parameter type: ${e.message}", e)
         } catch (e: Exception) {
-            log("Error replacing return value: $clazz.$method - ${e.message}", e)
+            Logger.e("Error replacing return value: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -486,8 +477,8 @@ object Hooker {
                 }
         } catch (e: Exception) {
             when (e) {
-                is ClassNotFoundException -> log("Class not found: $clazz", e)
-                else -> log("Error hooking method: $clazz.$methodName", e)
+                is ClassNotFoundException -> Logger.e("Class not found: $clazz", e)
+                else -> Logger.e("Error hooking method: $clazz.$methodName", e)
             }
         }
     }
@@ -527,8 +518,8 @@ object Hooker {
                 }
         } catch (e: Exception) {
             when (e) {
-                is ClassNotFoundException -> log("Class not found: $clazz", e)
-                else -> log("Error hooking method: $clazz.$methodName", e)
+                is ClassNotFoundException -> Logger.e("Class not found: $clazz", e)
+                else -> Logger.e("Error hooking method: $clazz.$methodName", e)
             }
         }
     }

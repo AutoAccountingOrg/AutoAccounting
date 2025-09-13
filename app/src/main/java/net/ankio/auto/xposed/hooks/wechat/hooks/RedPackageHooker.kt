@@ -39,7 +39,7 @@ class RedPackageHooker: PartHooker() {
             JSONObject::class.java
         ){ param ->
             val json = param.args[2] as JSONObject
-            AppRuntime.manifest.logD("hooked red package: $json")
+            AppRuntime.manifest.d("hooked red package: $json")
             json.put(ChatUserHooker.CHAT_USER, ChatUserHooker.get(json.getString("sendUserName")))
             AppRuntime.manifest.analysisData(DataType.DATA,json.toString())
         }

@@ -33,7 +33,7 @@ class RedPackageHooker : PartHooker() {
         Hooker.before(proguard, "onReceiveMessage", syncMessage) { param ->
             val syncMessageObject = param.args[0]
             val result = XposedHelpers.callMethod(syncMessageObject, "getData") as String
-            AppRuntime.manifest.logD("Hooked Alipay RedPackage： $result")
+            AppRuntime.manifest.d("Hooked Alipay RedPackage： $result")
             AppRuntime.manifest.analysisData(DataType.DATA, result)
         }
     }

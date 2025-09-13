@@ -21,7 +21,6 @@ import android.app.Instrumentation
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.XposedModule
@@ -70,7 +69,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         when {
             manifest.packageName == "android" -> callback(null)
             manifest.applicationName.isEmpty() -> {
-                Logger.logD(TAG, "使用当前应用程序: ${manifest.appName}")
+                Logger.d("使用当前应用程序: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
             else -> {
@@ -84,13 +83,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         if (hooked) return@after
                         hooked = true
                         val application = it.args[0] as Application
-                        Logger.logD(TAG, "Hook成功: ${manifest.applicationName} -> $application")
+                        Logger.d("Hook成功: ${manifest.applicationName} -> $application")
                         callback(application)
 
                     }
                 } catch (e: Exception) {
-                    Logger.log(TAG, "Hook失败: ${e.message}")
-                    Logger.logE(TAG, e)
+                    Logger.i( "Hook失败: ${e.message}")
+                    Logger.e( e)
                 }
             }
         }
@@ -101,8 +100,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      */
     private fun findTargetApp(pkg: String?, processName: String?): HookerManifest? {
 
-        Logger.log(TAG, "$pkg$processName")
-        Logger.log(TAG, "$hookerMap")
+        Logger.i("$pkg$processName")
+        Logger.i("$hookerMap")
         if (pkg == null || processName == null) return null
 
         val key = "$pkg$processName"
@@ -114,6 +113,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 加载包时的回调
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+        Logger.app = TAG
+        Logger.debugging = BuildConfig.DEBUG
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
         // 设置运行时环境
         AppRuntime.classLoader = lpparam.classLoader
@@ -123,10 +124,9 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             AppRuntime.application = application
             application?.let { AppRuntime.classLoader = it.classLoader }
             AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, BuildConfig.DEBUG)
-            Logger.logD(
-                TAG,
-                "Hook器: ${targetApp.appName}(${targetApp.packageName}) 运行在${if (AppRuntime.debug) "调试" else "生产"}模式"
-            )
+            Logger.app = targetApp.packageName
+            Logger.debugging = AppRuntime.debug
+            Logger.d("Hook器: ${targetApp.appName}(${targetApp.packageName}) 运行在${if (AppRuntime.debug) "调试" else "生产"}模式")
             initHooker()
         }
     }
@@ -136,8 +136,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 初始化Hook器
      */
     private fun initHooker() {
-        Logger.log(
-            TAG,
+        Logger.i(
             "初始化Hook器: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}"
         )
 
@@ -150,7 +149,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             AppRuntime.manifest.permissionCheck()
 
         } catch (e: Exception) {
-            Logger.logE(TAG, e)
+            Logger.e(e)
         }
 
         // 版本检查
@@ -159,8 +158,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         // 规则适配
         val rules = AppRuntime.manifest.beforeAdaption()
         if (!AppRuntime.manifest.autoAdaption(rules)) {
-            Logger.log(
-                TAG,
+            Logger.i(
                 "自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook"
             )
             return
@@ -170,24 +168,24 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         try {
             AppRuntime.manifest.hookLoadPackage()
         } catch (e: Exception) {
-            AppRuntime.manifest.logE(e)
+            AppRuntime.manifest.e(e)
         }
 
         AppRuntime.manifest.partHookers.forEach { hooker ->
             val hookerName = hooker.javaClass.simpleName
-            AppRuntime.manifest.logD("初始化部分Hook器: $hookerName")
+            AppRuntime.manifest.d("初始化部分Hook器: $hookerName")
 
             try {
                 hooker.hook()
-                AppRuntime.manifest.logD("部分Hook器初始化成功: $hookerName")
+                AppRuntime.manifest.d("部分Hook器初始化成功: $hookerName")
             } catch (e: Exception) {
-                AppRuntime.manifest.logD("部分Hook器错误: ${e.message}")
-                AppRuntime.manifest.logE(e)
+                AppRuntime.manifest.d("部分Hook器错误: ${e.message}")
+                AppRuntime.manifest.e(e)
                 set("adaptation_version", "0")
             }
         }
 
-        AppRuntime.manifest.logD("Hook器初始化成功, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")
+        AppRuntime.manifest.d("Hook器初始化成功, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")
 
         // 成功通知
         if (!AppRuntime.manifest.systemApp &&

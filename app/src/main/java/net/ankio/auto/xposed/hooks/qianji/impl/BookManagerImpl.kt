@@ -27,7 +27,6 @@ import org.ezbook.server.constant.Setting
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.http.api.SettingAPI
 import org.ezbook.server.db.model.BookNameModel
-import org.ezbook.server.db.model.SettingModel
 
 object BookManagerImpl {
     private val bookManagerInstance by lazy {
@@ -113,10 +112,10 @@ object BookManagerImpl {
             val md5 = MD5HashTable.md5(sync)
             val server = SettingAPI.get(Setting.HASH_BOOK, "")
             if (server == md5 && !AppRuntime.debug) {
-                AppRuntime.log("No need to Sync Books, Server md5:${server} local md5:${md5}")
+                AppRuntime.i("No need to Sync Books, Server md5:${server} local md5:${md5}")
                 return@withContext bookList
             }
-            AppRuntime.logD("Sync Books:$sync")
+            AppRuntime.d("Sync Books:$sync")
             BookNameAPI.put(bookList, md5)
             withContext(Dispatchers.Main) {
                 MessageUtils.toast("已同步账本信息到自动记账")

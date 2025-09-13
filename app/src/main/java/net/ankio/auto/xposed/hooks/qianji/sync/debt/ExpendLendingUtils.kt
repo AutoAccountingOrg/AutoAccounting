@@ -39,7 +39,7 @@ class ExpendLendingUtils :
         val isNewAssets = isNewAssets(accountTo)
         val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        AppRuntime.logD("借出: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
+        AppRuntime.d("借出: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
 
         // 更新loan
         updateLoan(billModel, accountTo, isNewAssets)

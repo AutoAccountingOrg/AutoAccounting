@@ -22,7 +22,6 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
 class DatabaseHooker : PartHooker() {
@@ -48,7 +47,7 @@ class DatabaseHooker : PartHooker() {
             val contentValues = param.args[2] as ContentValues
             val tableName = param.args[0] as String
             val arg = if (param.args[1] != null) param.args[1] as String else ""
-            AppRuntime.manifest.logD("table:$tableName, contentValues:$contentValues")
+            AppRuntime.manifest.d("table:$tableName, contentValues:$contentValues")
             //无效数据表
             val usefulTable = listOf(
                 "message",
@@ -125,7 +124,7 @@ class DatabaseHooker : PartHooker() {
                         val result = JsonObject()
                         result.add("mMap", tpl)
 
-                        AppRuntime.manifest.logD("微信支付数据：$result")
+                        AppRuntime.manifest.d("微信支付数据：$result")
 
                         AppRuntime.manifest.analysisData(DataType.DATA, result.toString())
                     }

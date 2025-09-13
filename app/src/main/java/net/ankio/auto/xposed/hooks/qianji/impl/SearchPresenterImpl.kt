@@ -26,8 +26,6 @@ import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl.convert2Bill
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.BookBillModel
-import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import java.util.Calendar
 import kotlin.coroutines.resume
@@ -168,7 +166,7 @@ object SearchPresenterImpl {
                 runCatching {
                     getLast10DayLists()
                 }.onFailure {
-                    AppRuntime.logE(it)
+                    AppRuntime.e(it)
                 }.getOrDefault(emptyList<Any>())
             }
 
@@ -177,10 +175,10 @@ object SearchPresenterImpl {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.log("No need to sync bill Data, server md5:${server} local md5:${md5}")
+            AppRuntime.i("No need to sync bill Data, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.logD("Sync bills:$sync")
+        AppRuntime.d("Sync bills:$sync")
         BookBillAPI.put(bills, md5, Setting.HASH_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步支出账单到自动记账")
