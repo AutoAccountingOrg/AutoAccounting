@@ -10,7 +10,6 @@ import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.auto.AutoHooker
 import net.ankio.auto.xposed.hooks.common.JsEngine
-import net.ankio.auto.xposed.hooks.common.UnLockScreen
 import org.ezbook.server.Server
 
 class BackgroundHttpService : ICoreService() {
@@ -38,10 +37,6 @@ class BackgroundHttpService : ICoreService() {
              * js引擎
              */
             JsEngine.init()
-            /**
-             * 解锁屏幕
-             */
-            UnLockScreen.init()
             /**
              * 启动自动记账服务
              */

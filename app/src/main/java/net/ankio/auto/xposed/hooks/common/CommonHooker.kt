@@ -30,10 +30,6 @@ object CommonHooker {
              */
             JsEngine.init()
             /**
-             * 解锁屏幕
-             */
-            UnLockScreen.init()
-            /**
              * 启动自动记账服务
              */
             val server = Server(AppRuntime.application!!)
