@@ -21,6 +21,7 @@ import android.app.Instrumentation
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.XposedModule
@@ -33,6 +34,7 @@ import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.tools.BaseLogger
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -115,6 +117,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         Logger.app = TAG
         Logger.debugging = BuildConfig.DEBUG
+        BaseLogger.xposedBridgeLogMethod = XposedBridge::log
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
         // 设置运行时环境
         AppRuntime.classLoader = lpparam.classLoader
