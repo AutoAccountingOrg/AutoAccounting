@@ -26,18 +26,12 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.MenuItemBinding
 import net.ankio.auto.http.LocalNetwork
-import net.ankio.auto.storage.Constants
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.core.utils.ThreadUtils
-import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
-import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
-import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUi
-import org.ezbook.server.Server
 
 /**
  * SideBarHooker类用于修改钱迹App的侧边栏菜单
@@ -86,7 +80,7 @@ class SideBarHooker : PartHooker() {
                 AppRuntime.manifest.attachResource(activity)
                 addSettingMenu(linearLayout, activity)
             }.onFailure { item ->
-                AppRuntime.manifest.logE(item)
+                AppRuntime.manifest.e(item)
             }
             true
         }

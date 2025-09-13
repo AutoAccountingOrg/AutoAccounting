@@ -15,17 +15,19 @@
 
 package net.ankio.auto.xposed.core.utils
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Process
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime.manifest
+import org.ezbook.server.tools.ILogger
 import org.ezbook.server.tools.MemoryCache
 
-object AppRuntime {
+object AppRuntime : ILogger by Logger {
     /**
      * 表示应用程序是否处于调试模式。
      */
@@ -108,31 +110,19 @@ object AppRuntime {
     /**
      * 加载so库
      */
+    @SuppressLint("UnsafeDynamicallyLoadedCode")
     fun load(name: String) {
         try {
             val file = moduleSoPath + "lib$name.so"
             System.load(file)
-            Logger.logD(TAG, "Load $name success")
+            Logger.d("Load $name success")
         } catch (e: Throwable) {
-            Logger.logD(TAG, "Load $name failed : $e")
-            Logger.logE(TAG, e)
+            Logger.e("Load $name failed : $e", e)
         }
     }
 
-    fun log(s: String) {
-        manifest.log(s)
-    }
-
-    fun logD(s: String) {
-        manifest.logD(s)
-    }
-
-    fun logE(e: Throwable) {
-        manifest.logE(e)
-    }
-
     fun clazz(name: String): Class<*> {
-        return manifest.clazz(name)!!
+        return manifest.clazz(name)
     }
 
 }

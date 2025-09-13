@@ -30,7 +30,6 @@ import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AssetsModel
-import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -120,7 +119,7 @@ object AssetPreviewPresenterImpl {
                 !assetAccount.isVisible()  //不可见
                 || assetAccount.isZhaiWuFinished() //债务结束
             ) {
-                AppRuntime.logD("隐藏的资产不同步:${assetAccount.getName()}")
+                AppRuntime.d("隐藏的资产不同步:${assetAccount.getName()}")
                 return@forEach
             }
 
@@ -150,10 +149,10 @@ object AssetPreviewPresenterImpl {
         val server = SettingAPI.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
         if (server == md5  && !AppRuntime.debug || assets.isEmpty() ) { //资产为空也不同步
-            AppRuntime.log("No need to sync Assets, server md5:${server} local md5:${md5}")
+            AppRuntime.i("No need to sync Assets, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.logD("Sync Assets:${Gson().toJson(assets)}")
+        AppRuntime.d("Sync Assets:${Gson().toJson(assets)}")
         AssetsAPI.put(assets, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步资产信息到自动记账")
@@ -185,7 +184,7 @@ object AssetPreviewPresenterImpl {
                 }
                 account = findAssetInList(name, sType)
                 if (account == null) {
-                    AppRuntime.logD("未找到资产:$name")
+                    AppRuntime.d("未找到资产:$name")
                 }
             }
 

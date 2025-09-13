@@ -36,7 +36,7 @@ object RefundPresenterImpl {
             billInfo.extendData.split(", ").firstOrNull() ?: throw Throwable("找不到退款的账单id")
         // 先获取账单列表
         val bills = SearchPresenterImpl.getLast10DayLists()
-        AppRuntime.log("bills: $bills")
+        AppRuntime.i("bills: $bills")
         //查找退款的账单
         val bill = bills.firstOrNull {
             it != null && Bill.fromObject(it).getBillid() == billId.toLong()

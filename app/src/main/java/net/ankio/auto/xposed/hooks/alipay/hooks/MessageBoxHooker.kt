@@ -40,7 +40,7 @@ class MessageBoxHooker : PartHooker() {
                         add(jsonObject)
                     }
 
-                AppRuntime.manifest.logD("Hooked Alipay Message Box：$jsonArray")
+                AppRuntime.manifest.d("Hooked Alipay Message Box：$jsonArray")
                 // 调用分析服务进行数据分析
                 AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
             }

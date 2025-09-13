@@ -85,7 +85,7 @@ class WebViewHooker : PartHooker() {
                         }
 
                         needWait = false
-                        AppRuntime.manifest.logD("Hooked Alipay Bill List Data：$result")
+                        AppRuntime.manifest.d("Hooked Alipay Bill List Data：$result")
                         AppRuntime.manifest.analysisData(DataType.DATA, result)
                     }
 

@@ -38,8 +38,8 @@ class PermissionCheckHooker: PartHooker() {
         runCatching {
             hookCheckPermission()
         }.onFailure {
-            AppRuntime.manifest.log("hook hookCheckPermission error:${it.message}")
-            AppRuntime.manifest.logE(it)
+            AppRuntime.manifest.i("hook hookCheckPermission error:${it.message}")
+            AppRuntime.manifest.e(it)
         }
 
 
@@ -47,8 +47,8 @@ class PermissionCheckHooker: PartHooker() {
         runCatching {
             setOverlaysAllowed(BuildConfig.APPLICATION_ID)
         }.onFailure {
-            AppRuntime.manifest.log("hook setOverlaysAllowed error:${it.message}")
-            AppRuntime.manifest.logE(it)
+            AppRuntime.manifest.i("hook setOverlaysAllowed error:${it.message}")
+            AppRuntime.manifest.e(it)
         }
     }
 

@@ -34,7 +34,7 @@ class ThreadUtils {
             runCatching {
                 block()
             }.onFailure {
-                Logger.logE(TAG, it)
+                Logger.e(TAG, it)
             }
         }
     }
@@ -46,7 +46,7 @@ class ThreadUtils {
                 block()
 
             }.onFailure {
-                Logger.logE(TAG, it)
+                Logger.e(TAG, it)
             }
         }
     }

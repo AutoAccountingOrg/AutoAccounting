@@ -28,7 +28,6 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
-import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -99,10 +98,10 @@ object CateInitPresenterImpl {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_CATEGORY, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.log("No need to sync categories, Server md5:${server} local md5:${md5}")
+            AppRuntime.i("No need to sync categories, Server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.logD("Sync categories:$sync")
+        AppRuntime.d("Sync categories:$sync")
         CategoryAPI.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步分类信息到自动记账")

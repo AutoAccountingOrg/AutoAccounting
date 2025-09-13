@@ -27,7 +27,6 @@ import net.ankio.auto.xposed.hooks.qianji.models.Bill
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
-import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import java.util.Calendar
 import java.util.HashSet
@@ -104,10 +103,10 @@ object BxPresenterImpl {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_BAOXIAO_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
+            AppRuntime.i("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.logD("Sync BaoXiao:$sync")
+        AppRuntime.d("Sync BaoXiao:$sync")
         BookBillAPI.put(bills, md5, Setting.HASH_BAOXIAO_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步报销账单到自动记账")
@@ -132,7 +131,7 @@ object BxPresenterImpl {
             billList.filter {
                 val bill = Bill.fromObject(it!!)
                 val billId = bill.getBillid()
-                AppRuntime.logD("billId:$billId")
+                AppRuntime.d("billId:$billId")
                 // 判断billId是否在list中
                 list.contains(billId.toString())
             }

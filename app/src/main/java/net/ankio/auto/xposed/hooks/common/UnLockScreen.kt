@@ -31,7 +31,7 @@ object UnLockScreen {
     suspend fun launchUnEditedBills(){
         delay(3000)
         val list = BillAPI.edit()
-        Logger.logD(TAG, "BillAPI.edit()：$list")
+        Logger.d("BillAPI.edit()：$list")
         list.forEach { billInfoModel ->
             delay(1000)
             val floatIntent =
@@ -40,7 +40,7 @@ object UnLockScreen {
             try {
                 AppRuntime.application!!.baseContext.startActivity(panelIntent)
             } catch (t: Throwable) {
-                Logger.logD(TAG, "Failed to start auto server：$t")
+                Logger.d("Failed to start auto server：$t")
             }
         }
     }
@@ -54,10 +54,7 @@ object UnLockScreen {
                 App.launch {
                     try {
                         if (intent.action == Intent.ACTION_USER_PRESENT) {
-                            Logger.logD(
-                                TAG,
-                                "User unlocked the device and entered the home screen."
-                            )
+                            Logger.d("User unlocked the device and entered the home screen.")
                             launchUnEditedBills()
                         }
                     } finally {

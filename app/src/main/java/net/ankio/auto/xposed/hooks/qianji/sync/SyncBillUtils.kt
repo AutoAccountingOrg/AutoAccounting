@@ -27,7 +27,6 @@ import net.ankio.auto.xposed.hooks.qianji.models.UserModel
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import net.ankio.auto.http.api.BillAPI
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.db.model.BillInfoModel
 
 class SyncBillUtils {
     companion object {
@@ -79,11 +78,11 @@ class SyncBillUtils {
     suspend fun sync(context: Context) = withContext(Dispatchers.IO) {
         val currentTime = System.currentTimeMillis()
         if (getSyncState(context)) {
-            AppRuntime.log("同步任务正在进行中，忽略本次调用")
+            AppRuntime.i("同步任务正在进行中，忽略本次调用")
             return@withContext
         }
         if (currentTime - getLastSyncTime(context) < MIN_INTERVAL) {
-            AppRuntime.log("调用过于频繁，请稍后再试")
+            AppRuntime.i("调用过于频繁，请稍后再试")
             return@withContext
         }
 
@@ -97,11 +96,11 @@ class SyncBillUtils {
             }
             val bills = BillAPI.sync()
             if (bills.isEmpty()) {
-                AppRuntime.log("No bills need to sync")
+                AppRuntime.i("No bills need to sync")
                 return@withContext
             }
 
-            AppRuntime.log("Sync ${bills.size} bills")
+            AppRuntime.i("Sync ${bills.size} bills")
             AutoConfig.load()
             bills.forEach {
 

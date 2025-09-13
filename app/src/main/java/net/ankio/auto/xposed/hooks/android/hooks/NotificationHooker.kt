@@ -125,7 +125,7 @@ class NotificationHooker : PartHooker() {
             json.addProperty("t",System.currentTimeMillis())
 
 
-            AppRuntime.manifest.logD("NotificationHooker: $json")
+            AppRuntime.manifest.d("NotificationHooker: $json")
             AppRuntime.manifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
         }
 

@@ -86,7 +86,7 @@ abstract class BaseDebt {
         val json = JSONObject(billModel)
 
 
-        AppRuntime.log("提交资产=>${assetAccount},${book},${json}")
+        AppRuntime.i("提交资产=>${assetAccount},${book},${json}")
         //提交数据给钱迹
         XposedHelpers.callMethod(
             presenter,
@@ -104,7 +104,7 @@ abstract class BaseDebt {
         ) {
             val code = it.args[0] as Int
             val msg = it.args[1] as String
-            AppRuntime.log("Push Asset => ${code}:${msg}")
+            AppRuntime.i("Push Asset => ${code}:${msg}")
             true
         }
         Hooker.onceAfter(
@@ -116,7 +116,7 @@ abstract class BaseDebt {
             if (assetsInstance.javaClass == assetsInterface) {
                 // 提交成功
                 val assetsItem = XposedHelpers.callMethod(assetsInstance, "getData")
-                AppRuntime.log("Push Asset Success => ${assetsItem}")
+                AppRuntime.i("Push Asset Success => ${assetsItem}")
                 continuation.resume(AssetAccount.fromObject(assetsItem))
 
                 return@onceAfter true

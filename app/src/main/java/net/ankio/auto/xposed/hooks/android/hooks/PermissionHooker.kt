@@ -34,19 +34,19 @@ class PermissionHooker : PartHooker() {
      */
     override fun hook() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){ //14
-            AppRuntime.manifest.log("PermissionHooker34")
+            AppRuntime.manifest.i("PermissionHooker34")
             PermissionHooker34(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){ //13
-            AppRuntime.manifest.log("PermissionHooker33")
+            AppRuntime.manifest.i("PermissionHooker33")
             PermissionHooker33(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){ //12 - 12L
-            AppRuntime.manifest.log("PermissionHooker31")
+            AppRuntime.manifest.i("PermissionHooker31")
             PermissionHooker31(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){ //11
-            AppRuntime.manifest.log("PermissionHooker30")
+            AppRuntime.manifest.i("PermissionHooker30")
             PermissionHooker30(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else{
-            AppRuntime.manifest.log("PermissionHooker29") // 10
+            AppRuntime.manifest.i("PermissionHooker29") // 10
             PermissionHooker29(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }
 

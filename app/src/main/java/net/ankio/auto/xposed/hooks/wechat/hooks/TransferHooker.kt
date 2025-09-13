@@ -41,7 +41,7 @@ class TransferHooker : PartHooker() {
             json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
             json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
             json.put("t", System.currentTimeMillis())
-            AppRuntime.manifest.logD("Wechat Transfer hook： $json")
+            AppRuntime.manifest.d("Wechat Transfer hook： $json")
             AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
         }
     }
