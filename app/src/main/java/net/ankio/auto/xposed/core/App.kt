@@ -21,6 +21,7 @@ import android.app.Instrumentation
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
@@ -39,6 +40,7 @@ import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.tools.MD5HashTable
 import org.ezbook.server.tools.MemoryCache
+import org.ezbook.server.tools.BaseLogger
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {

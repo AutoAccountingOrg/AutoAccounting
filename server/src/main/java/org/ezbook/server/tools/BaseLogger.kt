@@ -34,9 +34,7 @@ abstract class BaseLogger : ILogger {
     var debugging: Boolean = false
 
     companion object {
-        val xposedBridgeLogMethod = runCatching {
-            Class.forName("de.robv.android.xposed.XposedBridge").getDeclaredMethod("log", String::class.java)
-        }.getOrNull()
+        var xposedBridgeLogMethod: ((String) -> Unit)? = null
     }
 
     override fun d(msg: String, tr: Throwable?) = if (debugging) log(LogLevel.DEBUG, msg, tr) else Unit
@@ -68,7 +66,7 @@ abstract class BaseLogger : ILogger {
                 priority, className, file, line, msg, tr
             )?.let { log ->
                 try {
-                    it.invoke(null, log)
+                    it(log)
                 } catch (e: Exception) {
                     // ignore
                 }
