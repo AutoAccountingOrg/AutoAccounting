@@ -22,11 +22,12 @@ import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.tools.MD5HashTable
-import net.ankio.auto.xposed.core.utils.ThreadUtils
+import net.ankio.auto.xposed.core.utils.CoroutineUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.xposed.core.utils.AnalysisUtils
 
 
 class NotificationHooker : PartHooker() {
@@ -71,7 +72,7 @@ class NotificationHooker : PartHooker() {
             }
             hashTable.put(hash)
 
-            ThreadUtils.launch {
+            CoroutineUtils.withIO {
                 checkNotification(
                     app,
                     originalTitle,
@@ -113,10 +114,11 @@ class NotificationHooker : PartHooker() {
                 addProperty("body",text)
                 addProperty("t",System.currentTimeMillis())
             }
-            AppRuntime.manifest.analysisData(
+            AnalysisUtils.analysisData(
+                "com.android.phone",
                 DataType.DATA,
                 Gson().toJson(json),
-                "com.android.phone"
+
             )
         }else{
             val json = JsonObject()
@@ -125,8 +127,8 @@ class NotificationHooker : PartHooker() {
             json.addProperty("t",System.currentTimeMillis())
 
 
-            AppRuntime.manifest.logD("NotificationHooker: $json")
-            AppRuntime.manifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
+            logD("NotificationHooker: $json")
+            AnalysisUtils.analysisData(pkg, DataType.NOTICE, Gson().toJson(json))
         }
 
 
