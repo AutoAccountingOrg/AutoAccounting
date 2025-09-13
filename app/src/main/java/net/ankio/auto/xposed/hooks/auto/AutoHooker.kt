@@ -26,7 +26,7 @@ import net.ankio.dex.model.Clazz
 
 
 class AutoHooker : HookerManifest() {
-    override var minVersion: Int = 212
+    override var minVersion: Long = 212
     override val packageName: String
         get() = BuildConfig.APPLICATION_ID
     override val appName: String = "自动记账"
