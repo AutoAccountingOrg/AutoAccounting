@@ -38,5 +38,13 @@
             android:layout_height="match_parent" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/shareButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/padding_side"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/menu_icon_share" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -87,24 +87,6 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
         // 设置顶部应用栏菜单项点击监听器
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                // 分享日志文件
-                R.id.item_share -> {
-                    // 显示加载对话框
-                    val loadingUtils = LoadingUtils(requireActivity())
-                    loadingUtils.show(R.string.loading_logs)
-
-                    // 在协程中执行分享操作
-                    launch {
-                        // 打包日志文件
-                        val logFile = Logger.packageLogs(requireContext())
-                        // 分享日志文件
-                        shareLogFile(logFile)
-                        // 关闭加载对话框
-                        loadingUtils.close()
-                    }
-                    true
-                }
-
                 // 清空日志数据
                 R.id.item_clear -> {
                     // 显示确认对话框
@@ -134,6 +116,16 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
 
         binding.statusPage.adapterBottom(requireContext())
 
+        // 设置右下角悬浮按钮分享日志
+        binding.shareButton.setOnClickListener {
+            val loadingUtils = LoadingUtils(requireActivity())
+            loadingUtils.show(R.string.loading_logs)
+            launch {
+                val logFile = Logger.packageLogs(requireContext())
+                shareLogFile(logFile)
+                loadingUtils.close()
+            }
+        }
 
     }
 
