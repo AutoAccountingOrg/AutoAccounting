@@ -26,7 +26,8 @@ abstract class BaseLogger : ILogger {
         get() = Throwable().stackTrace.firstOrNull { element ->
             // 过滤掉 BaseLogger 类及其子类的方法调用
             val className = element.className
-            className != BaseLogger::class.java.name && !BaseLogger::class.java.isAssignableFrom(Class.forName(className))
+            className != BaseLogger::class.java.name && !ILogger::class.java.isAssignableFrom(Class.forName(className))
+                    && element.fileName != ILogger::class.java.simpleName + ".kt"
         }
 
     var debugging: Boolean = false

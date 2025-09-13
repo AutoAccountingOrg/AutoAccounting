@@ -15,8 +15,6 @@
 
 package org.ezbook.server.tools
 
-import org.ezbook.server.constant.LogLevel
-
 interface ILogger {
     fun d(msg: String, tr: Throwable? = null)
 
