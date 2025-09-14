@@ -17,6 +17,7 @@ package org.ezbook.server.ai
 
 import android.util.Log
 import org.ezbook.server.ai.providers.BaseAIProvider
+import org.ezbook.server.ai.providers.BigModelProvider
 import org.ezbook.server.ai.providers.ChatGPTProvider
 import org.ezbook.server.ai.providers.DeepSeekProvider
 import org.ezbook.server.ai.providers.GeminiProvider
@@ -40,6 +41,7 @@ class AiManager {
         "DeepSeek" to DeepSeekProvider(),
         "Gemini" to GeminiProvider(),
         "Kimi" to KimiProvider(),
+        "智谱清言" to BigModelProvider(),
         "OpenRouter" to OpenRouterProvider(),
         "通义千问" to QWenProvider(),
         "硅基流动" to SiliconFlowProvider()
