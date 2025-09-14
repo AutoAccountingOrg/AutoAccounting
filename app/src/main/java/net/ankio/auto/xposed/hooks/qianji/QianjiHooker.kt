@@ -43,6 +43,7 @@ import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.GetCategoryListInterface
 import net.ankio.auto.xposed.hooks.qianji.impl.RefundPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.ViewInterface
 import net.ankio.auto.xposed.hooks.qianji.models.QjAssetAccountModel
 import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLogModel
 import net.ankio.auto.xposed.hooks.qianji.models.BillExtraModel
@@ -111,42 +112,7 @@ class QianjiHooker : HookerManifest() {
             ///////////////////////////AssetInsert//////////////////////////////////////
             AssetDbHelper.rule,
             BillDbHelper.rule,
-            //////////////////////钱迹RequestInterface////////////////////////////////////////
-            Clazz(
-                name = "RequestInterface",
-                nameRule = "^\\w{0,2}\\..+",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "onExecuteRequest",
-                        returnType = "void",
-                    ),
-                    ClazzMethod(
-                        name = "onFinish",
-                    ),
-                    ClazzMethod(
-                        name = "onToastMsg",
-                    ),
-                    ClazzMethod(
-                        name = "onError",
-                    ),
-                ),
-            ),
-            Clazz(
-                name = "AssetsInterface",
-                nameRule = "com.mutangtech.qianji.network.api.asset.\\w+",
-                type = "class",
-                methods =
-                listOf(
-                    ClazzMethod(
-                        name = "getBindBill",
-                    ),
-                    ClazzMethod(
-                        name = "setBindBill",
-                    ),
-                ),
-            ),
+
 
             // Filters
             AssetsFilter.rule,
@@ -160,7 +126,8 @@ class QianjiHooker : HookerManifest() {
             TagsFilter.rule,
             TypesFilter.rule,
 
-            BaseSubmitAssetPresenterImpl.rule
+            BaseSubmitAssetPresenterImpl.rule,
+            ViewInterface.rule
         )
         set(value) {}
 

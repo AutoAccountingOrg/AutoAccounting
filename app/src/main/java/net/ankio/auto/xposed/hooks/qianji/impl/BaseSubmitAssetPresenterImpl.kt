@@ -73,4 +73,12 @@ class BaseSubmitAssetPresenterImpl(private val obj: Any) {
             diffParams
         )
     }
+
+    /**
+     * 绑定视图（重载之一：l 类型）
+     * @param view 原始类型：com.mutangtech.qianji.asset.submit.mvp.l 或 i8.c
+     */
+    fun setView(view: Callbacks) {
+        XposedHelpers.callMethod(obj, "setView", ViewInterface.newProxy(view))
+    }
 }
