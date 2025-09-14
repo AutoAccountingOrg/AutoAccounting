@@ -76,7 +76,7 @@ class BigModelProvider : BaseAIProvider() {
         onChunk: ((String) -> Unit)?
     ): Result<String> {
         // 日志：避免过度输出，仅记录关键信息
-        ServerLog.d("BigModel: 发起请求，model=${'$'}{getModel()}, stream=${'$'}{onChunk != null}")
+        ServerLog.d("BigModel: 发起请求，model=${getModel()}, stream=${onChunk != null}")
 
         // 1) 组装 messages
         val messages = mutableListOf<Map<String, String>>()
@@ -93,11 +93,11 @@ class BigModelProvider : BaseAIProvider() {
         )
         if (onChunk != null) bodyMap["stream"] = true
 
-        val url = "${'$'}{getApiUri()}/paas/v4/chat/completions"
+        val url = "${getApiUri()}/paas/v4/chat/completions"
 
         val request = Request.Builder()
             .url(url)
-            .addHeader("Authorization", "Bearer ${'$'}{getApiKey()}")
+            .addHeader("Authorization", "Bearer ${getApiKey()}")
             .addHeader("Content-Type", "application/json")
             .apply { if (onChunk != null) addHeader("Accept", "text/event-stream") }
             .post(gson.toJson(bodyMap).toRequestBody("application/json".toMediaTypeOrNull()))
@@ -109,7 +109,13 @@ class BigModelProvider : BaseAIProvider() {
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
                         val err = response.body?.string()?.removeThink()
-                        ServerLog.e("BigModel: 流式请求失败 code=${'$'}{response.code}, body=${'$'}{err?.take(300)}")
+                        ServerLog.e(
+                            "BigModel: 流式请求失败 code=${response.code}, body=${
+                                err?.take(
+                                    300
+                                )
+                            }"
+                        )
                         error(parseErrorMessage(err))
                     }
 
@@ -137,7 +143,7 @@ class BigModelProvider : BaseAIProvider() {
                     val resp =
                         response.body?.string()?.removeThink() ?: error("Empty response body")
                     if (!response.isSuccessful) {
-                        ServerLog.e("BigModel: 请求失败 code=${'$'}{response.code}, body=${'$'}{resp.take(300)}")
+                        ServerLog.e("BigModel: 请求失败 code=${response.code}, body=${resp.take(300)}")
                         error(parseErrorMessage(resp))
                     }
 
@@ -153,7 +159,7 @@ class BigModelProvider : BaseAIProvider() {
                 }
             }
         }.onFailure {
-            ServerLog.e("BigModel(Result): 请求失败：${'$'}{it.message}", it)
+            ServerLog.e("BigModel(Result): 请求失败：${it.message}", it)
         }
     }
 
