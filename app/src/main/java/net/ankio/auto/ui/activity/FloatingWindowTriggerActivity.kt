@@ -76,15 +76,6 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // 清理ServiceManager资源
-        try {
-            Logger.i("ServiceManager资源已清理")
-        } catch (e: Exception) {
-            Logger.e("清理ServiceManager资源失败: ${e.message}", e)
-        }
-    }
     private fun exitActivity() {
         finishAffinity()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
