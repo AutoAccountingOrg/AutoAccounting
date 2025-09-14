@@ -34,6 +34,7 @@ import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
+import androidx.core.widget.doAfterTextChanged
 
 /**
  * 支付信息组件 - 参考BookHeaderComponent的独立设计模式
@@ -62,6 +63,7 @@ class PaymentInfoComponent(
         super.onComponentCreate()
         setupClickListeners()
         setupDebtDropdowns()
+        setupTextSync()
     }
 
     /**
@@ -223,6 +225,24 @@ class PaymentInfoComponent(
 
         // 初始化下拉选项
         updateDebtDropdownOptions()
+    }
+
+    /**
+     * 文本变更同步：监听可编辑输入框，双向同步到 billInfoModel
+     */
+    private fun setupTextSync() {
+        // 单账户模式输入框
+
+        // 债务人员输入框（用户可能手动输入而非下拉点击）
+        binding.debtPersonInput.doAfterTextChanged { text ->
+            if (!::billInfoModel.isInitialized) return@doAfterTextChanged
+            billInfoModel.accountNameTo = text?.toString() ?: ""
+        }
+        binding.debtPersonInput2.doAfterTextChanged { text ->
+            if (!::billInfoModel.isInitialized) return@doAfterTextChanged
+            billInfoModel.accountNameFrom = text?.toString() ?: ""
+        }
+
     }
 
     /**
