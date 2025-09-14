@@ -1,4 +1,4 @@
-/*
+package net.ankio.auto.xposed.hooks.qianji.debt/*
  * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.

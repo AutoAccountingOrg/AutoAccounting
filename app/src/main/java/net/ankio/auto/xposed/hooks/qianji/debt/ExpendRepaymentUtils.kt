@@ -1,4 +1,19 @@
 /*
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
+ * Licensed under the Apache License, Version 3.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-3.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package net.ankio.auto.xposed.hooks.qianji.debt/*
  * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,10 +26,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- *//*
+ */
 
-
-package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,10 +39,10 @@ import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
 import org.ezbook.server.db.model.BillInfoModel
 
-*/
+
 /**
  * 还款
- *//*
+ */
 
 class ExpendRepaymentUtils :
     BaseDebt() {
@@ -41,7 +54,7 @@ class ExpendRepaymentUtils :
 
         val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        AppRuntime.logD("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
+        AppRuntime.manifest.logD("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
 
         //拆分账单
 
@@ -87,10 +100,10 @@ class ExpendRepaymentUtils :
         return@withContext listOf(billModel, null)
     }
 
-    */
-/**
+
+    /**
      * 获取借入账户
- *//*
+     */
 
     private suspend fun getAccountTo(billModel: BillInfoModel): QjAssetAccountModel =
         withContext(Dispatchers.IO) {
@@ -98,10 +111,10 @@ class ExpendRepaymentUtils :
                 ?: throw RuntimeException("债主不存在 key=accountname;value=${billModel.accountNameTo}")
         }
 
-    */
-/**
+
+    /**
      * 获取借款账户
- *//*
+     */
 
     private suspend fun getAccountFrom(billModel: BillInfoModel): QjAssetAccountModel =
         withContext(Dispatchers.IO) {
@@ -110,10 +123,9 @@ class ExpendRepaymentUtils :
         }
 
 
-    */
-/**
+    /**
      * 更新债务
- *//*
+     */
 
     private suspend fun updateLoan(billModel: BillInfoModel, accountTo: QjAssetAccountModel) =
         withContext(Dispatchers.IO) {
@@ -130,10 +142,9 @@ class ExpendRepaymentUtils :
             accountTo.addMoney(-billModel.money)
         }
 
-    */
-/**
+    /**
      * 保存账单
- *//*
+     */
 
     private suspend fun updateAsset(
         accountFrom: QjAssetAccountModel,
@@ -147,10 +158,10 @@ class ExpendRepaymentUtils :
         updateAssets(accountFrom)
     }
 
-    */
-/**
+
+    /**
      * 更新账单
- *//*
+     */
 
     private suspend fun updateBill(
         billModel: BillInfoModel,
@@ -196,4 +207,4 @@ class ExpendRepaymentUtils :
         bill
 
     }
-}*/
+}

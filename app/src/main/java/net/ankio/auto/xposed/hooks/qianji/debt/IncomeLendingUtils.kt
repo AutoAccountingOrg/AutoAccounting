@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.sync.debt
+package net.ankio.auto.xposed.hooks.qianji.debt
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

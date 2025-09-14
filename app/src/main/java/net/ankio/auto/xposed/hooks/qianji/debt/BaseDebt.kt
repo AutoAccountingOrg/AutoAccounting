@@ -13,25 +13,21 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.sync.debt
+package net.ankio.auto.xposed.hooks.qianji.debt
 
-import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.qianji.helper.AssetDbHelper
 import net.ankio.auto.xposed.hooks.qianji.helper.BillDbHelper
-import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BaseSubmitAssetPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.models.LoanInfoModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjAssetAccountModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
-import net.ankio.auto.xposed.hooks.qianji.models.LoanInfoModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.json.JSONObject
-import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 abstract class BaseDebt {
