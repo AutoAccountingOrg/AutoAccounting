@@ -30,6 +30,7 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.CoroutineUtils
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.activity.AddBillIntentAct
+import net.ankio.auto.xposed.hooks.qianji.debt.ExpendLendingUtils
 import net.ankio.auto.xposed.hooks.qianji.helper.BillDbHelper
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
@@ -43,6 +44,7 @@ import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
 import net.ankio.auto.xposed.hooks.qianji.models.UserModel
 import net.ankio.auto.xposed.hooks.qianji.debt.IncomeLendingUtils
 import net.ankio.auto.xposed.hooks.qianji.debt.ExpendRepaymentUtils
+import net.ankio.auto.xposed.hooks.qianji.debt.IncomeRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import net.ankio.auto.xposed.hooks.qianji.utils.BroadcastUtils
@@ -240,35 +242,21 @@ class AutoHooker : PartHooker() {
                     // TODO 根据不同的日志给出不同的错误提示
                 }
 
-                // 支出（借出）,ok
+                // 支出（借出）
                 QianJiBillType.ExpendLending.value -> {
                     // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
-                    CoroutineUtils.withIO {
-                        /* runCatching {
-                             ExpendLendingUtils().sync(billInfo)
-                         }.onSuccess {
-                             MessageUtils.toast("借出成功")
-                             BillAPI.status(billInfo.id, true)
-                         }.onFailure {
-
-                             manifest.logD("借出失败 ${it.message}")
-                             manifest.logE(it)
-                             MessageUtils.toast("借出失败 ${it.message ?: ""}")
-
-                         }*/
-                        AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
-                    }
+                    handleExpendLending(billInfo, AddBillIntentAct.fromObj(param.thisObject))
 
                 }
-                // 支出（还款）,ok
+                // 支出（还款）
                 QianJiBillType.ExpendRepayment.value -> {
                     // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
                     handleExpendRepayment(billInfo, AddBillIntentAct.fromObj(param.thisObject))
                 }
 
-                // 收入（借入）,OK
+                // 收入（借入）
                 QianJiBillType.IncomeLending.value -> {
                     // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
@@ -280,19 +268,8 @@ class AutoHooker : PartHooker() {
                 QianJiBillType.IncomeRepayment.value -> {
                     // 阻断宿主实现，采用异步处理并在完成后关闭页面
                     param.result = null
-                    CoroutineUtils.withIO {
-                        /* runCatching {
-                             IncomeRepaymentUtils().sync(billInfo)
-                         }.onSuccess {
-                             MessageUtils.toast("收款成功")
-                             BillAPI.status(billInfo.id, true)
-                         }.onFailure {
-                             manifest.logE(it)
-                             manifest.logD("收款失败 ${it.message}")
-                             MessageUtils.toast("收款失败 ${it.message ?: ""}")
-                         }*/
-                        AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
-                    }
+                    handleIncomeRepayment(billInfo, AddBillIntentAct.fromObj(param.thisObject))
+
                 }
                 // 收入（报销)
                 QianJiBillType.IncomeReimbursement.value -> {
@@ -333,6 +310,40 @@ class AutoHooker : PartHooker() {
 
 
             }
+
+        }
+    }
+
+    private fun handleExpendLending(billModel: BillInfoModel, act: AddBillIntentAct) {
+        CoroutineUtils.withIO {
+            runCatching {
+                ExpendLendingUtils().sync(billModel)
+            }.onSuccess {
+                MessageUtils.toast("借出成功")
+                BillAPI.status(billModel.id, true)
+            }.onFailure {
+                manifest.logD("借出失败 ${it.message}")
+                manifest.logE(it)
+                MessageUtils.toast("借出失败 ${it.message ?: ""}")
+            }
+            act.finishAffinity()
+
+        }
+    }
+
+    private fun handleIncomeRepayment(billModel: BillInfoModel, act: AddBillIntentAct) {
+        CoroutineUtils.withIO {
+            runCatching {
+                IncomeRepaymentUtils().sync(billModel)
+            }.onSuccess {
+                MessageUtils.toast("收款成功")
+                BillAPI.status(billModel.id, true)
+            }.onFailure {
+                manifest.logE(it)
+                manifest.logD("收款失败 ${it.message}")
+                MessageUtils.toast("收款失败 ${it.message ?: ""}")
+            }
+            act.finishAffinity()
 
         }
     }

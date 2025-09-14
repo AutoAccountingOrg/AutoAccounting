@@ -11,10 +11,7 @@ package net.ankio.auto.xposed.hooks.qianji.debt/*
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- *//*
-
-
-package net.ankio.auto.xposed.hooks.qianji.sync.debt
+ */
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,10 +23,10 @@ import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
 import org.ezbook.server.db.model.BillInfoModel
 
-*/
+
 /**
  * 收款
- *//*
+ */
 
 class IncomeRepaymentUtils :
     BaseDebt() {
@@ -84,20 +81,20 @@ class IncomeRepaymentUtils :
         return@withContext listOf(billModel,null)
     }
 
-    */
+
 /**
      * 获取借入账户
- *//*
+ */
 
     private suspend fun getAccountTo(billModel: BillInfoModel): QjAssetAccountModel = withContext(Dispatchers.IO) {
         return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameTo)
             ?: throw RuntimeException("收款账户不存在 key=accountname;value=${billModel.accountNameTo}")
     }
 
-    */
+
 /**
      * 获取借款账户
- *//*
+ */
 
     private suspend fun getAccountFrom(billModel: BillInfoModel): QjAssetAccountModel = withContext(Dispatchers.IO) {
         return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameFrom)
@@ -105,10 +102,10 @@ class IncomeRepaymentUtils :
     }
 
 
-    */
+
 /**
      * 更新债务
- *//*
+ */
 
     private suspend fun updateLoan(billModel: BillInfoModel, accountTo: QjAssetAccountModel) = withContext(Dispatchers.IO){
         // 债务
@@ -122,10 +119,10 @@ class IncomeRepaymentUtils :
         accountTo.setLoanInfo(loan)
         accountTo.addMoney(billModel.money)
     }
-    */
-/**
+
+    /**
      * 保存账单
- *//*
+     */
 
     private suspend fun updateAsset(
         accountFrom: QjAssetAccountModel,
@@ -139,10 +136,10 @@ class IncomeRepaymentUtils :
         updateAssets(accountFrom)
     }
 
-    */
-/**
+
+    /**
      * 更新账单
- *//*
+     */
 
     private suspend fun updateBill(
         billModel: BillInfoModel,
@@ -181,4 +178,4 @@ class IncomeRepaymentUtils :
         bill
 
     }
-}*/
+}
