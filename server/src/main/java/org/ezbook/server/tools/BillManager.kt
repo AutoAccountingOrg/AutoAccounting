@@ -23,7 +23,7 @@ import org.ezbook.server.db.model.BillInfoModel
 object BillManager {
 
     // 常量定义，缩短时间窗口，避免大量非重复账单
-    private const val TIME_WINDOW_MILLIS = 60 * 1000L
+    private const val TIME_WINDOW_MILLIS = 3 * 60 * 1000L
     private const val OTHER_CATEGORY_1 = "其他"
     private const val OTHER_CATEGORY_2 = "其它"
 
