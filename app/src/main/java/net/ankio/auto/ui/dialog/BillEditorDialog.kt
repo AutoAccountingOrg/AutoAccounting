@@ -82,7 +82,7 @@ class BillEditorDialog internal constructor(
      * @return 当前对话框实例，支持链式调用
      */
     fun setBillInfo(billInfo: BillInfoModel) = apply {
-        this.billInfoModel = billInfo
+        this.billInfoModel = billInfo.copy()
         this.currentBillType = BillTool.getType(billInfo.type)
         if (uiReady()) {
             if (::bookHeaderComponent.isInitialized) bookHeaderComponent.setBillInfo(billInfo)
@@ -172,6 +172,7 @@ class BillEditorDialog internal constructor(
         transactionTypeSelectorComponent.refresh()
         paymentInfoComponent.refresh()
         basicInfoComponent.refresh()
+        amountDisplayComponent.refresh()
     }
 
 
