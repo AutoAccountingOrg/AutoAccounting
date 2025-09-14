@@ -107,10 +107,10 @@ class AutoHooker : PartHooker() {
     }
 
     private fun hookBroadcast(activity: Activity, uri: Uri) {
-        Hooker.before(
-            BroadcastUtils.clazz().name,
+        Hooker.onceBefore(
+            BroadcastUtils.clazz(),
             "onAddBill",
-            "com.mutangtech.qianji.data.model.Bill",
+            QjBillModel.clazz(),
             Boolean::class.javaPrimitiveType!!
         ) {
             val billModel = QjBillModel.fromObject(it.args[0])
@@ -126,6 +126,8 @@ class AutoHooker : PartHooker() {
             }
 
             XposedBridge.log("保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}")
+
+            true
         }
     }
 
