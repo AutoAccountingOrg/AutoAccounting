@@ -1155,6 +1155,21 @@ class QjBillModel {
         ) as Boolean
     }
 
+    fun getExtra(): BillExtraModel {
+        val extra = XposedHelpers.getObjectField(
+            billObj,
+            "extra"
+        )
+        return BillExtraModel(extra)
+    }
+
+    fun setExtra(extra: BillExtraModel) {
+        XposedHelpers.setObjectField(
+            billObj,
+            "extra", extra.toObject()
+        )
+    }
+
     /**
      * 检查是否为债务收款
      */

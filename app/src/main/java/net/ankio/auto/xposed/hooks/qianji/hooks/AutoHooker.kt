@@ -17,15 +17,20 @@ package net.ankio.auto.xposed.hooks.qianji.hooks
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import androidx.core.net.toUri
+import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.core.utils.CoroutineUtils
+import net.ankio.auto.xposed.core.utils.MessageUtils
+import net.ankio.auto.xposed.hooks.qianji.activity.AddBillIntentAct
+import net.ankio.auto.xposed.hooks.qianji.helper.BillDbHelper
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl
@@ -33,14 +38,14 @@ import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.RefundPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLogModel
+import net.ankio.auto.xposed.hooks.qianji.models.BillExtraModel
+import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
+import net.ankio.auto.xposed.hooks.qianji.models.UserModel
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
-import org.ezbook.server.constant.BillAction
-import androidx.core.net.toUri
-import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.xposed.hooks.qianji.activity.AddBillIntentAct
-import net.ankio.auto.xposed.hooks.qianji.models.UserModel
+import net.ankio.auto.xposed.hooks.qianji.utils.BroadcastUtils
 import net.ankio.auto.xposed.hooks.qianji.utils.TimeRecordUtils
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 
@@ -76,6 +81,7 @@ class AutoHooker : PartHooker() {
         hookTaskLog()
 
         hookView()
+
     }
 
 
@@ -100,6 +106,29 @@ class AutoHooker : PartHooker() {
         }
     }
 
+    private fun hookBroadcast(activity: Activity, uri: Uri) {
+        Hooker.before(
+            BroadcastUtils.clazz().name,
+            "onAddBill",
+            "com.mutangtech.qianji.data.model.Bill",
+            Boolean::class.javaPrimitiveType!!
+        ) {
+            val billModel = QjBillModel.fromObject(it.args[0])
+            //传入的是负值表示优惠
+            val discount = uri.getQueryParameter("discount")?.toDoubleOrNull()
+            if (discount != null && discount > 0 && (billModel.isSpend() || billModel.isTransfer())) {
+                //只有支出或者还款的账户才需要记录优惠
+                val extraModel = BillExtraModel.newInstance()
+                extraModel.setTransfee(-discount)
+                billModel.setExtra(extraModel)
+                it.args[0] = billModel.toObject()
+                BillDbHelper.newInstance().saveOrUpdateBill(billModel)
+            }
+
+            XposedBridge.log("保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}")
+        }
+    }
+
 
     /**
      * 拦截入口 Intent：
@@ -114,6 +143,7 @@ class AutoHooker : PartHooker() {
         ) {
             val intent = it.args[0] as Intent
             val data = intent.data ?: return@before
+            hookBroadcast(it.thisObject as Activity, data)
             // 只处理来自自动记账的账单
             val action = data.getQueryParameter("action") ?: return@before
             // 阻断宿主原实现，改由自动记账逻辑接管
@@ -148,6 +178,12 @@ class AutoHooker : PartHooker() {
         }
     }
 
+    private fun hookBill() {
+        Hooker.after(QjBillModel.clazz(), "setTimeInSec", Long::class.javaPrimitiveType!!) {
+
+        }
+    }
+
 
     /**
      * 拦截自动任务日志：
@@ -163,7 +199,7 @@ class AutoHooker : PartHooker() {
             AddBillIntentAct.insertAutoTask(),
             "java.lang.String",
             AutoTaskLogModel.CLAZZ
-        ){ param ->
+        ) { param ->
             val msg = param.args[0] as String
             val autoTaskLog = AutoTaskLogModel.fromObject(param.args[1])
             autoTaskLog.setFrom(BuildConfig.APPLICATION_ID)
@@ -318,9 +354,6 @@ class AutoHooker : PartHooker() {
     }
 
 
-    /*
-    * hookTimeout
-     */
     /**
      * 宿主超时策略：
      * - 对 key 为 "auto_task_last_time" 的检测直接放行，避免任务被中断；
@@ -341,8 +374,6 @@ class AutoHooker : PartHooker() {
             }
         }
     }
-
-
 
 
 }

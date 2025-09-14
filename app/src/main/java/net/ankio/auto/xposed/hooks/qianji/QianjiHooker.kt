@@ -32,6 +32,7 @@ import net.ankio.auto.xposed.hooks.qianji.filter.SortFilter
 import net.ankio.auto.xposed.hooks.qianji.filter.TagsFilter
 import net.ankio.auto.xposed.hooks.qianji.filter.TypesFilter
 import net.ankio.auto.xposed.hooks.qianji.helper.AssetDbHelper
+import net.ankio.auto.xposed.hooks.qianji.helper.BillDbHelper
 import net.ankio.auto.xposed.hooks.qianji.hooks.AutoHooker
 import net.ankio.auto.xposed.hooks.qianji.hooks.SideBarHooker
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
@@ -43,12 +44,14 @@ import net.ankio.auto.xposed.hooks.qianji.impl.RefundPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.models.QjAssetAccountModel
 import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLogModel
+import net.ankio.auto.xposed.hooks.qianji.models.BillExtraModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjCategoryModel
 import net.ankio.auto.xposed.hooks.qianji.models.LoanInfoModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjTagModel
 import net.ankio.auto.xposed.hooks.qianji.models.UserModel
+import net.ankio.auto.xposed.hooks.qianji.utils.BroadcastUtils
 import net.ankio.auto.xposed.hooks.qianji.utils.TimeRecordUtils
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
@@ -79,6 +82,7 @@ class QianjiHooker : HookerManifest() {
             LoanInfoModel.rule,
             QjAssetAccountModel.rule,
             QjBillModel.rule,
+            BillExtraModel.rule,
             QjBookModel.rule,
             QjCategoryModel.rule,
             QjTagModel.rule,
@@ -102,9 +106,10 @@ class QianjiHooker : HookerManifest() {
 
             ///////////////////////////Timeout//////////////////////////////////////
             TimeRecordUtils.rule,
+            BroadcastUtils.rule,
             ///////////////////////////AssetInsert//////////////////////////////////////
             AssetDbHelper.rule,
-
+            BillDbHelper.rule,
             //////////////////////钱迹RequestInterface////////////////////////////////////////
             Clazz(
                 name = "RequestInterface",

@@ -199,7 +199,7 @@ class QianJiAdapter : IAppAdapter {
                 uriBuilder.append("&fee=").append(-billInfoModel.fee)
                 billInfoModel.money -= billInfoModel.fee
             } else {
-                Logger.w("钱迹接口不支持优惠记录")
+                uriBuilder.append("&discount=").append(billInfoModel.fee)
             }
 
 

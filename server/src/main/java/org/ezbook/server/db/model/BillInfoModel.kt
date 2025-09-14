@@ -45,8 +45,8 @@ data class BillInfoModel(
      * 手续费
      * 对于自动记账来讲小于0的是手续费，大于0的是优惠
      * 支出优惠，total = money + fee
-     * 还款手续费  total = money - fee
-     * 还款优惠  total = money + fee
+     * 还款（转账）手续费  total = money - fee
+     * 还款（转账）优惠  total = money + fee
      */
     var fee: Double = 0.00,
 

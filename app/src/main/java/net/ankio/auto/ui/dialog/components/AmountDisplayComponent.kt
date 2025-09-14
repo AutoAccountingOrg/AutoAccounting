@@ -33,6 +33,7 @@ import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
+import kotlin.math.abs
 
 /**
  * 金额显示组件 - 专用于账单编辑对话框
@@ -166,7 +167,11 @@ class AmountDisplayComponent(
     private fun setupFeeEditor() {
         binding.feeContainer.setOnClickListener {
             BaseSheetDialog.create<EditorDialogBuilder>(context)
-                .setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                .setInputType(
+                    InputType.TYPE_CLASS_NUMBER or
+                            InputType.TYPE_NUMBER_FLAG_DECIMAL or
+                            InputType.TYPE_NUMBER_FLAG_SIGNED
+                )
                 .setTitleInt(R.string.edit_fee)
                 .setMessage(billInfoModel.fee.toString())
                 .setEditorPositiveButton(R.string.sure_msg) { result ->
@@ -202,23 +207,30 @@ class AmountDisplayComponent(
     }
 
     /**
-     * 设置费用显示
+     * 设置费用显示（仅支出、转账显示）
+     *
+     * 规则（自动记账）：
+     * - fee < 0 表示【手续费】，展示为手续费 abs(fee)
+     * - fee > 0 表示【优惠】，展示为优惠 fee
+     * - fee = 0 展示为无优惠
+     *
+     * 示例（仅说明含义，组件不计算 total）：
+     * - 支出优惠: total = money + fee
+     * - 还款手续费: total = money - fee
+     * - 还款优惠: total = money + fee
      *
      * @param fee 费用数值
      */
     private fun setFeeDisplay(fee: Double) {
-        binding.feeContainer.isVisible = PrefManager.featureFee
-        // 当未启用资产管理时，将“转账”的展示按“支出”样式处理（仅影响展示，不修改数据）
-        val displayType =
-            if (currentBillType == BillType.Transfer && !PrefManager.featureAssetManage) {
-                BillType.Expend
-            } else currentBillType
+        val showForType = currentBillType == BillType.Expend || currentBillType == BillType.Transfer
+        val visible = PrefManager.featureFee && showForType
+        binding.feeContainer.isVisible = visible
+        if (!visible) return
 
         val text = when {
             fee == 0.0 -> context.getString(R.string.no_discount)
-            displayType == BillType.Expend -> context.getString(R.string.discounted, fee)
-            displayType == BillType.Income -> context.getString(R.string.handling_fee, fee)
-            else -> context.getString(R.string.fee, fee)
+            fee < 0 -> context.getString(R.string.handling_fee, abs(fee))
+            else -> context.getString(R.string.discounted, fee)
         }
         binding.feeContainer.text = text
     }
