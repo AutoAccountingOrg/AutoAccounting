@@ -77,8 +77,8 @@ class BillWindowManager(
     private val windowManager: WindowManager =
         service.service().getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-    /** 账单通道，用于异步接收和处理账单 */
-    private val billChannel: Channel<BillInfoModel> = Channel(Channel.BUFFERED)
+    /** 账单通道，用于异步接收和处理账单（无限容量） */
+    private val billChannel: Channel<BillInfoModel> = Channel(Channel.UNLIMITED)
 
     /** 当前正在处理的账单，null表示没有账单在处理 */
     private var currentBill: BillInfoModel? = null
@@ -134,8 +134,13 @@ class BillWindowManager(
      */
     fun addBill(bill: BillInfoModel) {
         Logger.d("添加账单到处理通道: ${bill.id}")
-        launch {
-            billChannel.send(bill)
+        if (billChannel.isClosedForSend) {
+            Logger.w("通道已关闭，丢弃账单: ${bill.id}")
+            return
+        }
+        val result = billChannel.trySend(bill)
+        if (result.isFailure) {
+            Logger.e("发送失败: closed=${billChannel.isClosedForSend} cause=${result.exceptionOrNull()}")
         }
     }
 
@@ -286,7 +291,7 @@ class BillWindowManager(
             ?.setOnConfirm { billInfo ->
                 Logger.d("编辑对话框已确认，处理下一个账单")
                 processNextBill()
-            }?.show()
+            }?.show(false)
     }
 
     /**
@@ -303,8 +308,8 @@ class BillWindowManager(
                 Logger.d("确认删除账单: ${bill.id}")
                 launch {
                     BillAPI.remove(bill.id)
-                    processNextBill()
                 }
+                processNextBill()
 
             }
             .setNegativeButton(R.string.cancel_msg) { _, _ ->
@@ -312,7 +317,7 @@ class BillWindowManager(
                 // 返回编辑对话框，避免流程卡住
                 processNextBill()
             }
-            .show()
+            .show(false)
     }
 
 
