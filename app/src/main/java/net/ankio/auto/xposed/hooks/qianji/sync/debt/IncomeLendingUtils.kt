@@ -11,8 +11,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- *//*
-
+ */
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
@@ -26,11 +25,9 @@ import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
 import org.ezbook.server.db.model.BillInfoModel
 
-*/
 /**
  * 借款
- *//*
-
+ */
 class IncomeLendingUtils :
     BaseDebt() {
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
@@ -61,22 +58,18 @@ class IncomeLendingUtils :
         pushBill()
     }
 
-    */
-/**
+    /**
      * 获取借入账户
- *//*
-
+     */
     private suspend fun getAccountTo(billModel: BillInfoModel): QjAssetAccountModel =
         withContext(Dispatchers.IO) {
             return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameTo)
                 ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameTo}")
         }
 
-    */
-/**
+    /**
      * 获取借款账户
- *//*
-
+     */
     private suspend fun getAccountFrom(billModel: BillInfoModel): QjAssetAccountModel =
         withContext(Dispatchers.IO) {
             return@withContext AssetPreviewPresenterImpl.getOrCreateAssetByName(
@@ -87,11 +80,9 @@ class IncomeLendingUtils :
         }
 
 
-    */
-/**
+    /**
      * 更新债务
- *//*
-
+     */
     private suspend fun updateLoan(
         billModel: BillInfoModel,
         accountFrom: QjAssetAccountModel,
@@ -110,11 +101,9 @@ class IncomeLendingUtils :
         accountFrom.addMoney(-billModel.money)
     }
 
-    */
-/**
+    /**
      * 保存账单
- *//*
-
+     */
     private suspend fun updateAsset(
         accountFrom: QjAssetAccountModel,
         accountTo: QjAssetAccountModel,
@@ -142,11 +131,9 @@ class IncomeLendingUtils :
         return@withContext ret
     }
 
-    */
-/**
+    /**
      * 更新账单
- *//*
-
+     */
     private suspend fun updateBill(
         billModel: BillInfoModel,
         type: Int,
@@ -178,4 +165,4 @@ class IncomeLendingUtils :
         bill
 
     }
-}*/
+}

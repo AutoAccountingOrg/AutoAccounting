@@ -503,4 +503,6 @@ class QjBookModel {
             id
         )
     }
+
+    override fun toString(): String = XposedHelpers.callMethod(bookObj, "toString") as String
 }

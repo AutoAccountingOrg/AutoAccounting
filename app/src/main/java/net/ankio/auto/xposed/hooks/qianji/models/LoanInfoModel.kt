@@ -128,4 +128,6 @@ class LoanInfoModel {
      */
     fun setTotalpay(totalpay: Double) =
         XposedHelpers.callMethod(loanInfoObj, "setTotalpay", totalpay)
+
+    override fun toString(): String = XposedHelpers.callMethod(loanInfoObj, "toString") as String
 }

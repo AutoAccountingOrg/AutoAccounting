@@ -176,5 +176,5 @@ class QjAssetAccountModel {
      */
     fun setName(name: String) = XposedHelpers.callMethod(assetObj, "setName", name)
 
-
+    override fun toString(): String = XposedHelpers.callMethod(assetObj, "toString") as String
 }

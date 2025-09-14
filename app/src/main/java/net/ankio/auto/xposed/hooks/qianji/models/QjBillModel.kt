@@ -1584,6 +1584,6 @@ class QjBillModel {
     fun setZhaiwuCurrentAsset(bill: QjBillModel, accountFrom: QjAssetAccountModel) {
         QjBillModel.setZhaiwuCurrentAsset(bill, accountFrom)
     }
-
+    override fun toString(): String = XposedHelpers.callMethod(billObj, "toString") as String
 
 }

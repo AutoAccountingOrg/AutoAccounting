@@ -36,6 +36,7 @@ import net.ankio.auto.xposed.hooks.qianji.helper.BillDbHelper
 import net.ankio.auto.xposed.hooks.qianji.hooks.AutoHooker
 import net.ankio.auto.xposed.hooks.qianji.hooks.SideBarHooker
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.BaseSubmitAssetPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
@@ -157,7 +158,9 @@ class QianjiHooker : HookerManifest() {
             PlatformFilter.rule,
             SortFilter.rule,
             TagsFilter.rule,
-            TypesFilter.rule
+            TypesFilter.rule,
+
+            BaseSubmitAssetPresenterImpl.rule
         )
         set(value) {}
 
