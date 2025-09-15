@@ -75,6 +75,14 @@
             android:title="@string/setting_bill_show_rule" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/setting_category_remark">
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_open_in_new"
+            android:key="remarkFormat"
+            android:summary="@string/setting_bill_remark_desc"
+            android:title="@string/setting_bill_remark" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/setting_category_book_config">
         <androidx.preference.Preference
             android:icon="@drawable/ic_book"

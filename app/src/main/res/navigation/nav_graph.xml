@@ -200,6 +200,12 @@
 
 
     <fragment
+        android:id="@+id/remarkFormatFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.RemarkFormatFragment"
+        android:label="@string/setting_bill_remark"
+        tools:layout="@layout/fragment_remark_format" />
+
+    <fragment
         android:id="@+id/bookFragment"
         android:name="net.ankio.auto.ui.fragment.BookFragment"
         android:label="@string/title_books"

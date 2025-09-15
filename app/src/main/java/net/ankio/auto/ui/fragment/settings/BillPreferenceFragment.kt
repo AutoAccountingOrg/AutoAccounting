@@ -28,6 +28,7 @@ import net.ankio.auto.ui.utils.ToastUtils
 import kotlinx.coroutines.launch
 import org.ezbook.server.constant.BillType
 import rikka.material.preference.MaterialSwitchPreference
+import androidx.navigation.fragment.findNavController
 
 /**
  * 账单设置页面
@@ -64,6 +65,17 @@ class BillPreferenceFragment : BasePreferenceFragment() {
 
         // 设置依赖关系 - 自动资产映射依赖于资产管理功能
         updateAssetMappingDependency()
+
+        // 备注格式设置入口
+        findPreference<Preference>("remarkFormat")?.setOnPreferenceClickListener {
+            findNavController().navigate(R.id.remarkFormatFragment)
+            true
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updatePreferenceSummaries()
     }
 
     /**
@@ -111,6 +123,11 @@ class BillPreferenceFragment : BasePreferenceFragment() {
             } else {
                 getString(R.string.setting_book_app_summary)
             }
+        }
+
+        // 备注格式 - 显示当前模板
+        findPreference<Preference>("remarkFormat")?.apply {
+            summary = PrefManager.noteFormat
         }
     }
 
