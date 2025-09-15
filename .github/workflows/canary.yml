@@ -29,7 +29,7 @@ jobs:
           distribution: 'temurin'
       - name: 编译安卓
         run: |
-          pip install requests md2tgmd  && python .github/workflows/main.py
+          pip install requests md2tgmd Markdown  && python .github/workflows/main.py
         env:
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
           ALIST_TOKEN: ${{ secrets.ALIST_TOKEN }}

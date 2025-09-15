@@ -9,6 +9,11 @@ import time
 from urllib.parse import quote
 import md2tgmd
 import requests
+try:
+    # 使用 Python 的 markdown 库将 Markdown 转为 HTML；若不可用则保持原样，避免中断发布
+    import markdown as py_markdown
+except Exception:
+    py_markdown = None
 
 flavors = ['release']  # 项目只有一个标准构建版本
 
@@ -137,10 +142,12 @@ def write_logs(logs,workspace,channel,tag,repo,restart):
         for log in logs[cate]:
             log_data += f"- {log}\n"
     t = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # 将 Markdown 转为 HTML（用于 index.json 的 log 字段）；若库不可用则回退为原始 Markdown
+    html_log = py_markdown.markdown(log_data, extensions=['extra']) if py_markdown else log_data
     data = {
         "version": tag,
         "code": 0,
-        "log": log_data,
+        "log": html_log,
         "date": t
     }
     json_str = json.dumps(data, indent=4)
