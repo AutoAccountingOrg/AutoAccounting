@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,18 +13,20 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.db.model
+package org.ezbook.server.tools
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import org.ezbook.server.constant.LogLevel
+interface ILogger {
+    companion object {
+        val defaultImplName = ILogger::class.java.name + "\$DefaultImpls"
+    }
 
-@Entity
-data class LogModel(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val level: LogLevel = LogLevel.DEBUG,
-    val app: String = "",
-    val location: String = "",
-    val message: String = "",
-    val time: Long = System.currentTimeMillis(),
-)
+    fun d(msg: String, tr: Throwable? = null)
+
+    fun i(msg: String, tr: Throwable? = null)
+
+    fun w(msg: String, tr: Throwable? = null)
+
+    fun e(msg: String, tr: Throwable? = null)
+
+    fun e(tr: Throwable) = e(tr.message ?: "Unknown error", tr)
+}

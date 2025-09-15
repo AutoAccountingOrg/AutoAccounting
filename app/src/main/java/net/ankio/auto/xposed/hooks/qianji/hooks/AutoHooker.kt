@@ -215,7 +215,7 @@ class AutoHooker : PartHooker() {
             param.args[1] = autoTaskLog.toObject()
             val value = autoTaskLog.getValue()
             val uri = value?.toUri()
-            log("hookTaskLog: $value")
+            manifest.i("hookTaskLog: $value")
             val addBillIntentAct = AddBillIntentAct.fromObj(param.thisObject)
             if (uri == null) {
                 addBillIntentAct.finishAffinity()
@@ -238,8 +238,8 @@ class AutoHooker : PartHooker() {
                 QianJiBillType.Income.value,
                 QianJiBillType.ExpendReimbursement.value
                     -> {
-                    manifest.log("Qianji Error: $msg")
-                    // TODO 根据不同的日志给出不同的错误提示
+                    manifest.i("Qianji Error: $msg")
+
                 }
 
                 // 支出（借出）
@@ -282,9 +282,8 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("报销成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logD("报销失败 ${it.message}")
+                            manifest.e("报销失败 ${it.message}", it)
                             MessageUtils.toast("报销失败 ${it.message ?: ""}")
-                            manifest.logE(it)
                         }
                         addBillIntentAct.finishAffinity()
                     }
@@ -300,8 +299,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("退款成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.logE(it)
-                            manifest.logD("退款失败 ${it.message}")
+                            manifest.e("退款失败 ${it.message}", it)
                             MessageUtils.toast("退款失败 ${it.message ?: ""}")
                         }
                         AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
@@ -322,8 +320,8 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("借出成功")
                 BillAPI.status(billModel.id, true)
             }.onFailure {
-                manifest.logD("借出失败 ${it.message}")
-                manifest.logE(it)
+                manifest.d("借出失败 ${it.message}")
+                manifest.e(it)
                 MessageUtils.toast("借出失败 ${it.message ?: ""}")
             }
             act.finishAffinity()
@@ -339,8 +337,8 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("收款成功")
                 BillAPI.status(billModel.id, true)
             }.onFailure {
-                manifest.logE(it)
-                manifest.logD("收款失败 ${it.message}")
+                manifest.e(it)
+                manifest.d("收款失败 ${it.message}")
                 MessageUtils.toast("收款失败 ${it.message ?: ""}")
             }
             act.finishAffinity()
@@ -356,8 +354,8 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("还款成功")
                 BillAPI.status(billModel.id, true)
             }.onFailure {
-                manifest.logE(it)
-                manifest.logD("还款失败 ${it.message}")
+                manifest.e(it)
+                manifest.d("还款失败 ${it.message}")
                 MessageUtils.toast("还款失败 ${it.message ?: ""}")
             }
             act.finishAffinity()
@@ -380,8 +378,8 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("借入成功")
                 BillAPI.status(billModel.id, true)
             }.onFailure {
-                manifest.logE(it)
-                manifest.logD("借入失败 ${it.message}")
+                manifest.e(it)
+                manifest.d("借入失败 ${it.message}")
                 MessageUtils.toast("借入失败 ${it.message ?: ""}")
             }
             act.finishAffinity()
@@ -403,7 +401,7 @@ class AutoHooker : PartHooker() {
             val prop = param.args[0] as String
             val timeout = param.args[1] as Long
             if (prop == "auto_task_last_time") {
-                logD("hookTimeout: $prop $timeout")
+                manifest.d("hookTimeout: $prop $timeout")
                 param.result = true
             }
         }

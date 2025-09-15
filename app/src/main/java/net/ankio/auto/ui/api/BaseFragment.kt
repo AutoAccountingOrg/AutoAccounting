@@ -86,7 +86,7 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
             // 通过反射获取泛型参数中的 ViewBinding 类型
             val type = javaClass.genericSuperclass as ParameterizedType
-            val bindingClass = type.actualTypeArguments.firstOrNull {
+            @Suppress("UNCHECKED_CAST") val bindingClass = type.actualTypeArguments.firstOrNull {
                 it is Class<*> && ViewBinding::class.java.isAssignableFrom(it)
             } as? Class<VB>
                 ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")

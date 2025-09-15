@@ -138,6 +138,7 @@ object DisplayUtils {
         val screenSize = Point()
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
 
+        @Suppress("DEPRECATION")
         windowManager?.let { wm ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 // Android 11 (API 30) 及以上版本使用新的 API
@@ -146,7 +147,6 @@ object DisplayUtils {
                 screenSize.y = bounds.height()
             } else {
                 // 低版本使用已弃用但仍可用的 API
-                @Suppress("DEPRECATION")
                 val display = wm.defaultDisplay
                 display.getRealSize(screenSize)
             }

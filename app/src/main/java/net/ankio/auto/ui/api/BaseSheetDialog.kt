@@ -128,7 +128,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
         while (current != null) {
             val superType = current.genericSuperclass
             if (superType is ParameterizedType) {
-                val vb = superType.actualTypeArguments
+                @Suppress("UNCHECKED_CAST") val vb = superType.actualTypeArguments
                     .firstOrNull { it is Class<*> && ViewBinding::class.java.isAssignableFrom(it) }
                         as? Class<out ViewBinding>
                 if (vb != null) return vb

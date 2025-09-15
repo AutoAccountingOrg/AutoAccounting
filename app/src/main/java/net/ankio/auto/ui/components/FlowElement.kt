@@ -474,6 +474,7 @@ class FlowElement(
         // 可选配置：字体大小缩放
         if (textSizeScale != 1.0f) {
             val currentSize = textView.textSize
+            @Suppress("DEPRECATION")
             textView.textSize =
                 currentSize * textSizeScale / context.resources.displayMetrics.scaledDensity
         }

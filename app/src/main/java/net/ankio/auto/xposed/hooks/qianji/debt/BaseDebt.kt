@@ -51,7 +51,7 @@ abstract class BaseDebt {
     ): QjAssetAccountModel = suspendCancellableCoroutine { cont ->
         // 构建账本数据
         val json = JSONObject(billModel)
-        AppRuntime.manifest.log("提交资产=>${assetAccount},${book},${json}")
+        AppRuntime.manifest.i("提交资产=>${assetAccount},${book},${json}")
 
         // 创建Presenter并设置视图代理，基于 onSubmitFinished 回调做结果决策
         val presenter = BaseSubmitAssetPresenterImpl.newInstance()

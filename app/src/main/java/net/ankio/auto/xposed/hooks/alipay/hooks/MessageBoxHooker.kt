@@ -17,9 +17,12 @@ package net.ankio.auto.xposed.hooks.alipay.hooks
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AnalysisUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.tools.MD5HashTable
 
@@ -56,7 +59,7 @@ class MessageBoxHooker : PartHooker() {
                         add(jsonObject)
                     }
 
-                logD("Hooked Alipay Message Box：$jsonArray")
+                this.d("Hooked Alipay Message Box：$jsonArray")
                 // 调用分析服务进行数据分析
                 analysisData(DataType.DATA, gson.toJson(jsonArray))
             }

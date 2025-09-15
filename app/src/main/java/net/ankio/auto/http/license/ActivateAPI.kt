@@ -58,6 +58,7 @@ object ActivateAPI {
         val cachedData = CacheManager.getString(CACHE_KEY_INFO)
         if (cachedData != null) {
             return runCatching {
+                @Suppress("UNCHECKED_CAST")
                 Gson().fromJson(cachedData, HashMap::class.java) as HashMap<String, String>
             }.getOrElse { hashMapOf() }
         }

@@ -143,10 +143,10 @@ object BxPresenterImpl : HookerClazz() {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_BAOXIAO_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.manifest.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
+            AppRuntime.manifest.i("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.manifest.logD("Sync BaoXiao:$sync")
+        AppRuntime.manifest.d("Sync BaoXiao:$sync")
         BookBillAPI.put(bills, md5, Setting.HASH_BAOXIAO_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步报销账单到自动记账")
@@ -183,7 +183,7 @@ object BxPresenterImpl : HookerClazz() {
             billList.filter {
                 val bill = QjBillModel.fromObject(it!!)
                 val billId = bill.getBillid()
-                AppRuntime.manifest.logD("billId:$billId")
+                AppRuntime.manifest.d("billId:$billId")
                 // 判断billId是否在list中
                 list.contains(billId.toString())
             }
@@ -270,7 +270,7 @@ object BxPresenterImpl : HookerClazz() {
     fun convert2Bill(anyBills: List<*>, type: String): ArrayList<BookBillModel> {
         val bills = arrayListOf<BookBillModel>()
         anyBills.forEach {
-            AppRuntime.manifest.log("报销：$it")
+            AppRuntime.manifest.i("报销：$it")
             if (it == null || !it.toString().contains("baoxiaoExtras=null")) {
                 return@forEach
             }

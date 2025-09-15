@@ -38,13 +38,13 @@ class PermissionHooker29(private val  manifest: HookerManifest, private val mCla
         try {
             hookGrantPermissions()
         } catch (e: Throwable) {
-            manifest.log("Error in PermissionHooker29: $e")
-            manifest.logE(e)
+            manifest.i("Error in PermissionHooker29: $e")
+            manifest.e(e)
         }
     }
 
     private fun hookGrantPermissions() {
-        manifest.logD("Hooking grantPermissions() for Android 28+")
+        manifest.d("Hooking grantPermissions() for Android 28+")
         val method = findTargetMethod()
         XposedBridge.hookMethod(method, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -103,13 +103,14 @@ class PermissionHooker29(private val  manifest: HookerManifest, private val mCla
 
         for (appItems in XposedModule.get()) {
             if (appItems.packageName == _packageName) {
-                manifest.logD("PackageName: ${_packageName}")
+                manifest.d("PackageName: ${_packageName}")
                 // PackageParser$Package.mExtras 实际上是 com.android.server.pm.PackageSetting mExtras 对象
                 val extras = XposedHelpers.getObjectField(pkg, "mExtras")
                 // com.android.server.pm.permission.PermissionsState 对象
                 val permissionsState = XposedHelpers.callMethod(extras, "getPermissionsState")
 
                 // Manifest.xml 中声明的permission列表
+                @Suppress("UNCHECKED_CAST")
                 val requestedPermissions =
                     XposedHelpers.getObjectField(pkg, "requestedPermissions") as List<String>
 
@@ -134,9 +135,9 @@ class PermissionHooker29(private val  manifest: HookerManifest, private val mCla
                                 "grantInstallPermission",
                                 bpToGrant
                             ) as Int
-                            manifest.logD("Add $bpToGrant; result = $result")
+                            manifest.d("Add $bpToGrant; result = $result")
                         } else {
-                            manifest.logD("Already have $permissionToGrant permission")
+                            manifest.d("Already have $permissionToGrant permission")
                         }
                     }
                 }

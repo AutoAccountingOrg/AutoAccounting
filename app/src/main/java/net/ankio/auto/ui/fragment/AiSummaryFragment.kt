@@ -129,6 +129,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
 
         // 设置返回按钮
         binding.topAppBar.setNavigationOnClickListener {
+            @Suppress("DEPRECATION")
             requireActivity().onBackPressed()
         }
     }
@@ -456,7 +457,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
         return try {
             val bitmap = withContext(Dispatchers.Main) {
                 val display = resources.displayMetrics
-                val scale = webView.scale
+                @Suppress("DEPRECATION") val scale = webView.scale
                 val contentHeightPx = (webView.contentHeight * scale).toInt()
 
                 val width = when {

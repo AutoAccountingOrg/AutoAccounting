@@ -66,6 +66,7 @@ class Throttle<T>(
     /**
      * 兼容不带参数的调用习惯（T=Unit）
      */
+    @Suppress("UNCHECKED_CAST")
     fun run() = run(Unit as T)
 
     companion object {
