@@ -51,7 +51,7 @@ def get_changed_files_since_tag(tag):
 
     # 判断是否有文件路径以 'server' 开头
     for file in changed_files:
-        if file.startswith('server') or file.startswith('app/src/lsposed/java/net/ankio/auto/hooks/android'):
+        if file.startswith('app/src/lsposed/java/net/ankio/auto/hooks/android'):
             return True
 
     return False
