@@ -17,9 +17,17 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include
-        layout="@layout/component_category"
-        android:id="@+id/category" />
+    <!-- 内容容器：占据剩余空间，由内部的 statusPage 自行处理滚动 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <include
+            android:id="@+id/category"
+            layout="@layout/component_category" />
+
+    </FrameLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button"
