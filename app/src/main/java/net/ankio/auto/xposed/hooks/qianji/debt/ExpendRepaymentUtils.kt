@@ -54,7 +54,7 @@ class ExpendRepaymentUtils :
 
         val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        AppRuntime.manifest.logD("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
+        AppRuntime.manifest.d("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
 
         //拆分账单
 

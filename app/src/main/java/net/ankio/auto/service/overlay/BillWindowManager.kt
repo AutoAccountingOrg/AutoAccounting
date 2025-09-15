@@ -63,6 +63,7 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
  *
  * @param service 提供生命周期和上下文的覆盖服务
  */
+@OptIn(DelicateCoroutinesApi::class)
 class BillWindowManager(
     private val service: OverlayService
 ) {

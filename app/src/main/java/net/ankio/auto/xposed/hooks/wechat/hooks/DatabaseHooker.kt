@@ -167,7 +167,7 @@ class DatabaseHooker : PartHooker() {
 
         putCache(tpl)
         val result = JsonObject().apply { add("mMap", tpl) }
-        AppRuntime.manifest.logD("微信支付数据：$result")
+        AppRuntime.manifest.d("微信支付数据：$result")
         analysisData(DataType.DATA, result.toString())
     }
 

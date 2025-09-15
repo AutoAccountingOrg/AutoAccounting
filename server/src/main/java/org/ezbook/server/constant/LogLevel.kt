@@ -15,10 +15,31 @@
 
 package org.ezbook.server.constant
 
+import android.util.Log
+
 enum class LogLevel {
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL
+    DEBUG, INFO, WARN, ERROR, FATAL;
+
+    fun toAndroidLevel(): Int {
+        return when (this) {
+            DEBUG -> Log.DEBUG
+            INFO -> Log.INFO
+            WARN -> Log.WARN
+            ERROR -> Log.ERROR
+            FATAL -> Log.ASSERT
+        }
+    }
+
+    companion object {
+        fun fromAndroidLevel(value: Int): LogLevel {
+            return when (value) {
+                Log.VERBOSE, Log.DEBUG -> DEBUG
+                Log.INFO -> INFO
+                Log.WARN -> WARN
+                Log.ERROR -> ERROR
+                Log.ASSERT -> FATAL
+                else -> DEBUG
+            }
+        }
+    }
 }

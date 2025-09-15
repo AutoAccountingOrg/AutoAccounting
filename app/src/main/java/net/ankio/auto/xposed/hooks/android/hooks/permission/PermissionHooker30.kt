@@ -40,16 +40,16 @@ class PermissionHooker30 (private val  manifest: HookerManifest, private val mCl
         try {
             hookGrantPermissions()
         } catch (e: Throwable) {
-            manifest.logD("Error in PermissionHooker30: $e")
-            manifest.logE(e)
+            manifest.d("Error in PermissionHooker30: $e")
+            manifest.e(e)
         }
     }
 
     private fun hookGrantPermissions() {
-        manifest.logD("Hooking grantPermissions() for Android 30+")
+        manifest.d("Hooking grantPermissions() for Android 30+")
         val method = findTargetMethod()
         if (method == null) {
-            manifest.logD("Cannot find the method to grant relevant permission")
+            manifest.d("Cannot find the method to grant relevant permission")
         }
         XposedBridge.hookMethod(method, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -95,7 +95,7 @@ class PermissionHooker30 (private val  manifest: HookerManifest, private val mCl
 
         for (appItems in XposedModule.get()) {
             if (appItems.packageName == _packageName) {
-                manifest.logD("PackageName: ${_packageName}")
+                manifest.d("PackageName: ${_packageName}")
 
                 // PermissionManagerService 对象
                 val permissionManagerService = param.thisObject
@@ -113,6 +113,7 @@ class PermissionHooker30 (private val  manifest: HookerManifest, private val mCl
 
                 // Manifest.xml 中声明的permission列表
                 // List<String> requestPermissions = pkg.getRequestPermissions();
+                @Suppress("UNCHECKED_CAST")
                 val requestedPermissions =
                     XposedHelpers.callMethod(pkg, "getRequestedPermissions") as List<String>
 
@@ -137,9 +138,9 @@ class PermissionHooker30 (private val  manifest: HookerManifest, private val mCl
                                 "grantInstallPermission",
                                 bpToGrant
                             ) as Int
-                            manifest.logD("Add $bpToGrant; result = $result")
+                            manifest.d("Add $bpToGrant; result = $result")
                         } else {
-                            manifest.logD("Already have $permissionToGrant permission")
+                            manifest.d("Already have $permissionToGrant permission")
                         }
                     }
                 }

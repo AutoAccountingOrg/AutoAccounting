@@ -95,10 +95,10 @@ object CateInitPresenterImpl : HookerClazz() {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_CATEGORY, "")
         if (server == md5 && !AppRuntime.debug) {
-            AppRuntime.manifest.log("No need to sync categories, Server md5:${server} local md5:${md5}")
+            AppRuntime.manifest.i("No need to sync categories, Server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.manifest.logD("Sync categories:$sync")
+        AppRuntime.manifest.d("Sync categories:$sync")
         CategoryAPI.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步分类信息到自动记账")

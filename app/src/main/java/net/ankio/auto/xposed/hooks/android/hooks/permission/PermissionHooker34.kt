@@ -44,16 +44,16 @@ class PermissionHooker34(private val  manifest: HookerManifest, private val mCla
         try {
             hookGrantPermissions()
         } catch (e: Throwable) {
-            manifest.logD("Error in PermissionHooker34: $e")
-            manifest.logE(e)
+            manifest.d("Error in PermissionHooker34: $e")
+            manifest.e(e)
         }
     }
 
     private fun hookGrantPermissions() {
-        manifest.logD("Hooking grantPermissions() for Android 34+")
+        manifest.d("Hooking grantPermissions() for Android 34+")
         val method = findTargetMethod()
         if (method == null) {
-            manifest.logD("Cannot find the method to grant relevant permission")
+            manifest.d("Cannot find the method to grant relevant permission")
             return
         }
         XposedBridge.hookMethod(method, object :XC_MethodHook() {
@@ -103,7 +103,7 @@ class PermissionHooker34(private val  manifest: HookerManifest, private val mCla
 
         for (appItems in XposedModule.get()) {
             if (appItems.packageName == _packageName) {
-                manifest.logD("PackageName: ${_packageName}")
+                manifest.d("PackageName: ${_packageName}")
 
                 // PermissionManagerServiceImpl 对象
                 val pmsImpl = param.thisObject
@@ -131,6 +131,7 @@ class PermissionHooker34(private val  manifest: HookerManifest, private val mCla
 
                 // Manifest.xml 中声明的permission列表
                 // List<String> requestPermissions = pkg.getRequestedPermissions();
+                @Suppress("UNCHECKED_CAST")
                 val requestedPermissions =
                     XposedHelpers.callMethod(pkg, "getRequestedPermissions") as List<String>
 
@@ -170,10 +171,10 @@ class PermissionHooker34(private val  manifest: HookerManifest, private val mCla
                                     "grantPermission",
                                     bpToGrant
                                 ) as Boolean
-                                manifest.logD("Add $permissionToGrant; result = $result")
+                                manifest.d("Add $permissionToGrant; result = $result")
                             } else {
                                 // permission has been granted already
-                                manifest.logD("Already have $permissionToGrant permission")
+                                manifest.d("Already have $permissionToGrant permission")
                             }
                         }
                     }

@@ -23,7 +23,7 @@ import org.ezbook.server.Server
 
 object CommonHooker {
     fun init() {
-        Logger.logD(TAG, "Start server...: ${AppRuntime.manifest.packageName}")
+        Logger.d("Start server...: ${AppRuntime.manifest.packageName}")
         try {
             /**
              * js引擎
@@ -38,9 +38,9 @@ object CommonHooker {
             Server.debug = AppRuntime.debug
             server.startServer()
             AppInstaller.init(AppRuntime.application!!, server)
-            Logger.logD(TAG, "Server start success")
+            Logger.d("Server start success")
         } catch (e: Throwable) {
-            Logger.logD(TAG, e.message ?: "")
+            Logger.d(e.message ?: "")
         }
     }
 }

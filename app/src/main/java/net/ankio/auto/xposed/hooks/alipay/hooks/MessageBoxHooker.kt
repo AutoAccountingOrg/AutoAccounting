@@ -31,7 +31,7 @@ class MessageBoxHooker : PartHooker() {
         val syncMessage =
             Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
 
- 
+
 
         Hooker.after(syncMessage, "getData") { methodHookParam ->
             // 执行toString,这是支付宝将数据写入到了日志
@@ -44,7 +44,7 @@ class MessageBoxHooker : PartHooker() {
                         add(jsonObject)
                     }
 
-                logD("Hooked Alipay Message Box：$jsonArray")
+                this.d("Hooked Alipay Message Box：$jsonArray")
                 // 调用分析服务进行数据分析
                 analysisData(DataType.DATA, Gson().toJson(jsonArray))
             }

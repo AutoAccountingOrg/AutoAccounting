@@ -2,16 +2,10 @@ package net.ankio.auto.ui.api
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ankio.auto.storage.Logger
 import java.lang.reflect.ParameterizedType
 import kotlin.coroutines.cancellation.CancellationException
@@ -83,6 +77,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
 
         Logger.d("已使用 DiffUtil 更新数据项: 旧=${oldItems.size}项, 新=${newList.size}项")
     }
+
     /**
      * 更新指定位置的数据项
      *
@@ -141,6 +136,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
     }
 
     fun index(index: Int): E? = items[index]
+
     /**
      * 获取数据项在列表中的索引
      *
@@ -196,20 +192,19 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         val binding = try {
             // 通过反射获取泛型类型信息
             val type = javaClass.genericSuperclass as ParameterizedType
+
+            @Suppress("UNCHECKED_CAST")
             val bindingClass = type.actualTypeArguments.firstOrNull {
                 it is Class<*> && ViewBinding::class.java.isAssignableFrom(it)
-            } as? Class<E>
-                ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
+            } as? Class<E> ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
 
             // 获取 ViewBinding 的 inflate 方法
             val method = bindingClass.getDeclaredMethod(
-                "inflate",
-                LayoutInflater::class.java,
-                ViewGroup::class.java,
-                Boolean::class.java
+                "inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.java
             )
 
             // 调用 inflate 方法创建 ViewBinding 实例
+            @Suppress("UNCHECKED_CAST")
             method.invoke(null, LayoutInflater.from(parent.context), parent, false) as T
         } catch (e: Exception) {
             Logger.e("${javaClass.name} 的 ViewBinding 创建失败", e)
@@ -268,8 +263,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
      * 用于高效的数据更新，避免不必要的视图刷新
      */
     private inner class AdapterDiffCallback(
-        private val oldList: List<E>,
-        private val newList: List<E>
+        private val oldList: List<E>, private val newList: List<E>
     ) : DiffUtil.Callback() {
 
         override fun getOldListSize() = oldList.size

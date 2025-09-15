@@ -52,6 +52,7 @@ open class BaseActivity : MaterialActivity() {
      * 应用透明系统栏
      * 设置状态栏和导航栏为透明，实现沉浸式体验
      */
+    @Suppress("DEPRECATION")
     override fun onApplyTranslucentSystemBars() {
         super.onApplyTranslucentSystemBars()
 

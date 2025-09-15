@@ -37,7 +37,7 @@ object MessageUtils {
             } catch (e: Throwable) {
                 Toast.makeText(AppRuntime.application, msg, Toast.LENGTH_LONG).show()
             } finally {
-                Logger.log(TAG, msg)
+                Logger.i(msg)
             }
         }
     }

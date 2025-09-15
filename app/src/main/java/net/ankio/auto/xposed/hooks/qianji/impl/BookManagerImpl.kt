@@ -137,10 +137,10 @@ object BookManagerImpl : HookerClazz() {
             val md5 = MD5HashTable.md5(sync)
             val server = SettingAPI.get(Setting.HASH_BOOK, "")
             if (server == md5 && !AppRuntime.debug) {
-                AppRuntime.manifest.log("跳过账本同步，MD5 一致（server=${server}, local=${md5}）")
+                AppRuntime.manifest.i("跳过账本同步，MD5 一致（server=${server}, local=${md5}）")
                 return@withContext bookList
             }
-            AppRuntime.manifest.log("同步账本数据: $sync")
+            AppRuntime.manifest.i("同步账本数据: $sync")
             BookNameAPI.put(bookList, md5)
             withContext(Dispatchers.Main) {
                 MessageUtils.toast("已同步账本信息到自动记账")

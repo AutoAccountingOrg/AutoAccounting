@@ -41,7 +41,7 @@ class RedPackageHooker: PartHooker() {
             JSONObject::class.java
         ){ param ->
             val json = param.args[2] as JSONObject
-            logD("hooked red package: $json")
+            d("hooked red package: $json")
             json.put(WechatUserModel.CHAT_USER, WechatUserModel.get(json.getString("sendUserName")))
             analysisData(DataType.DATA, json.toString())
         }

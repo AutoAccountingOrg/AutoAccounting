@@ -127,7 +127,7 @@ class AssetPreviewPresenterImpl private constructor() {
                 !assetAccount.isVisible()  //不可见
                 || assetAccount.isZhaiWuFinished() //债务结束
             ) {
-                AppRuntime.manifest.log("隐藏的资产不同步:${assetAccount.getName()}")
+                AppRuntime.manifest.d("隐藏的资产不同步:${assetAccount.getName()}")
                 return@forEach
             }
 
@@ -159,10 +159,10 @@ class AssetPreviewPresenterImpl private constructor() {
         val server = SettingAPI.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
         if (server == md5  && !AppRuntime.debug || assets.isEmpty() ) { //资产为空也不同步
-            AppRuntime.manifest.log("No need to sync Assets, server md5:${server} local md5:${md5}")
+            AppRuntime.manifest.i("No need to sync Assets, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        AppRuntime.manifest.log("Sync Assets:${Gson().toJson(assets)}")
+        AppRuntime.manifest.i("Sync Assets:${Gson().toJson(assets)}")
         AssetsAPI.put(assets, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步资产信息到自动记账")
@@ -194,7 +194,7 @@ class AssetPreviewPresenterImpl private constructor() {
                 }
                 account = findAssetInList(name, sType)
                 if (account == null) {
-                    AppRuntime.manifest.log("未找到资产:$name")
+                    AppRuntime.manifest.i("未找到资产:$name")
                 }
             }
 

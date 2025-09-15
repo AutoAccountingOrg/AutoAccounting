@@ -21,7 +21,6 @@ import android.app.Instrumentation
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
@@ -58,7 +57,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         when {
             manifest.packageName == "android" -> callback(null)
             manifest.applicationName.isEmpty() -> {
-                Logger.logD(TAG, "使用当前应用程序: ${manifest.appName}")
+                Logger.d("使用当前应用程序: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
             else -> {
@@ -72,13 +71,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         if (hooked) return@after
                         hooked = true
                         val application = it.args[0] as Application
-                        Logger.logD(TAG, "Hook成功: ${manifest.applicationName} -> $application")
+                        Logger.d("Hook成功: ${manifest.applicationName} -> $application")
                         callback(application)
 
                     }
                 } catch (e: Exception) {
-                    Logger.log(TAG, "Hook失败: ${e.message}")
-                    Logger.logE(TAG, e)
+                    Logger.i( "Hook失败: ${e.message}")
+                    Logger.e( e)
                 }
             }
         }
@@ -102,26 +101,22 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 加载包时的回调
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+        Logger.app = TAG
+        Logger.debugging = BuildConfig.DEBUG
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
 
 
         hookAppContext(targetApp) { application ->
             val classLoader = application?.classLoader ?: lpparam.classLoader
             AppRuntime.init(application, classLoader, targetApp)
-            Logger.log(
-                TAG,
-                "初始化Hook: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}"
-            )
+            Logger.i("初始化Hook: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}")
             // 设置允许明文
             NetSecurityUtils.allowCleartextTraffic()
             // 初始化Toast
             application?.let { Toaster.init(it) }
             //
             if (!AdaptationUtils.autoAdaption(targetApp)) {
-                Logger.log(
-                    TAG,
-                    "自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook"
-                )
+                Logger.i("自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook")
                 return@hookAppContext
             }
 
@@ -140,24 +135,24 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         try {
             manifest.hookLoadPackage()
         } catch (e: Exception) {
-            manifest.logE(e)
+            AppRuntime.manifest.e(e)
         }
 
         manifest.partHookers.forEach { hooker ->
             val hookerName = hooker.javaClass.simpleName
-            manifest.logD("初始化Hook器: $hookerName")
+            AppRuntime.manifest.d("初始化部分Hook器: $hookerName")
 
             try {
                 hooker.hook()
-                manifest.logD("Hook器初始化成功: $hookerName")
+                AppRuntime.manifest.d("部分Hook器初始化成功: $hookerName")
             } catch (e: Exception) {
-                manifest.logD("Hook器错误: ${e.message}")
-                manifest.logE(e)
-                AdaptationUtils.clearCache()
+                AppRuntime.manifest.d("部分Hook器错误: ${e.message}")
+                AppRuntime.manifest.e(e)
+                set("adaptation_version", "0")
             }
         }
 
-        manifest.logD("Hook器初始化成功, ${manifest.appName}")
+        AppRuntime.manifest.d("Hook器初始化成功, ${AppRuntime.manifest.appName}")
 
         // 成功通知
         if (!manifest.systemApp &&
