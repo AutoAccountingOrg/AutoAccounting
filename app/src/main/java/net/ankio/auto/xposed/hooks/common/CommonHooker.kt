@@ -20,9 +20,28 @@ import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.Server
+import java.net.ServerSocket
 
 object CommonHooker {
+
+    /**
+     * 检查端口是否被占用。
+     * 占用则返回 true；未占用则返回 false。
+     */
+    private fun isPortOccupied(port: Int): Boolean {
+        return try {
+            ServerSocket(port).use { false }
+        } catch (_: Throwable) {
+            true
+        }
+    }
     fun init() {
+        Logger.d("Start server...: ${AppRuntime.manifest.packageName}")
+        // 端口占用检查：最前置，未通过则直接返回，避免后续初始化浪费
+        if (isPortOccupied(Server.PORT)) {
+            Logger.d("Server port ${Server.PORT} is occupied, skip start")
+            return
+        }
         Logger.d("Start server...: ${AppRuntime.manifest.packageName}")
         try {
             /**
