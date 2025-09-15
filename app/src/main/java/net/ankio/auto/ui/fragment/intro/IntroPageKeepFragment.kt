@@ -37,11 +37,12 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
         binding.btnBack.setOnClickListener {
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.PERMISSION
         }
-        setupCardsDynamic()
+
     }
 
     override fun onResume() {
         super.onResume()
+        setupCardsDynamic()
 
     }
 
