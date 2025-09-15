@@ -33,7 +33,7 @@ import org.ezbook.server.tools.SettingUtils
 
 class Server(private val context: Application) {
 
-    private val port = 52045
+    private val port = PORT
 
 
     init {
@@ -70,6 +70,10 @@ class Server(private val context: Application) {
 
 
     companion object {
+        /**
+         * 固定服务端口，供外部引用，保持单一来源。
+         */
+        const val PORT: Int = 52045
 
         var versionName = "1.0.0"
         var packageName = "net.ankio.auto"
