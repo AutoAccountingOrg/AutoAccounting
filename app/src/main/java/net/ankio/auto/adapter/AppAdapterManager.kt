@@ -32,21 +32,6 @@ import org.ezbook.server.db.model.BillInfoModel
  */
 object AppAdapterManager {
 
-    /**
-     * 是否处于 OCR 工作模式。
-     *
-     * 返回 true 表示当前通过截图/OCR 识别进行记账；
-     * 返回 false 表示不处于 OCR 模式（可能为 Xposed 或其他模式）。
-     */
-    fun ocrMode(): Boolean = PrefManager.workMode === WorkMode.Ocr
-
-    /**
-     * 是否处于 Xposed 工作模式。
-     *
-     * 返回 true 表示通过 Xposed Hook 的方式与目标记账应用交互；
-     * 返回 false 表示不处于 Xposed 模式。
-     */
-    fun xposedMode(): Boolean = PrefManager.workMode === WorkMode.Xposed
 
 
     /**

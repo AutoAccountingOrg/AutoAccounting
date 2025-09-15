@@ -84,7 +84,7 @@ class QianJiAdapter : IAppAdapter {
     }
 
     override fun features(): List<BookFeatures> {
-        return if (AppAdapterManager.xposedMode()) {
+        return if (WorkMode.isXposedOrLSPatch()) {
             listOf(
                 BookFeatures.MULTI_BOOK,
                 BookFeatures.FEE,
@@ -109,7 +109,7 @@ class QianJiAdapter : IAppAdapter {
 
 
     override fun syncAssets() {
-        if (AppAdapterManager.ocrMode()) {
+        if (WorkMode.isOcr()) {
             return
         }
         // Xposed模式下对该接口进行了Hook,支持数据同步功能
@@ -123,7 +123,7 @@ class QianJiAdapter : IAppAdapter {
 
 
     override fun syncWaitBills(billAction: BillAction) {
-        if (AppAdapterManager.ocrMode()) {
+        if (WorkMode.isOcr()) {
             return
         }
         // Xposed模式下对该接口进行了Hook,支持数据同步功能
@@ -243,7 +243,7 @@ class QianJiAdapter : IAppAdapter {
         }
     }
     override fun supportSyncAssets(): Boolean {
-        if (AppAdapterManager.xposedMode()) return true
+        if (WorkMode.isXposedOrLSPatch()) return true
         //TODO 初始化钱迹默认资产，只有没有账本和分类的时候才初始化
 
 
@@ -270,14 +270,14 @@ class QianJiAdapter : IAppAdapter {
             }
 
             BillType.ExpendReimbursement -> 5
-            BillType.IncomeReimbursement -> if (AppAdapterManager.xposedMode()) 19 else 1
+            BillType.IncomeReimbursement -> if (WorkMode.isXposedOrLSPatch()) 19 else 1
 
             // Xposed模式下支持的扩展类型
-            BillType.ExpendLending -> if (AppAdapterManager.xposedMode()) 15 else 0
-            BillType.ExpendRepayment -> if (AppAdapterManager.xposedMode()) 16 else 0
-            BillType.IncomeLending -> if (AppAdapterManager.xposedMode()) 17 else 1
-            BillType.IncomeRepayment -> if (AppAdapterManager.xposedMode()) 18 else 1
-            BillType.IncomeRefund -> if (AppAdapterManager.xposedMode()) 20 else 1
+            BillType.ExpendLending -> if (WorkMode.isXposedOrLSPatch()) 15 else 0
+            BillType.ExpendRepayment -> if (WorkMode.isXposedOrLSPatch()) 16 else 0
+            BillType.IncomeLending -> if (WorkMode.isXposedOrLSPatch()) 17 else 1
+            BillType.IncomeRepayment -> if (WorkMode.isXposedOrLSPatch()) 18 else 1
+            BillType.IncomeRefund -> if (WorkMode.isXposedOrLSPatch()) 20 else 1
         }
     }
 
@@ -301,7 +301,7 @@ class QianJiAdapter : IAppAdapter {
         return sdf.format(date)
     }
     override fun sleep(): Long {
-        return if (PrefManager.workMode == WorkMode.Xposed) 0L else 3000L
+        return if (WorkMode.isXposedOrLSPatch()) 200L else 3000L
     }
 
 }

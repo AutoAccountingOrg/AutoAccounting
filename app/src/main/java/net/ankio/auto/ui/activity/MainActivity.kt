@@ -44,7 +44,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 非 Xposed 模式下启动核心服务
-        if (PrefManager.workMode != WorkMode.Xposed) CoreService.start(this, intent)
+        if (WorkMode.isOcrOrLSPatch()) CoreService.start(this, intent)
         Logger.d("初始化完成")
         if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
             start<HomeActivity>(true)

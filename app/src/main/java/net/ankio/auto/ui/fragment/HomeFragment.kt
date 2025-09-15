@@ -120,7 +120,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
 
 
     private fun checkServer() {
-        if (PrefManager.workMode == WorkMode.Ocr) return
+        if (WorkMode.isOcrOrLSPatch()) return
 
         launch {
             LocalNetwork.get<String>("/").onSuccess {

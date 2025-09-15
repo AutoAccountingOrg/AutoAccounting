@@ -88,7 +88,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
     private fun setupCardsDynamic() {
         val container = binding.cardGroup
         val ctx = requireContext()
-        val isXposed = PrefManager.workMode == WorkMode.Xposed
+        val isXposed = WorkMode.isXposed()
 
         // 构建权限列表
         perms = mutableListOf<PermItem>().apply {

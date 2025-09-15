@@ -15,6 +15,7 @@ import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.ui.utils.ToastUtils
 import androidx.core.net.toUri
 import net.ankio.auto.adapter.AppAdapterManager
+import net.ankio.auto.constant.WorkMode
 
 /**
  * 引导页 #4 – 后台保活相关权限
@@ -73,7 +74,7 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
     private fun setupCardsDynamic() {
         val container = binding.keepAliveGroup
         val ctx = requireContext()
-        val isXposed = AppAdapterManager.xposedMode()
+        val isXposed = WorkMode.isXposed()
 
         // 构建保活项列表
         keepItems = mutableListOf<KeepItem>().apply {

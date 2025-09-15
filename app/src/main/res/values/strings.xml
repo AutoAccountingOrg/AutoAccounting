@@ -547,6 +547,8 @@
 </string>
     <!-- Xposed Mode -->
     <string name="xposed_mode_title">Xposed Mode</string>
+    <!-- LSPatch Mode -->
+    <string name="lspatch_mode_title">LSPatch Mode</string>
     <string name="xposed_mode_description">
         Root + LSPosed required. Hooks directly into app APIs and notifications for real-time, high-accuracy data capture—ideal for power users or enterprise environments with full device control.
     </string>

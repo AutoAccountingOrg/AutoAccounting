@@ -66,7 +66,7 @@ class CoreService : LifecycleService() {
      * 其他模式下启用所有服务：服务器服务、OCR服务和悬浮窗服务
      */
     private fun initializeServices() {
-        services = if (PrefManager.workMode === WorkMode.Xposed) {
+        services = if (WorkMode.isXposed()) {
             listOf(
                 OcrService(),
                 OverlayService()
@@ -166,7 +166,7 @@ class CoreService : LifecycleService() {
                 )
             }
         }
-        return if (PrefManager.workMode === WorkMode.Xposed) START_NOT_STICKY else START_STICKY
+        return if (WorkMode.isXposed()) START_NOT_STICKY else START_STICKY
     }
 
     /**

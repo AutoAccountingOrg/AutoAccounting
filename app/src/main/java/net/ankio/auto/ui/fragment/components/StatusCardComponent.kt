@@ -78,8 +78,9 @@ class StatusCardComponent(binding: CardStatusBinding) :
      */
     private fun getCurrentModeTitle(): String {
         return when (PrefManager.workMode) {
+            WorkMode.Xposed -> context.getString(R.string.xposed_mode_title)
+            WorkMode.LSPatch -> context.getString(R.string.lspatch_mode_title)
             WorkMode.Ocr -> context.getString(R.string.ocr_mode_title)
-            else -> context.getString(R.string.xposed_mode_title)
         }
     }
 

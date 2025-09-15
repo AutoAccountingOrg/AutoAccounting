@@ -15,11 +15,30 @@
 
 package net.ankio.auto.constant
 
+import net.ankio.auto.utils.PrefManager
+
 enum class WorkMode {
     Xposed,
+    LSPatch,
     Ocr;
 
-    fun from(index: Int): WorkMode {
-        return WorkMode.entries[index]
+
+    companion object {
+        fun isXposed() = PrefManager.workMode == WorkMode.Xposed
+
+        /**
+         * 当前是否为 LSPatch 工作模式。
+         */
+        fun isLSPatch() = PrefManager.workMode == WorkMode.LSPatch
+
+        /**
+         * 当前是否为 OCR 工作模式。
+         */
+        fun isOcr() = PrefManager.workMode == WorkMode.Ocr
+
+        fun isOcrOrLSPatch() = isOcr() or isLSPatch()
+
+        fun isXposedOrLSPatch() = isXposed() or isLSPatch()
     }
+
 }

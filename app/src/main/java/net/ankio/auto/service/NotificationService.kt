@@ -41,7 +41,7 @@ class NotificationService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-        if (PrefManager.workMode != WorkMode.Ocr) return
+        if (WorkMode.isXposed()) return
         //获取用户通知
         runCatching {
             val notification = sbn?.notification!!
@@ -65,7 +65,7 @@ class NotificationService : NotificationListenerService() {
      * 监听断开
      */
     override fun onListenerDisconnected() {
-        if (PrefManager.workMode != WorkMode.Ocr) return
+        if (WorkMode.isXposed()) return
         // 通知侦听器断开连接 - 请求重新绑定
         requestRebind(
             ComponentName(

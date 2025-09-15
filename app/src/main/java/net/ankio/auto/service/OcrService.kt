@@ -64,7 +64,7 @@ class OcrService : ICoreService() {
 
         ocrProcessor = OcrProcessor(coreService)
 
-        if (PrefManager.workMode == WorkMode.Ocr) {
+        if (WorkMode.isOcr()) {
             // 启动翻转检测
             if (!detector.start()) {
                 Logger.e("设备不支持重力/加速度传感器")

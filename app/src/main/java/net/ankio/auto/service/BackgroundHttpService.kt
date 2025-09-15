@@ -20,8 +20,8 @@ class BackgroundHttpService : ICoreService() {
     override fun onCreate(coreService: CoreService) {
         super.onCreate(coreService)
 
-        if (PrefManager.workMode === WorkMode.Ocr) {
-            Logger.d("Initializing Xposed hooks for OCR mode")
+        if (WorkMode.isOcrOrLSPatch()) {
+            Logger.d("Initializing Xposed hooks for OCR mode or LSPatch mode")
             AppRuntime.manifest = AutoHooker()
             AppRuntime.modulePath = coreService.packageManager
                 .getApplicationInfo(BuildConfig.APPLICATION_ID, 0)
