@@ -63,6 +63,15 @@
                 app:ecv_descriptionText="@string/xposed_mode_description"
                 app:ecv_expanded="true" />
 
+            <!-- LSPatch 模式 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardLspatch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/xposed_framework_icon"
+                app:ecv_titleText="@string/lspatch_mode_title"
+                app:ecv_descriptionText="@string/lspatch_mode_description" />
+
             <!-- OCR 模式 -->
             <net.ankio.auto.ui.components.ExpandableCardView
                 android:id="@+id/cardOcr"

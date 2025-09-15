@@ -549,6 +549,9 @@
     <string name="xposed_mode_title">Xposed Mode</string>
     <!-- LSPatch Mode -->
     <string name="lspatch_mode_title">LSPatch Mode</string>
+    <string name="lspatch_mode_description">
+        No root needed. Injects hooks by repackaging the target app (patching its APK), enabling deep integration similar to Xposed with better deployability on non-root devices. Requires reinstalling patched apps.
+    </string>
     <string name="xposed_mode_description">
         Root + LSPosed required. Hooks directly into app APIs and notifications for real-time, high-accuracy data capture—ideal for power users or enterprise environments with full device control.
     </string>

@@ -528,6 +528,9 @@
     <!-- Xposed Mode -->
     <string name="xposed_mode_title">Xposed 模式</string>
     <string name="lspatch_mode_title">LSPatch 模式</string>
+    <string name="lspatch_mode_description">
+        无需 Root，通过对目标 App 重新打包注入 Hook（打补丁）实现深度集成，效果接近 Xposed，适合无法 Root 的设备；需要重新安装已打补丁的应用。
+    </string>
     <string name="xposed_mode_description">
         需要 Root + LSPosed。直接 Hook 应用 API 和通知进行实时、高精度数据捕获——适合高级用户或具有完全设备控制权的企业环境。
     </string>
