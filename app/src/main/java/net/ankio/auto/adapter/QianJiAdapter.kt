@@ -278,9 +278,6 @@ class QianJiAdapter : IAppAdapter {
             BillType.IncomeLending -> if (AppAdapterManager.xposedMode()) 17 else 1
             BillType.IncomeRepayment -> if (AppAdapterManager.xposedMode()) 18 else 1
             BillType.IncomeRefund -> if (AppAdapterManager.xposedMode()) 20 else 1
-
-            // 默认回退
-            else -> 0
         }
     }
 

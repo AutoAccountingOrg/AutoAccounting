@@ -120,6 +120,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         adapter = onCreateAdapter()
         recyclerView = statusPage.contentView
         recyclerView?.adapter = adapter
+        @Suppress("UNCHECKED_CAST")
         baseAdapter = adapter as? BaseAdapter<*, T>
     }
 

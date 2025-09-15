@@ -208,6 +208,7 @@ class QjBillModel {
         /**
          * 获取CSV标题
          */
+        @Suppress("UNCHECKED_CAST")
         fun getCsvTitle(): Array<String> {
             return XposedHelpers.callStaticMethod(
                 billClazz,
@@ -379,6 +380,7 @@ class QjBillModel {
         /**
          * 导出为CSV
          */
+        @Suppress("UNCHECKED_CAST")
         fun toExportCsv(context: Context, bill: QjBillModel): Array<String>? {
             return XposedHelpers.callStaticMethod(
                 billClazz,
@@ -573,6 +575,7 @@ class QjBillModel {
     /**
      * 获取报销账单ID列表
      */
+    @Suppress("UNCHECKED_CAST")
     fun getEDBaoXiaoBillIds(): List<Long>? {
         return XposedHelpers.callMethod(
             billObj,
@@ -625,6 +628,7 @@ class QjBillModel {
     /**
      * 获取图片列表
      */
+    @Suppress("UNCHECKED_CAST")
     fun getImages(): ArrayList<String>? {
         return XposedHelpers.callMethod(
             billObj,
@@ -718,6 +722,7 @@ class QjBillModel {
     /**
      * 获取退款账单ID列表
      */
+    @Suppress("UNCHECKED_CAST")
     fun getRefundBillIds(): List<Long>? {
         return XposedHelpers.callMethod(
             billObj,

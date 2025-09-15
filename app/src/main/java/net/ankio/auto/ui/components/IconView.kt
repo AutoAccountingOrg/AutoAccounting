@@ -157,6 +157,7 @@ class IconView : ConstraintLayout {
      * 统一的单位转换工具方法
      * "好品味"：集中单位转换逻辑，消除重复
      */
+    @Suppress("DEPRECATION")
     private fun Float.spToPx(): Float = this * resources.displayMetrics.scaledDensity
 
     private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()

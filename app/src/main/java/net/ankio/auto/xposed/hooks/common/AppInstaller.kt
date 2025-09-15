@@ -44,7 +44,7 @@ object AppInstaller {
                                     runCatching {
                                         AppRuntime.restart()
                                     }.onFailure { e ->
-                                        Logger.logE("AppInstaller", e)
+                                        Logger.e("AppInstaller", e)
                                         Process.killProcess(Process.myPid())
                                     }
                                 }
@@ -63,7 +63,7 @@ object AppInstaller {
 
             context.registerReceiver(receiver, filter)
         } catch (e: Exception) {
-            Logger.logE("AppInstaller", e)
+            Logger.e("AppInstaller", e)
         }
     }
 }

@@ -18,12 +18,13 @@ package net.ankio.auto.xposed.core.api
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.result.ClazzResult
+import org.ezbook.server.tools.ILogger
 
 /**
  * HookerManifest
  * 所有的Hooker都需要继承这个接口
  */
-abstract class HookerManifest {
+abstract class HookerManifest : ILogger by Logger {
     /**
      * 包名
      */
@@ -76,29 +77,5 @@ abstract class HookerManifest {
      * 保存已经成功获取到的class
      */
     open var clazz = HashMap<String, ClazzResult>()
-
-    /**
-     * 写日志
-     */
-    fun log(string: String) {
-        Logger.log(packageName, string)
-    }
-
-    /**
-     * 写调试日志
-     */
-    fun logD(string: String) {
-        Logger.logD(packageName, string)
-    }
-
-    /**
-     * 写错误日志
-     */
-    fun logE(e: Throwable) {
-        Logger.logE(packageName, e)
-    }
-
-
-
 
 }

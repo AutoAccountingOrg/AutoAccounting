@@ -38,6 +38,7 @@ object DebugUtils {
         intent.extras?.let { extras ->
             sp.appendLine("Extras:")
             for (key in extras.keySet()) {
+                @Suppress("DEPRECATION")
                 sp.appendLine("  $key: ${extras.get(key)}")
             }
         } ?: run {

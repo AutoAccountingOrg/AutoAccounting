@@ -92,7 +92,7 @@ class WebViewHooker : PartHooker() {
                         }
 
                         needWait = false
-                        logD("Hooked Alipay Bill List Data：$result")
+                        d("Hooked Alipay Bill List Data：$result")
                         analysisData(DataType.DATA, result)
                     }
                 // TODO 这里原本计划直接注入JSBridge,但是一直注入失败（没有反应），所以使用一个懒办法

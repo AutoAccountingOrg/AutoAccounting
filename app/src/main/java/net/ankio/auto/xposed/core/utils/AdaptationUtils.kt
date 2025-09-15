@@ -68,7 +68,7 @@ object AdaptationUtils {
 
         val savedVersion = get(KEY_ADAPT_VERSION, "").toLongOrNull() ?: 0L
         val savedRulesHash = get(KEY_RULES_HASH, "")
-        manifest.logD("适配版本: $savedVersion, 规则哈希: $savedRulesHash")
+        manifest.d("适配版本: $savedVersion, 规则哈希: $savedRulesHash")
 
         if (savedVersion == code && savedRulesHash == currentRulesHash) {
             runCatching {
@@ -79,11 +79,11 @@ object AdaptationUtils {
                 require(manifest.clazz.size == manifest.rules.size) {
                     "适配失败: 缓存大小不匹配"
                 }
-                manifest.log("从缓存加载适配信息: ${manifest.clazz}")
+                manifest.i("从缓存加载适配信息: ${manifest.clazz}")
                 return true
             }.onFailure { e ->
                 clearCache()
-                manifest.logE(e)
+                manifest.e(e)
             }
         }
 
@@ -103,7 +103,7 @@ object AdaptationUtils {
 
                 val appInfo = AppRuntime.application!!.applicationInfo
                 val path = appInfo.sourceDir
-                manifest.logD("应用包路径: $path")
+                manifest.d("应用包路径: $path")
 
                 val hashMap = Dex.findClazz(
                     path,
@@ -111,27 +111,27 @@ object AdaptationUtils {
                     rules
                 ) { found, total, ruleName ->
                     toast("适配进度 $found/$total: 找到 $ruleName")
-                    manifest.logD("适配进度: $found/$total, 找到规则: $ruleName")
+                    manifest.d("适配进度: $found/$total, 找到规则: $ruleName")
                 }
-                manifest.log("hashMap.size( ${hashMap.size} ) == rules.size( ${rules.size} )")
+                manifest.i("hashMap.size( ${hashMap.size} ) == rules.size( ${rules.size} )")
                 if (hashMap.size == rules.size) {
                     saveCache(code, currentRulesHash, hashMap)
                     manifest.clazz = hashMap
-                    manifest.log("适配成功: $hashMap")
+                    manifest.i("适配成功: $hashMap")
                     toast("适配成功，即将重启应用...")
                     delay(2000L)
                     AppRuntime.restart()
                 } else {
-                    manifest.log("适配失败: $hashMap")
+                    manifest.i("适配失败: $hashMap")
                     rules.forEachIndexed { index, rule ->
-                        if (!hashMap.containsKey(rule.name)) manifest.log("未能适配规则: ${rule.name}")
+                        if (!hashMap.containsKey(rule.name)) manifest.i("未能适配规则: ${rule.name}")
                     }
 
                     set(KEY_ADAPT_VERSION, "0")
                     toast("适配失败，请检查应用版本是否支持")
                 }
             }.onFailure { e ->
-                manifest.logE(e)
+                manifest.e(e)
                 toast("适配过程发生错误: ${e.message}")
             }
         }

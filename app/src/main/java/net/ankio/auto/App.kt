@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LicenseNetwork
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CoroutineUtils
 import net.ankio.auto.utils.ExceptionHandler
@@ -74,6 +75,7 @@ open class App : Application() {
         // 设置全局实例
         autoApp = this
 
+        Logger.debugging = PrefManager.debugMode
         // 初始化核心组件（优先初始化PrefManager以获取用户设置）
         initSystemComponents()
         initBuglyIfRelease()

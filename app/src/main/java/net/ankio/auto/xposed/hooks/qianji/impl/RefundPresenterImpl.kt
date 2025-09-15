@@ -49,18 +49,18 @@ object RefundPresenterImpl : HookerClazz() {
             .split(Regex("\\s*,\\s*"))
             .firstOrNull()
         if (billId.isNullOrBlank()) {
-            AppRuntime.manifest.log("refund: 退款账单id缺失 extendData=${billInfo.extendData}")
+            AppRuntime.manifest.i("refund: 退款账单id缺失 extendData=${billInfo.extendData}")
             return@withContext
         }
         // 先获取账单列表
         val bills = SearchPresenterImpl.getLast10DayLists()
-        AppRuntime.manifest.log("bills: $bills")
+        AppRuntime.manifest.i("bills: $bills")
         //查找退款的账单
         val bill = bills.firstOrNull {
             it != null && QjBillModel.fromObject(it).getBillid() == billId.toLong()
         }?.let { QjBillModel.fromObject(it) }
         if (bill == null) {
-            AppRuntime.manifest.log("refund: 找不到退款的账单 id=$billId")
+            AppRuntime.manifest.i("refund: 找不到退款的账单 id=$billId")
             return@withContext
         }
         bill.set_id(null)

@@ -38,8 +38,8 @@ class PermissionCheckHooker: PartHooker() {
         runCatching {
             hookCheckPermission()
         }.onFailure {
-            AppRuntime.manifest.log("hook hookCheckPermission error:${it.message}")
-            AppRuntime.manifest.logE(it)
+            AppRuntime.manifest.i("hook hookCheckPermission error:${it.message}")
+            AppRuntime.manifest.e(it)
         }
 
 
@@ -47,8 +47,8 @@ class PermissionCheckHooker: PartHooker() {
         runCatching {
             setOverlaysAllowed(BuildConfig.APPLICATION_ID)
         }.onFailure {
-            AppRuntime.manifest.log("hook setOverlaysAllowed error:${it.message}")
-            AppRuntime.manifest.logE(it)
+            AppRuntime.manifest.i("hook setOverlaysAllowed error:${it.message}")
+            AppRuntime.manifest.e(it)
         }
     }
 
@@ -66,6 +66,7 @@ class PermissionCheckHooker: PartHooker() {
             val uid = param.args[2] as Int
             val packageManager =  XposedHelpers.callMethod(param.thisObject, "getPackageManager")
             val packages: Array<String> = runCatching {
+                @Suppress("UNCHECKED_CAST")
                 XposedHelpers.callMethod(packageManager, "getPackagesForUid", uid) as Array<String>
             }.getOrNull()?: return@after
 

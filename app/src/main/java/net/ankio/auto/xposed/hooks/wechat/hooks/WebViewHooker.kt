@@ -45,16 +45,16 @@ class WebViewHooker:PartHooker() {
                   __json.remove("entrances")
                   __json.remove("service_module")
                   val md5 = MD5HashTable.md5(__json.toString())
-                  AppRuntime.manifest.logD("")
+                  AppRuntime.manifest.d("")
                   if (md5HashTable.contains(md5)){
-                      AppRuntime.manifest.logD("Wechat WebViewHooker exist： $__json")
+                      AppRuntime.manifest.d("Wechat WebViewHooker exist： $__json")
                      return@runCatching
                   }
                   md5HashTable.put(md5)
-                  AppRuntime.manifest.logD("Wechat WebViewHooker hook： $__json")
+                  AppRuntime.manifest.d("Wechat WebViewHooker hook： $__json")
                   analysisData(DataType.DATA, __json.toString())
               }.onFailure { e ->
-                    AppRuntime.manifest.logE(e)
+                    AppRuntime.manifest.e(e)
               }
            }
        }

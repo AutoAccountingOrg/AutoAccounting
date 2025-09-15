@@ -48,7 +48,7 @@ object AnalysisUtils {
             }
 
             val result = JsAPI.analysis(type, data, manifestAppPackage)
-            Logger.logD(manifestAppPackage, "分析结果: $result")
+            Logger.i("$manifestAppPackage -> 分析结果: $result")
         }
     }
 }

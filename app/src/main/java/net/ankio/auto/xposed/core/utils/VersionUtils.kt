@@ -40,7 +40,7 @@ object VersionUtils {
         if (manifest.minVersion == 0L) return true
         val (code, name) = version()
 
-        Logger.log(manifest.packageName, "应用版本号: $code, 版本名: $name")
+        Logger.i("应用版本号: $code, 版本名: $name")
 
         // 检查App版本是否过低，过低无法使用
         return code >= manifest.minVersion

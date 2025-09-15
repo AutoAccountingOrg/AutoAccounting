@@ -16,7 +16,6 @@
 package net.ankio.auto.xposed.hooks.common
 
 import android.os.Build
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -34,14 +33,14 @@ object JsEngine {
 
         // 如果架构不支持，则记录日志并返回
         if (framework == "unsupported") {
-            Logger.logD(TAG, "Unsupported architecture")
+            Logger.d("Unsupported architecture")
             return
         }
 
         AppRuntime.moduleSoPath =
             AppRuntime.modulePath.replace("/base.apk", "") + "/lib/$framework/"
 
-        Logger.logD(TAG, "Module so path: ${AppRuntime.moduleSoPath}")
+        Logger.d("Module so path: ${AppRuntime.moduleSoPath}")
     }
 
     fun init() {

@@ -127,7 +127,7 @@ class NotificationHooker : PartHooker() {
             json.addProperty("t",System.currentTimeMillis())
 
 
-            logD("NotificationHooker: $json")
+            d("NotificationHooker: $json")
             AnalysisUtils.analysisData(pkg, DataType.NOTICE, Gson().toJson(json))
         }
 

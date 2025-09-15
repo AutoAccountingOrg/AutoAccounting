@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.core.utils
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -22,10 +23,8 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Process
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.logger.Logger
-
 
 object AppRuntime {
     /**
@@ -103,10 +102,7 @@ object AppRuntime {
         name = m.appName
         CoroutineUtils.withIO {
             debug = DataUtils.configBoolean("debugMode", BuildConfig.DEBUG)
-            Logger.logD(
-                TAG,
-                "Hook: ${m.appName}(${m.packageName}) 运行在${if (debug) "调试" else "生产"}模式"
-            )
+            Logger.d("Hook: ${m.appName}(${m.packageName}) 运行在${if (debug) "调试" else "生产"}模式")
         }
     }
 
@@ -143,17 +139,15 @@ object AppRuntime {
      *
      * @param name 不含前缀 `lib` 与后缀 `.so` 的库名
      */
+    @SuppressLint("UnsafeDynamicallyLoadedCode")
     fun load(name: String) {
         try {
             val file = moduleSoPath + "lib$name.so"
             System.load(file)
-            Logger.logD(TAG, "Load $name success")
+            Logger.d("Load $name success")
         } catch (e: Throwable) {
-            Logger.logD(TAG, "Load $name failed : $e")
-            Logger.logE(TAG, e)
+            Logger.e("Load $name failed : $e", e)
         }
     }
-
-
 
 }

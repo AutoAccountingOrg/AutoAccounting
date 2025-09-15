@@ -23,9 +23,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.ezbook.server.db.Db
 import org.ezbook.server.server.module
 import org.ezbook.server.task.BillProcessor
+import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.SettingUtils
 
 
 class Server(private val context: Application) {
@@ -43,6 +46,9 @@ class Server(private val context: Application) {
      * 启动服务
      */
     fun startServer() {
+        runBlocking {
+            ServerLog.debugging = SettingUtils.debugMode()
+        }
         server = embeddedServer(Netty, port = port) {
             module(context)
         }
