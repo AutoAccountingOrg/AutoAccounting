@@ -36,7 +36,7 @@ object Setting {
     const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"             // 自动记账提示
     const val SETTING_REMIND_BOOK: String = "setting_remind_book"    // 记账提醒
     const val AUTO_CREATE_CATEGORY = "setting_auto_create_category"  // 自动创建分类
-    const val AUTO_GROUP = "setting_auto_group"                      // 自动分组（去重）
+    const val AUTO_GROUP = "setting_auto_group"                      // 自动去重（去重）
     const val LISTENER_APP_LIST = "setting_listener_app_list"        // 监听应用列表
     const val PROACTIVELY_MODEL: String = "proactively_model"             // 主动模式
     const val DATA_FILTER: String = "setting_data_filter"                 // 数据关键词过滤，逗号分隔

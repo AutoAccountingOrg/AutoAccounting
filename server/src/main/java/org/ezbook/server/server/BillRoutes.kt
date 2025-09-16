@@ -46,7 +46,7 @@ fun Route.billRoutes() {
          * @return ResultModel 包含账单列表数据
          */
         get("/list") {
-            // 清理无分组的账单和过期数据
+            // 清理无去重的账单和过期数据
             // Db.get().billInfoDao().deleteNoGroup()
             //   Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
 
@@ -82,10 +82,10 @@ fun Route.billRoutes() {
         }
 
         /**
-         * GET /bill/group - 获取账单分组信息
+         * GET /bill/group - 获取账单去重信息
          *
          * @param id 账单ID
-         * @return ResultModel 包含账单分组数据
+         * @return ResultModel 包含账单去重数据
          */
         get("/group") {
             val id = call.request.queryParameters["id"]?.toLong() ?: 0
@@ -94,7 +94,7 @@ fun Route.billRoutes() {
         }
 
         /**
-         * POST /bill/unGroup - 取消账单分组
+         * POST /bill/unGroup - 取消账单去重
          *
          * @param body 包含id的JSON对象
          * @return ResultModel 操作结果
@@ -130,7 +130,7 @@ fun Route.billRoutes() {
 
         /**
          * POST /bill/remove - 删除账单
-         * 同时删除账单本身和相关的分组信息
+         * 同时删除账单本身和相关的去重信息
          *
          * @param body 包含id的JSON对象
          * @return ResultModel 操作结果

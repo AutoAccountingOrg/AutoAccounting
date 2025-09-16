@@ -32,7 +32,7 @@ import androidx.navigation.fragment.findNavController
 
 /**
  * 账单设置页面
- * 包含自动记账、分组、通知、去重等核心功能设置
+ * 包含自动记账、去重、通知、去重等核心功能设置
  */
 class BillPreferenceFragment : BasePreferenceFragment() {
 

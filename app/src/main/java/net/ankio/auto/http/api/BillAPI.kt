@@ -194,7 +194,7 @@ object BillAPI {
     }
 
     /**
-     * 解除账单分组
+     * 解除账单去重
      * @param id 账单ID
      * @return 服务器响应结果
      */

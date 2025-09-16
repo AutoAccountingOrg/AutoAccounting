@@ -168,7 +168,7 @@ object PrefManager {
         get() = getBoolean(Setting.AUTO_CREATE_CATEGORY, DefaultData.AUTO_CREATE_CATEGORY)
         set(value) = putBoolean(Setting.AUTO_CREATE_CATEGORY, value)
 
-    /** 自动分组（去重）开关 - 是否合并相似交易记录 */
+    /** 自动去重（去重）开关 - 是否合并相似交易记录 */
     var autoGroup: Boolean
         get() = getBoolean(Setting.AUTO_GROUP, DefaultData.AUTO_GROUP)
         set(value) = putBoolean(Setting.AUTO_GROUP, value)

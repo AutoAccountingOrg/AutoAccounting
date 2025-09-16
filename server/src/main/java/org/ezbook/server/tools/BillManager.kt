@@ -184,23 +184,23 @@ object BillManager {
     }
 
     /**
-     * 账单分组，用于检查重复账单
+     * 账单去重，用于检查重复账单
      * @return 返回匹配到的父账单，如果没有匹配则返回null
      */
     suspend fun groupBillInfo(
         billInfoModel: BillInfoModel,
         context: Context
     ): BillInfoModel? {
-        ServerLog.d("分组：开始，bill=${brief(billInfoModel)}")
-        // 检查是否启用自动分组
+        ServerLog.d("去重：开始，bill=${brief(billInfoModel)}")
+        // 检查是否启用自动去重
         if (!SettingUtils.autoGroup()) {
-            ServerLog.d("分组：未启用，跳过")
+            ServerLog.d("去重：未启用，跳过")
             return null
         }
 
         // 查找可能重复的账单
         val potentialDuplicates = findPotentialDuplicates(billInfoModel)
-        ServerLog.d("分组：候选数量=${potentialDuplicates.size}")
+        ServerLog.d("去重：候选数量=${potentialDuplicates.size}")
 
         // 查找并处理重复账单
         return potentialDuplicates
@@ -208,7 +208,7 @@ object BillManager {
                 bill.id != billInfoModel.id && checkRepeat(billInfoModel, bill)
             }
             ?.also { parentBill ->
-                ServerLog.d("分组：命中父账单 parentId=${parentBill.id}, currentId=${billInfoModel.id}")
+                ServerLog.d("去重：命中父账单 parentId=${parentBill.id}, currentId=${billInfoModel.id}")
                 handleDuplicateBill(billInfoModel, parentBill, context)
             }
     }
@@ -220,7 +220,7 @@ object BillManager {
         val startTime = bill.time - TIME_WINDOW_MILLIS
         val endTime = bill.time + TIME_WINDOW_MILLIS
 
-        ServerLog.d("分组：候选查询 id=${bill.id}, 金额=${bill.money}, 时间范围=$startTime-$endTime")
+        ServerLog.d("去重：候选查询 id=${bill.id}, 金额=${bill.money}, 时间范围=$startTime-$endTime")
         return Db.get().billInfoDao().query(bill.money, startTime, endTime, bill.type)
     }
 
@@ -232,9 +232,9 @@ object BillManager {
         parentBill: BillInfoModel,
         context: Context
     ) {
-        ServerLog.d("分组：合并 parentId=${parentBill.id}, currentId=${currentBill.id}")
+        ServerLog.d("去重：合并 parentId=${parentBill.id}, currentId=${currentBill.id}")
 
-        // 设置分组ID
+        // 设置去重ID
         currentBill.groupId = parentBill.id
 
         // 合并账单信息
@@ -246,7 +246,7 @@ object BillManager {
             update(currentBill)
         }
 
-        ServerLog.d("分组：合并完成 parentId=${parentBill.id}, currentId=${currentBill.id}")
+        ServerLog.d("去重：合并完成 parentId=${parentBill.id}, currentId=${currentBill.id}")
     }
 
     /**

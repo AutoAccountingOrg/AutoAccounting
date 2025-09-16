@@ -209,17 +209,16 @@ class BillService(
             // 对账单类型进行检查，这里如果没有开启资产管理，是没有转账类型的
 
 
-
-            // 将账单加入处理队列并等待自动分组处理完成
+            // 将账单加入处理队列并等待自动去重处理完成
             val task = Server.billProcessor.addTask(billInfo, context)
             val parent = task.await()
-            // 记录自动分组处理的结果摘要
+            // 记录自动去重处理的结果摘要
             if (parent == null) {
-                ServerLog.d("自动分组未找到父账单，待用户编辑")
+                ServerLog.d("自动去重未找到父账单，待用户编辑")
                 categorize(billInfo)
                 ServerLog.d("进行分类之后的账单 $billInfo")
             } else {
-                ServerLog.d("自动分组找到父账单：parentId=${parent.id}")
+                ServerLog.d("自动去重找到父账单：parentId=${parent.id}")
                 categorize(parent)
                 ServerLog.d("进行分类之后的账单 $parent")
                 // 对父账单重新分类
