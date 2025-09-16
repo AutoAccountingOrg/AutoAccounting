@@ -144,12 +144,6 @@ class BasicInfoComponent(
         binding.moneyType.visibility = View.VISIBLE
     }
 
-    /**
-     * 更新billInfoModel中的备注信息 - 已优化为自动同步，保留此方法用于向后兼容
-     */
-    fun updateBillInfoFromUI() {
-        // 备注已通过 TextWatcher 自动同步，此方法保留用于向后兼容
-    }
 
     /**
      * 设置备注监听器 - 实时同步备注到 billInfoModel

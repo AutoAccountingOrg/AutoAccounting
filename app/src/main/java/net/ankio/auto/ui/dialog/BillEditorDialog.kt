@@ -82,19 +82,11 @@ class BillEditorDialog internal constructor(
      * @return 当前对话框实例，支持链式调用
      */
     fun setBillInfo(billInfo: BillInfoModel) = apply {
-        this.billInfoModel = billInfo.copy()
+        this.billInfoModel = billInfo // 直接引用，确保父账单编辑后能同步更新
         this.currentBillType = BillTool.getType(billInfo.type)
-        if (uiReady()) {
-            if (::bookHeaderComponent.isInitialized) bookHeaderComponent.setBillInfo(billInfo)
-            if (::amountDisplayComponent.isInitialized) amountDisplayComponent.setBillInfo(billInfo)
-            if (::ruleInfoComponent.isInitialized) ruleInfoComponent.setBillInfo(billInfo)
-            if (::transactionTypeSelectorComponent.isInitialized) transactionTypeSelectorComponent.setBillInfo(
-                billInfo
-            )
-            if (::paymentInfoComponent.isInitialized) paymentInfoComponent.setBillInfo(billInfo)
-            if (::basicInfoComponent.isInitialized) basicInfoComponent.setBillInfo(billInfo)
-            if (::actionButtonsComponent.isInitialized) actionButtonsComponent.setBillInfo(billInfo)
-        }
+
+        // 统一刷新所有组件
+        if (uiReady()) refreshAllComponents()
     }
 
 
@@ -162,17 +154,25 @@ class BillEditorDialog internal constructor(
     }
 
     /**
-     * 刷新所有组件 - 在数据变化时调用各组件的刷新方法
+     * 刷新所有组件 - 确保数据一致性
      */
     private fun refreshAllComponents() {
         val billInfo = billInfoModel ?: return
-        Logger.d("刷新组件时的账单：$billInfo")
+        Logger.d("刷新所有组件，账单ID：${billInfo.id}")
+        
         // 更新基础状态
         currentBillType = BillTool.getType(billInfo.type)
-        transactionTypeSelectorComponent.refresh()
-        paymentInfoComponent.refresh()
-        basicInfoComponent.refresh()
-        amountDisplayComponent.refresh()
+
+        // 统一更新所有组件 - 消除组件间的数据不一致
+        if (::bookHeaderComponent.isInitialized) bookHeaderComponent.setBillInfo(billInfo)
+        if (::amountDisplayComponent.isInitialized) amountDisplayComponent.setBillInfo(billInfo)
+        if (::ruleInfoComponent.isInitialized) ruleInfoComponent.setBillInfo(billInfo)
+        if (::transactionTypeSelectorComponent.isInitialized) transactionTypeSelectorComponent.setBillInfo(
+            billInfo
+        )
+        if (::paymentInfoComponent.isInitialized) paymentInfoComponent.setBillInfo(billInfo)
+        if (::basicInfoComponent.isInitialized) basicInfoComponent.setBillInfo(billInfo)
+        if (::actionButtonsComponent.isInitialized) actionButtonsComponent.setBillInfo(billInfo)
     }
 
 
