@@ -148,14 +148,17 @@ class OcrService : ICoreService() {
             return
         }
 
-        // 先触发振动反馈，再进行后续检测
+        // 先进入忙碌状态并触发振动反馈，再进行后续检测
+        ocrDoing = true
         triggerVibration()
 
         // 验证前台应用
-        val packageName = validateForegroundApp() ?: return
+        val packageName = validateForegroundApp() ?: run {
+            ocrDoing = false
+            return
+        }
 
         Logger.d("检测到白名单应用 [$packageName]，开始OCR")
-        ocrDoing = true
 
         // 执行OCR流程
         executeOcrFlow(packageName)
