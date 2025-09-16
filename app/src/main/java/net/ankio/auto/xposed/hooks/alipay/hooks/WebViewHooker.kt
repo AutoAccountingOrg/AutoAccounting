@@ -50,7 +50,7 @@ class WebViewHooker : PartHooker() {
             val urlObj = XposedHelpers.callMethod(obj, "getUrl") ?: return@after
             val url = urlObj as String
             if (!url.contains("tradeNo=")) return@after
-            XposedBridge.log(script)
+            // XposedBridge.log(script)
             if (script.contains("(function(){window.ALIPAYVIEWAPPEARED=1})()")) {
                 // 一次性、幂等式注入，避免重复覆盖与页面抖动
                 val inject = (
