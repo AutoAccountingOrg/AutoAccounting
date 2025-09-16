@@ -219,9 +219,10 @@ class BillService(
                 ServerLog.d("进行分类之后的账单 $billInfo")
             } else {
                 ServerLog.d("自动去重找到父账单：parentId=${parent.id}")
+                // 父账单设置特殊规则名称
+                parent.ruleName = formatParentBillRuleName()
                 categorize(parent)
                 ServerLog.d("进行分类之后的账单 $parent")
-                // 对父账单重新分类
             }
             // 根据处理结果更新账单状态
             billInfo.state = if (parent == null) BillState.Wait2Edit else BillState.Edited
@@ -382,11 +383,15 @@ class BillService(
             accountNameTo = json.safeGetString("accountNameTo")
             currency = json.safeGetString("currency")
             channel = json.safeGetString("channel")
-            ruleName = json.safeGetString("ruleName")
+
+            // 格式化规则名称 - 添加数据类型前缀
+            val rawRuleName = json.safeGetString("ruleName")
+            ruleName = formatRuleName(rawRuleName, dataType)
+            
             cateName = json.safeGetString("cateName")
             // 这个地方不要带上bookName，因为这里的数据来源是JS生成的，Js里面不会输出bookName和cateName，但是AI会携带cateName
             if (!this.generateByAi()) {
-                val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
+                val rule = Db.get().ruleDao().query(dataType.name, app, rawRuleName)
                 auto = rule?.autoRecord ?: false
                 // 记录规则驱动的自动记账标记
                 ServerLog.d("规则匹配：rule=${ruleName}, auto=$auto")
@@ -444,6 +449,30 @@ class BillService(
         ServerLog.d("分类映射完成：book=${bill.bookName}, cate=${bill.cateName}")
 
     }
+
+    /**
+     * 格式化规则名称 - 添加数据类型前缀
+     * @param rawRuleName 原始规则名称
+     * @param dataType 数据类型
+     * @return 格式化后的规则名称
+     */
+    private fun formatRuleName(rawRuleName: String, dataType: DataType): String {
+        if (rawRuleName.isEmpty()) return rawRuleName
+
+        val prefix = when (dataType) {
+            DataType.NOTICE -> "通知"
+            DataType.DATA -> "数据"
+            DataType.OCR -> "OCR"
+        }
+
+        return "[$prefix] $rawRuleName"
+    }
+
+    /**
+     * 格式化父账单规则名称
+     * @return 父账单专用的规则名称
+     */
+    private fun formatParentBillRuleName(): String = "由多个账单合并生成"
 
     /**
      * 关闭服务，释放资源
