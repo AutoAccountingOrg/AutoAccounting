@@ -33,6 +33,7 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
 
     // 事件监听器 - 让外部处理业务逻辑
     var onTestRuleClick: ((AppDataModel) -> Unit)? = null
+    var onTestRuleLongClick: ((AppDataModel) -> Unit)? = null
     var onContentClick: ((AppDataModel) -> Unit)? = null
     var onCreateRuleClick: ((AppDataModel) -> Unit)? = null
     var onUploadDataClick: ((AppDataModel) -> Unit)? = null
@@ -52,6 +53,12 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
         // 简单的事件转发 - 让外部处理具体逻辑
         binding.testRule.setOnClickListener {
             holder.item?.let { onTestRuleClick?.invoke(it) }
+        }
+
+        // 长按测试按钮：强制使用 AI 识别
+        binding.testRule.setOnLongClickListener {
+            holder.item?.let { onTestRuleLongClick?.invoke(it) }
+            true
         }
 
         binding.content.setOnClickListener {

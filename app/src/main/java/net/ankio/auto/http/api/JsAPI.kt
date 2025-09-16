@@ -15,14 +15,13 @@
 
 package net.ankio.auto.http.api
 
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
-import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.models.BillResultModel
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 object JsAPI {
 
@@ -30,12 +29,13 @@ object JsAPI {
         type: DataType,
         data: String,
         appPackage: String,
-        fromAppData: Boolean = false
+        fromAppData: Boolean = false,
+        forceAI: Boolean = false
     ): BillResultModel? = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
             val resp = LocalNetwork.post<BillResultModel>(
-                "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData",
+                "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData&forceAI=$forceAI",
                 data
             ).getOrThrow()
             resp.data
