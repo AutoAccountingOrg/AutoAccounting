@@ -999,7 +999,7 @@
     <string name="setting_sms_filter_summary">Filter SMS messages using keywords</string>
 
     <!-- AI Features -->
-    <string name="setting_ai_bill_recognition">AI Bill Recognition</string>
+    <string name="setting_ai_bill_recognition">Automatically use AI for bill recognition</string>
     <string name="setting_ai_bill_recognition_summary">Automatically extract bill information from raw data</string>
     <string name="setting_ai_category_recognition">AI Category Recognition</string>
     <string name="setting_ai_category_recognition_summary">Automatically assign appropriate categories to bills</string>

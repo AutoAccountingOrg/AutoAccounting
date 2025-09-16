@@ -899,7 +899,7 @@
     <string name="setting_sms_filter_summary">使用关键词过滤短信</string>
 
     <!-- AI Features -->
-    <string name="setting_ai_bill_recognition">AI 账单识别</string>
+    <string name="setting_ai_bill_recognition">自动使用AI进行账单识别</string>
     <string name="setting_ai_bill_recognition_summary">从原始数据自动提取账单信息</string>
     <string name="setting_ai_category_recognition">AI 分类识别</string>
     <string name="setting_ai_category_recognition_summary">自动为账单分配适当的分类</string>
