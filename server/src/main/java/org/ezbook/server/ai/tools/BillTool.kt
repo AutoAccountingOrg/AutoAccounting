@@ -16,10 +16,12 @@
 package org.ezbook.server.ai.tools
 
 import com.google.gson.Gson
+import com.google.gson.JsonParser
 import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.tools.DateUtils
 import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.runCatchingExceptCancel
 
@@ -38,7 +40,7 @@ Return ONLY one JSON object. No code fences, no prose. If any hard rule fails, r
 3) Ignore promotions/ads and any non-transaction texts (e.g., 验证码/登录提醒/快递通知/系统提示/聊天/新闻/纯营销). If the content is unrelated to bills or contains no transaction signals (no explicit transaction amount/keyword, no account), return {}.
 4) Human personal names are not valid account names.
 5) cateName must be chosen strictly from Category Data (comma-separated). If no exact match, set "其他".
-6) Defaults: currency="CNY"; fee=0; money=0.00; empty string for optional text; time=0.
+6) Defaults: currency="CNY"; fee=0; money=0.00; empty string for optional text; timeText="".
 7) Numbers: output absolute value for money/fee; money with 2 decimals; dot as decimal point.
 8) Output must be valid JSON with keys exactly as the schema; no extra keys or trailing commas.
 
@@ -55,7 +57,7 @@ Return ONLY one JSON object. No code fences, no prose. If any hard rule fails, r
   - Transfer: both accountNameFrom and accountNameTo are present and different.
   - Income: 收到/入账/到账/退款/收款/转入/充值 等。
   - Expend: 支付/扣款/消费/转出/提现/付款 等。
-- time: Unix ms timestamp if full date/time is present; otherwise 0.
+- timeText: full date-time string if explicitly present (e.g., 2024-08-02 12:01:22 / 2024/08/02 12:01 / 20240802 120122). If absent -> "".
 
 # Disambiguation
 - If multiple amounts appear, choose the one labeled as 支付/收款/退款/转账 金额; never choose 余额/限额。
@@ -73,14 +75,14 @@ Return ONLY one JSON object. No code fences, no prose. If any hard rule fails, r
   "shopItem": "",
   "shopName": "",
   "type": "",
-  "time": 0
+  "timeText": ""
 }
 
 # Examples
 Input: 支付宝消费，商户：肯德基，支付金额￥36.50，账户余额...，时间2024-08-02 12:01:22
 Category Data: 餐饮,交通,购物
 Output:
-{"accountNameFrom":"支付宝","accountNameTo":"","cateName":"餐饮","currency":"CNY","fee":0,"money":36.50,"shopItem":"","shopName":"肯德基","type":"Expend","time":0}
+{"accountNameFrom":"支付宝","accountNameTo":"","cateName":"餐饮","currency":"CNY","fee":0,"money":36.50,"shopItem":"","shopName":"肯德基","type":"Expend","timeText":"2024-08-02 12:01:22"}
 
 Input: 推广信息：本店大促销...
 Category Data: 餐饮,交通
@@ -108,7 +110,16 @@ Input:
         val bill = data.replace("```json", "").replace("```", "")
         ServerLog.d("AI分析结果: $bill")
         return runCatchingExceptCancel {
+            // 提取 timeText 并转换为时间戳（毫秒）。为空或解析失败则为 0。
+            val json = JsonParser.parseString(bill).asJsonObject
+            val timeText = if (json.has("timeText")) json.get("timeText").asString else ""
+            val now = System.currentTimeMillis()
+            val ts =
+                if (timeText.isNotBlank()) kotlin.runCatching { DateUtils.toEpochMillis(timeText) }
+                    .getOrElse { now } else now
+
             val billInfoModel = Gson().fromJson(bill, BillInfoModel::class.java)
+            if (ts > 0) billInfoModel.time = ts
             if (billInfoModel.money < 0) billInfoModel.money = -billInfoModel.money
             if (billInfoModel.money == 0.0) return null
             billInfoModel

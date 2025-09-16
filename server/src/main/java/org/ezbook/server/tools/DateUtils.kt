@@ -16,6 +16,7 @@
 package org.ezbook.server.tools
 
 import java.util.Locale
+import java.util.TimeZone
 
 /**
  * 日期时间工具
@@ -84,15 +85,40 @@ object DateUtils {
             ?: throw IllegalArgumentException("Unsupported datetime format: $input")
 
         val (hh, mm, ss) = if (timePart.isEmpty()) Triple(0, 0, 0) else parseTimePart(timePart)
-        // 不做任何时区换算：直接以 UTC 视角将 (y,m,d,hh,mm,ss) 映射为 epoch 毫秒
-        return computeEpochMillis(y, m, d, hh, mm, ss)
+        // 基于本地时区（含夏令时）计算 epoch 毫秒
+        return computeEpochMillisLocal(y, m, d, hh, mm, ss)
+    }
+
+    /**
+     * 由 (year, month, day, hour, minute, second) 计算 epoch 毫秒，按本地时区解释。
+     * 方式：先计算将该本地时间按 UTC 解读的毫秒，再减去本地时区在该瞬间的偏移。
+     * 为了应对夏令时切换点的偏移变化，采用两步收敛：E1 = E0 - off(E0)；若 off(E1) 变化，则再用 off(E1)。
+     */
+    private fun computeEpochMillisLocal(
+        year: Int,
+        month: Int,
+        day: Int,
+        hour: Int,
+        minute: Int,
+        second: Int
+    ): Long {
+        val e0 = computeEpochMillisUtc(year, month, day, hour, minute, second)
+        val tz = TimeZone.getDefault()
+        var off0 = tz.getOffset(e0)
+        var e1 = e0 - off0
+        val off1 = tz.getOffset(e1)
+        if (off1 != off0) {
+            off0 = off1
+            e1 = e0 - off0
+        }
+        return e1
     }
 
     /**
      * 由 (year, month, day, hour, minute, second) 直接计算自 1970-01-01T00:00:00Z 起的毫秒数。
-     * 不依赖任何 java.time API，纯数学，无时区换算。
+     * 不依赖任何 java.time API，纯数学，按 UTC 视角。
      */
-    private fun computeEpochMillis(
+    private fun computeEpochMillisUtc(
         year: Int,
         month: Int,
         day: Int,
