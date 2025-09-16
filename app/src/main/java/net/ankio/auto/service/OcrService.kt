@@ -46,7 +46,8 @@ class OcrService : ICoreService() {
     private val detector by lazy {
         FlipDetector(coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager) {
             coreService.lifecycleScope.launch {
-                triggerOcr()
+                // 传感器触发：非手动
+                triggerOcr(false)
             }
         }
     }
@@ -81,8 +82,8 @@ class OcrService : ICoreService() {
             Logger.d("收到Intent启动OCR请求")
             //延迟1秒启动，等activity退出
             coreService.lifecycleScope.launch {
-                delay(1000)
-                triggerOcr()
+                val manual = intent.getBooleanExtra("manual", false)
+                triggerOcr(manual)
             }
         }
 
@@ -142,7 +143,7 @@ class OcrService : ICoreService() {
      * 触发OCR识别
      * 支持多种触发方式：设备翻转、Intent、磁贴等
      */
-    private suspend fun triggerOcr() {
+    private suspend fun triggerOcr(manual: Boolean) {
         if (ocrDoing) {
             Logger.d("OCR正在处理中，跳过本次请求")
             return
@@ -152,16 +153,25 @@ class OcrService : ICoreService() {
         ocrDoing = true
         triggerVibration()
 
-        // 验证前台应用
-        val packageName = validateForegroundApp() ?: run {
-            ocrDoing = false
-            return
+        // 解析前台应用包名：
+        // - 手动触发：不走白名单，只读取当前前台应用（获取失败则用应用自身包名占位）
+        // - 自动触发：严格校验白名单
+        val packageName = if (manual) {
+            getTopPackagePostL() ?: run {
+                ocrDoing = false
+                return
+            }
+        } else {
+            validateForegroundApp() ?: run {
+                ocrDoing = false
+                return
+            }
         }
 
         Logger.d("检测到白名单应用 [$packageName]，开始OCR")
 
         // 执行OCR流程
-        executeOcrFlow(packageName)
+        executeOcrFlow(packageName, manual)
     }
 
     /**
@@ -185,7 +195,7 @@ class OcrService : ICoreService() {
     /**
      * 执行OCR识别的完整流程
      */
-    private fun executeOcrFlow(packageName: String) {
+    private fun executeOcrFlow(packageName: String, manual: Boolean) {
 
         coreService.lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
@@ -201,7 +211,8 @@ class OcrService : ICoreService() {
                 if (ocrResult != null) {
                     if (PrefManager.dataFilter.any { !ocrResult.contains(it) }) {
                         Logger.d("识别文本长度: ${ocrResult.length}")
-                        send2JsEngine(ocrResult, packageName)
+                        // 手动触发 → 强制AI识别
+                        send2JsEngine(ocrResult, packageName, forceAI = manual)
                     } else {
                         Logger.d("数据信息不在识别关键字里面，忽略")
                     }
@@ -275,9 +286,11 @@ class OcrService : ICoreService() {
      * @param text OCR识别的文本内容
      * @param app 当前应用包名
      */
-    private suspend fun send2JsEngine(text: String, app: String) {
+    private suspend fun send2JsEngine(text: String, app: String, forceAI: Boolean = false) {
         Logger.d("app=$app, text=$text")
-        val billResult = JsAPI.analysis(DataType.DATA, text, app) ?: return
+        val billResult =
+            JsAPI.analysis(DataType.DATA, text, app, fromAppData = false, forceAI = forceAI)
+                ?: return
         Logger.d("识别结果：${billResult.billInfoModel}")
     }
 

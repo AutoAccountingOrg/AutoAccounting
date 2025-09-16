@@ -38,6 +38,7 @@ private suspend fun ApplicationCall.toAnalysisParams(): AnalysisParams = Analysi
     app = request.queryParameters["app"].orEmpty(),
     type = request.queryParameters["type"].orEmpty(),
     fromAppData = request.queryParameters["fromAppData"].toBoolean(),
+    forceAI = request.queryParameters["forceAI"].toBoolean(),
     data = receiveText()
 )
 
@@ -48,5 +49,6 @@ data class AnalysisParams(
     val app: String,
     val type: String,
     val fromAppData: Boolean,
+    val forceAI: Boolean,
     val data: String
 )

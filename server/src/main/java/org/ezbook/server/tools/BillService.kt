@@ -168,12 +168,15 @@ class BillService(
                 }
             } else null
 
-            // 4) 分析（先规则，后 AI）
+            // 4) 分析：保持“先规则，后AI”的顺序；当 forceAI=true 时仅跳过 AI 开关检查
             val start = System.currentTimeMillis()
-
             val billInfo: BillInfoModel =
                 analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
-                    ?: analyzeWithAI(analysisParams.app, analysisParams.data)
+                    ?: analyzeWithAI(
+                        analysisParams.app,
+                        analysisParams.data,
+                        force = analysisParams.forceAI
+                    )
                     ?: run {
                         ServerLog.d("AI和规则的解析结果都为NULL\n==============账单分析结束===============")
                         return@withContext ResultModel<BillResultModel>(
@@ -325,9 +328,13 @@ class BillService(
      * @param data 要分析的原始数据
      * @return 分析得到的账单信息，如果分析失败则返回null
      */
-    private suspend fun analyzeWithAI(app: String, data: String): BillInfoModel? {
+    private suspend fun analyzeWithAI(
+        app: String,
+        data: String,
+        force: Boolean = false
+    ): BillInfoModel? {
 
-        if (!SettingUtils.aiBillRecognition()) {
+        if (!force && !SettingUtils.aiBillRecognition()) {
             ServerLog.d("AI分析账单功能禁用，跳过账单分析")
             return null
         }

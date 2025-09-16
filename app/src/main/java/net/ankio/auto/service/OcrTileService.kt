@@ -71,7 +71,10 @@ class OcrTileService : TileService() {
 
         try {
             // 创建启动FloatingWindowTriggerActivity的Intent
-            val intent = OCRIntent().toIntent()
+            val intent = OCRIntent().toIntent().apply {
+                // 标记为手动触发（磁贴）
+                putExtra("manual", true)
+            }
 
             // 根据Android版本收起面板
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
