@@ -26,6 +26,9 @@ import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.FragmentPluginHomeBinding
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.http.api.BillAPI
+import net.ankio.auto.service.CoreService
+import net.ankio.auto.service.OverlayService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseFragment
@@ -37,6 +40,7 @@ import net.ankio.auto.ui.fragment.components.MonthlyCardComponent
 import net.ankio.auto.ui.fragment.components.RuleVersionCardComponent
 import net.ankio.auto.ui.fragment.components.StatusCardComponent
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.intent.BillInfoIntent
 
 class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
     private val gson = Gson()
@@ -86,6 +90,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         // 检查并显示Canary版本警告
         checkAndShowCanaryWarning()
         checkServer()
+        checkNoEditBills()
     }
 
     /**
@@ -166,6 +171,33 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
                 // 用户确认知道了
             }
             .show()
+    }
+
+
+    /**
+     * 检查待编辑的账单并启动弹窗
+     *
+     * 功能：
+     * - 获取所有状态为 Wait2Edit 的账单
+     * - 如果有待编辑账单，通过 OverlayService 启动编辑弹窗
+     * - 确保服务已启动，避免在服务未就绪时调用
+     */
+    private fun checkNoEditBills() {
+        launch {
+            // 获取待编辑账单列表
+            val pendingBills = BillAPI.edit()
+
+            if (pendingBills.isNotEmpty()) {
+                Logger.d("发现 ${pendingBills.size} 个待编辑账单")
+
+                pendingBills.forEach { bill ->
+                    val intent = BillInfoIntent(bill, "edit")
+                    CoreService.start(requireActivity(), intent.toIntent())
+                }
+            } else {
+                Logger.d("没有待编辑的账单")
+            }
+        }
     }
 
 }
