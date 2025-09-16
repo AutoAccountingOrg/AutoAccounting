@@ -45,13 +45,14 @@ class WebViewHooker : PartHooker() {
             String::class.java,
             ValueCallback::class.java,
         ) { param ->
-            //   XposedHelpers.callMethod( param.thisObject,"setWebContentsDebuggingEnabled",true)
             val script = param.args[0] as String
             val obj = param.thisObject
             val urlObj = XposedHelpers.callMethod(obj, "getUrl") ?: return@after
             val url = urlObj as String
             if (!url.contains("tradeNo=")) return@after
-            if (!script.contains("window.__ankioHooked = true;")) {
+            // TODO 这里的注入需要优化
+            XposedBridge.log(script)
+            if (script.contains("(function(){window.ALIPAYVIEWAPPEARED=1})()")) {
                 // 一次性、幂等式注入，避免重复覆盖与页面抖动
                 val inject = (
                     """
