@@ -64,6 +64,7 @@
             android:layout_height="wrap_content" />
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/one_padding"
@@ -72,6 +73,7 @@
     </LinearLayout>
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/one_padding"
@@ -80,6 +82,7 @@
         android:textColor="?colorPrimary" />
     <!-- 时间选择 -->
     <LinearLayout
+        android:id="@+id/l_time_select"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"

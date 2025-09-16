@@ -50,6 +50,9 @@ class DateTimePickerDialog internal constructor(
 
     // 配置参数
     private var timeOnly: Boolean = false
+
+    // 仅选择年月模式：隐藏日、时、分，仅保留年、月选择
+    private var yearMonthOnly: Boolean = false
     private var title: String? = null
 
     // 回调函数
@@ -70,6 +73,13 @@ class DateTimePickerDialog internal constructor(
      */
     fun setTimeOnly(timeOnly: Boolean) = apply {
         this.timeOnly = timeOnly
+    }
+
+    /**
+     * 设置是否仅选择 年+月（隐藏日/时/分），用于月份筛选等场景
+     */
+    fun setYearMonthOnly(yearMonthOnly: Boolean) = apply {
+        this.yearMonthOnly = yearMonthOnly
     }
 
     /**
@@ -119,10 +129,24 @@ class DateTimePickerDialog internal constructor(
             binding.dialogTitle.visibility = View.GONE
         }
 
-        // 仅时间模式时隐藏日期选择器
+        // 仅时间模式：隐藏日期
         if (timeOnly) {
             binding.llDateTitle.visibility = View.GONE
             binding.llDate.visibility = View.GONE
+        }
+
+        // 年月模式：隐藏日、时、分，仅保留年与月
+        if (yearMonthOnly) {
+            // 显示日期容器，但仅展示年/月，隐藏日与时间容器
+            binding.llDateTitle.visibility = View.VISIBLE
+            binding.llDate.visibility = View.VISIBLE
+
+            // 隐藏“日”标题与选择器
+            binding.tvDay.visibility = View.GONE
+            binding.npDay.visibility = View.GONE
+            binding.lTimeSelect.visibility = View.GONE
+            binding.tvTime.visibility = View.GONE
+
         }
 
         // 初始化选择器
@@ -153,7 +177,9 @@ class DateTimePickerDialog internal constructor(
         if (!timeOnly) {
             setupDatePickers()
         }
-        setupTimePickers()
+        if (!yearMonthOnly) {
+            setupTimePickers()
+        }
     }
 
     /**
