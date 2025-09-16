@@ -148,6 +148,9 @@ class OcrService : ICoreService() {
             return
         }
 
+        // 先触发振动反馈，再进行后续检测
+        triggerVibration()
+
         // 验证前台应用
         val packageName = validateForegroundApp() ?: return
 
@@ -180,9 +183,6 @@ class OcrService : ICoreService() {
      * 执行OCR识别的完整流程
      */
     private fun executeOcrFlow(packageName: String) {
-        // 触发振动反馈
-        triggerVibration()
-
 
         coreService.lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
@@ -284,7 +284,7 @@ class OcrService : ICoreService() {
      */
     private suspend fun getTopPackagePostL(): String? {
         val data = runCatchingExceptCancel {
-            shell.exec("dumpsys activity activities | grep ResumedActivity")
+            shell.exec("dumpsys window | grep mCurrentFocus")
         }.onFailure {
             // 提醒用户未授权root或者shizuku未运行（使用资源字符串，避免硬编码）
             ToastUtils.info(coreService.getString(net.ankio.auto.R.string.toast_shell_not_ready))
