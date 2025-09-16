@@ -25,6 +25,7 @@ import androidx.core.content.edit
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.xposed.XposedModule
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
@@ -455,7 +456,28 @@ object PrefManager {
     /** 工作模式（框架标识） - 当前使用的 Hook 框架类型 */
     var workMode: WorkMode
         get() = WorkMode.valueOf(getString(Setting.KEY_FRAMEWORK, DefaultData.KEY_FRAMEWORK))
-        set(value) = putString(Setting.KEY_FRAMEWORK, value.name)
+        set(value) {
+            // 持久化工作模式
+            putString(Setting.KEY_FRAMEWORK, value.name)
+
+            // 当切换到 Xposed / LSPatch 模式时，自动从白名单中移除已 Hook 的应用，避免重复监听
+            if (value == WorkMode.Xposed || value == WorkMode.LSPatch) {
+                val hookedPkgs = runCatching {
+                    XposedModule.get().map { it.packageName }
+                        .filter { pkg -> pkg.isNotBlank() && pkg != "android" && pkg != BuildConfig.APPLICATION_ID }
+                        .toSet()
+                }.getOrElse { emptySet() }
+
+                if (hookedPkgs.isNotEmpty()) {
+                    val current = appWhiteList
+                    val filtered = current.filterNot { it in hookedPkgs }.toMutableList()
+                    if (filtered.size != current.size) {
+                        // 仅在有变更时写回，减少不必要同步
+                        appWhiteList = filtered
+                    }
+                }
+            }
+        }
 
     /** 加载成功标记 - 模块是否成功加载 */
     var loadSuccess: Boolean
