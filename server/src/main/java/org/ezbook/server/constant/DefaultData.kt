@@ -247,6 +247,9 @@ object DefaultData {
     val FLOAT_LONG_CLICK: String = "NO_ACCOUNT"
     val FLOAT_GRAVITY_RIGHT: Boolean = true
 
+    // ======== OCR显示默认值 ========
+    val OCR_SHOW_ANIMATION: Boolean = true
+
     // ======== 更新完整默认值 ========
     val LAST_UPDATE_CHECK_TIME: Long = 0L
     val CHECK_UPDATE_TYPE: String = "auto"
