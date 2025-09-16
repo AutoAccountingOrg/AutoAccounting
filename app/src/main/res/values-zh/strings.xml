@@ -803,6 +803,7 @@
     <string name="setting_category_popup_style">圆角弹窗风格</string>
     <string name="setting_category_float_badge">悬浮角标设置</string>
     <string name="setting_category_float_events">悬浮角标事件设置</string>
+    <string name="setting_category_ocr">OCR</string>
     <string name="setting_category_asset_management">资产管理</string>
     <string name="setting_category_advanced_features">高级功能</string>
     <string name="setting_category_user_guidance">用户指导</string>
@@ -990,6 +991,8 @@
     <string name="float_action_auto_record">自动记录</string>
     <string name="float_action_minimize">最小化</string>
     <string name="float_action_settings">设置</string>
+    <string name="setting_ocr_show_animation">显示OCR识别动画</string>
+    <string name="setting_ocr_show_animation_summary">进行OCR识别时显示覆盖层动画</string>
 
     <!-- 资产与账单相关补全 -->
     <string name="save_bill_success">账单保存成功</string>

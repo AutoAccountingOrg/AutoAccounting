@@ -56,5 +56,14 @@
             android:title="@string/setting_float_long_click" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/setting_category_ocr">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_ocr"
+            android:key="ocrShowAnimation"
+            android:summary="@string/setting_ocr_show_animation_summary"
+            android:title="@string/setting_ocr_show_animation" />
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

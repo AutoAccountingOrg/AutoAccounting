@@ -141,6 +141,8 @@ class PopupPreferenceFragment : BasePreferenceFragment() {
                 "roundStyle" -> PrefManager.uiRoundStyle
                 // 悬浮窗位置
                 "floatGravityRight" -> PrefManager.floatGravityRight
+                // OCR识别动画显示
+                "ocrShowAnimation" -> PrefManager.ocrShowAnimation
                 else -> defValue
             }
         }
@@ -165,6 +167,8 @@ class PopupPreferenceFragment : BasePreferenceFragment() {
                 "roundStyle" -> PrefManager.uiRoundStyle = value
                 // 悬浮窗位置
                 "floatGravityRight" -> PrefManager.floatGravityRight = value
+                // OCR识别动画显示
+                "ocrShowAnimation" -> PrefManager.ocrShowAnimation = value
             }
         }
 

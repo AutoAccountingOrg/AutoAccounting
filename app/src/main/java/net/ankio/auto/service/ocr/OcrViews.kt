@@ -41,6 +41,8 @@ class OcrViews {
      * 创建一个全屏悬浮窗来显示识别动画
      */
     fun startOcrView(context: Context) {
+        // 若用户关闭动画显示，则直接返回
+        if (!net.ankio.auto.utils.PrefManager.ocrShowAnimation) return
         // 已经显示则不再重复
         if (floatView != null) return
 

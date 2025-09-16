@@ -385,6 +385,12 @@ object PrefManager {
         get() = getBoolean(Setting.FLOAT_GRAVITY_RIGHT, DefaultData.FLOAT_GRAVITY_RIGHT)
         set(value) = putBoolean(Setting.FLOAT_GRAVITY_RIGHT, value)
 
+    // ======== OCR 显示设置 ========
+    /** 是否在OCR识别期间显示动画悬浮窗 */
+    var ocrShowAnimation: Boolean
+        get() = getBoolean(Setting.OCR_SHOW_ANIMATION, DefaultData.OCR_SHOW_ANIMATION)
+        set(value) = putBoolean(Setting.OCR_SHOW_ANIMATION, value)
+
     // ======== 功能模块开关 ========
 
     /** 资产管理功能开关 - 是否启用资产管理模块 */
