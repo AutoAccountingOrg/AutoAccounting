@@ -34,6 +34,12 @@
             android:key="autoAssetMapping"
             android:summary="@string/setting_auto_asset_mapping_summary"
             android:title="@string/setting_auto_asset_mapping" />
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/icon_delete"
+            android:key="confirmDeleteBill"
+            android:summary="@string/setting_confirm_delete_bill_summary"
+            android:title="@string/setting_confirm_delete_bill" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_notification">

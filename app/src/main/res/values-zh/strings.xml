@@ -1051,4 +1051,8 @@
     <string name="btn_upload_adapter">适配</string>
     <string name="btn_test_rule">测试</string>
 
+    <!-- 删除二次确认设置 -->
+    <string name="setting_confirm_delete_bill">删除前二次确认</string>
+    <string name="setting_confirm_delete_bill_summary">删除账单时弹出确认提示</string>
+
 </resources>

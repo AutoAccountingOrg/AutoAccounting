@@ -176,6 +176,8 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 "autoCreateCategory" -> PrefManager.rememberCategory
                 "autoAssetMapping" -> PrefManager.autoAssetMapping
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup
+                // 删除确认
+                "confirmDeleteBill" -> PrefManager.confirmDeleteBill
                 // 手动同步：开启后保存时不触发同步
                 "manualSync" -> PrefManager.manualSync
                 // 显示设置
@@ -198,6 +200,8 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 "autoCreateCategory" -> PrefManager.rememberCategory = value
                 "autoAssetMapping" -> PrefManager.autoAssetMapping = value
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup = value
+                // 删除确认
+                "confirmDeleteBill" -> PrefManager.confirmDeleteBill = value
                 // 手动同步：开启后保存时不触发同步
                 "manualSync" -> PrefManager.manualSync = value
                 // 显示设置

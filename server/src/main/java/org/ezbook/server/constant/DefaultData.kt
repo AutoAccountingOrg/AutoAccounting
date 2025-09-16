@@ -239,6 +239,7 @@ object DefaultData {
     // ======== UI 完整默认值 ========
     val USE_SYSTEM_SKIN: Boolean = false
     val SHOW_DUPLICATED_POPUP: Boolean = true
+    val CONFIRM_DELETE_BILL: Boolean = false
 
     // ======== 悬浮窗默认值 ========
     val FLOAT_TIMEOUT_ACTION: String = "POP_EDIT_WINDOW"

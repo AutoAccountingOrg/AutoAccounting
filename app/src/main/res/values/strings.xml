@@ -1049,6 +1049,8 @@
     <string name="btn_test_rule">Test</string>
     <string name="setting_manual_sync">Manual sync mode</string>
     <string name="setting_manual_sync_summary">When enabled, saving a bill will not trigger sync automatically</string>
+    <string name="setting_confirm_delete_bill">Confirm before deleting bills</string>
+    <string name="setting_confirm_delete_bill_summary">Ask for confirmation before removing a bill</string>
 
     <!-- Period selection -->
     <string name="period_selector_title">Select Analysis Period</string>

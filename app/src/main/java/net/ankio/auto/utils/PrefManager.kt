@@ -333,6 +333,11 @@ object PrefManager {
         get() = getBoolean(Setting.SHOW_DUPLICATED_POPUP, DefaultData.SHOW_DUPLICATED_POPUP)
         set(value) = putBoolean(Setting.SHOW_DUPLICATED_POPUP, value)
 
+    /** 删除账单二次确认 - 删除前是否弹出确认 */
+    var confirmDeleteBill: Boolean
+        get() = getBoolean(Setting.CONFIRM_DELETE_BILL, DefaultData.CONFIRM_DELETE_BILL)
+        set(value) = putBoolean(Setting.CONFIRM_DELETE_BILL, value)
+
     /** 显示父分类开关 - 分类显示时是否包含父级分类 */
     var categoryShowParent: Boolean
         get() = getBoolean(Setting.CATEGORY_SHOW_PARENT, DefaultData.CATEGORY_SHOW_PARENT)

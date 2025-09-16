@@ -73,6 +73,7 @@ object Setting {
     const val SHOW_RULE_NAME = "setting_show_rule_name"             // 显示规则名称
     const val SHOW_SUCCESS_POPUP = "setting_show_success_popup"     // 成功提示弹窗
     const val SHOW_DUPLICATED_POPUP: String = "show_duplicated_popup" // 重复提示弹窗
+    const val CONFIRM_DELETE_BILL: String = "confirm_delete_bill"   // 删除账单前二次确认
     const val CATEGORY_SHOW_PARENT = "setting_category_show_parent" // 显示父分类
     const val EXPENSE_COLOR_RED = "setting_expense_color_red"       // 支出红色显示
     const val NOTE_FORMAT = "setting_note_format"                   // 备注格式

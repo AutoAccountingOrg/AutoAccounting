@@ -301,6 +301,13 @@ class BillWindowManager(
      * @param bill 要删除的账单
      */
     private fun deleteBill(bill: BillInfoModel) {
+        if (!PrefManager.confirmDeleteBill) {
+            Logger.d("直接删除账单: ${bill.id}")
+            launch { BillAPI.remove(bill.id) }
+            processNextBill()
+            return
+        }
+
         // 二次确认：防止误删
         BaseSheetDialog.create<BottomSheetDialogBuilder>(service.service())
             .setTitleInt(R.string.delete_title)

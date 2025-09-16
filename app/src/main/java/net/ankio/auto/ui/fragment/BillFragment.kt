@@ -75,18 +75,24 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
 
         // 设置长按事件
         adapter.setOnItemLongClickListener { item, position, itemAdapter ->
-            BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
-                .setTitleInt(R.string.delete_title)
-                .setMessage(R.string.delete_bill_message)
-                .setPositiveButton(R.string.sure_msg) { _, _ ->
-                    Logger.i("删除账单: ${item.id}")
-                    itemAdapter.removeItem(item)
-                    launch {
-                        BillAPI.remove(item.id)
+            if (!net.ankio.auto.utils.PrefManager.confirmDeleteBill) {
+                Logger.i("删除账单: ${item.id}")
+                itemAdapter.removeItem(item)
+                launch { BillAPI.remove(item.id) }
+            } else {
+                BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+                    .setTitleInt(R.string.delete_title)
+                    .setMessage(R.string.delete_bill_message)
+                    .setPositiveButton(R.string.sure_msg) { _, _ ->
+                        Logger.i("删除账单: ${item.id}")
+                        itemAdapter.removeItem(item)
+                        launch {
+                            BillAPI.remove(item.id)
+                        }
                     }
-                }
-                .setNegativeButton(R.string.cancel_msg) { _, _ -> }
-                .show()
+                    .setNegativeButton(R.string.cancel_msg) { _, _ -> }
+                    .show()
+            }
         }
 
         // 设置更多按钮点击事件
