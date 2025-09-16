@@ -42,7 +42,7 @@ class PayToolsHooker : PartHooker() {
             d("Text: $text")
             // 这里的数据只缓存2分钟，超过2分钟自动失效
             when {
-                Regex(".*(卡|零钱).*").matches(text) -> {
+                Regex(".*(卡|零钱|经营账户).*").matches(text) -> {
                     d("支付方式Hook: $text")
                     MemoryCache.put(PAY_TOOLS, text, DURATION_SECONDS)
                 }
