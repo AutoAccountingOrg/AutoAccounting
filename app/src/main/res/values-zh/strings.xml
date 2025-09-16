@@ -26,7 +26,7 @@
     <string name="tab_data_rules">数据规则</string>
     <string name="tab_category_rules">分类规则</string>
     <string name="search_rules">搜索规则</string>
-    <string name="title_order">订单</string>
+    <string name="title_order">账单</string>
     <string name="title_setting">设置</string>
     <string name="active_error">未激活 (%s)</string>
     <string name="active_success">已激活 (%s)</string>
@@ -470,8 +470,8 @@
     <string name="setting_bill_key">获取 API Key</string>
     <string name="setting_landscape_dnd">横屏勿扰</string>
     <string name="setting_landscape_dnd_desc">当您处于横屏模式时（例如游戏、看视频），不弹出记录账单以免影响用户体验。</string>
-    <string name="un_group_title">拆分为独立订单</string>
-    <string name="un_group_message">您确定要将此订单从当前订单中拆分为独立订单吗？</string>
+    <string name="un_group_title">拆分为独立账单</string>
+    <string name="un_group_message">您确定要将此账单从当前账单中拆分为独立账单吗？</string>
     <string name="assets_map_title">发现未识别资产</string>
     <string name="assets_map_description">记账应用无法处理未识别的资产，请映射以下资产以确保正确的资产名称。</string>
     <string name="setting_duplicated">检测到重复账单弹出提醒</string>
