@@ -52,13 +52,32 @@ fun Route.billRoutes() {
 
             val page = call.request.queryParameters["page"]?.toInt() ?: 1
             val limit = call.request.queryParameters["limit"]?.toInt() ?: 10
-            val defaultStates =
-                listOf(BillState.Edited.name, BillState.Synced.name, BillState.Wait2Edit.name)
+            val defaultStates = listOf(
+                BillState.Edited.name,
+                BillState.Synced.name,
+                BillState.Wait2Edit.name
+            )
             val type = call.request.queryParameters["type"]?.split(", ") ?: defaultStates
 
-            ServerLog.d("获取账单列表：page=$page, limit=$limit, type=$type")
             val offset = (page - 1) * limit
-            val bills = Db.get().billInfoDao().loadPage(limit, offset, type)
+
+            // 月份为必填：缺少 year 或 month 返回 400
+            val year = call.request.queryParameters["year"]?.toInt()
+                ?: return@get call.respond(ResultModel.error(400, "Year parameter is required"))
+            val month = call.request.queryParameters["month"]?.toInt()
+                ?: return@get call.respond(ResultModel.error(400, "Month parameter is required"))
+
+            val calendar = java.util.Calendar.getInstance().apply {
+                set(year, month - 1, 1, 0, 0, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }
+            val startTime = calendar.timeInMillis
+            calendar.add(java.util.Calendar.MONTH, 1)
+            val endTime = calendar.timeInMillis
+
+            ServerLog.d("获取账单列表（按月份）：year=$year, month=$month, page=$page, limit=$limit, type=$type")
+            val bills =
+                Db.get().billInfoDao().loadPageByTimeRange(limit, offset, type, startTime, endTime)
             call.respond(ResultModel.ok(bills))
         }
 

@@ -31,45 +31,55 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroup"
-            android:padding="@dimen/padding"
+        <!-- 筛选区域：月份 + 同步状态（输入框样式） -->
+        <LinearLayout
+            android:id="@+id/filterContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            app:chipSpacingHorizontal="8dp"
-            app:selectionRequired="true"
-            app:singleSelection="false">
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginBottom="16dp">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_wait_sync"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_month_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                app:chipMinTouchTargetSize="0dp"
-                android:text="@string/item_wait_sync" />
+                android:layout_weight="1"
+                android:hint="@string/date"
+                app:hintEnabled="true">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_wait_edit"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/input_month_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                android:layout_width="8dp"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_status_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                app:chipMinTouchTargetSize="0dp"
-                android:text="@string/item_wait_edit" />
+                android:layout_weight="1"
+                app:hintEnabled="true">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_synced"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                app:chipMinTouchTargetSize="0dp"
-                android:text="@string/item_synced" />
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/input_status_dropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
 
-        </com.google.android.material.chip.ChipGroup>
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"

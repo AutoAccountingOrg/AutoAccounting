@@ -477,6 +477,8 @@
     <string name="picker_day">Day</string>
     <string name="picker_hour">:</string>
     <string name="date">Date</string>
+    <string name="status">Status</string>
+    <string name="select_month">Select month</string>
     <string name="date_time">Time</string>
     <string name="title_bill">Bill list</string>
     <string name="clear_db">Completely delete database</string>

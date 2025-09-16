@@ -82,7 +82,17 @@ object BillAPI {
      * @param type 账单类型列表
      * @return 账单信息模型列表
      */
-    suspend fun list(page: Int, pageSize: Int, type: MutableList<String>): List<BillInfoModel> =
+    /**
+     * 获取账单列表（按月份必填）。
+     * [year] 与 [month] 必须提供，否则服务器会返回 400。
+     */
+    suspend fun list(
+        page: Int,
+        pageSize: Int,
+        type: MutableList<String>,
+        year: Int,
+        month: Int
+    ): List<BillInfoModel> =
         withContext(Dispatchers.IO) {
             val typeName = listOf(
                 BillState.Edited.name,
@@ -92,9 +102,11 @@ object BillAPI {
             val syncType = if (type.isNotEmpty()) type.joinToString() else typeName
 
             return@withContext runCatchingExceptCancel {
-                val resp =
-                    LocalNetwork.get<List<BillInfoModel>>("bill/list?page=$page&limit=$pageSize&type=${syncType}")
-                        .getOrThrow()
+                val base = StringBuilder("bill/list?page=").append(page)
+                    .append("&limit=").append(pageSize)
+                    .append("&type=").append(syncType)
+                    .append("&year=").append(year).append("&month=").append(month)
+                val resp = LocalNetwork.get<List<BillInfoModel>>(base.toString()).getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
                 Logger.e("list error: ${it.message}", it)

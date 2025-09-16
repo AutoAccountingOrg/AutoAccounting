@@ -58,6 +58,19 @@ interface BillInfoDao {
     @Query("SELECT * FROM BillInfoModel WHERE groupId=-1 and state in(:state) ORDER BY time DESC LIMIT :limit OFFSET :offset")
     suspend fun loadPage(limit: Int, offset: Int, state: List<String>): List<BillInfoModel>
 
+    /**
+     * 按时间范围分页查询账单（用于按月份筛选）。
+     * 使用 [startTime, endTime) 半开区间，避免跨月边界的重复或遗漏。
+     */
+    @Query("SELECT * FROM BillInfoModel WHERE groupId = -1 AND state IN(:state) AND time >= :startTime AND time < :endTime ORDER BY time DESC LIMIT :limit OFFSET :offset")
+    suspend fun loadPageByTimeRange(
+        limit: Int,
+        offset: Int,
+        state: List<String>,
+        startTime: Long,
+        endTime: Long
+    ): List<BillInfoModel>
+
     @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
     suspend fun deleteGroup(groupId: Long)
 

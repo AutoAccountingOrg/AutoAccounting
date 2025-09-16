@@ -1,3 +1,4 @@
+
 <!--
   ~ Copyright (C) 2023 ankio(ankio@ankio.net)
   ~ Licensed under the Apache License, Version 3.0 (the "License");
@@ -14,7 +15,8 @@
   -->
 
 <resources tools:locale="zh" xmlns:tools="http://schemas.android.com/tools">
-
+    <string name="status">状态</string>
+    <string name="select_month">选择月份</string>
     <string name="about_view_source_code"><![CDATA[在 %s 上查看源代码]]></string>
     <string name="title_home">首页</string>
     <string name="title_data">数据</string>

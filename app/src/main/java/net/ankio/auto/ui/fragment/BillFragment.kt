@@ -19,6 +19,7 @@ package net.ankio.auto.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
 import net.ankio.auto.http.api.BillAPI
@@ -38,8 +39,12 @@ import org.ezbook.server.constant.BillState
 
 open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
     private var syncType = mutableListOf<String>()
+    private var currentYear: Int = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+    private var currentMonth: Int =
+        java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
+    private lateinit var statusDropdown: MaterialAutoCompleteTextView
     override suspend fun loadData(): List<OrderGroup> {
-        val list = BillAPI.list(page, pageSize, syncType)
+        val list = BillAPI.list(page, pageSize, syncType, currentYear, currentMonth)
         Logger.i("加载账单: ${list.size}条")
 
         val groupedData = list.groupBy {
@@ -95,35 +100,60 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                 .show()
         }
 
-        chipEvent()
+        setupFilters()
         return adapter
     }
 
 
-    private fun chipEvent() {
-        binding.chipGroup.isSingleSelection = false
-        binding.chipSynced.isChecked = true
-        binding.chipWaitEdit.isChecked = true
-        binding.chipWaitSync.isChecked = true
-        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
+    private fun setupFilters() {
+        // 月份必选：初始化文本并绑定点击弹出月份选择器
+        binding.inputMonthEdit.setText(formatMonthLabel(currentYear, currentMonth))
+        binding.inputMonthEdit.setOnClickListener { showMonthPicker() }
+
+        // 同步状态下拉：全部、已同步、未同步、待编辑
+        statusDropdown = binding.inputStatusDropdown
+        val items = arrayOf(
+            getString(R.string.filter_type_all),
+            getString(R.string.item_synced),
+            getString(R.string.item_wait_sync),
+            getString(R.string.item_wait_edit)
+        )
+        statusDropdown.setSimpleItems(items)
+        statusDropdown.setText(items[0], false)
+        statusDropdown.setOnItemClickListener { _, _, position, _ ->
             syncType.clear()
-            checkedId.forEach {
-                when (it) {
-                    R.id.chip_synced -> {
-                        syncType.add(BillState.Synced.name)
-                    }
-
-                    R.id.chip_wait_edit -> {
-                        syncType.add(BillState.Wait2Edit.name)
-                    }
-
-                    R.id.chip_wait_sync -> {
-                        syncType.add(BillState.Edited.name)
-                    }
+            when (position) {
+                1 -> syncType.add(BillState.Synced.name)
+                2 -> syncType.add(BillState.Edited.name)
+                3 -> syncType.add(BillState.Wait2Edit.name)
+                else -> {
+                    syncType.add(BillState.Synced.name)
+                    syncType.add(BillState.Edited.name)
+                    syncType.add(BillState.Wait2Edit.name)
                 }
             }
             reload()
         }
+    }
+
+    /** 将年月格式化为 "YYYY-MM" */
+    private fun formatMonthLabel(year: Int, month: Int): String {
+        val mm = if (month < 10) "0$month" else "$month"
+        return "$year-$mm"
+    }
+
+    /** 使用封装好的日期时间选择器，仅取年月（用户选中任意日即确定该月） */
+    private fun showMonthPicker() {
+        BaseSheetDialog.create<net.ankio.auto.ui.dialog.DateTimePickerDialog>(requireContext())
+            .setTitle(getString(R.string.select_month))
+            .setYearMonthOnly(true)
+            .setOnDateTimeSelected { year, month, _, _, _ ->
+                currentYear = year
+                currentMonth = month
+                binding.inputMonthEdit.setText(formatMonthLabel(currentYear, currentMonth))
+                reload()
+            }
+            .show()
     }
 
     override fun onResume() {
