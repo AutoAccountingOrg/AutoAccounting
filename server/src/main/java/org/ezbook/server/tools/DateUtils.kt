@@ -15,7 +15,6 @@
 
 package org.ezbook.server.tools
 
-import java.util.Locale
 import java.util.TimeZone
 
 /**
@@ -209,7 +208,8 @@ object DateUtils {
             val rest = tokens.filterIndexed { idx, _ -> idx != yearIdx }
             val a = rest.getOrNull(0)?.toIntOrNull() ?: return null
             val b = rest.getOrNull(1)?.toIntOrNull() ?: return null
-            val (month, day) = resolveMonthDay(a, b)
+            // 年在前（YYYY-..-..）时固定按 年-月-日 解释，避免受 Locale 影响导致月日互换
+            val (month, day) = if (yearIdx == 0) a to b else resolveMonthDay(a, b)
             Triple(year, month, day)
         } else {
             // 无 4 位年份：尝试三段推断（如 dd-MM-yy 或 dd-MM-yyyy 已在上分支）
@@ -263,16 +263,15 @@ object DateUtils {
     }
 
     /**
-     * 根据数值与 Locale 决定月日顺序。
+     * 解析月日顺序：
+     * - 若一方 > 12，则该值为日（另一方为月）。
+     * - 否则默认使用 MDY（“月在前、日在后”）。
      */
     private fun resolveMonthDay(x: Int, y: Int): Pair<Int, Int> {
         return when {
             x > 12 && y in 1..12 -> y to x // x 是日
             y > 12 && x in 1..12 -> x to y // y 是日
-            else -> {
-                val isUS = Locale.getDefault().country.equals("US", ignoreCase = true)
-                if (isUS) x to y else y to x
-            }
+            else -> x to y // 默认 MDY
         }
     }
 
