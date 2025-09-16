@@ -50,14 +50,15 @@ class WebViewHooker : PartHooker() {
             val obj = param.thisObject
             val urlObj = XposedHelpers.callMethod(obj, "getUrl") ?: return@after
             val url = urlObj as String
-            XposedBridge.log("$url $script")
             if (!url.contains("tradeNo=")) return@after
-            if (script.contains("AlipayJSBridge.call(")) {
+            if (!script.contains("window.__ankioHooked = true;")) {
                 // 一次性、幂等式注入，避免重复覆盖与页面抖动
                 val inject = (
                     """
                     (function(){
                         if (window.__ankioHooked) return;
+                        if (typeof AlipayJSBridge === 'undefined' || typeof AlipayJSBridge.call !== 'function') return;
+                       
                         window.__ankioHooked = true;
                         window.ankioResults = {};
                         var alipayCall = AlipayJSBridge.call;
