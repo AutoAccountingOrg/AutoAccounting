@@ -184,7 +184,7 @@ class AutoHooker : PartHooker() {
 
                     BillAction.SYNC_RECENT_EXPENSE_BILL -> {
                         //同步最近10天的支出账单, 不需要频繁请求
-                        SearchPresenterImpl.syncBills()
+                        SearchPresenterImpl.syncBills(data.getQueryParameter("bookName") ?: "")
                     }
                 }
                 // 完成后关闭当前任务栈，跳过宿主原流程
