@@ -17,8 +17,11 @@ package net.ankio.auto.service.ocr
 
 import android.content.Context
 import android.graphics.PixelFormat
-import android.os.Handler
-import android.os.Looper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import android.provider.Settings
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -32,9 +35,8 @@ class OcrViews {
     private var floatView: View? = null
     private var windowManager: WindowManager? = null
 
-    // UI 线程的超时处理器，用于在开启后 30 秒检查并强制关闭悬浮窗
-    private val timeoutHandler = Handler(Looper.getMainLooper())
-    private var timeoutPosted = false
+    // 超时任务引用：用于在 10 秒后检查是否仍未关闭悬浮窗
+    private var timeoutJob: Job? = null
 
     /**
      * 显示OCR识别动画界面
@@ -69,16 +71,14 @@ class OcrViews {
         floatView = OcrViewBinding.inflate(LayoutInflater.from(context)).root
         windowManager?.addView(floatView, layoutParams)
 
-        // 启动后 30 秒检查：若仍未关闭，则强制结束，防止悬浮窗长时间滞留
-        if (!timeoutPosted) {
-            timeoutPosted = true
-            timeoutHandler.postDelayed({
-                timeoutPosted = false
-                if (floatView != null) {
-                    Logger.w("OCR悬浮窗超时未关闭，已强制结束")
-                    stopOcrView()
-                }
-            }, 30_000)
+        // 启动后 15 秒检查：若仍未关闭，则强制结束，防止悬浮窗长时间滞留
+        timeoutJob?.cancel()
+        timeoutJob = CoroutineScope(Dispatchers.Main).launch {
+            delay(15_000)
+            if (floatView != null) {
+                Logger.w("OCR悬浮窗超时未关闭，已强制结束")
+                stopOcrView()
+            }
         }
     }
 
@@ -86,9 +86,9 @@ class OcrViews {
      * 关闭OCR识别动画界面
      */
     fun stopOcrView() {
-        // 关闭前先移除所有超时回调，避免重复触发
-        timeoutHandler.removeCallbacksAndMessages(null)
-        timeoutPosted = false
+        // 关闭前取消超时任务，避免重复触发
+        timeoutJob?.cancel()
+        timeoutJob = null
         floatView?.let { view ->
             try {
                 // 使用 removeViewImmediate 避免异步移除导致的 Surface 残留/队列死亡
