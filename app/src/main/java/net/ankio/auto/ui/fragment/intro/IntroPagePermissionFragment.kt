@@ -13,7 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
-import com.google.android.material.color.MaterialColors
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.FragmentIntroPagePermissionBinding
@@ -22,13 +22,9 @@ import net.ankio.auto.service.SmsReceiver
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
-import net.ankio.auto.service.OcrService
 import net.ankio.shell.Shell
 import net.ankio.auto.service.OverlayService
-import net.ankio.auto.service.overlay.BillWindowManager
-import net.ankio.auto.storage.Logger
 
 /**
  * 引导页 #3 – 权限申请
@@ -274,29 +270,19 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
             granted -> {
                 // 已授予权限，显示成功图标
                 icon.setImageResource(R.drawable.ic_success)
-                icon.imageTintList = ColorStateList.valueOf(
-                    MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorPrimary, 0)
-                )
+                icon.imageTintList = ColorStateList.valueOf(DynamicColors.Primary)
             }
 
             isRequired -> {
                 // 必需权限未授予，显示错误图标
                 icon.setImageResource(R.drawable.ic_error)
-                icon.imageTintList = ColorStateList.valueOf(
-                    MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorError, 0)
-                )
+                icon.imageTintList = ColorStateList.valueOf(DynamicColors.Error)
             }
 
             else -> {
                 // 可选权限未授予，显示警告图标
                 icon.setImageResource(R.drawable.ic_warning)
-                icon.imageTintList = ColorStateList.valueOf(
-                    MaterialColors.getColor(
-                        ctx,
-                        com.google.android.material.R.attr.colorTertiary,
-                        0
-                    )
-                )
+                icon.imageTintList = ColorStateList.valueOf(DynamicColors.Tertiary)
             }
         }
     }

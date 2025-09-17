@@ -15,17 +15,15 @@
 
 package net.ankio.auto.ui.utils
 
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import com.bumptech.glide.Glide
-import com.google.android.material.color.MaterialColors
+import net.ankio.auto.ui.theme.DynamicColors as ThemeColor
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
 import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.http.api.CategoryAPI
-import net.ankio.auto.utils.ThemeUtils
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.CategoryModel
 
@@ -47,13 +45,7 @@ import org.ezbook.server.db.model.CategoryModel
  * 将Material Design颜色属性转换为当前主题下的实际颜色值
  * @return 当前主题下的颜色值
  */
-fun Int.toThemeColor(): Int {
-    return MaterialColors.getColor(
-        ThemeUtils.themedCtx(autoApp),
-        this,
-        Color.WHITE,
-    )
-}
+fun Int.toThemeColor(): Int = ThemeColor.resolve(this)
 
 /**
  * 将资源ID转换为Drawable对象

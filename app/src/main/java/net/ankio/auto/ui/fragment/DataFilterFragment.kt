@@ -26,7 +26,7 @@ import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 import org.ezbook.server.constant.Setting
 
 /**
@@ -121,9 +121,7 @@ class DataFilterFragment : BaseFragment<FragmentDataFilterBinding>() {
         val chip = Chip(requireContext()).apply {
             this.text = text
             chipStrokeWidth = 0f
-            chipBackgroundColor = ColorStateList.valueOf(
-                com.google.android.material.R.attr.colorPrimaryContainer.toThemeColor()
-            )
+            chipBackgroundColor = ColorStateList.valueOf(DynamicColors.PrimaryContainer)
             isClickable = true
             isCloseIconVisible = true
             setOnCloseIconClickListener {

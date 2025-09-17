@@ -42,16 +42,13 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.toThemeCtx
 import java.lang.reflect.ParameterizedType
 import kotlin.coroutines.cancellation.CancellationException
@@ -261,8 +258,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
 
             // 配置卡片样式
             cardElevation = 0f  // 无阴影
-            strokeColor =
-                com.google.android.material.R.attr.colorSurfaceContainerHighest.toThemeColor()  // 边框颜色
+            strokeColor = DynamicColors.SurfaceContainerHighest  // 边框颜色
             strokeWidth = 0     // 无边框
             setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.transparent))  // 透明背景
             radius = if (round) DisplayUtils.dp2px(16f).toFloat() else 0f  // 圆角半径

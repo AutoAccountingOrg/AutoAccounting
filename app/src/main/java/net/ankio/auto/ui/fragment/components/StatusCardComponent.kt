@@ -26,7 +26,6 @@ import net.ankio.auto.databinding.CardStatusBinding
 import net.ankio.auto.http.license.AppAPI
 import net.ankio.auto.service.OcrService
 import net.ankio.auto.storage.CacheManager
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -37,7 +36,7 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.VersionUtils
 import net.ankio.auto.ui.utils.toDrawable
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.xposed.XposedModule
 
 class StatusCardComponent(binding: CardStatusBinding) :
@@ -92,13 +91,13 @@ class StatusCardComponent(binding: CardStatusBinding) :
     private fun updateActiveStatus() {
         val isActive = isCurrentModeActive()
         val versionName = BuildConfig.VERSION_NAME
-        val colorPrimary = com.google.android.material.R.attr.colorPrimary.toThemeColor()
+        val colorPrimary = DynamicColors.Primary
 
         if (isActive) {
             // 激活状态：绿色背景
             setActive(
                 backgroundColor = colorPrimary,
-                textColor = com.google.android.material.R.attr.colorOnPrimary.toThemeColor(),
+                textColor = DynamicColors.OnPrimary,
                 drawable = R.drawable.home_active_success
             )
             binding.titleText.text = context.getString(R.string.active_success, versionName)

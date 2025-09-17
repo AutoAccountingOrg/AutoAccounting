@@ -1,20 +1,18 @@
 package net.ankio.auto.ui.fragment.intro
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.FragmentIntroPageSyncBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.http.api.BookNameAPI
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 
 class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding>() {
 
@@ -57,10 +55,7 @@ class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding
                     binding.syncImage.setImageResource(R.drawable.ic_warning)
                     ImageViewCompat.setImageTintList(
                         binding.syncImage,
-                        ContextCompat.getColorStateList(
-                            requireContext(),
-                            com.google.android.material.R.attr.colorPrimary.toThemeColor()
-                        )
+                        ColorStateList.valueOf(DynamicColors.Primary)
                     )
                 }
 

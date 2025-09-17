@@ -26,10 +26,9 @@ import android.widget.TextView
 import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.color.MaterialColors
+import net.ankio.auto.ui.theme.DynamicColors
 import com.google.android.material.materialswitch.MaterialSwitch
 import net.ankio.auto.R
-import net.ankio.auto.ui.utils.toThemeColor
 
 class ExpandableCardView @JvmOverloads constructor(
     context: Context,
@@ -46,15 +45,7 @@ class ExpandableCardView @JvmOverloads constructor(
     val titleView by lazy { findViewById<TextView>(R.id.title) }
     val descView by lazy { findViewById<TextView>(R.id.description) }
     val switch by lazy { findViewById<MaterialSwitch>(R.id.cardSwitch) }
-    // 主题色
-    private val colorSurfaceVariant =
-        MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceVariant)
-    private val colorOutline =
-        MaterialColors.getColor(this, com.google.android.material.R.attr.colorOutline)
-    private val colorPrimaryContainer =
-        MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimaryContainer)
-    private val colorPrimary =
-        MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary)
+
 
     /** 折叠/展开状态 */
     var isExpanded: Boolean = false
@@ -63,8 +54,8 @@ class ExpandableCardView @JvmOverloads constructor(
             detail.visibility = if (value) View.VISIBLE else View.GONE
             isChecked = value
             // 切换背景和描边
-            setCardBackgroundColor(if (value) colorPrimaryContainer else colorSurfaceVariant)
-            strokeColor = if (value) colorPrimary else colorOutline
+            setCardBackgroundColor(if (value) DynamicColors.PrimaryContainer else DynamicColors.SurfaceInverse)
+            strokeColor = if (value) DynamicColors.Primary else DynamicColors.Outline
             strokeWidth = 0
         }
 
@@ -151,8 +142,7 @@ class ExpandableCardView @JvmOverloads constructor(
 
     fun enableTint(boolean: Boolean) {
         if (boolean) {
-            val color = com.google.android.material.R.attr.colorPrimary.toThemeColor()
-            icon.imageTintList = ColorStateList.valueOf(color)
+            icon.imageTintList = ColorStateList.valueOf(DynamicColors.Primary)
         } else {
             icon.imageTintList = null
         }

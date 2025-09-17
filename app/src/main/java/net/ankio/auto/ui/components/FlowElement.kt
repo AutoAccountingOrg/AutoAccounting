@@ -22,11 +22,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.flexbox.FlexboxLayout
-import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.SystemUtils
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 
 /**
  * 流动布局元素类型定义
@@ -274,8 +272,7 @@ class FlowElement(
         this.connector = true
         val content = getConnectorText()
         // 直接创建一个按钮视图，但不改变当前元素类型
-        val buttonColor =
-            com.google.android.material.R.attr.colorOnSecondaryContainer.toThemeColor()
+        val buttonColor = DynamicColors.OnSecondaryContainer
         val textView = createBaseTextView(
             text = content,
             textColor = buttonColor,
@@ -530,7 +527,7 @@ class FlowElement(
      * @return 配置好的波浪文本视图
      */
     private fun createWaveView(text: String): TextView {
-        val primaryColor = com.google.android.material.R.attr.colorPrimary.toThemeColor()
+        val primaryColor = DynamicColors.Primary
         return createBaseTextView(
             text = text,
             textColor = primaryColor,
@@ -578,8 +575,7 @@ class FlowElement(
         elementType = FlowElementType.Button
 
         // 获取适合按钮的文字颜色
-        val buttonColor =
-            com.google.android.material.R.attr.colorOnSecondaryContainer.toThemeColor()
+        val buttonColor = DynamicColors.OnSecondaryContainer
 
         // 创建具有统一样式的按钮
         val textView = createBaseTextView(

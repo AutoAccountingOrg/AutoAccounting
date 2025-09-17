@@ -7,7 +7,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.graphics.ColorUtils
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 
 class MaterialScanBorderView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -40,7 +40,7 @@ class MaterialScanBorderView @JvmOverloads constructor(
     private val secondaryFlowLengthRatio = 0.08f
 
     // 主色和拖尾渐变
-    private val primaryColor = com.google.android.material.R.attr.colorPrimary.toThemeColor()
+    private val primaryColor = DynamicColors.Primary
     private val flowColor = ColorUtils.setAlphaComponent(primaryColor, 230)
     private val tailColor = ColorUtils.setAlphaComponent(primaryColor, 0)
     private val flowColorSecondary = ColorUtils.setAlphaComponent(primaryColor, 180)

@@ -18,8 +18,6 @@ package net.ankio.auto.ui.fragment.settings
 
 import android.view.View
 import android.text.InputType
-import androidx.core.content.ContextCompat
-import androidx.core.widget.doOnTextChanged
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentAiBinding
@@ -27,7 +25,7 @@ import net.ankio.auto.http.api.AiAPI
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.PrefManager
 
 /**
@@ -123,8 +121,7 @@ class AiComponent(
         tvTestResultTitle.apply {
             setText(context.getString(R.string.ai_test_result))
             setColor(
-                if (isSuccess) com.google.android.material.R.attr.colorPrimary.toThemeColor()
-                else com.google.android.material.R.attr.colorError.toThemeColor()
+                if (isSuccess) DynamicColors.Primary else DynamicColors.Error
             )
             setIcon(context.getDrawable(icon), true)
         }

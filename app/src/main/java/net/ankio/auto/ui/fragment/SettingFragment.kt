@@ -18,9 +18,7 @@ package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentSettingBinding
@@ -33,11 +31,10 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.Throttle
 import androidx.core.net.toUri
 import androidx.navigation.fragment.findNavController
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>() {
@@ -221,8 +218,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
             // 未激活状态：隐藏渐变背景图片，显示普通背景
             //  binding.proGradientBackground.visibility = View.GONE
             // 使用主题颜色作为背景
-            val backgroundColor =
-                com.google.android.material.R.attr.colorPrimaryContainer.toThemeColor()
+            val backgroundColor = DynamicColors.PrimaryContainer
             binding.proCardContent.setBackgroundColor(backgroundColor)
         }
     }

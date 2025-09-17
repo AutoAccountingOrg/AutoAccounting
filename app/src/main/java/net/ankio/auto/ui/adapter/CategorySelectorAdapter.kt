@@ -23,17 +23,15 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterCategoryListBinding
 import net.ankio.auto.http.api.CategoryAPI
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.utils.setCategoryIcon
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 
 /**
  * 分类选择器适配器 - 支持链式调用配置
@@ -288,15 +286,15 @@ class CategorySelectorAdapter : BaseAdapter<AdapterCategoryListBinding, Category
         val (textColor, imageBackground, imageColorFilter) =
             if (isActive) {
                 Triple(
-                    com.google.android.material.R.attr.colorPrimary.toThemeColor(),
+                    DynamicColors.PrimaryContainer,
                     R.drawable.rounded_border,
-                    com.google.android.material.R.attr.colorOnPrimary.toThemeColor(),
+                    DynamicColors.OnPrimary,
                 )
             } else {
                 Triple(
-                    com.google.android.material.R.attr.colorSecondary.toThemeColor(),
+                    DynamicColors.Secondary,
                     R.drawable.rounded_border_,
-                    com.google.android.material.R.attr.colorSecondary.toThemeColor(),
+                    DynamicColors.Secondary,
                 )
             }
 

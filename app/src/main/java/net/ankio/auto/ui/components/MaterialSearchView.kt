@@ -21,8 +21,7 @@ import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
-import net.ankio.auto.App
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 
 class MaterialSearchView @JvmOverloads constructor(
     context: Context,
@@ -40,18 +39,18 @@ class MaterialSearchView @JvmOverloads constructor(
         // 获取搜索输入框并设置样式
         val searchEditText = findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
         searchEditText?.apply {
-            setHintTextColor(com.google.android.material.R.attr.colorOnSurfaceVariant.toThemeColor())
-            setTextColor(com.google.android.material.R.attr.colorOnSurface.toThemeColor())
+            setHintTextColor(DynamicColors.OnSurfaceVariant)
+            setTextColor(DynamicColors.OnSurface)
             setBackgroundColor(Color.TRANSPARENT)
         }
 
         // 修改搜索图标样式
         val searchIcon = findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
-        searchIcon?.setColorFilter(com.google.android.material.R.attr.colorOnSurface.toThemeColor())
+        searchIcon?.setColorFilter(DynamicColors.OnSurface)
 
         // 修改清除按钮样式
         val closeButton = findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
-        closeButton?.setColorFilter(com.google.android.material.R.attr.colorOnSurface.toThemeColor())
+        closeButton?.setColorFilter(DynamicColors.OnSurface)
 
         // 添加展开和收起动画
         setOnSearchClickListener { applyExpandAnimation() }

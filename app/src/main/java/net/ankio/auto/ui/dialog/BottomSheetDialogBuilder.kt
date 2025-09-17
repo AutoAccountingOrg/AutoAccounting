@@ -15,17 +15,12 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleService
 import net.ankio.auto.databinding.DialogBottomSheetBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 
 /**
  * 底部弹窗构建器
@@ -207,9 +202,7 @@ open class BottomSheetDialogBuilder internal constructor(
             textSize = 16f
             setPadding(0, 16, 0, 16)
             // 设置文本样式
-            setTextColor(
-                com.google.android.material.R.attr.colorOnBackground.toThemeColor()
-            )
+            setTextColor(DynamicColors.OnBackground)
         }
     }
 

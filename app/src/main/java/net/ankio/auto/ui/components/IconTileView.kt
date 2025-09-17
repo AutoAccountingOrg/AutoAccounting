@@ -13,7 +13,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.res.use
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.ImageViewCompat
-import com.google.android.material.R as MaterialR
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.R
 
 /**
@@ -54,7 +54,7 @@ class IconTileView @JvmOverloads constructor(
     private val circleBg = GradientDrawable().apply { shape = GradientDrawable.OVAL }
 
     @ColorInt
-    private var circleColor = resolveColor(MaterialR.attr.colorSurfaceVariant)
+    private var circleColor = DynamicColors.SurfaceVariant
 
     init {
         setupLayout()
@@ -92,7 +92,7 @@ class IconTileView @JvmOverloads constructor(
         // 文字标签
         labelView = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, TEXT_SIZE_SP)
-            setTextColor(resolveColor(MaterialR.attr.colorOnSurface))
+            setTextColor(DynamicColors.OnSurface)
             maxLines = 2
             ellipsize = TextUtils.TruncateAt.END
             textAlignment = TEXT_ALIGNMENT_CENTER
@@ -193,11 +193,7 @@ class IconTileView @JvmOverloads constructor(
     /**
      * 解析主题颜色属性
      */
-    private fun resolveColor(attr: Int): Int {
-        val typedValue = TypedValue()
-        context.theme.resolveAttribute(attr, typedValue, true)
-        return typedValue.data
-    }
+    private fun resolveColor(attr: Int): Int = DynamicColors.resolve(context, attr)
 
     /**
      * 解析主题Drawable属性

@@ -18,7 +18,6 @@ package net.ankio.auto.ui.fragment.settings
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
-import android.text.TextUtils
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
@@ -26,7 +25,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentRemarkFormatBinding
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.PrefManager
 
 /**
@@ -88,9 +87,7 @@ class RemarkFormatFragment : BaseFragment<FragmentRemarkFormatBinding>() {
             isCheckable = false
             isCloseIconVisible = false
             chipStrokeWidth = 0f
-            chipBackgroundColor = ColorStateList.valueOf(
-                com.google.android.material.R.attr.colorPrimaryContainer.toThemeColor()
-            )
+            chipBackgroundColor = ColorStateList.valueOf(DynamicColors.PrimaryContainer)
             setOnClickListener { insertAtCursor(text) }
         }
         binding.chipGroup.addView(chip)

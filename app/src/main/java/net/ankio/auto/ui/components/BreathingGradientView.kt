@@ -22,7 +22,7 @@ import android.util.AttributeSet
 import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import androidx.core.graphics.ColorUtils
-import com.google.android.material.color.MaterialColors
+import net.ankio.auto.ui.theme.DynamicColors
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
@@ -84,12 +84,8 @@ class BreathingGradientView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         // 取容器色
-        val theme1 = MaterialColors.getColor(
-            this, com.google.android.material.R.attr.colorPrimaryContainer, 0xFFBB86FC.toInt()
-        )
-        val theme2 = MaterialColors.getColor(
-            this, com.google.android.material.R.attr.colorSecondaryContainer, 0xFF03DAC6.toInt()
-        )
+        val theme1 = DynamicColors.PrimaryContainer
+        val theme2 = DynamicColors.SecondaryContainer
         // 轻度亮/暗
         val light = ColorUtils.blendARGB(theme1, Color.WHITE, blendFactor)
         val dark = ColorUtils.blendARGB(theme2, Color.BLACK, blendFactor)
