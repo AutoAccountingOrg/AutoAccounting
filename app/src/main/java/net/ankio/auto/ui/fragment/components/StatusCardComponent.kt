@@ -61,6 +61,8 @@ class StatusCardComponent(binding: CardStatusBinding) :
         super.onComponentResume()
         // 每次恢复时更新状态
         updateActiveStatus()
+        // 自动检查更新（遵循开关与时间间隔）
+        autoCheckUpdateIfNeeded()
     }
 
     /**
@@ -128,6 +130,22 @@ class StatusCardComponent(binding: CardStatusBinding) :
         binding.iconView.setColorFilter(textColor)
         binding.titleText.setTextColor(textColor)
         binding.subtitleText.setTextColor(textColor)
+    }
+
+    /**
+     * 自动检查应用更新（最小实现）：
+     * - 受用户开关 `PrefManager.autoCheckAppUpdate` 控制
+     * - 每次恢复时触发一次检查，请求层有缓存
+     * - 有新版本则弹出更新对话框（沿用现有逻辑），无新版本静默
+     */
+    private fun autoCheckUpdateIfNeeded() {
+        // 配置关闭则直接返回
+        if (!PrefManager.autoCheckAppUpdate) return
+
+        // 后台检查，无需用户提示
+        launch {
+            updateApps(false)
+        }
     }
 
     private suspend fun updateApps(fromUser: Boolean) {
