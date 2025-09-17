@@ -30,6 +30,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
@@ -40,15 +41,6 @@ import net.ankio.auto.ui.utils.toThemeColor
 
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>() {
-
-    /**
-     * 激活状态数据类 - 统一管理激活相关状态
-     */
-    private data class ActivationState(
-        val isActivated: Boolean = false,
-        val displayText: String = "",
-        val isError: Boolean = false
-    )
 
     // 缓存键删除：保持逻辑单一
 
@@ -77,8 +69,8 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
     override fun onResume() {
         super.onResume()
-        // 简化：直接加载激活信息
-        launch { loadActivateInfo() }
+        // 简化：直接加载激活信息（内部自行切线程并串联逻辑）
+        loadActivateInfo()
     }
 
     /**
@@ -133,102 +125,85 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
             return
         }
 
-        // 执行激活并处理结果
-        runCatching { ActivateAPI.active(trimmedCode) }
-            .onSuccess { result ->
-
-                if (result == null) {
-                    ToastUtils.info(R.string.pro_activate_success)
-                    // 激活成功后重新加载信息
-                    launch { loadActivateInfo() }
-                } else {
-                    ToastUtils.error(getString(R.string.pro_activate_failed, result))
-                }
-
-            }
-            .onFailure { e ->
-                Logger.e("激活码验证异常: ${e.message}", e)
-
-                ToastUtils.error(
-                    getString(
-                        R.string.pro_activate_failed,
-                        e.message ?: getString(R.string.unknown_error)
-                    )
+        // 执行激活并处理结果（显示 Loading，IO 线程执行网络）
+        val loading = LoadingUtils(requireContext())
+        loading.show(R.string.loading)
+        val result = try {
+            withContext(Dispatchers.IO) { ActivateAPI.active(trimmedCode) }
+        } catch (e: Exception) {
+            Logger.e("激活码验证异常: ${e.message}", e)
+            ToastUtils.error(
+                getString(
+                    R.string.pro_activate_failed,
+                    e.message ?: getString(R.string.unknown_error)
                 )
-
-            }
-    }
-
-    /**
-     * 加载激活信息 - 使用状态数据类简化逻辑
-     */
-    private suspend fun loadActivateInfo() {
-        // 无 token：直接提示输入激活码
-        if (PrefManager.token.isEmpty()) {
-            withContext(Dispatchers.Main) {
-                applyActivationState(
-                    ActivationState(
-                        isActivated = false,
-                        displayText = getString(R.string.pro_activate_click_to_enter),
-                        isError = false
-                    )
-                )
-            }
+            )
             return
+        } finally {
+            loading.close()
         }
 
-        // 有 token：先显示 Loading，再异步拉取最新信息
-        withContext(Dispatchers.Main) {
-            applyActivationState(
-                ActivationState(
-                    isActivated = false,
-                    displayText = getString(R.string.loading),
-                    isError = false
-                )
-            )
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            ActivateAPI.clearInfoCache()
-            val data = ActivateAPI.info()
-            if (data.isNotEmpty()) {
-                val fresh = createActivationStateFromInfo(data)
-                withContext(Dispatchers.Main) { applyActivationState(fresh) }
-            }
+        if (result == null) {
+            ToastUtils.info(R.string.pro_activate_success)
+            // 激活成功后重新加载信息
+            loadActivateInfo()
+        } else {
+            ToastUtils.error(getString(R.string.pro_activate_failed, result))
         }
     }
 
     /**
-     * 根据API返回信息创建激活状态
+     * 加载激活信息 - 串行化流程，避免嵌套协程与多重状态对象
      */
-    private fun createActivationStateFromInfo(info: HashMap<String, String>): ActivationState {
-        return if (info.containsKey("error")) {
-            val errorMsg = info["error"] ?: getString(R.string.unknown_error)
-            Logger.e("激活信息接口返回错误: $errorMsg")
-            ActivationState(
-                isActivated = false,
-                displayText = getString(R.string.pro_activate_info_failed, errorMsg),
-                isError = true
-            )
-        } else {
+    private fun loadActivateInfo() {
+        // 单一入口：内部负责开启协程与线程切换
+        launch {
+            // 无 token：直接提示输入激活码
+            if (PrefManager.token.isEmpty()) {
+                withContext(Dispatchers.Main) {
+                    applyActivationState(false, getString(R.string.pro_activate_click_to_enter))
+                }
+                return@launch
+            }
+
+            // 有 token：先显示 Loading
+            withContext(Dispatchers.Main) {
+                applyActivationState(false, getString(R.string.loading))
+            }
+
+            // 拉取信息（IO 线程）
+            val info = withContext(Dispatchers.IO) { ActivateAPI.info() }
+            if (info.isEmpty()) return@launch
+
+            val errorMsg = info["error"]
+            if (errorMsg != null) {
+                Logger.e("激活信息接口返回错误: $errorMsg")
+                withContext(Dispatchers.Main) {
+                    applyActivationState(
+                        false,
+                        getString(R.string.pro_activate_info_failed, errorMsg)
+                    )
+                }
+                return@launch
+            }
+
             val count = info["count"] ?: "0"
             val time = info["time"] ?: getString(R.string.unknown)
-            ActivationState(
-                isActivated = true,
-                displayText = getString(R.string.pro_activate_info_format, count, time),
-                isError = false
-            )
+            withContext(Dispatchers.Main) {
+                applyActivationState(
+                    true,
+                    getString(R.string.pro_activate_info_format, count, time)
+                )
+            }
         }
     }
 
     /**
-     * 应用激活状态到UI - 统一的状态更新逻辑
+     * 应用激活状态到 UI - 极简且直接
      */
-    private fun applyActivationState(state: ActivationState) {
-        runCatching {
-            updateProCardState(state.isActivated)
-            binding.proActivateInfo.text = state.displayText
-        }
+    private fun applyActivationState(isActivated: Boolean, displayText: String) {
+        updateProCardState(isActivated)
+        binding.proActivateInfo.text = displayText
     }
 
     // 移除文件缓存读取：避免多路径与状态分叉
