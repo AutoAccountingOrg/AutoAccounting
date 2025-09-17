@@ -299,18 +299,38 @@ class OcrService : ICoreService() {
      * @return 返回最近使用的应用包名
      */
     private suspend fun getTopPackagePostL(): String? {
-        val data = runCatchingExceptCancel {
-            shell.exec("dumpsys window | grep mCurrentFocus")
-        }.onFailure {
-            // 提醒用户未授权root或者shizuku未运行（使用资源字符串，避免硬编码）
-            ToastUtils.info(coreService.getString(net.ankio.auto.R.string.toast_shell_not_ready))
-            Logger.e(it.message ?: "", it)
-        }.getOrNull()
-        if (data.isNullOrBlank()) return null
+        // 解析顺序：
+        // 1) topResumedActivity（最准确）
+        // 2) ResumedActivity（其次）
+        // 3) mCurrentFocus（窗口焦点，可能为null）
+        val commands = listOf(
+            "dumpsys activity activities | grep topResumedActivity",
+            "dumpsys activity activities | grep ResumedActivity",
+            "dumpsys window | grep mCurrentFocus"
+        )
 
-        val pkg = data.split(" ").firstOrNull { it.contains("/") }?.substringBefore("/")
+        for (cmd in commands) {
+            val output = runCatchingExceptCancel { shell.exec(cmd) }.getOrNull()
+            if (output.isNullOrBlank()) continue
 
-        return pkg
+            // 直接在整段输出内提取一次即可，无需逐行。
+            val pkg = extractPackageFromDumpsysLine(output)
+            if (!pkg.isNullOrBlank()) return pkg
+        }
+        return null
+    }
+
+    /**
+     * 从一行文本中提取包名：先找 '/'，再向前找空白，二者之间即包名。
+     */
+    private fun extractPackageFromDumpsysLine(line: String): String? {
+        val slashIndex = line.indexOf('/')
+        if (slashIndex <= 0) return null
+        var start = slashIndex - 1
+        while (start >= 0 && !line[start].isWhitespace()) start--
+        if (start + 1 >= slashIndex) return null
+        val pkg = line.substring(start + 1, slashIndex)
+        return pkg.takeIf { it.isNotBlank() && it.contains('.') }
     }
 
 
