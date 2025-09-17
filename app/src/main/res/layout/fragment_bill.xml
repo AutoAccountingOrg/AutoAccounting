@@ -2,6 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -37,47 +38,62 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginHorizontal="16dp">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/input_month_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            <com.google.android.material.button.MaterialSplitButton
+                android:id="@+id/input_month_split_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:layout_weight="1"
-                android:hint="@string/date"
-                app:hintEnabled="true">
+                android:contentDescription="@string/date">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_month_edit"
-                    android:layout_width="match_parent"
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialSplitButtonLeadingFilledStyle"
+                    android:id="@+id/input_month_button"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:clickable="true"
-                    android:inputType="none" />
+                    android:text="@string/date"
+                    tools:text="2025 - 09"
+                    app:icon="@drawable/ic_date_range" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialSplitButtonIconFilledStyle"
+                    android:id="@+id/input_month_chevron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/date"
+                    app:icon="@drawable/m3_split_button_chevron_avd" />
+            </com.google.android.material.button.MaterialSplitButton>
 
             <Space
                 android:layout_width="8dp"
                 android:layout_height="wrap_content" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/input_status_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            <com.google.android.material.button.MaterialSplitButton
+                android:gravity="center_horizontal"
+                android:id="@+id/input_status_split_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:hintEnabled="true">
+                android:contentDescription="@string/filter_type_all">
 
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/input_status_dropdown"
-                    android:layout_width="match_parent"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/input_status_button"
+                    style="?attr/materialSplitButtonLeadingFilledStyle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="none" />
+                    android:text="@string/filter_type_all"
+                    app:icon="@drawable/data_filter" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialSplitButtonIconFilledStyle"
+                    android:id="@+id/input_status_chevron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/filter_type_all"
+                    app:icon="@drawable/m3_split_button_chevron_avd" />
+            </com.google.android.material.button.MaterialSplitButton>
 
         </LinearLayout>
 

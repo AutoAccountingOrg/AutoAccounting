@@ -18,8 +18,8 @@ package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
 import android.view.View
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
 import net.ankio.auto.http.api.BillAPI
@@ -35,14 +35,18 @@ import net.ankio.auto.ui.models.OrderGroup
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillState
+import com.google.android.material.button.MaterialSplitButton
+import android.view.ViewGroup
+import android.widget.TextView
+import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 
 
 open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
+    // 同步状态筛选：由用户在状态按钮中选择，默认空表示保持原有行为（由后端决定）
     private var syncType = mutableListOf<String>()
     private var currentYear: Int = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
     private var currentMonth: Int =
         java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
-    private lateinit var statusDropdown: MaterialAutoCompleteTextView
     override suspend fun loadData(): List<OrderGroup> {
         val list = BillAPI.list(page, pageSize, syncType, currentYear, currentMonth)
         Logger.i("加载账单: ${list.size}条")
@@ -112,33 +116,37 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
 
 
     private fun setupFilters() {
-        // 月份必选：初始化文本并绑定点击弹出月份选择器
-        binding.inputMonthEdit.setText(formatMonthLabel(currentYear, currentMonth))
-        binding.inputMonthEdit.setOnClickListener { showMonthPicker() }
+        // 月份按钮：显示当前年月，点击弹出月份选择器
+        binding.inputMonthButton.text = formatMonthLabel(currentYear, currentMonth)
+        binding.inputMonthChevron.setOnClickListener { showMonthPicker() }
 
-        // 同步状态下拉：全部、已同步、未同步、待编辑
-        statusDropdown = binding.inputStatusDropdown
-        val items = arrayOf(
-            getString(R.string.filter_type_all),
-            getString(R.string.item_synced),
-            getString(R.string.item_wait_sync),
-            getString(R.string.item_wait_edit)
+        // 同步状态按钮：点击弹出简单菜单，供用户选择
+        val statusItems = linkedMapOf(
+            getString(R.string.filter_type_all) to null,
+            getString(R.string.item_synced) to BillState.Synced,
+            getString(R.string.item_wait_sync) to BillState.Edited,
+            getString(R.string.item_wait_edit) to BillState.Wait2Edit
         )
-        statusDropdown.setSimpleItems(items)
-        statusDropdown.setText(items[0], false)
-        statusDropdown.setOnItemClickListener { _, _, position, _ ->
-            syncType.clear()
-            when (position) {
-                1 -> syncType.add(BillState.Synced.name)
-                2 -> syncType.add(BillState.Edited.name)
-                3 -> syncType.add(BillState.Wait2Edit.name)
-                else -> {
-                    syncType.add(BillState.Synced.name)
-                    syncType.add(BillState.Edited.name)
-                    syncType.add(BillState.Wait2Edit.name)
+        binding.inputStatusButton.text = statusItems.keys.first()
+        binding.inputStatusChevron.setOnClickListener { anchorView ->
+            ListPopupUtilsGeneric.create<Map.Entry<String, BillState?>>(requireContext())
+                .setAnchor(anchorView)
+                .setList(statusItems.entries.associateBy({ it.key }, { it }))
+                .setOnItemClick { _, key, entry ->
+                    // 更新筛选集合
+                    syncType.clear()
+                    entry.value?.let { state -> syncType.add(state.name) } ?: run {
+                        // 全部：包含三种状态
+                        syncType.add(BillState.Synced.name)
+                        syncType.add(BillState.Edited.name)
+                        syncType.add(BillState.Wait2Edit.name)
+                    }
+                    // 更新按钮文案并刷新
+                    binding.inputStatusButton.text = key
+                    binding.inputStatusChevron.isChecked = false
+                    reload()
                 }
-            }
-            reload()
+                .show()
         }
     }
 
@@ -154,13 +162,16 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
             .setTitle(getString(R.string.select_month))
             .setYearMonthOnly(true)
             .setOnDateTimeSelected { year, month, _, _, _ ->
+                binding.inputMonthChevron.isChecked = false
                 currentYear = year
                 currentMonth = month
-                binding.inputMonthEdit.setText(formatMonthLabel(currentYear, currentMonth))
+                // 更新月份按钮显示文本
+                binding.inputMonthButton.text = formatMonthLabel(currentYear, currentMonth)
                 reload()
             }
             .show()
     }
+
 
     override fun onResume() {
         super.onResume()
