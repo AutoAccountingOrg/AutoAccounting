@@ -269,9 +269,12 @@ object BxPresenterImpl : HookerClazz() {
      */
     fun convert2Bill(anyBills: List<*>, type: String): ArrayList<BookBillModel> {
         val bills = arrayListOf<BookBillModel>()
+        AppRuntime.manifest.d("账单总数：${bills.size}")
         anyBills.forEach {
-            AppRuntime.manifest.i("报销：$it")
-            if (it == null || !it.toString().contains("baoxiaoExtras=null")) {
+            AppRuntime.manifest.d("报销/支出：$it")
+            if (it == null || (type == Setting.HASH_BAOXIAO_BILL && !it.toString()
+                    .contains("baoxiaoExtras=null"))
+            ) {
                 return@forEach
             }
             val bill = BookBillModel()

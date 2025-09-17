@@ -87,6 +87,29 @@ class AutoHooker : PartHooker() {
 
         hookView()
 
+        Hooker.after(
+            SearchPresenterImpl.clazz(),
+            "searchLocal",
+            String::class.java,
+            Hooker.loader("com.mutangtech.qianji.filter.filters.BookFilter"),
+            Hooker.loader("com.mutangtech.qianji.filter.filters.DateFilter"),
+            Hooker.loader("com.mutangtech.qianji.filter.filters.TypesFilter"),
+            Hooker.loader("com.mutangtech.qianji.filter.filters.MoneyFilter"),
+            Hooker.loader("com.mutangtech.qianji.filter.filters.ImageFilter"),
+            Hooker.loader("com.mutangtech.qianji.filter.filters.PlatformFilter"),
+            Boolean::class.javaPrimitiveType as Class<*>,
+            Boolean::class.javaPrimitiveType as Class<*>,
+            Boolean::class.javaPrimitiveType as Class<*>,
+            Hooker.loader("com.mutangtech.qianji.filter.filters.SortFilter"),
+            Hooker.loader("com.mutangtech.qianji.filter.filters.BillFlagFilter"),
+            Hooker.loader("com.mutangtech.qianji.filter.filters.AssetsFilter"),
+            Hooker.loader("com.mutangtech.qianji.filter.filters.TagsFilter")
+        ) {
+
+            XposedBridge.log("---------调用------------:" + it.args.joinToString("\n"))
+
+        }
+
     }
 
 

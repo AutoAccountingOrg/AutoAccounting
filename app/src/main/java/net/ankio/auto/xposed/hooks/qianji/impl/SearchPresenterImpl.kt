@@ -20,6 +20,7 @@ package net.ankio.auto.xposed.hooks.qianji.impl
  * 该类负责获取最近10天的账单列表并同步到自动记账
  */
 import com.google.gson.Gson
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -60,7 +61,7 @@ object SearchPresenterImpl : HookerClazz() {
      * 通过钩子钱迹应用的SearchPresenterImpl类来搜索本地账单
      * @return 返回账单列表
      */
-    suspend fun getLast10DayLists(): List<*> =
+    suspend fun getLast10DayLists(bookName: String): List<*> =
         suspendCoroutine { continuation ->
             var resumed = false
             val constructor = searchImpl.constructors.first()
@@ -113,10 +114,10 @@ object SearchPresenterImpl : HookerClazz() {
                 add("")
 
                 // 1. BookFilter
+                //    优化：当传入 bookName 非空时，仅匹配该账本；未命中将抛出异常；否则为“全部账本”
                 val bookFilter = BookFilter.newInstance().also { wrapper ->
-                    runBlocking {
-                        BookManagerImpl.getBooks().forEach { wrapper.addRaw(it) }
-                    }
+                    val target = runBlocking { BookManagerImpl.getBookByName(bookName) }
+                    wrapper.set(target)
                 }
                 add(bookFilter.toObject())
 
@@ -124,7 +125,8 @@ object SearchPresenterImpl : HookerClazz() {
                 val fromCalendar = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -10) }
                 val toCalendar = Calendar.getInstance()
                 val dateFilter = DataFilter.newInstance()
-                    .setTimeRangeFilter(fromCalendar, toCalendar, DataFilter.FLAG_ALL)
+                    .setTimeRangeFilter(fromCalendar, toCalendar)
+
                 add(dateFilter.toObject())
 
                 // 3. TypesFilter（示例：添加类型0）
@@ -150,7 +152,7 @@ object SearchPresenterImpl : HookerClazz() {
                 add(sortFilter.toObject())
 
                 // 11. BillFlagFilter
-                add(null)
+                add(BillFlagFilter.withFlag(0).toObject())
 
                 // 12. AssetsFilter（可选）
                 if (refreshMethod.parameterTypes.size > 12) add(null)
@@ -173,12 +175,12 @@ object SearchPresenterImpl : HookerClazz() {
      * 获取最近10天的账单列表，转换为标准格式，并上传到服务器
      * 会检查MD5哈希值以避免重复同步
      */
-    suspend fun syncBills() = withContext(Dispatchers.IO) {
+    suspend fun syncBills(bookName: String) = withContext(Dispatchers.IO) {
         // 报销账单
         val bxList =
             withContext(Dispatchers.Main) {
                 runCatching {
-                    getLast10DayLists()
+                    getLast10DayLists(bookName)
                 }.onFailure {
                     AppRuntime.manifest.e(it)
                 }.getOrDefault(emptyList<Any>())

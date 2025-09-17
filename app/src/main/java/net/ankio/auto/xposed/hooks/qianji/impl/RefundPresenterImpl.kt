@@ -53,7 +53,7 @@ object RefundPresenterImpl : HookerClazz() {
             return@withContext
         }
         // 先获取账单列表
-        val bills = SearchPresenterImpl.getLast10DayLists()
+        val bills = SearchPresenterImpl.getLast10DayLists(billInfo.bookName)
         AppRuntime.manifest.i("bills: $bills")
         //查找退款的账单
         val bill = bills.firstOrNull {
