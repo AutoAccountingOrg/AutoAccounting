@@ -121,8 +121,7 @@ class YiMuAdapter : IAppAdapter {
     // 拆分类扩展函数定义在 BillTool.kt
 
 
-
-    override fun syncWaitBills(billAction: BillAction) {
+    override fun syncWaitBills(billAction: BillAction, bookName: String) {
 
     }
 

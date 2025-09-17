@@ -122,13 +122,14 @@ class QianJiAdapter : IAppAdapter {
     }
 
 
-    override fun syncWaitBills(billAction: BillAction) {
+    override fun syncWaitBills(billAction: BillAction, bookName: String) {
         if (WorkMode.isOcr()) {
             return
         }
         // Xposed模式下对该接口进行了Hook,支持数据同步功能
         val uriBuilder = StringBuilder("qianji://publicapi/addbill")
         uriBuilder.append("?action=").append(billAction) // 同步需要报销和退款的账单
+        uriBuilder.append("&bookName=").append(bookName)
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }

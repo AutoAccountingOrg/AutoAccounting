@@ -75,7 +75,7 @@ class XiaoXinAdapter : IAppAdapter {
         // 暂不支持资产同步
     }
 
-    override fun syncWaitBills(billAction: BillAction) {
+    override fun syncWaitBills(billAction: BillAction, bookName: String) {
         // 暂不支持待处理账单同步
     }
 

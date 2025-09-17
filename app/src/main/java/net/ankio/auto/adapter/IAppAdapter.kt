@@ -45,7 +45,7 @@ interface IAppAdapter {
     fun syncAssets()
 
     // 从目标App同步待退款及报销的账单
-    fun syncWaitBills(billAction: BillAction)
+    fun syncWaitBills(billAction: BillAction, bookName: String)
 
     //将账单同步到目标APP
     fun syncBill(billInfoModel: BillInfoModel)

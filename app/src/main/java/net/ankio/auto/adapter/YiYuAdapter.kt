@@ -169,7 +169,7 @@ class YiYuAdapter : IAppAdapter {
         return sdf.format(date)
     }
 
-    override fun syncWaitBills(billAction: BillAction) {
+    override fun syncWaitBills(billAction: BillAction, bookName: String) {
 
     }
 
