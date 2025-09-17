@@ -282,16 +282,34 @@ class OcrService : ICoreService() {
 
 
     /**
-     * 将OCR识别结果发送给JS引擎处理
-     * @param text OCR识别的文本内容
-     * @param app 当前应用包名
+     * 将识别文本交给 JS 引擎做规则识别。
+     * 成功：静默（不打扰用户）。
+     * 失败：统一 toast 提示（避免多处 if 分支）。
+     * @return true 表示识别成功；false 表示未匹配到规则。
      */
-    private suspend fun send2JsEngine(text: String, app: String, forceAI: Boolean = false) {
+    private suspend fun send2JsEngine(
+        text: String,
+        app: String,
+        forceAI: Boolean = false
+    ): Boolean {
         Logger.d("app=$app, text=$text")
-        val billResult =
-            JsAPI.analysis(DataType.DATA, text, app, fromAppData = false, forceAI = forceAI)
-                ?: return
-        Logger.d("识别结果：${billResult.billInfoModel}")
+        val billResult = JsAPI.analysis(
+            DataType.DATA,
+            text,
+            app,
+            fromAppData = false,
+            forceAI = forceAI
+        )
+
+        return if (billResult == null) {
+            // 未匹配到规则 → 明确提示用户
+            ToastUtils.error(net.ankio.auto.R.string.no_rule_hint)
+            false
+        } else {
+            // 成功：仅记录日志，不打扰用户
+            Logger.d("识别结果：${billResult.billInfoModel}")
+            true
+        }
     }
 
     /**
