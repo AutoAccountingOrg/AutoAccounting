@@ -18,7 +18,7 @@
         <attr name="waveColor" format="color" />
         <attr name="waveAmplitude" format="dimension" />
         <attr name="waveFrequency" format="float" />
-        <attr name="waveSpeed" format="float" />
+        <!-- 保留自定义属性，避免与依赖库重复定义冲突：移除 waveSpeed -->
         <attr name="waveBottomPadding" format="float" />
     </declare-styleable>
     <declare-styleable name="IconView">

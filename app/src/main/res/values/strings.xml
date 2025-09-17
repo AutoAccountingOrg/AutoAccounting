@@ -458,7 +458,7 @@
     <string name="pro_activate_failed">Activation failed: %s</string>
     <string name="pro_activate_code_format_error">Invalid activation code format</string>
     <string name="pro_activate_info_failed">Failed to get activation info: %s</string>
-    <string name="pro_activate_info_format">Activation count: %s\nActivation time: %s</string>
+    <string name="pro_activate_info_format">Activation count: %1$s\nActivation time: %2$s</string>
     <string name="pro_activate_network_error">Network error, unable to get activation info</string>
     <string name="unknown">Unknown</string>
     <string name="setting_bill_tip">Notification content</string>
@@ -1030,7 +1030,7 @@
     <string name="ai_summary_regenerate">Regenerate</string>
     <string name="ai_summary_share">Share</string>
     <string name="ai_summary_share_title">Share AI Analysis</string>
-    <string name="ai_summary_share_text">My %d-%02d financial analysis report</string>
+    <string name="ai_summary_share_text">My %1$d-%2$02d financial analysis report</string>
     <string name="ai_summary_share_failed">Failed to share</string>
     <string name="ai_summary_no_content">No content to share</string>
     <string name="ai_summary_generating_image">Generating share image…</string>
