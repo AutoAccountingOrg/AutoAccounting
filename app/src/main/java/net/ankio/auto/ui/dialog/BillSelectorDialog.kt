@@ -76,13 +76,15 @@ class BillSelectorDialog internal constructor(
         this.selectedBills = bills
     }
 
+    var bookName: String = ""
     /**
      * 设置账单类型
      * @param type 账单类型，如 Setting.HASH_BAOXIAO_BILL 或 Setting.HASH_BILL
      * @return 当前对话框实例，支持链式调用
      */
-    fun setBillType(type: BillAction) = apply {
+    fun setBillType(type: BillAction, bookName: String) = apply {
         this.billType = type
+        this.bookName = bookName
     }
 
     /**
@@ -155,7 +157,7 @@ class BillSelectorDialog internal constructor(
 
                 // 通过适配器触发目标应用同步（需在主线程启动 Activity）
                 withContext(Dispatchers.Main) {
-                    AppAdapterManager.adapter().syncWaitBills(billType)
+                    AppAdapterManager.adapter().syncWaitBills(billType, bookName)
                 }
                 Logger.d("同步完成，账单类型: $billType")
             }

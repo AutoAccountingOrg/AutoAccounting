@@ -52,7 +52,7 @@ class AutoAdapter : IAppAdapter {
         return false
     }
 
-    override fun syncWaitBills(billAction: BillAction) {
+    override fun syncWaitBills(billAction: BillAction, bookName: String) {
 
     }
 }

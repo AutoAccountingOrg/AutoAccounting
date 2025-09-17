@@ -409,7 +409,7 @@ class PaymentInfoComponent(
 
 
         dialog.setSelectedBills(selectedBills)
-            .setBillType(type)
+            .setBillType(type, billInfoModel.bookName)
             .setCallback {
                 // 更新选中的账单
                 billInfoModel.extendData = selectedBills.joinToString(", ")
