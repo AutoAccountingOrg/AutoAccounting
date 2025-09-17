@@ -294,7 +294,7 @@ class OcrService : ICoreService() {
     ): Boolean {
         Logger.d("app=$app, text=$text")
         val billResult = JsAPI.analysis(
-            DataType.DATA,
+            DataType.OCR,
             text,
             app,
             fromAppData = false,

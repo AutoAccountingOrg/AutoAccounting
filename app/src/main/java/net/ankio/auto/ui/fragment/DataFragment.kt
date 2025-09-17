@@ -355,6 +355,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             type = when (position) {
                 1 -> DataType.NOTICE.name
                 2 -> DataType.DATA.name
+                3 -> DataType.OCR.name
                 else -> ""
             }
             Logger.d("Data type filter updated: type='$type'")

@@ -91,6 +91,7 @@
         <item>@string/filter_type_all</item>
         <item>@string/filter_type_notify</item>
         <item>@string/filter_type_data</item>
+        <item>@string/filter_type_ocr</item>
     </string-array>
 
     <!-- Creator filter options -->
@@ -135,4 +136,5 @@
     </string-array>
 
 
+    <string name="filter_type_ocr">Ocr</string>
 </resources>
