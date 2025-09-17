@@ -201,7 +201,7 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
             FilterConfig(
                 dropdown = binding.typeDropdown,
                 optionsArrayRes = R.array.rule_type_options,
-                valueMap = arrayOf("", "NOTICE", "DATA"),
+                valueMap = arrayOf("", "NOTICE", "DATA", "OCR"),
                 updateValue = { type = it }
             ),
             FilterConfig(
