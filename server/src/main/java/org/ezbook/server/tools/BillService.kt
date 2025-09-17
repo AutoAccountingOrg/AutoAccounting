@@ -472,7 +472,7 @@ class BillService(
             DataType.OCR -> "OCR"
         }
 
-        return "[$prefix] $rawRuleName"
+        return "$prefix·$rawRuleName"
     }
 
     /**
