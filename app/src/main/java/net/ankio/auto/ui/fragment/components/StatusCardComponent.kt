@@ -91,12 +91,11 @@ class StatusCardComponent(binding: CardStatusBinding) :
     private fun updateActiveStatus() {
         val isActive = isCurrentModeActive()
         val versionName = BuildConfig.VERSION_NAME
-        val colorPrimary = DynamicColors.Primary
 
         if (isActive) {
             // 激活状态：绿色背景
             setActive(
-                backgroundColor = colorPrimary,
+                backgroundColor = DynamicColors.Primary,
                 textColor = DynamicColors.OnPrimary,
                 drawable = R.drawable.home_active_success
             )
@@ -104,8 +103,8 @@ class StatusCardComponent(binding: CardStatusBinding) :
         } else {
             // 未激活状态：灰色背景
             setActive(
-                backgroundColor = SurfaceColors.SURFACE_3.getColor(context),
-                textColor = colorPrimary,
+                backgroundColor = DynamicColors.SurfaceColor3,
+                textColor = DynamicColors.Primary,
                 drawable = R.drawable.home_active_error
             )
             binding.titleText.text = context.getString(R.string.active_error, versionName)

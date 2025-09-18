@@ -101,6 +101,8 @@ object DynamicColors {
     val SurfaceColor3 get() = SurfaceColors.SURFACE_3.getColor(ThemeUtils.themedCtx(autoApp))
     val SurfaceColor4 get() = SurfaceColors.SURFACE_4.getColor(ThemeUtils.themedCtx(autoApp))
     val SurfaceColor5 get() = SurfaceColors.SURFACE_5.getColor(ThemeUtils.themedCtx(autoApp))
+
+    val PrimaryInverse get() = resolve(MaterialR.attr.colorPrimaryInverse)
 }
 
 
