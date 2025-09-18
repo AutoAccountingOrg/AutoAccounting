@@ -54,7 +54,7 @@ class ExpandableCardView @JvmOverloads constructor(
             detail.visibility = if (value) View.VISIBLE else View.GONE
             isChecked = value
             // 切换背景和描边
-            setCardBackgroundColor(if (value) DynamicColors.PrimaryContainer else DynamicColors.SurfaceInverse)
+            setCardBackgroundColor(if (value) DynamicColors.PrimaryContainer else DynamicColors.SurfaceContainer)
             strokeColor = if (value) DynamicColors.Primary else DynamicColors.Outline
             strokeWidth = 0
         }
