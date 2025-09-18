@@ -51,8 +51,11 @@
                 <com.google.android.material.button.MaterialButton
                     style="?attr/materialSplitButtonLeadingFilledStyle"
                     android:id="@+id/input_month_button"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:ellipsize="end"
                     android:text="@string/date"
                     tools:text="2025 - 09"
                     app:icon="@drawable/ic_date_range" />
@@ -81,8 +84,11 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/input_status_button"
                     style="?attr/materialSplitButtonLeadingFilledStyle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:ellipsize="end"
                     android:text="@string/filter_type_all"
                     app:icon="@drawable/data_filter" />
 

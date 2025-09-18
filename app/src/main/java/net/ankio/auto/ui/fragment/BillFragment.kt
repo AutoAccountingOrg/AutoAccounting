@@ -18,7 +18,6 @@ package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import android.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
@@ -32,13 +31,10 @@ import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.models.OrderGroup
+import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillState
-import com.google.android.material.button.MaterialSplitButton
-import android.view.ViewGroup
-import android.widget.TextView
-import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 
 
 open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
@@ -118,7 +114,21 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
     private fun setupFilters() {
         // 月份按钮：显示当前年月，点击弹出月份选择器
         binding.inputMonthButton.text = formatMonthLabel(currentYear, currentMonth)
-        binding.inputMonthChevron.setOnClickListener { showMonthPicker() }
+        binding.inputMonthChevron.setOnClickListener {
+            BaseSheetDialog.create<net.ankio.auto.ui.dialog.DateTimePickerDialog>(requireContext())
+                .setTitle(getString(R.string.select_month))
+                .setYearMonthOnly(true)
+                .setOnDateTimeSelected { year, month, _, _, _ ->
+                    currentYear = year
+                    currentMonth = month
+                    // 更新月份按钮显示文本
+                    binding.inputMonthButton.text = formatMonthLabel(currentYear, currentMonth)
+                    reload()
+                }.setOnDismiss {
+                    binding.inputMonthChevron.isChecked = false
+                }
+                .show()
+        }
 
         // 同步状态按钮：点击弹出简单菜单，供用户选择
         val statusItems = linkedMapOf(
@@ -143,8 +153,9 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                     }
                     // 更新按钮文案并刷新
                     binding.inputStatusButton.text = key
-                    binding.inputStatusChevron.isChecked = false
                     reload()
+                }.setOnDismiss {
+                    binding.inputStatusChevron.isChecked = false
                 }
                 .show()
         }
@@ -154,22 +165,6 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
     private fun formatMonthLabel(year: Int, month: Int): String {
         val mm = if (month < 10) "0$month" else "$month"
         return "$year-$mm"
-    }
-
-    /** 使用封装好的日期时间选择器，仅取年月（用户选中任意日即确定该月） */
-    private fun showMonthPicker() {
-        BaseSheetDialog.create<net.ankio.auto.ui.dialog.DateTimePickerDialog>(requireContext())
-            .setTitle(getString(R.string.select_month))
-            .setYearMonthOnly(true)
-            .setOnDateTimeSelected { year, month, _, _, _ ->
-                binding.inputMonthChevron.isChecked = false
-                currentYear = year
-                currentMonth = month
-                // 更新月份按钮显示文本
-                binding.inputMonthButton.text = formatMonthLabel(currentYear, currentMonth)
-                reload()
-            }
-            .show()
     }
 
 
