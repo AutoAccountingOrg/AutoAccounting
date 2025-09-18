@@ -79,6 +79,7 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
     private var selectedValue: T? = null
     private var onItemClickListener: ((position: Int, key: String, value: T) -> Unit)? = null
     private var minWidth: Int = 0
+    private var onDismissListener: (() -> Unit)? = null
 
     // 内部状态
     private var adapter: ArrayAdapter<String>? = null
@@ -146,6 +147,18 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
     }
 
 
+    /**
+     * 设置弹窗消失回调 - 链式调用
+     * 无论是用户点击外部/项目导致关闭，还是代码调用 dismiss()，都会回调一次。
+     */
+    fun setOnDismiss(listener: () -> Unit): ListPopupUtilsGeneric<T> {
+        this.onDismissListener = listener
+        // 立即绑定到窗口监听，避免调用顺序造成遗漏
+        listPopupWindow.setOnDismissListener { this.onDismissListener?.invoke() }
+        return this
+    }
+
+
 
     /**
      * 设置弹窗高度 - 链式调用
@@ -207,6 +220,8 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
             // 设置默认高度
             if (height == 0) height = ListPopupWindow.WRAP_CONTENT
             isModal = true
+            // 绑定消失监听
+            setOnDismissListener { this@ListPopupUtilsGeneric.onDismissListener?.invoke() }
 
             setOnItemClickListener { _, _, position, _ ->
                 selectIndex = position

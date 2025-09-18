@@ -96,6 +96,12 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
     protected val ctx = context.toThemeCtx()
 
     /**
+     * 弹窗消失回调（链式设置）。
+     * 通过 [setOnDismiss] 进行设置；无论用户点击外部/按钮关闭，还是代码调用 dismiss()，系统都会触发。
+     */
+    private var onDismissCallback: (() -> Unit)? = null
+
+    /**
      * 在Dialog生命周期内启动协程
      * 统一处理异常，业务代码无需再捕获异常
      *
@@ -169,6 +175,17 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
 
         // 监听宿主生命周期，当宿主销毁时自动关闭弹窗
         hostLifecycleOwner.lifecycle.addObserver(this)
+    }
+
+    /**
+     * 链式设置弹窗消失回调。
+     * @param listener 回调函数（无参数）
+     * @return 当前对话框实例，便于链式调用
+     */
+    fun setOnDismiss(listener: () -> Unit): BaseSheetDialog<VB> {
+        onDismissCallback = listener
+        super.setOnDismissListener { onDismissCallback?.invoke() }
+        return this
     }
 
     /**
