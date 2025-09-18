@@ -1045,8 +1045,9 @@
     <string name="js_saved">Saved</string>
 
     <!-- Button texts -->
-    <string name="btn_ai_analysis">AI Analysis</string>
-    <string name="btn_bill_sync">Bill Sync</string>
+    <string name="btn_ai_analysis">AI</string>
+    <string name="btn_bill_sync">Sync</string>
+    <string name="btn_bill_statistics">Stats</string>
     <string name="btn_create_rule">Rule</string>
     <string name="btn_upload_adapter">Adapter</string>
     <string name="btn_test_rule">Test</string>

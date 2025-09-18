@@ -25,9 +25,13 @@
     <dimen name="image_size">38dp</dimen>
     <dimen name="image_size_small_min">18dp</dimen>
     <dimen name="image_size_small">28dp</dimen>
+    <dimen name="image_size_medium">38dp</dimen>
     <dimen name="image_size_large">48dp</dimen>
+    <dimen name="image_size_large_medium">52dp</dimen>
+    <dimen name="image_size_large_max">58dp</dimen>
     <dimen name="state_padding">28dp</dimen>
     <dimen name="radius">24dp</dimen>
+    <dimen name="radius_small">12dp</dimen>
     <dimen name="icon_size">30dp</dimen>
     <dimen name="float_icon_size">25dp</dimen>
     <dimen name="save_size">20sp</dimen>

@@ -20,9 +20,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.R
 import net.ankio.auto.databinding.CardMonthlyBinding
 import net.ankio.auto.http.api.BillAPI
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.PeriodSelectorDialog
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -37,82 +37,69 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
 
     private var onNavigateToAiSummary: ((PeriodSelectorDialog.PeriodData?) -> Unit)? = null
 
-    private lateinit var fragment: Fragment
-    /**
-     * 设置导航回调
-     */
     fun setOnNavigateToAiSummary(callback: (PeriodSelectorDialog.PeriodData?) -> Unit) = apply {
         onNavigateToAiSummary = callback
-    }
-
-    fun setFragment(fragment: Fragment) = apply {
-        this.fragment = fragment
     }
 
     override fun onComponentCreate() {
         super.onComponentCreate()
         binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
 
+        setupColors()
         // 设置底部操作按钮
         setupBottomButtons()
     }
 
-    /**
-     * 设置底部操作按钮
-     * 根据配置动态显示AI分析和同步按钮
-     */
-    private fun setupBottomButtons() {
-        val showAiButton = PrefManager.aiMonthlySummary
-        val showSyncButton = PrefManager.bookApp != BuildConfig.APPLICATION_ID
-
-        // 设置AI分析按钮
-        binding.btnAiAnalysis.visibility = if (showAiButton) View.VISIBLE else View.GONE
-        binding.btnAiAnalysis.setOnClickListener {
-            showPeriodSelector()
-        }
-
-        // 设置同步按钮  
-        binding.btnSync.visibility = if (showSyncButton) View.VISIBLE else View.GONE
-        binding.btnSync.setOnClickListener {
-            performSync()
-        }
-
-        // 控制整个按钮容器的显示状态
-        // 如果两个按钮都不显示，则隐藏整个容器
-        binding.bottomButtonsLayout.visibility = if (showAiButton || showSyncButton) {
-            View.VISIBLE
+    private fun setupColors() {
+        val isExpenseRed = PrefManager.expenseColorRed == 1
+        val (incomeColor, expenseColor) = if (isExpenseRed) {
+            BillTool.getColor(BillType.Expend) to BillTool.getColor(BillType.Income)
         } else {
-            View.GONE
+            BillTool.getColor(BillType.Income) to BillTool.getColor(BillType.Expend)
         }
 
-        // 调整按钮布局：只有一个按钮时，让它占满整行
-        if (showAiButton && !showSyncButton) {
-            // 只显示AI按钮，移除右边距
-            binding.btnAiAnalysis.layoutParams =
-                (binding.btnAiAnalysis.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
-                    weight = 1f
-                    marginEnd = 0
-                }
-        } else if (!showAiButton && showSyncButton) {
-            // 只显示同步按钮，移除左边距
-            binding.btnSync.layoutParams =
-                (binding.btnSync.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
-                    weight = 1f
-                    marginStart = 0
-                }
-        } else if (showAiButton && showSyncButton) {
-            // 两个按钮都显示，恢复原始边距 (8dp)
-            val marginPx = (8 * context.resources.displayMetrics.density).toInt()
-            binding.btnAiAnalysis.layoutParams =
-                (binding.btnAiAnalysis.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
-                    weight = 1f
-                    marginEnd = marginPx
-                }
-            binding.btnSync.layoutParams =
-                (binding.btnSync.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
-                    weight = 1f
-                    marginStart = marginPx
-                }
+        with(binding) {
+            tvIncomeAmount.setTextColor(ContextCompat.getColor(context, incomeColor))
+            tvExpenseAmount.setTextColor(ContextCompat.getColor(context, expenseColor))
+            ivIncomeIcon.imageTintList = android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    context,
+                    incomeColor
+                )
+            )
+            ivExpenseIcon.imageTintList = android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    context,
+                    expenseColor
+                )
+            )
+
+            val (expenseBg, incomeBg) = if (isExpenseRed) {
+                R.drawable.bg_success_icon to R.drawable.bg_danger_icon
+            } else {
+                R.drawable.bg_danger_icon to R.drawable.bg_success_icon
+            }
+            llExpense.setBackgroundResource(expenseBg)
+            llIncome.setBackgroundResource(incomeBg)
+        }
+    }
+
+    private fun setupBottomButtons() {
+        with(binding) {
+            btnAiAnalysis.apply {
+                visibility = if (PrefManager.aiMonthlySummary) View.VISIBLE else View.GONE
+                setOnClickListener { showPeriodSelector() }
+            }
+            btnSync.apply {
+                visibility =
+                    if (PrefManager.bookApp != BuildConfig.APPLICATION_ID) View.VISIBLE else View.GONE
+                setOnClickListener { performSync() }
+            }
+
+            btnAnalysis.setOnClickListener {
+                //跳转账单综合分析页面
+
+            }
         }
     }
 
@@ -153,20 +140,8 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
                 // 设置收入金额和颜色
                 binding.tvIncomeAmount.text =
                     String.format(Locale.getDefault(), "¥ %.2f", incomeAmount)
-                val incomeColor =
-                    ContextCompat.getColor(context, BillTool.getColor(BillType.Income))
-                binding.tvIncomeAmount.setTextColor(incomeColor)
-                binding.ivIncomeIcon.imageTintList =
-                    android.content.res.ColorStateList.valueOf(incomeColor)
-
-                // 设置支出金额和颜色
                 binding.tvExpenseAmount.text =
                     String.format(Locale.getDefault(), "¥ %.2f", expenseAmount)
-                val expenseColor =
-                    ContextCompat.getColor(context, BillTool.getColor(BillType.Expend))
-                binding.tvExpenseAmount.setTextColor(expenseColor)
-                binding.ivExpenseIcon.imageTintList =
-                    android.content.res.ColorStateList.valueOf(expenseColor)
             }
         }
     }

@@ -52,7 +52,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         val ruleVersionCard: RuleVersionCardComponent = binding.ruleVersionCard.bindAs()
 
         val monthlyCard: MonthlyCardComponent = binding.monthlyCard.bindAs()
-        monthlyCard.setFragment(this)
+        monthlyCard
             .setOnNavigateToAiSummary { periodData ->
                 // 使用Bundle传递周期数据
                 val bundle = Bundle()

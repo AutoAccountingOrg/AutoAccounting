@@ -17,6 +17,9 @@
     <color name="info">#3B71CA</color>
     <color name="danger">#DC4C64</color>
     <color name="success">#14A44D</color>
+    <!-- 夜间模式背景用淡色版本 -->
+    <color name="danger_bg">#26DC4C64</color>  <!-- 15% 透明度的红色，夜间稍微亮一点 -->
+    <color name="success_bg">#2614A44D</color> <!-- 15% 透明度的绿色，夜间稍微亮一点 -->
     <color name="log_info">#90CAF9</color> <!-- 浅信息 -->
     <color name="log_warning">#FFCC80</color> <!-- 浅警告 -->
     <color name="log_error">#EF9A9A</color> <!-- 浅错误 -->

@@ -19,6 +19,9 @@
     <color name="info">#155FDA</color>
     <color name="danger">#E52544</color>
     <color name="success">#189D4C</color>
+    <!-- 背景用淡色版本 -->
+    <color name="danger_bg">#1AE52544</color>  <!-- 10% 透明度的红色 -->
+    <color name="success_bg">#1A189D4C</color> <!-- 10% 透明度的绿色 -->
     <!-- 成功 -->
     <color name="log_info">#007BFF</color> <!-- 信息 -->
     <color name="log_warning">#FFC107</color> <!-- 警告 -->

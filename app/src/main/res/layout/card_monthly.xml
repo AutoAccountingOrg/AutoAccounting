@@ -20,129 +20,190 @@
              app:layout_constraintTop_toTopOf="parent" />-->
 
 
+        <!-- 收入支出展示区域 -->
         <LinearLayout
             android:id="@+id/incomeExpenseLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:minHeight="120dp"
+            android:padding="@dimen/one_padding"
+            android:layout_marginTop="@dimen/one_padding"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout">
 
+            <!-- 收入区域 -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:padding="@dimen/one_padding"
+                android:gravity="center_vertical">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivIncomeIcon"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginBottom="8dp"
-                    android:tint="?attr/colorPrimary"
-                    app:srcCompat="@drawable/ic_trending_down" />
+                <!-- 收入图标背景 -->
+                <LinearLayout
+                    android:id="@+id/ll_expense"
+                    android:layout_width="@dimen/image_size_large"
+                    android:layout_height="@dimen/image_size_large"
+                    android:background="@drawable/bg_success_icon"
+                    android:gravity="center">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tvIncomeAmount"
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivExpenseIcon"
+                        android:layout_width="@dimen/image_size_small"
+                        android:layout_height="@dimen/image_size_small"
+                        android:tint="@color/success"
+                        app:srcCompat="@drawable/ic_trending_down" />
+
+                </LinearLayout>
+
+                <!-- 收入信息 -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    tools:text="¥7,300.00"
-                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:layout_marginStart="@dimen/one_padding"
+                    android:orientation="vertical">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/month_income"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/month_income"
+                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tvExpenseAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        tools:text="¥1,735.90"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                        android:textColor="@color/success"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="?attr/colorSurfaceVariant"
-                android:alpha="0.5" />
-
+            <!-- 支出区域 -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:padding="@dimen/one_padding"
+                android:gravity="center_vertical">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivExpenseIcon"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginBottom="8dp"
-                    android:tint="?attr/colorError"
-                    app:srcCompat="@drawable/ic_trending_up" />
+                <!-- 支出图标背景 -->
+                <LinearLayout
+                    android:id="@+id/ll_income"
+                    android:layout_width="@dimen/image_size_large"
+                    android:layout_height="@dimen/image_size_large"
+                    android:background="@drawable/bg_danger_icon"
+                    android:gravity="center">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tvExpenseAmount"
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivIncomeIcon"
+                        android:layout_width="@dimen/image_size_small"
+                        android:layout_height="@dimen/image_size_small"
+                        android:tint="@color/danger"
+                        app:srcCompat="@drawable/ic_trending_up" />
+
+                </LinearLayout>
+
+                <!-- 支出信息 -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    tools:text="¥18,188.83"
-                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:layout_marginStart="@dimen/one_padding"
+                    android:orientation="vertical">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/month_expense"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/month_expense"
+                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tvIncomeAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        tools:text="¥8,000.00"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                        android:textColor="@color/danger"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
             </LinearLayout>
+
         </LinearLayout>
 
-        <!-- 底部按钮容器 -->
+        <!-- 底部按钮组 -->
         <LinearLayout
             android:id="@+id/bottomButtonsLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:paddingTop="8dp"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/padding"
+            android:paddingBottom="@dimen/padding"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <!-- AI分析按钮 -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAiAnalysis"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+            <com.google.android.material.button.MaterialButtonGroup
+                android:id="@+id/monthlyButtonGroup"
+                style="@style/Widget.Material3.MaterialButtonGroup.Connected"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="@string/btn_ai_analysis"
-                android:maxLines="1"
-                android:ellipsize="end"
-                app:icon="@drawable/ic_ai"
-                app:iconGravity="textStart" />
+                app:selectionRequired="false"
+                app:singleSelection="false">
 
-            <!-- 账单同步按钮 -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSync"
-                style="@style/Widget.Material3.Button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="@string/btn_bill_sync"
-                android:maxLines="1"
-                android:ellipsize="end"
-                app:icon="@drawable/ic_sync"
-                app:iconGravity="textStart" />
+                <!-- AI分析按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAiAnalysis"
+                    style="?attr/materialButtonTonalStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_ai_analysis"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    app:icon="@drawable/ic_ai"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAnalysis"
+                    style="?attr/materialButtonTonalStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_bill_statistics"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    app:icon="@drawable/ic_statistic"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp" />
+                <!-- 账单同步按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSync"
+                    style="?attr/materialButtonTonalStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_bill_sync"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    app:icon="@drawable/ic_sync"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp" />
+
+            </com.google.android.material.button.MaterialButtonGroup>
 
         </LinearLayout>
 
