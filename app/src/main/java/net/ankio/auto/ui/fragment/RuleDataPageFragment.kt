@@ -101,8 +101,9 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpLeftData()
-        setupFilterDropdown()
+        setupFilterButtons()
         setUpSearch()
+        setupSearchToggle()
     }
 
     /**
@@ -183,65 +184,68 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
     }
 
     /**
-     * 过滤器配置 - Linus式简化：消除重复代码的通用方案
+     * 设置过滤按钮：类型、创建者
      */
-    private data class FilterConfig(
-        val dropdown: com.google.android.material.textfield.MaterialAutoCompleteTextView,
-        val optionsArrayRes: Int,
-        val valueMap: Array<String>,
-        val updateValue: (String) -> Unit
-    )
+    private fun setupFilterButtons() {
+        setupTypeButton()
+        setupCreatorButton()
+    }
 
     /**
-     * 设置过滤下拉框 - 统一的过滤器设置逻辑
+     * 配置“类型”筛选按钮：全部/通知/数据/OCR
      */
-    private fun setupFilterDropdown() {
-        // Linus原则：用数据结构消除重复代码
-        val filters = listOf(
-            FilterConfig(
-                dropdown = binding.typeDropdown,
-                optionsArrayRes = R.array.rule_type_options,
-                valueMap = arrayOf("", "NOTICE", "DATA", "OCR"),
-                updateValue = { type = it }
-            ),
-            FilterConfig(
-                dropdown = binding.creatorDropdown,
-                optionsArrayRes = R.array.creator_options,
-                valueMap = arrayOf("", "user", "system"),
-                updateValue = { creator = it }
-            )
+    private fun setupTypeButton() {
+        val labels = resources.getStringArray(R.array.rule_type_options)
+        binding.typeButton.text = labels[0]
+
+        val items = linkedMapOf(
+            labels[0] to "",
+            labels[1] to "NOTICE",
+            labels[2] to "DATA",
+            labels[3] to "OCR"
         )
 
-        // 通用设置逻辑 - 无重复代码
-        filters.forEach { config ->
-            setupSingleFilter(config)
+        // 统一风格：点击主按钮弹出菜单
+        binding.typeButton.setOnClickListener { anchorView ->
+            net.ankio.auto.ui.utils.ListPopupUtilsGeneric.create<String>(requireContext())
+                .setAnchor(anchorView)
+                .setList(items)
+                .setOnItemClick { _, key, value ->
+                    type = value
+                    binding.typeButton.text = key
+                    Logger.d("Rule type filter updated: type='$type'")
+                    reload()
+                }
+                .show()
         }
     }
 
     /**
-     * 设置单个过滤器 - 统一的实现，消除所有重复
+     * 配置“创建者”筛选按钮：全部/用户/系统
      */
-    private fun setupSingleFilter(config: FilterConfig) {
-        val options = resources.getStringArray(config.optionsArrayRes)
+    private fun setupCreatorButton() {
+        val labels = resources.getStringArray(R.array.creator_options)
+        binding.creatorButton.text = labels[0]
 
-        // 设置适配器
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            options
+        val items = linkedMapOf(
+            labels[0] to "",
+            labels[1] to "user",
+            labels[2] to "system"
         )
-        config.dropdown.setAdapter(adapter)
 
-        // 设置点击监听器 - 通用逻辑
-        config.dropdown.setOnItemClickListener { _, _, position, _ ->
-            val value = config.valueMap[position]
-            config.updateValue(value)
-            Logger.d("Filter updated: position=$position, value='$value'")
-            reload()
+        // 统一风格：点击主按钮弹出菜单
+        binding.creatorButton.setOnClickListener { anchorView ->
+            net.ankio.auto.ui.utils.ListPopupUtilsGeneric.create<String>(requireContext())
+                .setAnchor(anchorView)
+                .setList(items)
+                .setOnItemClick { _, key, value ->
+                    creator = value
+                    binding.creatorButton.text = key
+                    Logger.d("Creator filter updated: creator='$creator'")
+                    reload()
+                }
+                .show()
         }
-
-        // 设置默认选中项
-        config.dropdown.setText(options[0], false)
     }
 
     /**
@@ -258,5 +262,27 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
                 reload()
             }
         })
+    }
+
+    /**
+     * 搜索切换：点击筛选行中的搜索按钮，切换到搜索框；点击返回按钮切换回过滤行
+     */
+    private fun setupSearchToggle() {
+        // 搜索按钮：切换到搜索框
+        binding.searchButton.setOnClickListener {
+            binding.filterSearchContainer.displayedChild = 1
+            binding.searchEditText.requestFocus()
+        }
+
+        // 返回按钮：切换回过滤行
+        binding.searchBackButton.setOnClickListener {
+            binding.filterSearchContainer.displayedChild = 0
+            // 清空搜索内容并重新加载
+            if (searchData.isNotEmpty()) {
+                binding.searchEditText.setText("")
+                searchData = ""
+                reload()
+            }
+        }
     }
 }

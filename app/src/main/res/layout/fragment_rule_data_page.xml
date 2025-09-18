@@ -34,84 +34,134 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <!-- 搜索框 - 独占一行 -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/searchLayout"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
+        <!-- 过滤器和搜索框切换容器 -->
+        <ViewFlipper
+            android:id="@+id/filterSearchContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:hint="@string/search_rules"
-            app:startIconDrawable="@drawable/menu_icon_search"
+            android:inAnimation="@android:anim/slide_in_left"
+            android:outAnimation="@android:anim/slide_out_right"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/searchEditText"
+            <!-- 过滤器容器 - 与账单页一致使用 MaterialSplitButton -->
+            <LinearLayout
+                android:id="@+id/filterContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:imeOptions="actionSearch"
-                android:singleLine="true" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- 过滤器容器 - 使用LinearLayout确保不换行 -->
-        <LinearLayout
-            android:id="@+id/filterContainer"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/searchLayout">
-
-            <!-- 规则类型下拉框 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/typeDropdownLayout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:hint="@string/filter_rule_type">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/typeDropdown"
-                    android:layout_width="match_parent"
+                <!-- 左侧过滤器组 -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:text="@string/filter_type_all" />
+                    android:layout_weight="1"
+                    android:gravity="start|center_vertical"
+                    android:orientation="horizontal">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <!-- 规则类型筛选 -->
+                    <com.google.android.material.button.MaterialSplitButton
+                        android:id="@+id/type_split_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/filter_rule_type"
+                        android:gravity="center_horizontal">
 
-            <!-- 创建者下拉框 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/creatorDropdownLayout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:hint="@string/filter_creator">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/type_button"
+                            style="?attr/materialSplitButtonLeadingFilledTonalStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/filter_type_all"
+                            app:icon="@drawable/home_rule" />
 
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/creatorDropdown"
-                    android:layout_width="match_parent"
+                    </com.google.android.material.button.MaterialSplitButton>
+
+                    <Space
+                        android:layout_width="4dp"
+                        android:layout_height="wrap_content" />
+
+                    <!-- 创建者筛选 -->
+                    <com.google.android.material.button.MaterialSplitButton
+                        android:id="@+id/creator_split_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/filter_creator"
+                        android:gravity="center_horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/creator_button"
+                            style="?attr/materialSplitButtonLeadingFilledTonalStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/filter_creator_all"
+                            app:icon="@drawable/icon_edit" />
+
+                    </com.google.android.material.button.MaterialSplitButton>
+
+                </LinearLayout>
+
+                <!-- 右侧搜索按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/search_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:text="@string/filter_creator_all" />
+                    android:contentDescription="@string/search_rules"
+                    app:icon="@drawable/menu_icon_search"
+                    app:iconPadding="0dp" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- 返回按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/search_back_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="2dp"
+                    android:contentDescription="@string/search_rules"
+                    app:icon="@drawable/icon_arrow_back" />
+
+                <!-- 搜索输入框 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/searchLayout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:hint="@string/search_rules"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/searchEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <!-- 搜索框：替代过滤行显示 -->
+
+        </ViewFlipper>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"
@@ -121,7 +171,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/filterContainer">
+            app:layout_constraintTop_toBottomOf="@+id/filterSearchContainer">
 
             <net.ankio.auto.ui.components.StatusPage
                 android:id="@+id/status_page"
