@@ -60,7 +60,7 @@ android {
         applicationId = "net.ankio.auto"
         minSdk = 29
         versionCode = calculateVersionCode()
-        versionName = "4.0.0"
+        versionName = "4.0.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions += "version"
         setProperty("archivesBaseName", "app-${versionName}(${versionCode})")
