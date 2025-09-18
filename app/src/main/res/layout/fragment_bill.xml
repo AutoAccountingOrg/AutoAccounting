@@ -42,20 +42,16 @@
 
             <com.google.android.material.button.MaterialSplitButton
                 android:id="@+id/input_month_split_button"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:layout_weight="1"
                 android:contentDescription="@string/date">
 
                 <com.google.android.material.button.MaterialButton
                     style="?attr/materialSplitButtonLeadingFilledStyle"
                     android:id="@+id/input_month_button"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:ellipsize="end"
                     android:text="@string/date"
                     tools:text="2025 - 09"
                     app:icon="@drawable/ic_date_range" />
@@ -76,19 +72,15 @@
             <com.google.android.material.button.MaterialSplitButton
                 android:gravity="center_horizontal"
                 android:id="@+id/input_status_split_button"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:contentDescription="@string/filter_type_all">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/input_status_button"
                     style="?attr/materialSplitButtonLeadingFilledStyle"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:ellipsize="end"
                     android:text="@string/filter_type_all"
                     app:icon="@drawable/data_filter" />
 
