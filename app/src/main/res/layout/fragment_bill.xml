@@ -48,7 +48,7 @@
                 android:contentDescription="@string/date">
 
                 <com.google.android.material.button.MaterialButton
-                    style="?attr/materialSplitButtonLeadingFilledStyle"
+                    style="?attr/materialSplitButtonLeadingFilledTonalStyle"
                     android:id="@+id/input_month_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -57,11 +57,12 @@
                     app:icon="@drawable/ic_date_range" />
 
                 <com.google.android.material.button.MaterialButton
-                    style="?attr/materialSplitButtonIconFilledStyle"
+                    style="?attr/materialSplitButtonLeadingFilledTonalStyle"
                     android:id="@+id/input_month_chevron"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/date"
+                    app:iconSize="18dp"
                     app:icon="@drawable/m3_split_button_chevron_avd" />
             </com.google.android.material.button.MaterialSplitButton>
 
@@ -78,18 +79,19 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/input_status_button"
-                    style="?attr/materialSplitButtonLeadingFilledStyle"
+                    style="?attr/materialSplitButtonLeadingFilledTonalStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_type_all"
                     app:icon="@drawable/data_filter" />
 
                 <com.google.android.material.button.MaterialButton
-                    style="?attr/materialSplitButtonIconFilledStyle"
+                    style="?attr/materialSplitButtonLeadingFilledTonalStyle"
                     android:id="@+id/input_status_chevron"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/filter_type_all"
+                    app:iconSize="18dp"
                     app:icon="@drawable/m3_split_button_chevron_avd" />
             </com.google.android.material.button.MaterialSplitButton>
 
