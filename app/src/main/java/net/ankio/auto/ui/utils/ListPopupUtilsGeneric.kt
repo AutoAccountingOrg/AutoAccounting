@@ -22,6 +22,7 @@ import android.widget.ListPopupWindow
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import net.ankio.auto.R
 import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
 import android.graphics.Paint
 import android.util.TypedValue
@@ -205,7 +206,7 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
         requireNotNull(onItemClickListener) { "点击监听器不能为空，请先调用setOnItemClick()" }
 
         val keys = itemList.keys.toTypedArray()
-        adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, keys)
+        adapter = ArrayAdapter(context, R.layout.list_popup_window_item, keys)
 
         // 找到当前选中项的索引
         selectIndex = selectedValue?.let { value ->
@@ -220,6 +221,8 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
             // 设置默认高度
             if (height == 0) height = ListPopupWindow.WRAP_CONTENT
             isModal = true
+            // 设置圆角背景
+            setBackgroundDrawable(context.getDrawable(R.drawable.popup_background))
             // 绑定消失监听
             setOnDismissListener { this@ListPopupUtilsGeneric.onDismissListener?.invoke() }
 
