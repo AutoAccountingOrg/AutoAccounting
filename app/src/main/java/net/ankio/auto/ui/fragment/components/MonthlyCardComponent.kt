@@ -36,9 +36,14 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
     BaseComponent<CardMonthlyBinding>(binding) {
 
     private var onNavigateToAiSummary: ((PeriodSelectorDialog.PeriodData?) -> Unit)? = null
+    private var onNavigateToStatistics: (() -> Unit)? = null
 
     fun setOnNavigateToAiSummary(callback: (PeriodSelectorDialog.PeriodData?) -> Unit) = apply {
         onNavigateToAiSummary = callback
+    }
+
+    fun setOnNavigateToStatistics(callback: () -> Unit) = apply {
+        onNavigateToStatistics = callback
     }
 
     override fun onComponentCreate() {
@@ -98,7 +103,7 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
 
             btnAnalysis.setOnClickListener {
                 //跳转账单综合分析页面
-
+                onNavigateToStatistics?.invoke()
             }
         }
     }
@@ -137,10 +142,12 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
                 val incomeAmount = stats["income"] ?: 0.0
                 val expenseAmount = stats["expense"] ?: 0.0
 
-                // 设置收入金额和颜色
-                binding.tvIncomeAmount.text =
-                    String.format(Locale.getDefault(), "¥ %.2f", incomeAmount)
+                // 修正：根据布局文件中的实际标签来设置对应的金额
+                // tvExpenseAmount 对应的是"月收入"标签，应该显示收入金额
+                // tvIncomeAmount 对应的是"月支出"标签，应该显示支出金额
                 binding.tvExpenseAmount.text =
+                    String.format(Locale.getDefault(), "¥ %.2f", incomeAmount)
+                binding.tvIncomeAmount.text =
                     String.format(Locale.getDefault(), "¥ %.2f", expenseAmount)
             }
         }
