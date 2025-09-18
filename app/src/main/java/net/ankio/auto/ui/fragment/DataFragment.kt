@@ -17,14 +17,15 @@ package net.ankio.auto.ui.fragment
 
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.widget.SearchView
+import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import android.widget.ArrayAdapter
 import androidx.core.net.toUri
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
@@ -34,10 +35,8 @@ import net.ankio.auto.http.api.AppDataAPI
 import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.AppDataAdapter
-import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.components.MaterialSearchView
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
@@ -45,9 +44,10 @@ import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.http.Pastebin
-import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.http.license.RuleAPI
+import net.ankio.auto.ui.components.MaterialSearchView
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
@@ -62,7 +62,7 @@ import org.ezbook.server.db.model.AppDataModel
  * 该Fragment负责展示和管理应用数据，包括：
  * - 左侧应用列表展示
  * - 数据筛选（通知数据、应用数据、匹配状态）
- * - 搜索功能
+ * - 搜索功能切换
  * - 数据清理功能
  *
  * @author ankio
@@ -82,8 +82,18 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     /** 搜索关键词 */
     var searchData = ""
 
-    /** 左侧应用数据缓存 */
-    private var leftData = JsonObject()
+    /**
+     * 应用信息数据类 - 统一的数据结构，消除双重维护
+     * 按照Linus的"好品味"原则：一个数据结构解决一个问题
+     */
+    data class AppInfo(
+        val packageName: String,
+        val name: String,
+        val icon: android.graphics.drawable.Drawable?
+    )
+
+    /** 应用列表 - 单一数据源，消除索引转换的特殊情况 */
+    private val appList = mutableListOf<AppInfo>()
 
     companion object {
         private const val GITHUB_ISSUE_URL =
@@ -105,7 +115,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
      *
      * @return 配置好的AppDataAdapter实例
      */
-    override fun onCreateAdapter(): AppDataAdapter {
+    override fun onCreateAdapter(): RecyclerView.Adapter<*> {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
 
@@ -251,29 +261,32 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
 
     /**
      * Fragment视图创建完成后的初始化
-     * 设置左侧数据、芯片事件、工具栏菜单和搜索功能
+     * 设置左侧数据、过滤器按钮和搜索功能
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpLeftData()
-        setupFilterDropdown()
+        setupFilterButtons()
         binding.toolbar.setOnMenuItemClickListener(this)
         setUpSearch()
-
     }
 
     /**
      * 设置左侧应用列表数据
-     * 配置应用选择监听器和刷新数据
+     * 消除索引转换 - 直接使用数组索引，无特殊情况
      */
     private fun setUpLeftData() {
-
-        binding.leftList.setOnItemSelectedListener {
-            val id = it.id
+        binding.leftList.setOnItemSelectedListener { menuItem ->
             page = 1
-            app = leftData.keySet().elementAt(id - 1)
-            Logger.d("Selected app: $app (id: $id)")
-            reload()
+            // Linus式简化：无需索引转换，直接使用数组位置
+            val index = menuItem.id - 1
+            if (index in appList.indices) {
+                app = appList[index].packageName
+                Logger.d("Selected app: $app (${appList[index].name})")
+                reload()
+            } else {
+                Logger.w("Invalid app selection index: $index, list size: ${appList.size}")
+            }
         }
     }
 
@@ -287,38 +300,44 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
 
     /**
      * 刷新左侧应用数据
-     * 从API获取应用列表并更新UI
+     * 简化的单一数据流 - 从API到UI，无重复数据结构
      */
     private fun refreshLeftData() {
-        Logger.d("Refreshing left data")
+        Logger.d("Refreshing left data for plugin data")
         launch {
             try {
-                // 1. 清空列表
+                // 1. 清空单一数据源
                 binding.leftList.clear()
+                appList.clear()
 
-                // 2. 拉取 app 数据
-                val result = AppDataAPI.apps()
-                leftData = result
-                Logger.d("Fetched ${result.size()} apps from API")
+                // 2. 获取应用数据
+                val apiResult = AppDataAPI.apps()
+                Logger.d("Fetched ${apiResult.size()} apps from plugin API")
 
+                // 3. 构建应用列表 - 单次遍历，无重复逻辑
                 var index = 1
-                // 3. 遍历所有 app 包名
-                for (packageName in result.keySet()) {
-                    val app = getAppInfoFromPackageName(packageName)
-                    if (app == null) {
+                for (packageName in apiResult.keySet()) {
+                    val appInfo = getAppInfoFromPackageName(packageName)
+                    if (appInfo == null) {
                         Logger.w("Failed to get app info for package: $packageName")
                         continue
                     }
 
+                    // 创建统一的应用数据对象
+                    val app = AppInfo(packageName, appInfo.name, appInfo.icon)
+                    appList.add(app)
+
+                    // 添加到UI - 使用统一数据源
                     binding.leftList.addMenuItem(
                         RailMenuItem(index, app.icon!!, app.name)
                     )
-                    Logger.d("Added app to left list: ${app.name} ($packageName)")
+
+                    Logger.d("Added app: ${app.name} ($packageName)")
                     index++
                 }
 
-                // 4. 若没有任何 app，展示空状态页
-                if (!binding.leftList.performFirstItem()) {
+                // 4. 处理空状态 - 简化条件判断
+                if (appList.isEmpty() || !binding.leftList.performFirstItem()) {
                     Logger.w("No apps available, showing empty state")
                     statusPage.showEmpty()
                 }
@@ -330,64 +349,68 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     }
 
     /**
-     * 设置下拉筛选（类型、匹配）
+     * 设置过滤按钮：类型、匹配状态
      */
-    private fun setupFilterDropdown() {
-        setupTypeFilter()
-        setupMatchFilter()
+    private fun setupFilterButtons() {
+        setupTypeButton()
+        setupMatchButton()
     }
 
     /**
-     * 设置数据类型过滤器（全部/通知/数据）
+     * 配置"类型"筛选按钮：全部/通知/数据/OCR
      */
-    private fun setupTypeFilter() {
-        // 选项复用规则页的数组，文本一致：全部/通知/数据
-        val typeOptions = resources.getStringArray(R.array.rule_type_options)
+    private fun setupTypeButton() {
+        val labels = resources.getStringArray(R.array.rule_type_options)
+        binding.typeButton.text = labels[0]
 
-        val typeAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            typeOptions
+        val items = linkedMapOf(
+            labels[0] to "",
+            labels[1] to DataType.NOTICE.name,
+            labels[2] to DataType.DATA.name,
+            labels[3] to DataType.OCR.name
         )
 
-        binding.typeDropdown.setAdapter(typeAdapter)
-        binding.typeDropdown.setOnItemClickListener { _, _, position, _ ->
-            type = when (position) {
-                1 -> DataType.NOTICE.name
-                2 -> DataType.DATA.name
-                3 -> DataType.OCR.name
-                else -> ""
-            }
-            Logger.d("Data type filter updated: type='$type'")
-            reload()
+        // 统一风格：点击主按钮弹出菜单
+        binding.typeButton.setOnClickListener { anchorView ->
+            ListPopupUtilsGeneric.create<String>(requireContext())
+                .setAnchor(anchorView)
+                .setList(items)
+                .setOnItemClick { _, key, value ->
+                    type = value
+                    binding.typeButton.text = key
+                    Logger.d("Data type filter updated: type='$type'")
+                    reload()
+                }
+                .show()
         }
-        // 默认：全部
-        binding.typeDropdown.setText(typeOptions[0], false)
     }
 
     /**
-     * 设置匹配状态过滤器（全部/已匹配/未匹配）
+     * 配置"匹配状态"筛选按钮：全部/已匹配/未匹配
      */
-    private fun setupMatchFilter() {
-        val matchOptions = resources.getStringArray(R.array.match_options)
-        val matchAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            matchOptions
+    private fun setupMatchButton() {
+        val labels = resources.getStringArray(R.array.match_options)
+        binding.matchButton.text = labels[0]
+
+        val items = linkedMapOf<String, Boolean?>(
+            labels[0] to null,
+            labels[1] to true,
+            labels[2] to false
         )
 
-        binding.matchDropdown.setAdapter(matchAdapter)
-        binding.matchDropdown.setOnItemClickListener { _, _, position, _ ->
-            match = when (position) {
-                1 -> true  // 已匹配
-                2 -> false // 未匹配
-                else -> null // 全部
-            }
-            Logger.d("Match filter updated: match=$match")
-            reload()
+        // 统一风格：点击主按钮弹出菜单
+        binding.matchButton.setOnClickListener { anchorView ->
+            ListPopupUtilsGeneric.create<Boolean?>(requireContext())
+                .setAnchor(anchorView)
+                .setList(items)
+                .setOnItemClick { _, key, value ->
+                    match = value
+                    binding.matchButton.text = key
+                    Logger.d("Match filter updated: match=$match")
+                    reload()
+                }
+                .show()
         }
-        // 默认：全部
-        binding.matchDropdown.setText(matchOptions[0], false)
     }
 
     /**
@@ -396,25 +419,18 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
      */
     private fun setUpSearch() {
 
-
         val searchItem = binding.toolbar.menu.findItem(R.id.action_search)
         if (searchItem != null) {
             val searchView = searchItem.actionView as MaterialSearchView
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    Logger.d("Search submitted: '$query'")
-                    return true
-                }
-
+            searchView.setOnQueryTextListener(object :
+                androidx.appcompat.widget.SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean = true
                 override fun onQueryTextChange(newText: String?): Boolean {
                     searchData = newText ?: ""
-                    Logger.d("Search text changed: '$searchData'")
                     reload()
                     return true
                 }
             })
-        } else {
-            Logger.w("Search menu item not found")
         }
     }
 
