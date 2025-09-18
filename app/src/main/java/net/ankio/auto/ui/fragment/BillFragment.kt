@@ -45,7 +45,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
         java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
     override suspend fun loadData(): List<OrderGroup> {
         val list = BillAPI.list(page, pageSize, syncType, currentYear, currentMonth)
-        Logger.i("加载账单: ${list.size}条")
+
 
         val groupedData = list.groupBy {
             DateUtils.stampToDate(it.time, "yyyy-MM-dd")
