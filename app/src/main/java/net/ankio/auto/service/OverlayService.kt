@@ -21,6 +21,7 @@ import android.provider.Settings
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
 import net.ankio.auto.service.overlay.BillWindowManager
+import net.ankio.auto.service.overlay.SaveProgressView
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
@@ -99,7 +100,14 @@ class OverlayService : ICoreService() {
         } else {
             if (floatIntent.billInfoModel.auto || PrefManager.autoRecordBill) {
                 Logger.d("自动记录账单")
-                BillTool.saveBill(floatIntent.billInfoModel)
+                // 显示1像素透明悬浮窗
+                val saveProgress = SaveProgressView()
+                saveProgress.show(service())
+
+                BillTool.saveBill(floatIntent.billInfoModel) {
+                    // 保存完成后关闭悬浮窗
+                    saveProgress.hide()
+                }
             } else {
                 billWindowManager.addBill(floatIntent.billInfoModel)
             }

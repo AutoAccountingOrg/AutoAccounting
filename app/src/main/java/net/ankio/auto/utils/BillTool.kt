@@ -31,6 +31,7 @@ import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
+import java.util.Locale
 
 object BillTool {
 
@@ -82,6 +83,14 @@ object BillTool {
      */
     fun getStyle(type: BillType): Triple<Int, Int, Int> {
         return Triple(getColor(type), getIcon(type), getBackground(type))
+    }
+
+    /**
+     * 格式化金额显示
+     * 只显示数字，不带货币符号
+     */
+    fun formatAmount(amount: Double): String {
+        return String.format(Locale.getDefault(), "%.2f", amount)
     }
 
     fun getType(type: BillType): BillType {
@@ -139,7 +148,7 @@ object BillTool {
         AppAdapterManager.adapter().syncBill(billInfoModel)
         delay(AppAdapterManager.adapter().sleep())
     }
-    fun saveBill(bill: BillInfoModel) {
+    fun saveBill(bill: BillInfoModel, onComplete: (() -> Unit)? = null) {
         Logger.d("保存账单: ${bill.id}")
 
         // 更新状态
@@ -147,21 +156,34 @@ object BillTool {
 
         // 异步保存
         App.launchIO {
-            BillAPI.put(bill)
-            // 若未开启手动同步，则保存后立即同步；否则跳过
-            if (!PrefManager.manualSync && !bill.isChild()) {
-                syncBill(bill)
-            }
-            Logger.d("账单保存成功: ${bill.id}")
-        }
+            try {
+                BillAPI.put(bill)
+                // 若未开启手动同步，则保存后立即同步；否则跳过
+                if (!PrefManager.manualSync && !bill.isChild()) {
+                    syncBill(bill)
+                }
+                Logger.d("账单保存成功: ${bill.id}")
 
-        // 显示成功提示
-        if (PrefManager.showSuccessPopup) {
-            val message = autoApp.getString(
-                R.string.auto_success,
-                bill.money.toString()
-            )
-            ToastUtils.info(message)
+                // 在UI线程执行回调
+                App.launch {
+                    // 显示成功提示
+                    if (PrefManager.showSuccessPopup) {
+                        val message = autoApp.getString(
+                            R.string.auto_success,
+                            bill.money.toString()
+                        )
+                        ToastUtils.info(message)
+                    }
+
+                    // 执行完成回调
+                    onComplete?.invoke()
+                }
+            } catch (e: Exception) {
+                Logger.e("账单保存失败: ${e.message}")
+                App.launch {
+                    onComplete?.invoke() // 即使失败也要执行回调
+                }
+            }
         }
     }
 

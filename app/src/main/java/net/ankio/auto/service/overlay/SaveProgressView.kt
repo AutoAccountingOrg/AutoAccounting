@@ -13,89 +13,92 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.service.ocr
+package net.ankio.auto.service.overlay
 
 import android.content.Context
 import android.graphics.PixelFormat
+import android.provider.Settings
+import android.view.Gravity
+import android.view.View
+import android.view.WindowManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import android.provider.Settings
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
-import net.ankio.auto.databinding.OcrViewBinding
 import net.ankio.auto.storage.Logger
 
-class OcrViews {
+/**
+ * 保存进度悬浮窗 - 1像素透明窗口
+ * 用于顺利拉起记账App
+ */
+class SaveProgressView {
     // 悬浮窗相关变量
     private var floatView: View? = null
     private var windowManager: WindowManager? = null
 
-    // 超时任务引用：用于在 10 秒后检查是否仍未关闭悬浮窗
+    // 超时任务引用：防止悬浮窗长时间不关闭
     private var timeoutJob: Job? = null
 
     /**
-     * 显示OCR识别动画界面
-     * 创建一个全屏悬浮窗来显示识别动画
+     * 显示保存进度悬浮窗
+     * 创建一个1像素透明悬浮窗表示正在保存
      */
-    fun startOcrView(context: Context) {
-        // 若用户关闭动画显示，则直接返回
-        if (!net.ankio.auto.utils.PrefManager.ocrShowAnimation) return
+    fun show(context: Context) {
         // 已经显示则不再重复
         if (floatView != null) return
 
+
         windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-        // 配置悬浮窗参数
+        // 配置悬浮窗参数 - 1像素透明窗口
         val layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
+            1, // 宽度1像素
+            1, // 高度1像素
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT
         )
-        layoutParams.gravity = Gravity.CENTER
+        layoutParams.gravity = Gravity.TOP or Gravity.START
 
-        // 创建并显示悬浮窗
-        floatView = OcrViewBinding.inflate(LayoutInflater.from(context)).root
+        // 创建透明View
+        floatView = View(context).apply {
+            alpha = 0f // 完全透明
+        }
+
         windowManager?.addView(floatView, layoutParams)
 
-        // 启动后 15 秒检查：若仍未关闭，则强制结束，防止悬浮窗长时间滞留
+        // 启动后 10 秒检查：若仍未关闭，则强制结束
         timeoutJob?.cancel()
         timeoutJob = CoroutineScope(Dispatchers.Main).launch {
-            delay(15_000)
+            delay(10_000)
             if (floatView != null) {
-                Logger.w("OCR悬浮窗超时未关闭，已强制结束")
-                stopOcrView()
+                Logger.w("保存进度悬浮窗超时未关闭，已强制结束")
+                hide()
             }
         }
     }
 
     /**
-     * 关闭OCR识别动画界面
+     * 关闭保存进度悬浮窗
      */
-    fun stopOcrView() {
+    fun hide() {
         // 关闭前取消超时任务，避免重复触发
         timeoutJob?.cancel()
         timeoutJob = null
+
         floatView?.let { view ->
             try {
-                // 使用 removeViewImmediate 避免异步移除导致的 Surface 残留/队列死亡
-                if (view.isAttachedToWindow) {
-                    windowManager?.removeViewImmediate(view)
-                }
+                windowManager?.removeView(view)
+                Logger.d("保存进度悬浮窗已关闭")
             } catch (e: Exception) {
-                Logger.w("移除OCR悬浮窗失败: ${e.message}")
-            } finally {
-                floatView = null
-                windowManager = null
+                Logger.e("关闭保存进度悬浮窗失败: ${e.message}")
             }
         }
-    }
 
+        floatView = null
+        windowManager = null
+    }
 }
