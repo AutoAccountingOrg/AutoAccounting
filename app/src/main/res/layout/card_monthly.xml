@@ -54,8 +54,7 @@
                         android:id="@+id/ivIncomeIcon"
                         android:layout_width="@dimen/image_size_small"
                         android:layout_height="@dimen/image_size_small"
-                        android:tint="@color/success"
-                        app:srcCompat="@drawable/ic_trending_up" />
+                        android:tint="@color/success" />
 
                 </LinearLayout>
 
@@ -108,8 +107,7 @@
                         android:id="@+id/ivExpenseIcon"
                         android:layout_width="@dimen/image_size_small"
                         android:layout_height="@dimen/image_size_small"
-                        android:tint="@color/danger"
-                        app:srcCompat="@drawable/ic_trending_down" />
+                        android:tint="@color/danger" />
 
                 </LinearLayout>
 

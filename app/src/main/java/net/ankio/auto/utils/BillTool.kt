@@ -48,6 +48,42 @@ object BillTool {
         }
     }
 
+    /**
+     * 获取箭头图标
+     */
+    fun getIcon(type: BillType): Int {
+        val isIncomeUp = PrefManager.isIncomeUp
+
+        return when (type) {
+            BillType.Income -> if (isIncomeUp) R.drawable.ic_trending_up else R.drawable.ic_trending_down
+            BillType.Expend -> if (isIncomeUp) R.drawable.ic_trending_down else R.drawable.ic_trending_up
+            BillType.Transfer -> R.drawable.ic_swap_horiz
+            else -> R.drawable.ic_trending_down
+        }
+    }
+
+    /**
+     * 获取背景drawable
+     */
+    fun getBackground(type: BillType): Int {
+        val isExpenseRed = PrefManager.isExpenseRed
+
+        return when (type) {
+            BillType.Expend -> if (isExpenseRed) R.drawable.bg_danger_icon else R.drawable.bg_success_icon
+            BillType.Income -> if (isExpenseRed) R.drawable.bg_success_icon else R.drawable.bg_danger_icon
+
+            else -> R.drawable.bg_danger_icon
+        }
+    }
+
+    /**
+     * 获取账单类型的完整样式信息
+     * @return Triple(colorRes, iconRes, backgroundRes)
+     */
+    fun getStyle(type: BillType): Triple<Int, Int, Int> {
+        return Triple(getColor(type), getIcon(type), getBackground(type))
+    }
+
     fun getType(type: BillType): BillType {
         return when (type) {
             BillType.ExpendReimbursement -> BillType.Expend

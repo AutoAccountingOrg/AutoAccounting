@@ -57,11 +57,12 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
     }
 
     private fun setupColors() {
-        val incomeColor = BillTool.getColor(BillType.Income)
-        val expenseColor = BillTool.getColor(BillType.Expend)
-
         with(binding) {
-            // 现在ID已经修正，可以按正常逻辑设置颜色
+            // 使用BillTool统一获取样式信息
+            val (incomeColor, incomeIcon, incomeBackground) = BillTool.getStyle(BillType.Income)
+            val (expenseColor, expenseIcon, expenseBackground) = BillTool.getStyle(BillType.Expend)
+
+            // 设置颜色
             tvIncomeAmount.setTextColor(ContextCompat.getColor(context, incomeColor))
             tvExpenseAmount.setTextColor(ContextCompat.getColor(context, expenseColor))
 
@@ -72,12 +73,11 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
                 ContextCompat.getColor(context, expenseColor)
             )
 
-            // 背景色设置
-            val incomeBackground =
-                if (PrefManager.isExpenseRed) R.drawable.bg_success_icon else R.drawable.bg_danger_icon
-            val expenseBackground =
-                if (PrefManager.isExpenseRed) R.drawable.bg_danger_icon else R.drawable.bg_success_icon
+            // 设置图标
+            ivIncomeIcon.setImageResource(incomeIcon)
+            ivExpenseIcon.setImageResource(expenseIcon)
 
+            // 设置背景
             llIncome.setBackgroundResource(incomeBackground)
             llExpense.setBackgroundResource(expenseBackground)
         }

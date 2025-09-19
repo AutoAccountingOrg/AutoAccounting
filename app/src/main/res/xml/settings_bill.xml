@@ -85,6 +85,12 @@
             android:key="isExpenseRed"
             android:summary="@string/settings_expense_red_color_summary"
             android:title="@string/settings_expense_red_color" />
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_trending_up"
+            android:key="isIncomeUp"
+            android:summary="@string/settings_income_up_arrow_summary"
+            android:title="@string/settings_income_up_arrow" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_remark">

@@ -183,6 +183,7 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 // 显示设置
                 "showRuleName" -> PrefManager.showRuleName
                 "isExpenseRed" -> PrefManager.isExpenseRed
+                "isIncomeUp" -> PrefManager.isIncomeUp
                 // 通知设置
                 "showSuccessPopup" -> PrefManager.showSuccessPopup
                 "loadSuccess" -> PrefManager.loadSuccess
@@ -208,6 +209,7 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 // 显示设置
                 "showRuleName" -> PrefManager.showRuleName = value
                 "isExpenseRed" -> PrefManager.isExpenseRed = value
+                "isIncomeUp" -> PrefManager.isIncomeUp = value
                 // 通知设置
                 "showSuccessPopup" -> PrefManager.showSuccessPopup = value
                 "loadSuccess" -> PrefManager.loadSuccess = value

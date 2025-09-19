@@ -712,6 +712,8 @@
     <string name="settings_pure_black_dark_theme_summary">如果启用深色主题，则使用纯黑主题</string>
     <string name="settings_expense_red_color">支出显示红色</string>
     <string name="settings_expense_red_color_summary">支出显示为红色，收入显示为绿色</string>
+    <string name="settings_income_up_arrow">收入向上箭头</string>
+    <string name="settings_income_up_arrow_summary">收入显示向上箭头，支出显示向下箭头</string>
     <string name="dark_theme_off">始终关闭</string>
     <string name="dark_theme_on">始终开启</string>
     <string name="follow_system">跟随系统</string>

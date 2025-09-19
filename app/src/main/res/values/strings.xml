@@ -756,6 +756,8 @@
     <string name="settings_pure_black_dark_theme_summary">Use the pure black theme if dark theme is enabled</string>
     <string name="settings_expense_red_color">Expense in red</string>
     <string name="settings_expense_red_color_summary">Display expenses in red and income in green</string>
+    <string name="settings_income_up_arrow">Income up arrow</string>
+    <string name="settings_income_up_arrow_summary">Display income with up arrow and expense with down arrow</string>
     <string name="dark_theme_off">Always Off</string>
     <string name="dark_theme_on">Always On</string>
     <string name="follow_system">Follow System</string>

@@ -349,6 +349,11 @@ object PrefManager {
         get() = getBoolean(Setting.IS_EXPENSE_RED, DefaultData.IS_EXPENSE_RED)
         set(value) = putBoolean(Setting.IS_EXPENSE_RED, value)
 
+    /** 收入是否显示向上箭头 - true=收入向上/支出向下，false=收入向下/支出向上 */
+    var isIncomeUp: Boolean
+        get() = getBoolean(Setting.IS_INCOME_UP, DefaultData.IS_INCOME_UP)
+        set(value) = putBoolean(Setting.IS_INCOME_UP, value)
+
     /** 备注格式模板 - 自动记账时的备注格式（如 "【商户名称】【商品名称】"） */
     var noteFormat: String
         get() = getString(Setting.NOTE_FORMAT, DefaultData.NOTE_FORMAT)
