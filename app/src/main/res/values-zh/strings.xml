@@ -710,6 +710,8 @@
     <string name="dark_theme">深色主题</string>
     <string name="settings_pure_black_dark_theme">纯黑深色主题</string>
     <string name="settings_pure_black_dark_theme_summary">如果启用深色主题，则使用纯黑主题</string>
+    <string name="settings_expense_red_color">支出显示红色</string>
+    <string name="settings_expense_red_color_summary">支出显示为红色，收入显示为绿色</string>
     <string name="dark_theme_off">始终关闭</string>
     <string name="dark_theme_on">始终开启</string>
     <string name="follow_system">跟随系统</string>
@@ -939,6 +941,17 @@
     <string name="btn_bill_statistics">统计</string>
     <string name="setting_manual_sync">手动同步模式</string>
     <string name="setting_manual_sync_summary">开启后，保存账单将不会自动同步</string>
+
+    <!-- 统计页面 -->
+    <string name="stat_title">统计</string>
+    <string name="stat_summary">概览</string>
+    <string name="total_expense">总支出</string>
+    <string name="total_income">总收入</string>
+    <string name="net_balance">净余额</string>
+    <string name="daily_avg_expense">日均支出</string>
+    <string name="stat_trend">趋势</string>
+    <string name="stat_category">分类</string>
+    <string name="period_this_week">本周</string>
 
     <!-- 周期选择 -->
     <string name="period_selector_title">选择分析周期</string>

@@ -26,6 +26,7 @@ import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.PeriodSelectorDialog
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
@@ -48,7 +49,7 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
 
     override fun onComponentCreate() {
         super.onComponentCreate()
-        binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
+        binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor1)
 
         setupColors()
         // 设置底部操作按钮
@@ -56,36 +57,29 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
     }
 
     private fun setupColors() {
-        val isExpenseRed = PrefManager.expenseColorRed == 1
-        val (incomeColor, expenseColor) = if (isExpenseRed) {
-            BillTool.getColor(BillType.Expend) to BillTool.getColor(BillType.Income)
-        } else {
-            BillTool.getColor(BillType.Income) to BillTool.getColor(BillType.Expend)
-        }
+        val incomeColor = BillTool.getColor(BillType.Income)
+        val expenseColor = BillTool.getColor(BillType.Expend)
 
         with(binding) {
+            // 现在ID已经修正，可以按正常逻辑设置颜色
             tvIncomeAmount.setTextColor(ContextCompat.getColor(context, incomeColor))
             tvExpenseAmount.setTextColor(ContextCompat.getColor(context, expenseColor))
+
             ivIncomeIcon.imageTintList = android.content.res.ColorStateList.valueOf(
-                ContextCompat.getColor(
-                    context,
-                    incomeColor
-                )
+                ContextCompat.getColor(context, incomeColor)
             )
             ivExpenseIcon.imageTintList = android.content.res.ColorStateList.valueOf(
-                ContextCompat.getColor(
-                    context,
-                    expenseColor
-                )
+                ContextCompat.getColor(context, expenseColor)
             )
 
-            val (expenseBg, incomeBg) = if (isExpenseRed) {
-                R.drawable.bg_success_icon to R.drawable.bg_danger_icon
-            } else {
-                R.drawable.bg_danger_icon to R.drawable.bg_success_icon
-            }
-            llExpense.setBackgroundResource(expenseBg)
-            llIncome.setBackgroundResource(incomeBg)
+            // 背景色设置
+            val incomeBackground =
+                if (PrefManager.isExpenseRed) R.drawable.bg_success_icon else R.drawable.bg_danger_icon
+            val expenseBackground =
+                if (PrefManager.isExpenseRed) R.drawable.bg_danger_icon else R.drawable.bg_success_icon
+
+            llIncome.setBackgroundResource(incomeBackground)
+            llExpense.setBackgroundResource(expenseBackground)
         }
     }
 
@@ -142,12 +136,10 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
                 val incomeAmount = stats["income"] ?: 0.0
                 val expenseAmount = stats["expense"] ?: 0.0
 
-                // 修正：根据布局文件中的实际标签来设置对应的金额
-                // tvExpenseAmount 对应的是"月收入"标签，应该显示收入金额
-                // tvIncomeAmount 对应的是"月支出"标签，应该显示支出金额
-                binding.tvExpenseAmount.text =
-                    String.format(Locale.getDefault(), "¥ %.2f", incomeAmount)
+                // 现在ID已经修正，可以按正常逻辑显示数据
                 binding.tvIncomeAmount.text =
+                    String.format(Locale.getDefault(), "¥ %.2f", incomeAmount)
+                binding.tvExpenseAmount.text =
                     String.format(Locale.getDefault(), "¥ %.2f", expenseAmount)
             }
         }

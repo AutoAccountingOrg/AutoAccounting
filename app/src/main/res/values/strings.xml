@@ -754,6 +754,8 @@
     <string name="dark_theme">Dark Theme</string>
     <string name="settings_pure_black_dark_theme">Pure Black Dark Theme</string>
     <string name="settings_pure_black_dark_theme_summary">Use the pure black theme if dark theme is enabled</string>
+    <string name="settings_expense_red_color">Expense in red</string>
+    <string name="settings_expense_red_color_summary">Display expenses in red and income in green</string>
     <string name="dark_theme_off">Always Off</string>
     <string name="dark_theme_on">Always On</string>
     <string name="follow_system">Follow System</string>
@@ -1036,6 +1038,18 @@
     <string name="ai_summary_generating_image">Generating share image…</string>
     <string name="ai_summary_image_failed">Failed to generate image</string>
     <string name="ai_summary_image_error">Image generation error: %s</string>
+
+    <!-- Statistics page -->
+    <string name="stat_title">Statistics</string>
+    <string name="stat_summary">Summary</string>
+    <string name="total_expense">Total expense</string>
+    <string name="total_income">Total income</string>
+    <string name="net_balance">Net balance</string>
+    <string name="daily_avg_expense">Daily average expense</string>
+    <string name="stat_trend">Trend</string>
+    <string name="stat_category">Categories</string>
+    <string name="period_this_week">This week</string>
+    <string name="period_custom">Custom</string>
 
     <!-- JS Editor UI Strings -->
     <string name="js_code_empty">JS code is empty</string>

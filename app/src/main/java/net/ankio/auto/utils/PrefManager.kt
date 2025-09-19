@@ -344,10 +344,10 @@ object PrefManager {
         get() = getBoolean(Setting.CATEGORY_SHOW_PARENT, DefaultData.CATEGORY_SHOW_PARENT)
         set(value) = putBoolean(Setting.CATEGORY_SHOW_PARENT, value)
 
-    /** 支出红色显示 - 支出金额是否用红色显示（0=默认，1=红色） */
-    var expenseColorRed: Int
-        get() = getInt(Setting.EXPENSE_COLOR_RED, DefaultData.EXPENSE_COLOR_RED)
-        set(value) = putInt(Setting.EXPENSE_COLOR_RED, value)
+    /** 支出是否显示为红色 - true=支出红色/收入绿色，false=支出绿色/收入红色 */
+    var isExpenseRed: Boolean
+        get() = getBoolean(Setting.IS_EXPENSE_RED, DefaultData.IS_EXPENSE_RED)
+        set(value) = putBoolean(Setting.IS_EXPENSE_RED, value)
 
     /** 备注格式模板 - 自动记账时的备注格式（如 "【商户名称】【商品名称】"） */
     var noteFormat: String

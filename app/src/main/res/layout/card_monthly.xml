@@ -44,18 +44,18 @@
 
                 <!-- 收入图标背景 -->
                 <LinearLayout
-                    android:id="@+id/ll_expense"
+                    android:id="@+id/llIncome"
                     android:layout_width="@dimen/image_size_large"
                     android:layout_height="@dimen/image_size_large"
                     android:background="@drawable/bg_success_icon"
                     android:gravity="center">
 
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivExpenseIcon"
+                        android:id="@+id/ivIncomeIcon"
                         android:layout_width="@dimen/image_size_small"
                         android:layout_height="@dimen/image_size_small"
                         android:tint="@color/success"
-                        app:srcCompat="@drawable/ic_trending_down" />
+                        app:srcCompat="@drawable/ic_trending_up" />
 
                 </LinearLayout>
 
@@ -74,7 +74,7 @@
                         android:textColor="?attr/colorOnSurfaceVariant" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/tvExpenseAmount"
+                        android:id="@+id/tvIncomeAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
@@ -98,18 +98,18 @@
 
                 <!-- 支出图标背景 -->
                 <LinearLayout
-                    android:id="@+id/ll_income"
+                    android:id="@+id/llExpense"
                     android:layout_width="@dimen/image_size_large"
                     android:layout_height="@dimen/image_size_large"
                     android:background="@drawable/bg_danger_icon"
                     android:gravity="center">
 
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivIncomeIcon"
+                        android:id="@+id/ivExpenseIcon"
                         android:layout_width="@dimen/image_size_small"
                         android:layout_height="@dimen/image_size_small"
                         android:tint="@color/danger"
-                        app:srcCompat="@drawable/ic_trending_up" />
+                        app:srcCompat="@drawable/ic_trending_down" />
 
                 </LinearLayout>
 
@@ -128,7 +128,7 @@
                         android:textColor="?attr/colorOnSurfaceVariant" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/tvIncomeAmount"
+                        android:id="@+id/tvExpenseAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"

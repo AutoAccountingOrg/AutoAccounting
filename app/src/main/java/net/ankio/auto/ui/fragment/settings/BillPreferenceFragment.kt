@@ -182,6 +182,7 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 "manualSync" -> PrefManager.manualSync
                 // 显示设置
                 "showRuleName" -> PrefManager.showRuleName
+                "isExpenseRed" -> PrefManager.isExpenseRed
                 // 通知设置
                 "showSuccessPopup" -> PrefManager.showSuccessPopup
                 "loadSuccess" -> PrefManager.loadSuccess
@@ -206,6 +207,7 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 "manualSync" -> PrefManager.manualSync = value
                 // 显示设置
                 "showRuleName" -> PrefManager.showRuleName = value
+                "isExpenseRed" -> PrefManager.isExpenseRed = value
                 // 通知设置
                 "showSuccessPopup" -> PrefManager.showSuccessPopup = value
                 "loadSuccess" -> PrefManager.loadSuccess = value

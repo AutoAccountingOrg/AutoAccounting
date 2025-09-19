@@ -38,11 +38,11 @@ object BillTool {
      * 获取页面显示颜色
      */
     fun getColor(type: BillType): Int {
-        val payColor = PrefManager.expenseColorRed
+        val isExpenseRed = PrefManager.isExpenseRed
 
         return when (type) {
-            BillType.Expend -> if (payColor == 0) R.color.danger else R.color.success
-            BillType.Income -> if (payColor == 1) R.color.danger else R.color.success
+            BillType.Expend -> if (isExpenseRed) R.color.danger else R.color.success
+            BillType.Income -> if (isExpenseRed) R.color.success else R.color.danger
             BillType.Transfer -> R.color.info
             else -> R.color.danger
         }

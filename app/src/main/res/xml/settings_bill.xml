@@ -79,6 +79,12 @@
             android:key="showRuleName"
             android:summary="@string/setting_bill_show_rule_summary"
             android:title="@string/setting_bill_show_rule" />
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_palette"
+            android:key="isExpenseRed"
+            android:summary="@string/settings_expense_red_color_summary"
+            android:title="@string/settings_expense_red_color" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_remark">
