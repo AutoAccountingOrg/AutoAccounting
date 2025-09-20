@@ -98,6 +98,54 @@ interface BillInfoDao {
     @Query("SELECT SUM(money) FROM BillInfoModel WHERE type = 'Expend' AND time >= :startTime AND time < :endTime AND groupId = -1")
     suspend fun getMonthlyExpense(startTime: Long, endTime: Long): Double?
 
+    /**
+     * 汇总：收入 sum(money+fee)
+     */
+    @Query(
+        """
+        SELECT SUM(money + fee) FROM BillInfoModel
+        WHERE groupId = -1 
+          AND type IN ('Income','IncomeLending','IncomeRepayment','IncomeReimbursement','IncomeRefund')
+          AND time >= :startTime AND time <= :endTime
+        """
+    )
+    suspend fun sumIncomeWithFee(startTime: Long, endTime: Long): Double?
+
+    /**
+     * 汇总：支出 sum(money+fee)
+     */
+    @Query(
+        """
+        SELECT SUM(money + fee) FROM BillInfoModel
+        WHERE groupId = -1 
+          AND type IN ('Expend','ExpendReimbursement','ExpendLending','ExpendRepayment')
+          AND time >= :startTime AND time <= :endTime
+        """
+    )
+    suspend fun sumExpenseWithFee(startTime: Long, endTime: Long): Double?
+
+    /**
+     * 趋势聚合：按天聚合收入与支出金额（金额口径按 money+fee）。
+     * 这里使用 SQLite 的 strftime 计算本地日期键。
+     */
+    @Query(
+        """
+        SELECT 
+            strftime('%Y-%m-%d', datetime(time/1000, 'unixepoch', 'localtime')) as day,
+            SUM(CASE WHEN type IN ('Income','IncomeLending','IncomeRepayment','IncomeReimbursement','IncomeRefund') THEN (money + fee) ELSE 0 END) as income,
+            SUM(CASE WHEN type IN ('Expend','ExpendReimbursement','ExpendLending','ExpendRepayment') THEN (money + fee) ELSE 0 END) as expense
+        FROM BillInfoModel
+        WHERE groupId = -1 AND time >= :startTime AND time <= :endTime
+        GROUP BY day
+        ORDER BY day ASC
+        """
+    )
+    suspend fun getDailyTrend(
+        startTime: Long,
+        endTime: Long
+    ): List<org.ezbook.server.db.model.TrendRowModel>
+
+
     @Query("SELECT * FROM BillInfoModel WHERE groupId = -1 LIMIT :limit OFFSET :offset")
     suspend fun getBillsBatch(limit: Int, offset: Int): List<BillInfoModel>
 
@@ -115,7 +163,7 @@ interface BillInfoDao {
 
     // AI摘要相关查询
 
-    /** 获取分类统计（完整统计数据，不能限制） */
+    /** 获取分类统计（AI摘要专用，完整统计数据，不能限制） */
     @Query(
         """
         SELECT cateName, SUM(money) as amount, COUNT(*) as count 
@@ -125,7 +173,10 @@ interface BillInfoDao {
         ORDER BY amount DESC
     """
     )
-    suspend fun getExpenseCategoryStats(startTime: Long, endTime: Long): List<CategoryStatsModel>
+    suspend fun getExpenseCategoryStatsForAI(
+        startTime: Long,
+        endTime: Long
+    ): List<CategoryStatsModel>
 
     /** 获取商户统计（完整统计数据，不能限制） */
     @Query(
@@ -177,4 +228,84 @@ interface BillInfoDao {
 
     @Query("SELECT COUNT(*) FROM BillInfoModel WHERE type = 'Transfer' AND time >= :startTime AND time <= :endTime AND groupId = -1")
     suspend fun getTransferCount(startTime: Long, endTime: Long): Int
+
+    /** 简化的按天趋势统计：只统计Income和Expend，只使用money字段 */
+    @Query(
+        """
+        SELECT 
+            strftime('%Y-%m-%d', datetime(time/1000, 'unixepoch', 'localtime')) as day,
+            SUM(CASE WHEN type = 'Income' THEN money ELSE 0 END) as income,
+            SUM(CASE WHEN type = 'Expend' THEN money ELSE 0 END) as expense
+        FROM BillInfoModel
+        WHERE groupId = -1 AND time >= :startTime AND time <= :endTime
+        GROUP BY day
+        ORDER BY day ASC
+        """
+    )
+    suspend fun getSimpleDailyTrend(
+        startTime: Long,
+        endTime: Long
+    ): List<org.ezbook.server.db.model.TrendRowModel>
+
+    /** 简化的按月趋势统计：只统计Income和Expend，只使用money字段 */
+    @Query(
+        """
+        SELECT 
+            strftime('%Y-%m', datetime(time/1000, 'unixepoch', 'localtime')) as day,
+            SUM(CASE WHEN type = 'Income' THEN money ELSE 0 END) as income,
+            SUM(CASE WHEN type = 'Expend' THEN money ELSE 0 END) as expense
+        FROM BillInfoModel
+        WHERE groupId = -1 AND time >= :startTime AND time <= :endTime
+        GROUP BY day
+        ORDER BY day ASC
+        """
+    )
+    suspend fun getSimpleMonthlyTrend(
+        startTime: Long,
+        endTime: Long
+    ): List<org.ezbook.server.db.model.TrendRowModel>
+
+    /** 支出分类统计：优先按子类统计，包含金额和计数 */
+    @Query(
+        """
+        SELECT 
+            TRIM(CASE WHEN instr(cateName, '-') <= 0 THEN cateName ELSE substr(cateName, 1, instr(cateName, '-') - 1) END) as parent,
+            TRIM(CASE 
+                    WHEN instr(cateName, '-') > 1 AND instr(cateName, '-') < length(cateName) THEN substr(cateName, instr(cateName, '-') + 1)
+                    ELSE ''
+                END) as child,
+            SUM(money) as amount,
+            COUNT(*) as count
+        FROM BillInfoModel
+        WHERE groupId = -1 AND type = 'Expend' AND time >= :startTime AND time <= :endTime
+        GROUP BY parent, child
+        ORDER BY amount DESC
+        """
+    )
+    suspend fun getExpenseCategoryStats(
+        startTime: Long,
+        endTime: Long
+    ): List<org.ezbook.server.db.model.CategoryAggregateRow>
+
+    /** 收入分类统计：优先按子类统计，包含金额和计数 */
+    @Query(
+        """
+        SELECT 
+            TRIM(CASE WHEN instr(cateName, '-') <= 0 THEN cateName ELSE substr(cateName, 1, instr(cateName, '-') - 1) END) as parent,
+            TRIM(CASE 
+                    WHEN instr(cateName, '-') > 1 AND instr(cateName, '-') < length(cateName) THEN substr(cateName, instr(cateName, '-') + 1)
+                    ELSE ''
+                END) as child,
+            SUM(money) as amount,
+            COUNT(*) as count
+        FROM BillInfoModel
+        WHERE groupId = -1 AND type = 'Income' AND time >= :startTime AND time <= :endTime
+        GROUP BY parent, child
+        ORDER BY amount DESC
+        """
+    )
+    suspend fun getIncomeCategoryStats(
+        startTime: Long,
+        endTime: Long
+    ): List<org.ezbook.server.db.model.CategoryAggregateRow>
 }

@@ -171,7 +171,8 @@ object DefaultData {
     val FLOAT_TIMEOUT_OFF = 0
     val DEFAULT_BOOK_NAME = "默认账本"
 
-    val EXPENSE_COLOR_RED = 0
+    val IS_EXPENSE_RED = false
+    val IS_INCOME_UP = true
 
     val CATEGORY_SHOW_PARENT = false
 

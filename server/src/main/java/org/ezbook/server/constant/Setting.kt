@@ -75,7 +75,8 @@ object Setting {
     const val SHOW_DUPLICATED_POPUP: String = "show_duplicated_popup" // 重复提示弹窗
     const val CONFIRM_DELETE_BILL: String = "confirm_delete_bill"   // 删除账单前二次确认
     const val CATEGORY_SHOW_PARENT = "setting_category_show_parent" // 显示父分类
-    const val EXPENSE_COLOR_RED = "setting_expense_color_red"       // 支出红色显示
+    const val IS_EXPENSE_RED = "setting_is_expense_red"             // 支出是否显示为红色
+    const val IS_INCOME_UP = "setting_is_income_up"                 // 收入是否显示向上箭头
     const val NOTE_FORMAT = "setting_note_format"                   // 备注格式
     const val SYSTEM_LANGUAGE = "setting_system_language"           // 系统语言
     const val UI_DARK_THEME_MODE = "setting_ui_dark_theme_mode"     // 深色主题模式（-1跟随系统/1强制亮/2强制暗等）

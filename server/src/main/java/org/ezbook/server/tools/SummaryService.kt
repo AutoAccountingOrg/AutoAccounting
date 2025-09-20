@@ -56,7 +56,7 @@ object SummaryService {
         val transferCount = dao.getTransferCount(startTime, endTime)
 
         // 获取完整统计数据（不能限制，保证统计准确性）
-        val allCategoryStats = dao.getExpenseCategoryStats(startTime, endTime)
+        val allCategoryStats = dao.getExpenseCategoryStatsForAI(startTime, endTime)
         val allShopStats = dao.getExpenseShopStats(startTime, endTime)
 
         // Service层决定显示多少统计项（统计数据通常不会太多）

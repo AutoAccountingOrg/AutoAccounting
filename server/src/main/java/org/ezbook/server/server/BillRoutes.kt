@@ -29,6 +29,7 @@ import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SummaryService
+import org.ezbook.server.tools.StatisticsService
 
 /**
  * 账单管理路由配置
@@ -277,6 +278,28 @@ fun Route.billRoutes() {
                 periodName
             )
             call.respond(ResultModel.ok(summary))
+        }
+
+        /**
+         * GET /bill/stats - 获取指定时间范围的统计数据
+         * 返回汇总、趋势、分类占比三部分，客户端无需再遍历账单构建。
+         *
+         * @param start 开始时间戳（毫秒）必填
+         * @param end 结束时间戳（毫秒）必填
+         */
+        get("/stats") {
+            val startTime = call.request.queryParameters["start"]?.toLong()
+                ?: return@get call.respond(
+                    ResultModel.error(
+                        400,
+                        "Start time parameter is required"
+                    )
+                )
+            val endTime = call.request.queryParameters["end"]?.toLong()
+                ?: return@get call.respond(ResultModel.error(400, "End time parameter is required"))
+
+            val stats = StatisticsService.buildStats(startTime, endTime)
+            call.respond(ResultModel.ok(stats))
         }
 
         /**
