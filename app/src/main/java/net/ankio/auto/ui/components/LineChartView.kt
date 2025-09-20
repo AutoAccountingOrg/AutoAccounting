@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.widget
+package net.ankio.auto.ui.components
 
 import android.content.Context
 import android.graphics.Canvas
@@ -23,7 +23,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
-import net.ankio.auto.R
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillType
 import kotlin.math.floor
@@ -31,10 +31,23 @@ import kotlin.math.log10
 import kotlin.math.pow
 
 /**
- * 极简折线图视图（无外部库）。
- * - 输入为两个序列（收入、支出）；
+ * 通用折线图数据类
+ * @param data 数据点序列
+ * @param color 线条颜色
+ * @param strokeWidth 线条宽度（可选，默认3dp）
+ */
+data class LineData(
+    val data: List<Double>,
+    val color: Int,
+    val strokeWidth: Float? = null
+)
+
+/**
+ * 通用折线图视图（无外部库）。
+ * - 支持1-2条折线显示；
  * - 自适应缩放到视图高度；
- * - 智能绘制坐标轴，支持数量缩写显示。
+ * - 智能绘制坐标轴，支持数量缩写显示；
+ * - 使用动态主题颜色。
  */
 class LineChartView @JvmOverloads constructor(
     context: Context,
@@ -42,44 +55,35 @@ class LineChartView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
+    init {
+        // 设置透明背景，避免显示默认背景色
+        setBackgroundColor(android.graphics.Color.TRANSPARENT)
+    }
+
     /** 标签序列（横坐标显示） */
     private var labelSeries: List<String> = emptyList()
 
-    /** 收入序列（按时间升序） */
-    private var incomeSeries: List<Double> = emptyList()
+    /** 折线数据列表 */
+    private var lineDataList: List<LineData> = emptyList()
 
-    /** 支出序列（按时间升序） */
-    private var expenseSeries: List<Double> = emptyList()
-
-    private val incomePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = resources.displayMetrics.density * 3
-        strokeCap = Paint.Cap.ROUND
-        strokeJoin = Paint.Join.ROUND
-    }
-
-    private val expensePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = resources.displayMetrics.density * 3
-        strokeCap = Paint.Cap.ROUND
-        strokeJoin = Paint.Join.ROUND
-    }
+    /** 折线画笔缓存 */
+    private val linePaints = mutableListOf<Paint>()
 
     private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, R.color.gray40)
+        color = DynamicColors.OutlineVariant
         style = Paint.Style.STROKE
         strokeWidth = resources.displayMetrics.density * 0.5f
         pathEffect = DashPathEffect(floatArrayOf(5f, 5f), 0f)
     }
 
     private val axisPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, R.color.textSecondary)
+        color = DynamicColors.OnSurfaceVariant
         style = Paint.Style.STROKE
         strokeWidth = resources.displayMetrics.density * 1f
     }
 
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, R.color.textSecondary)
+        color = DynamicColors.OnSurfaceVariant
         textSize = resources.displayMetrics.scaledDensity * 10
         textAlign = Paint.Align.CENTER
     }
@@ -87,22 +91,92 @@ class LineChartView @JvmOverloads constructor(
     private val labelSpacing = (8 * resources.displayMetrics.density).toInt()
 
     /**
-     * 设置数据序列
+     * 设置通用折线数据
+     * @param labels 横轴标签
+     * @param lines 折线数据列表（1-2条）
      */
-    fun setData(labels: List<String>, income: List<Double>, expense: List<Double>) {
+    fun setLines(labels: List<String>, lines: List<LineData>) {
+        require(lines.size <= 2) { "LineChartView supports at most 2 lines" }
         labelSeries = labels
-        incomeSeries = income
-        expenseSeries = expense
-        updateColors()
+        lineDataList = lines
+        updatePaints()
         invalidate()
     }
 
     /**
-     * 根据用户偏好更新颜色
+     * 设置单条折线数据
+     * @param labels 横轴标签
+     * @param data 数据点序列
+     * @param color 线条颜色
+     * @param strokeWidth 线条宽度（可选）
      */
-    private fun updateColors() {
-        incomePaint.color = ContextCompat.getColor(context, BillTool.getColor(BillType.Income))
-        expensePaint.color = ContextCompat.getColor(context, BillTool.getColor(BillType.Expend))
+    fun setSingleLine(
+        labels: List<String>,
+        data: List<Double>,
+        color: Int,
+        strokeWidth: Float? = null
+    ) {
+        setLines(labels, listOf(LineData(data, color, strokeWidth)))
+    }
+
+    /**
+     * 设置双折线数据
+     * @param labels 横轴标签
+     * @param data1 第一条线数据
+     * @param color1 第一条线颜色
+     * @param data2 第二条线数据
+     * @param color2 第二条线颜色
+     * @param strokeWidth1 第一条线宽度（可选）
+     * @param strokeWidth2 第二条线宽度（可选）
+     */
+    fun setDualLines(
+        labels: List<String>,
+        data1: List<Double>,
+        color1: Int,
+        data2: List<Double>,
+        color2: Int,
+        strokeWidth1: Float? = null,
+        strokeWidth2: Float? = null
+    ) {
+        setLines(
+            labels, listOf(
+                LineData(data1, color1, strokeWidth1),
+                LineData(data2, color2, strokeWidth2)
+            )
+        )
+    }
+
+
+    /**
+     * 使用主题色设置单条线
+     * @param labels 横轴标签
+     * @param data 数据序列
+     * @param useSecondary 是否使用次要颜色（默认使用主色）
+     */
+    fun setThemedSingleLine(
+        labels: List<String>,
+        data: List<Double>,
+        useSecondary: Boolean = false
+    ) {
+        val color = if (useSecondary) DynamicColors.Secondary else DynamicColors.Primary
+        setSingleLine(labels, data, color)
+    }
+
+
+    /**
+     * 更新绘制画笔
+     */
+    private fun updatePaints() {
+        linePaints.clear()
+        lineDataList.forEach { lineData ->
+            linePaints.add(Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.STROKE
+                strokeWidth = lineData.strokeWidth ?: (resources.displayMetrics.density * 3)
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+                color = lineData.color
+            })
+        }
     }
 
     /**
@@ -160,13 +234,16 @@ class LineChartView @JvmOverloads constructor(
         val h = chartBottom - chartTop
         if (w <= 0 || h <= 0) return
 
-        val maxPoints = maxOf(incomeSeries.size, expenseSeries.size, labelSeries.size)
+        val maxPoints = maxOf(
+            lineDataList.maxOfOrNull { it.data.size } ?: 0,
+            labelSeries.size
+        )
         if (maxPoints < 2) return
 
-        val maxVal = maxOf(
-            (incomeSeries.maxOrNull() ?: 0.0),
-            (expenseSeries.maxOrNull() ?: 0.0)
-        ).coerceAtLeast(1e-6)
+        val maxVal = lineDataList
+            .flatMap { it.data }
+            .maxOrNull()
+            ?.coerceAtLeast(1e-6) ?: 1e-6
 
         // 绘制坐标轴
         drawAxes(canvas, chartLeft, chartTop, chartRight, chartBottom, maxVal)
@@ -174,24 +251,19 @@ class LineChartView @JvmOverloads constructor(
         // 绘制网格线
         drawGrid(canvas, chartLeft, chartTop, w, h, maxVal)
 
-        fun buildPath(series: List<Double>): Path {
-            val path = Path()
-            val size = series.size
-            for (i in 0 until size) {
-                val x = chartLeft + (w * (i.toFloat() / (size - 1).coerceAtLeast(1))).toInt()
-                val yRatio = (series[i] / maxVal).toFloat()
-                val y = chartTop + (h * (1f - yRatio))
-                if (i == 0) path.moveTo(x.toFloat(), y) else path.lineTo(x.toFloat(), y)
+        // 绘制所有折线
+        lineDataList.forEachIndexed { index, lineData ->
+            if (lineData.data.isNotEmpty() && index < linePaints.size) {
+                val path = Path()
+                val size = lineData.data.size
+                for (i in 0 until size) {
+                    val x = chartLeft + (w * (i.toFloat() / (size - 1).coerceAtLeast(1))).toInt()
+                    val yRatio = (lineData.data[i] / maxVal).toFloat()
+                    val y = chartTop + (h * (1f - yRatio))
+                    if (i == 0) path.moveTo(x.toFloat(), y) else path.lineTo(x.toFloat(), y)
+                }
+                canvas.drawPath(path, linePaints[index])
             }
-            return path
-        }
-
-        // 绘制折线
-        if (incomeSeries.isNotEmpty()) {
-            canvas.drawPath(buildPath(incomeSeries), incomePaint)
-        }
-        if (expenseSeries.isNotEmpty()) {
-            canvas.drawPath(buildPath(expenseSeries), expensePaint)
         }
     }
 
