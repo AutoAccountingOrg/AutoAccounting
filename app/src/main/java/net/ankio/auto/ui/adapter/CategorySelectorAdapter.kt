@@ -286,7 +286,7 @@ class CategorySelectorAdapter : BaseAdapter<AdapterCategoryListBinding, Category
         val (textColor, imageBackground, imageColorFilter) =
             if (isActive) {
                 Triple(
-                    DynamicColors.PrimaryContainer,
+                    DynamicColors.Primary,
                     R.drawable.rounded_border,
                     DynamicColors.OnPrimary,
                 )
