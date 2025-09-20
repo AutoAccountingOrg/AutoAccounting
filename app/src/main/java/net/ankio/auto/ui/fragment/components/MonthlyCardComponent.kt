@@ -137,10 +137,8 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
                 val expenseAmount = stats["expense"] ?: 0.0
 
                 // 现在ID已经修正，可以按正常逻辑显示数据
-                binding.tvIncomeAmount.text =
-                    String.format(Locale.getDefault(), "¥ %.2f", incomeAmount)
-                binding.tvExpenseAmount.text =
-                    String.format(Locale.getDefault(), "¥ %.2f", expenseAmount)
+                binding.tvIncomeAmount.text = BillTool.formatAmount(incomeAmount)
+                binding.tvExpenseAmount.text = BillTool.formatAmount(expenseAmount)
             }
         }
     }
