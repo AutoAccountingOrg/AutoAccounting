@@ -1,9 +1,11 @@
 package net.ankio.auto.service
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
@@ -209,6 +211,34 @@ class CoreService : LifecycleService() {
 
     companion object {
         /**
+         * 检查CoreService是否正在运行
+         */
+        fun isRunning(context: Context): Boolean {
+            val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (CoreService::class.java.name == service.service.className) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        /**
+         * 停止核心服务
+         */
+        fun stop(context: Context): Boolean {
+            return try {
+                val intent = Intent(context, CoreService::class.java)
+                context.stopService(intent)
+                Logger.i("核心服务已停止")
+                true
+            } catch (e: Exception) {
+                Logger.e("停止服务时异常: ${e.message}", e)
+                false
+            }
+        }
+
+        /**
          * 启动核心服务的静态方法
          * @param activity 启动服务的Activity上下文
          * @param intent 可选的额外Intent参数
@@ -224,6 +254,26 @@ class CoreService : LifecycleService() {
 
             } catch (e: Exception) {
                 Logger.e("启动服务时未知异常: ${e.message}", e)
+                false
+            }
+        }
+
+        /**
+         * 重启核心服务
+         * 如果服务正在运行则先停止，然后启动
+         */
+        fun restart(activity: Activity, intent: Intent? = null): Boolean {
+            return try {
+                if (isRunning(activity)) {
+                    Logger.i("服务正在运行，先停止服务")
+                    stop(activity)
+                    // 等待服务完全停止
+                    Thread.sleep(1000)
+                }
+                Logger.i("启动服务")
+                start(activity, intent)
+            } catch (e: Exception) {
+                Logger.e("重启服务时异常: ${e.message}", e)
                 false
             }
         }
