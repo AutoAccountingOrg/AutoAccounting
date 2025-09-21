@@ -25,39 +25,11 @@
         android:visibility="visible">
 
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center">
-
-            <ImageView
-                android:id="@+id/item_image_icon"
-                android:layout_width="@dimen/image_size"
-                android:layout_height="@dimen/image_size"
-                android:layout_centerHorizontal="true"
-                android:background="@drawable/rounded_border"
-                android:padding="7dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/default_cate"
-
-                app:tint="?colorOnPrimary" />
-
-            <ImageView
-                android:id="@+id/iv_more"
-                android:layout_width="@dimen/image_size_small_min"
-                android:layout_height="@dimen/image_size_small_min"
-
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/rounded_border_2"
-                android:padding="2dp"
-                android:src="@drawable/ic_more2"
-                app:tint="?colorOnSecondary"
-                tools:ignore="UseAppTint" />
-
-        </RelativeLayout>
+        <net.ankio.auto.ui.components.CategoryIconMoreView
+            android:id="@+id/category_icon_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
         <TextView
             android:id="@+id/item_text"

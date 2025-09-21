@@ -231,26 +231,25 @@ class CategorySelectorAdapter : BaseAdapter<AdapterCategoryListBinding, Category
         binding.container.visibility = View.GONE
 
         // 特殊处理添加按钮
+        val iconMore = binding.categoryIconMore
         if (data.isAddBtn()) {
-            // 添加按钮的特殊渲染
-            binding.itemImageIcon.setImageResource(R.drawable.float_add)
-            binding.ivMore.visibility = View.GONE
-
+            iconMore.setIcon(R.drawable.float_add)
+            iconMore.hideMore()
         } else {
-            binding.itemImageIcon.setCategoryIcon(data)
+            iconMore.setCategoryIcon(data)
         }
-        
+
 
         binding.itemText.text = data.name
 
         binding.root.setOnClickListener {
             if (data.isPanel()) return@setOnClickListener
-            val hasChild = binding.ivMore.isVisible
+            val hasChild = iconMore.isMoreVisible()
             prevBinding?.let { setActive(it, false) }
             prevBinding = binding
             setActive(binding, true)
             panelItem = data
-            itemClickHandler?.invoke(data, position, hasChild, binding.itemImageIcon)
+            itemClickHandler?.invoke(data, position, hasChild, iconMore.getIconView())
         }
 
         // 添加长按监听器（仅在编辑模式下且不是添加按钮时）
@@ -275,7 +274,7 @@ class CategorySelectorAdapter : BaseAdapter<AdapterCategoryListBinding, Category
     }
 
     private fun renderMoreItem(binding: AdapterCategoryListBinding, hasChild: Boolean) {
-        binding.ivMore.visibility = if (hasChild) View.VISIBLE else View.GONE
+        if (hasChild) binding.categoryIconMore.showMore() else binding.categoryIconMore.hideMore()
 
     }
 
@@ -283,34 +282,11 @@ class CategorySelectorAdapter : BaseAdapter<AdapterCategoryListBinding, Category
         binding: AdapterCategoryListBinding,
         isActive: Boolean,
     ) {
-        val (textColor, imageBackground, imageColorFilter) =
-            if (isActive) {
-                Triple(
-                    DynamicColors.Primary,
-                    R.drawable.rounded_border,
-                    DynamicColors.OnPrimary,
-                )
-            } else {
-                Triple(
-                    DynamicColors.Secondary,
-                    R.drawable.rounded_border_,
-                    DynamicColors.Secondary,
-                )
-            }
-
-        binding.itemText.setTextColor(textColor)
-
-        // 链式调用风格设置图标样式
-        binding.itemImageIcon.apply {
-            setBackgroundResource(imageBackground)
-            setColorFilter(imageColorFilter)
-        }
-
-        // 链式调用风格设置更多按钮样式
-        binding.ivMore.apply {
-            setBackgroundResource(imageBackground)
-            setColorFilter(imageColorFilter)
-        }
+        binding.itemText.setTextColor(if (isActive) DynamicColors.Primary else DynamicColors.Secondary)
+        // 外部传色：背景与 more 前景
+        val bg = if (isActive) DynamicColors.Primary else DynamicColors.SurfaceContainerHigh
+        val fg = if (isActive) DynamicColors.OnPrimary else DynamicColors.Secondary
+        binding.categoryIconMore.setColor(bg, fg)
     }
 
     override fun areItemsSame(oldItem: CategoryModel, newItem: CategoryModel): Boolean {
