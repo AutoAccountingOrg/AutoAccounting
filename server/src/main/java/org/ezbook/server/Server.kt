@@ -19,9 +19,11 @@ import android.app.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.ezbook.server.db.Db
@@ -81,10 +83,16 @@ class Server(private val context: Application) {
         lateinit var billProcessor: BillProcessor
         lateinit var application: Application
 
+        /**
+         * 统一的协程异常处理器：防止单个异常导致整个作用域崩溃
+         */
+        private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            ServerLog.e("协程执行异常: ${throwable.message}", throwable)
+        }
 
-        /** 全局主线程协程作用域 */
-        private val mainJob = Job()
-        private val mainScope = CoroutineScope(Dispatchers.Main + mainJob)
+        /** 全局协程作用域 - 使用 SupervisorJob 防止异常传播 */
+        private val mainJob = SupervisorJob()
+        private val mainScope = CoroutineScope(Dispatchers.Main + mainJob + exceptionHandler)
 
         fun withIO(block: suspend () -> Unit) {
             mainScope.launch(Dispatchers.IO) { block() }

@@ -19,13 +19,15 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.storage.Logger
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -43,9 +45,16 @@ object CoroutineUtils {
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    /** 全局主线程协程作用域 */
-    private val mainJob = Job()
-    private val mainScope = CoroutineScope(Dispatchers.Main + mainJob)
+    /**
+     * 统一的协程异常处理器：防止单个异常导致整个作用域崩溃
+     */
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Logger.e("协程执行异常: ${throwable.message}", throwable)
+    }
+
+    /** 全局协程作用域 - 使用 SupervisorJob 防止异常传播 */
+    private val mainJob = SupervisorJob()
+    private val mainScope = CoroutineScope(Dispatchers.Main + mainJob + exceptionHandler)
 
     /**
      * 切换到主线程执行
