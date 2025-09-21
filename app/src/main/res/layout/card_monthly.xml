@@ -169,11 +169,15 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_ai_analysis"
+                    android:textSize="12sp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     app:icon="@drawable/ic_ai"
                     app:iconGravity="textStart"
-                    app:iconPadding="4dp" />
+                    app:iconPadding="2dp"
+                    app:iconSize="16dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAnalysis"
@@ -182,11 +186,15 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_bill_statistics"
+                    android:textSize="12sp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     app:icon="@drawable/ic_statistic"
                     app:iconGravity="textStart"
-                    app:iconPadding="4dp" />
+                    app:iconPadding="2dp"
+                    app:iconSize="16dp" />
                 <!-- 账单同步按钮 -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSync"
@@ -195,11 +203,15 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_bill_sync"
+                    android:textSize="12sp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     app:icon="@drawable/ic_sync"
                     app:iconGravity="textStart"
-                    app:iconPadding="4dp" />
+                    app:iconPadding="2dp"
+                    app:iconSize="16dp" />
 
             </com.google.android.material.button.MaterialButtonGroup>
 
