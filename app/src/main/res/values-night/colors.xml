@@ -1,55 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?><!-- 夜间模式调色板覆盖：与日间同名，共 50 个色系 × strong/soft/bg -->
 <resources>
-    <color name="palette_01_bg">#FF4D2E2F</color>
-    <color name="palette_02_bg">#FF523B30</color>
-    <color name="palette_03_bg">#FF55452A</color>
-    <color name="palette_04_bg">#FF5A4A20</color>
-    <color name="palette_05_bg">#FF3F4221</color>
-    <color name="palette_06_bg">#FF204337</color>
-    <color name="palette_07_bg">#FF204343</color>
-    <color name="palette_08_bg">#FF204347</color>
-    <color name="palette_09_bg">#FF1F3B42</color>
-    <color name="palette_10_bg">#FF1A2E3F</color>
-    <color name="palette_11_bg">#FF1A2E3F</color>
-    <color name="palette_12_bg">#FF2A303D</color>
-    <color name="palette_13_bg">#FF36323D</color>
-    <color name="palette_14_bg">#FF36363D</color>
-    <color name="palette_15_bg">#FF3A2C3A</color>
-    <color name="palette_16_bg">#FF433045</color>
-    <color name="palette_17_bg">#FF4D2C31</color>
-    <color name="palette_18_bg">#FF4D2E34</color>
-    <color name="palette_19_bg">#FF442B2F</color>
-    <color name="palette_20_bg">#FF452C2F</color>
-    <color name="palette_21_bg">#FF4D2E31</color>
-    <color name="palette_22_bg">#FF433045</color>
-    <color name="palette_23_bg">#FF3F3243</color>
-    <color name="palette_24_bg">#FF3A3A42</color>
-    <color name="palette_25_bg">#FF1A2F3B</color>
-    <color name="palette_26_bg">#FF1A303B</color>
-    <color name="palette_27_bg">#FF1F3839</color>
-    <color name="palette_28_bg">#FF1A2D2C</color>
-    <color name="palette_29_bg">#FF1F382F</color>
-    <color name="palette_30_bg">#FF2A3B27</color>
-    <color name="palette_31_bg">#FF353B27</color>
-    <color name="palette_32_bg">#FF2F2F19</color>
-    <color name="palette_33_bg">#FF3A3218</color>
-    <color name="palette_34_bg">#FF3A3118</color>
-    <color name="palette_35_bg">#FF452B25</color>
-    <color name="palette_36_bg">#FF262626</color>
-    <color name="palette_37_bg">#FF262626</color>
-    <color name="palette_38_bg">#FF2C2F33</color>
-    <color name="palette_39_bg">#FF1A3840</color>
-    <color name="palette_40_bg">#FF1F342D</color>
-    <color name="palette_41_bg">#FF1F3A2F</color>
-    <color name="palette_42_bg">#FF2B4320</color>
-    <color name="palette_43_bg">#FF2F2F19</color>
-    <color name="palette_44_bg">#FF2F2F19</color>
-    <color name="palette_45_bg">#FF3A3520</color>
-    <color name="palette_46_bg">#FF3F3620</color>
-    <color name="palette_47_bg">#FF452C25</color>
-    <color name="palette_48_bg">#FF442D33</color>
-    <color name="palette_49_bg">#FF3A2F42</color>
-    <color name="palette_50_bg">#FF2E3245</color>
+    <!-- 现代化暗色系palette颜色 - 降低饱和度，提高明度，营造柔和现代感 -->
+    <color name="palette_01_bg">#FF3A2A2B</color>  <!-- 柔和玫瑰 -->
+    <color name="palette_02_bg">#FF3F2F2A</color>  <!-- 温暖棕褐 -->
+    <color name="palette_03_bg">#FF423A2F</color>  <!-- 柔和米色 -->
+    <color name="palette_04_bg">#FF453A2A</color>  <!-- 淡金 -->
+    <color name="palette_05_bg">#FF3A3D2A</color>  <!-- 柔和橄榄 -->
+    <color name="palette_06_bg">#FF2A3A32</color>  <!-- 柔和薄荷 -->
+    <color name="palette_07_bg">#FF2A3A3A</color>  <!-- 柔和青绿 -->
+    <color name="palette_08_bg">#FF2A3A3D</color>  <!-- 柔和蓝绿 -->
+    <color name="palette_09_bg">#FF2A353A</color>  <!-- 柔和蓝灰 -->
+    <color name="palette_10_bg">#FF2A323A</color>  <!-- 柔和蓝 -->
+    <color name="palette_11_bg">#FF2A323A</color>  <!-- 柔和蓝 -->
+    <color name="palette_12_bg">#FF32353A</color>  <!-- 柔和灰蓝 -->
+    <color name="palette_13_bg">#FF35323A</color>  <!-- 柔和紫灰 -->
+    <color name="palette_14_bg">#FF35353A</color>  <!-- 柔和灰 -->
+    <color name="palette_15_bg">#FF3A323A</color>  <!-- 柔和紫 -->
+    <color name="palette_16_bg">#FF3A2F3A</color>  <!-- 柔和紫红 -->
+    <color name="palette_17_bg">#FF3A2A2F</color>  <!-- 柔和玫瑰 -->
+    <color name="palette_18_bg">#FF3A2A32</color>  <!-- 柔和粉红 -->
+    <color name="palette_19_bg">#FF3A2F32</color>  <!-- 柔和粉紫 -->
+    <color name="palette_20_bg">#FF3A2F32</color>  <!-- 柔和粉紫 -->
+    <color name="palette_21_bg">#FF3A2A32</color>  <!-- 柔和粉红 -->
+    <color name="palette_22_bg">#FF3A2F3A</color>  <!-- 柔和紫红 -->
+    <color name="palette_23_bg">#FF3A323A</color>  <!-- 柔和紫灰 -->
+    <color name="palette_24_bg">#FF3A353A</color>  <!-- 柔和灰紫 -->
+    <color name="palette_25_bg">#FF2A323A</color>  <!-- 柔和蓝 -->
+    <color name="palette_26_bg">#FF2A323A</color>  <!-- 柔和蓝 -->
+    <color name="palette_27_bg">#FF2A353A</color>  <!-- 柔和蓝灰 -->
+    <color name="palette_28_bg">#FF2A3232</color>  <!-- 柔和青蓝 -->
+    <color name="palette_29_bg">#FF2A3532</color>  <!-- 柔和青绿 -->
+    <color name="palette_30_bg">#FF323A2A</color>  <!-- 柔和绿 -->
+    <color name="palette_31_bg">#FF353A2A</color>  <!-- 柔和黄绿 -->
+    <color name="palette_32_bg">#FF3A3A2A</color>  <!-- 柔和黄 -->
+    <color name="palette_33_bg">#FF3A352A</color>  <!-- 柔和橙黄 -->
+    <color name="palette_34_bg">#FF3A352A</color>  <!-- 柔和橙黄 -->
+    <color name="palette_35_bg">#FF3A2F2A</color>  <!-- 柔和橙 -->
+    <color name="palette_36_bg">#FF2A2A2A</color>  <!-- 柔和深灰 -->
+    <color name="palette_37_bg">#FF2A2A2A</color>  <!-- 柔和深灰 -->
+    <color name="palette_38_bg">#FF2F3235</color>  <!-- 柔和中灰 -->
+    <color name="palette_39_bg">#FF2A323A</color>  <!-- 柔和蓝 -->
+    <color name="palette_40_bg">#FF2A3232</color>  <!-- 柔和青蓝 -->
+    <color name="palette_41_bg">#FF2A3532</color>  <!-- 柔和青绿 -->
+    <color name="palette_42_bg">#FF323A2A</color>  <!-- 柔和绿 -->
+    <color name="palette_43_bg">#FF3A3A2A</color>  <!-- 柔和黄 -->
+    <color name="palette_44_bg">#FF3A3A2A</color>  <!-- 柔和黄 -->
+    <color name="palette_45_bg">#FF3A352A</color>  <!-- 柔和橙黄 -->
+    <color name="palette_46_bg">#FF3A352A</color>  <!-- 柔和橙黄 -->
+    <color name="palette_47_bg">#FF3A2F2A</color>  <!-- 柔和橙 -->
+    <color name="palette_48_bg">#FF3A2F32</color>  <!-- 柔和粉紫 -->
+    <color name="palette_49_bg">#FF3A323A</color>  <!-- 柔和紫灰 -->
+    <color name="palette_50_bg">#FF32353A</color>  <!-- 柔和灰蓝 -->
 
     <!-- 额外：夜间覆盖基础色，合并到同一 resources 中 -->
     <color name="info">#3B71CA</color>
@@ -80,4 +81,13 @@
     <color name="tile_bg_tag">#FF4C3A10</color>
     <color name="tile_bg_app_whitelist">#FF2F4F2F</color>
     <color name="tile_bg_data_filter">#FF5C3D26</color>
+
+    <!-- 基础色暗色版本 -->
+    <color name="white">#FFE6E1E5</color>  <!-- 暗色主题下的白色，使用 Material Design 的 onSurface 色 -->
+    <color name="transparent">#00000000</color>  <!-- 透明色保持不变 -->
+
+    <!-- 渐变色暗色版本 -->
+    <color name="scrimStart">#00000000</color>  <!-- 渐变起始保持透明 -->
+    <color name="scrimEnd">#B3000000</color>    <!-- 渐变结束保持70%黑色，在暗色主题下仍然有效 -->
+
 </resources>

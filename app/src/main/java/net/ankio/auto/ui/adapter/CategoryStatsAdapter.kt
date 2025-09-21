@@ -255,7 +255,7 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
         // 进度条着色：进度=强调色，背景=Surface
         binding.progressBar.progressTintList = ColorStateList.valueOf(emphasisColor)
         binding.progressBar.progressBackgroundTintList =
-            ColorStateList.valueOf(DynamicColors.Surface)
+            ColorStateList.valueOf(DynamicColors.SurfaceContainerHigh)
 
         // 去掉子类缩进：统一不显示缩进占位
         binding.indentView.isVisible = false
