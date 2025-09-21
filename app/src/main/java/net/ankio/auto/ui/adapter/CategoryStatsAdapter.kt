@@ -52,53 +52,10 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
         val binding = holder.binding
         val density = holder.context.resources.displayMetrics.density
 
-        // 设置分类名称
-        binding.categoryName.text = data.name
-
-        // 设置百分比
-        val percent = (data.percent * 100).coerceIn(0.0, 100.0)
-        binding.categoryPercent.text = String.format(Locale.getDefault(), "%.1f%%", percent)
-
-        // 设置分类图标（先加载图标，再着色）
-        //binding.categoryIconMore.setIcon(R.drawable.default_cate)
-        binding.categoryIconMore.getIconView().load(data.icon, R.drawable.default_cate)
-
-        // 按名称与位置稳定映射到 1..50 的色系，尽量减少重合
-        val paletteIndex = computePaletteIndex(data.name, position)
-
-
-        val duo = PaletteManager.getColors(holder.context, paletteIndex)
-        val emphasisColor = duo.emphasis
-
-        // 图标组件着色：背景=强调色，前景=OnPrimary
-        binding.categoryIconMore.setColor(emphasisColor, DynamicColors.OnPrimary)
-        // 文本颜色保持不变（不修改）
-        // 进度条着色：进度=强调色，背景=Surface
-        binding.progressBar.progressTintList = ColorStateList.valueOf(emphasisColor)
-        binding.progressBar.progressBackgroundTintList =
-            ColorStateList.valueOf(DynamicColors.Surface)
-
-        // 去掉子类缩进：统一不显示缩进占位
-        binding.indentView.isVisible = false
-
-        // 去掉子类缩进：统一无额外起始外边距，避免复用导致错位
-        run {
-            val params =
-                binding.progressBar.layoutParams as android.view.ViewGroup.MarginLayoutParams
-            params.marginStart = 0
-            binding.progressBar.layoutParams = params
-        }
-
-        // 设置展开图标：由组件的 more 展示
-        if (data.hasChildren && !data.isChild) {
-            binding.categoryIconMore.showMore()
-        } else {
-            binding.categoryIconMore.hideMore()
-        }
-
-        // 设置进度条百分比
-        val progress = (data.percent * 100).coerceIn(0.0, 100.0).toInt()
-        binding.progressBar.progress = progress
+        setupBasicInfo(binding, data)
+        setupIconAndColor(holder, binding, data, position)
+        setupProgressBar(holder, binding, data, position)
+        setupExpansionState(binding, data)
     }
 
     /**
@@ -112,69 +69,125 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
         val newParent = item.copy(isExpanded = !item.isExpanded)
 
         if (newParent.isExpanded) {
-            // 展开：插入子项
-            val childItems = newParent.children.map { child ->
-                CategoryStatsItem(
-                    name = child.name,
-                    percent = child.percent,
-                    count = child.count,
-                    icon = child.icon,
-                    isChild = true,
-                    hasChildren = false,
-                    children = emptyList(),
-                    isExpanded = false
-                )
-            }
-
-            // 重构数据列表：在指定位置插入子项
-            val currentItems = getItems().toMutableList()
-            // 替换父项为新对象（已切换展开状态）
-            currentItems[position] = newParent
-            currentItems.addAll(position + 1, childItems)
-            updateItems(currentItems)
+            expandCategory(position, newParent)
         } else {
-            // 收起：移除子项
-            val currentItems = getItems().toMutableList()
-            var removeCount = 0
-            var nextIndex = position + 1
+            collapseCategory(position, newParent)
+        }
+    }
 
-            while (nextIndex < currentItems.size && currentItems[nextIndex].isChild) {
-                removeCount++
-                nextIndex++
-            }
+    /**
+     * 展开分类：插入子项到列表中
+     */
+    private fun expandCategory(position: Int, newParent: CategoryStatsItem) {
+        val childItems = createChildItems(newParent.children)
+        val currentItems = getItems().toMutableList()
 
-            if (removeCount > 0) {
-                repeat(removeCount) {
-                    currentItems.removeAt(position + 1)
-                }
-                // 替换父项为新对象（已切换收起状态）
-                currentItems[position] = newParent
-                updateItems(currentItems)
-            }
-            // 若没有子项可移除，也需要刷新父项图标状态
-            if (removeCount == 0) {
-                currentItems[position] = newParent
-                updateItems(currentItems)
-            }
+        // 替换父项为新对象（已切换展开状态）
+        currentItems[position] = newParent
+        // 在父项后插入子项
+        currentItems.addAll(position + 1, childItems)
+        updateItems(currentItems)
+    }
+
+    /**
+     * 收起分类：从列表中移除子项
+     */
+    private fun collapseCategory(position: Int, newParent: CategoryStatsItem) {
+        val currentItems = getItems().toMutableList()
+        val removeCount = countChildItems(currentItems, position)
+
+        if (removeCount > 0) {
+            removeChildItems(currentItems, position, removeCount)
+        }
+
+        // 更新父项状态
+        currentItems[position] = newParent
+        updateItems(currentItems)
+    }
+
+    /**
+     * 创建子项列表
+     */
+    private fun createChildItems(children: List<BillAPI.CategoryItemDto>): List<CategoryStatsItem> {
+        return children.map { child ->
+            CategoryStatsItem(
+                name = child.name,
+                percent = child.percent,
+                count = child.count,
+                icon = child.icon,
+                isChild = true,
+                hasChildren = false,
+                children = emptyList(),
+                isExpanded = false
+            )
+        }
+    }
+
+    /**
+     * 统计指定位置后的子项数量
+     */
+    private fun countChildItems(items: List<CategoryStatsItem>, startPosition: Int): Int {
+        var count = 0
+        var nextIndex = startPosition + 1
+
+        while (nextIndex < items.size && items[nextIndex].isChild) {
+            count++
+            nextIndex++
+        }
+
+        return count
+    }
+
+    /**
+     * 从列表中移除指定数量的子项
+     */
+    private fun removeChildItems(
+        items: MutableList<CategoryStatsItem>,
+        position: Int,
+        removeCount: Int
+    ) {
+        repeat(removeCount) {
+            items.removeAt(position + 1)
         }
     }
 
     /**
      * 将名称与位置映射为 1..50 的色系索引，稳定且分散，尽量避免重合。
+     *
+     * 使用稳定的哈希算法确保相同输入总是产生相同输出，
+     * 结合位置信息进一步减少碰撞概率。
+     *
+     * @param name 分类名称，用于生成哈希的基础值
+     * @param position 分类在列表中的位置，用于增加哈希的随机性
+     * @return 1到50之间的色系索引
      */
     private fun computePaletteIndex(name: String?, position: Int): Int {
+        // 确保名称不为null且去除前后空格
         val safeName = name?.trim().orEmpty()
-        var hash = 1125899906842597L // 大质数 seed，减少碰撞
+
+        // 使用大质数作为种子，减少哈希碰撞
+        var hash = 1125899906842597L
+
+        // 对每个字符进行哈希计算，使用另一个大质数作为乘数
         safeName.forEach { ch ->
             hash = (hash * 1315423911L) xor ch.code.toLong()
         }
+
+        // 结合位置信息，进一步增加哈希的分散度
         hash = hash xor (position.toLong() * 1469598103934665603L)
+
+        // 取绝对值后对总色系数量取模，确保结果在1-50范围内
         val idx = (kotlin.math.abs(hash) % PaletteManager.TOTAL_FAMILIES) + 1
         return idx.toInt()
     }
 
     /**
      * 设置分类数据
+     *
+     * 将API返回的分类数据转换为适配器使用的内部数据结构。
+     * 每个父分类都会被转换为CategoryStatsItem，子分类信息保存在children字段中。
+     *
+     * @param categories 从API获取的分类列表数据
      */
     fun setCategoryData(categories: List<BillAPI.CategoryItemDto>) {
         val flatItems = categories.map { parent ->
@@ -183,13 +196,97 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
                 percent = parent.percent,
                 count = parent.count,
                 icon = parent.icon,
-                isChild = false,
-                hasChildren = parent.children.isNotEmpty(),
-                children = parent.children,
-                isExpanded = false
+                isChild = false, // 父分类不是子项
+                hasChildren = parent.children.isNotEmpty(), // 判断是否有子分类
+                children = parent.children, // 保存子分类数据
+                isExpanded = false // 初始状态为未展开
             )
         }
         updateItems(flatItems)
+    }
+
+    /**
+     * 设置基本信息：分类名称和百分比
+     */
+    private fun setupBasicInfo(binding: AdapterCategoryStatsBinding, data: CategoryStatsItem) {
+        // 设置分类名称
+        binding.categoryName.text = data.name
+
+        // 设置百分比，限制在0-100范围内
+        val percent = (data.percent * 100).coerceIn(0.0, 100.0)
+        binding.categoryPercent.text = String.format(Locale.getDefault(), "%.1f%%", percent)
+    }
+
+    /**
+     * 设置图标和颜色主题
+     */
+    private fun setupIconAndColor(
+        holder: BaseViewHolder<AdapterCategoryStatsBinding, CategoryStatsItem>,
+        binding: AdapterCategoryStatsBinding,
+        data: CategoryStatsItem,
+        position: Int
+    ) {
+        // 设置分类图标（先加载图标，再着色）
+        binding.categoryIconMore.getIconView().load(data.icon, R.drawable.default_cate)
+
+        // 按名称与位置稳定映射到 1..50 的色系，尽量减少重合
+        val paletteIndex = computePaletteIndex(data.name, position)
+        val duo = PaletteManager.getColors(holder.context, paletteIndex)
+        val emphasisColor = duo.emphasis
+
+        // 图标组件着色：背景=强调色，前景=OnPrimary
+        binding.categoryIconMore.setColor(emphasisColor, DynamicColors.OnPrimary)
+    }
+
+    /**
+     * 设置进度条样式和进度
+     */
+    private fun setupProgressBar(
+        holder: BaseViewHolder<AdapterCategoryStatsBinding, CategoryStatsItem>,
+        binding: AdapterCategoryStatsBinding,
+        data: CategoryStatsItem,
+        position: Int
+    ) {
+        // 获取当前项目的强调色
+        val paletteIndex = computePaletteIndex(data.name, position)
+        val duo = PaletteManager.getColors(holder.context, paletteIndex)
+        val emphasisColor = duo.emphasis
+
+        // 进度条着色：进度=强调色，背景=Surface
+        binding.progressBar.progressTintList = ColorStateList.valueOf(emphasisColor)
+        binding.progressBar.progressBackgroundTintList =
+            ColorStateList.valueOf(DynamicColors.Surface)
+
+        // 去掉子类缩进：统一不显示缩进占位
+        binding.indentView.isVisible = false
+
+        // 去掉子类缩进：统一无额外起始外边距，避免复用导致错位
+        removeProgressBarMarginStart(binding)
+
+        // 设置进度条百分比
+        val progress = (data.percent * 100).coerceIn(0.0, 100.0).toInt()
+        binding.progressBar.progress = progress
+    }
+
+    /**
+     * 移除进度条的起始外边距
+     */
+    private fun removeProgressBarMarginStart(binding: AdapterCategoryStatsBinding) {
+        val params = binding.progressBar.layoutParams as android.view.ViewGroup.MarginLayoutParams
+        params.marginStart = 0
+        binding.progressBar.layoutParams = params
+    }
+
+    /**
+     * 设置展开状态图标
+     */
+    private fun setupExpansionState(binding: AdapterCategoryStatsBinding, data: CategoryStatsItem) {
+        // 设置展开图标：由组件的 more 展示
+        if (data.hasChildren && !data.isChild) {
+            binding.categoryIconMore.showMore()
+        } else {
+            binding.categoryIconMore.hideMore()
+        }
     }
 
     override fun areItemsSame(oldItem: CategoryStatsItem, newItem: CategoryStatsItem): Boolean {
