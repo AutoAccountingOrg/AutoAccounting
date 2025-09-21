@@ -62,6 +62,10 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
                 // 使用目的地 ID 导航，避免当前目的地识别为 NavGraph 时解析不到 action
                 findNavController().navigate(R.id.aiSummaryFragment, bundle)
             }
+            .setOnNavigateToStatistics {
+                // 跳转到统计页面
+                findNavController().navigate(R.id.statisticFragment)
+            }
 
         val bookCard: BookCardComponent = binding.bookCard.bindAs()
         bookCard.setOnRedirect { navigationId, bundle ->

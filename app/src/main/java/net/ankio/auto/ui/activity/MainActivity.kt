@@ -40,9 +40,15 @@ class MainActivity : BaseActivity() {
     }
     private val vm: IntroSharedVm by viewModels()
 
+    // 记录上次的工作模式，用于检测变化
+    private var lastWorkMode: WorkMode? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 初始化当前工作模式记录
+        lastWorkMode = PrefManager.workMode
+        
         // 非 Xposed 模式下启动核心服务
         if (WorkMode.isOcrOrLSPatch()) CoreService.start(this, intent)
         Logger.d("初始化完成")
@@ -60,7 +66,20 @@ class MainActivity : BaseActivity() {
         // 监听页面切换请求
         vm.pageRequest.observe(this) { idx ->
             PrefManager.introIndex = idx.ordinal
-            CoreService.start(this, intent)
+
+            // 检查工作模式是否发生变化
+            val currentWorkMode = PrefManager.workMode
+            if (lastWorkMode != null && lastWorkMode != currentWorkMode) {
+                Logger.i("工作模式变更: $lastWorkMode -> $currentWorkMode，重启服务")
+                CoreService.restart(this, intent)
+            } else if (lastWorkMode == null && WorkMode.isOcrOrLSPatch()) {
+                // 首次启动且为非Xposed模式，启动服务
+                Logger.i("首次启动服务，模式: $currentWorkMode")
+                CoreService.start(this, intent)
+            }
+
+            // 更新记录的模式
+            lastWorkMode = currentWorkMode
             binding.viewPager.setCurrentItem(idx.ordinal, true)
         }
     }

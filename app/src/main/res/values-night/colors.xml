@@ -1,45 +1,77 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
-  ~ Licensed under the Apache License, Version 3.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~         http://www.apache.org/licenses/LICENSE-3.0
-  ~
-  ~  Unless required by applicable law or agreed to in writing, software
-  ~  distributed under the License is distributed on an "AS IS" BASIS,
-  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~  See the License for the specific language governing permissions and
-  ~   limitations under the License.
-  -->
-
+<?xml version="1.0" encoding="utf-8"?><!-- 夜间模式调色板覆盖：与日间同名，共 50 个色系 × strong/soft/bg -->
 <resources>
+    <color name="palette_01_bg">#FF4D2E2F</color>
+    <color name="palette_02_bg">#FF523B30</color>
+    <color name="palette_03_bg">#FF55452A</color>
+    <color name="palette_04_bg">#FF5A4A20</color>
+    <color name="palette_05_bg">#FF3F4221</color>
+    <color name="palette_06_bg">#FF204337</color>
+    <color name="palette_07_bg">#FF204343</color>
+    <color name="palette_08_bg">#FF204347</color>
+    <color name="palette_09_bg">#FF1F3B42</color>
+    <color name="palette_10_bg">#FF1A2E3F</color>
+    <color name="palette_11_bg">#FF1A2E3F</color>
+    <color name="palette_12_bg">#FF2A303D</color>
+    <color name="palette_13_bg">#FF36323D</color>
+    <color name="palette_14_bg">#FF36363D</color>
+    <color name="palette_15_bg">#FF3A2C3A</color>
+    <color name="palette_16_bg">#FF433045</color>
+    <color name="palette_17_bg">#FF4D2C31</color>
+    <color name="palette_18_bg">#FF4D2E34</color>
+    <color name="palette_19_bg">#FF442B2F</color>
+    <color name="palette_20_bg">#FF452C2F</color>
+    <color name="palette_21_bg">#FF4D2E31</color>
+    <color name="palette_22_bg">#FF433045</color>
+    <color name="palette_23_bg">#FF3F3243</color>
+    <color name="palette_24_bg">#FF3A3A42</color>
+    <color name="palette_25_bg">#FF1A2F3B</color>
+    <color name="palette_26_bg">#FF1A303B</color>
+    <color name="palette_27_bg">#FF1F3839</color>
+    <color name="palette_28_bg">#FF1A2D2C</color>
+    <color name="palette_29_bg">#FF1F382F</color>
+    <color name="palette_30_bg">#FF2A3B27</color>
+    <color name="palette_31_bg">#FF353B27</color>
+    <color name="palette_32_bg">#FF2F2F19</color>
+    <color name="palette_33_bg">#FF3A3218</color>
+    <color name="palette_34_bg">#FF3A3118</color>
+    <color name="palette_35_bg">#FF452B25</color>
+    <color name="palette_36_bg">#FF262626</color>
+    <color name="palette_37_bg">#FF262626</color>
+    <color name="palette_38_bg">#FF2C2F33</color>
+    <color name="palette_39_bg">#FF1A3840</color>
+    <color name="palette_40_bg">#FF1F342D</color>
+    <color name="palette_41_bg">#FF1F3A2F</color>
+    <color name="palette_42_bg">#FF2B4320</color>
+    <color name="palette_43_bg">#FF2F2F19</color>
+    <color name="palette_44_bg">#FF2F2F19</color>
+    <color name="palette_45_bg">#FF3A3520</color>
+    <color name="palette_46_bg">#FF3F3620</color>
+    <color name="palette_47_bg">#FF452C25</color>
+    <color name="palette_48_bg">#FF442D33</color>
+    <color name="palette_49_bg">#FF3A2F42</color>
+    <color name="palette_50_bg">#FF2E3245</color>
+
+    <!-- 额外：夜间覆盖基础色，合并到同一 resources 中 -->
     <color name="info">#3B71CA</color>
     <color name="danger">#DC4C64</color>
     <color name="success">#14A44D</color>
-    <!-- 夜间模式背景用淡色版本 -->
-    <color name="danger_bg">#26DC4C64</color>  <!-- 15% 透明度的红色，夜间稍微亮一点 -->
-    <color name="success_bg">#2614A44D</color> <!-- 15% 透明度的绿色，夜间稍微亮一点 -->
-    <color name="log_info">#90CAF9</color> <!-- 浅信息 -->
-    <color name="log_warning">#FFCC80</color> <!-- 浅警告 -->
-    <color name="log_error">#EF9A9A</color> <!-- 浅错误 -->
-    <color name="log_debug">#B0BEC5</color> <!-- 浅调试 -->
-    <color name="black">#000</color>
+    <color name="danger_bg">#26DC4C64</color>
+    <color name="success_bg">#2614A44D</color>
+    <color name="log_info">#90CAF9</color>
+    <color name="log_warning">#FFCC80</color>
+    <color name="log_error">#EF9A9A</color>
+    <color name="log_debug">#B0BEC5</color>
+    <color name="black">#000000</color>
     <color name="gray40">#66000000</color>
     <color name="gray30">#47000000</color>
-
-
-    <color name="cardScrim">#47000000</color>          <!-- 28 % 黑：夜间少压暗 -->
-    <color name="syncBarBg">#66000000</color>          <!-- 40 % 黑 -->
-
-    <color name="scrimLabel">#FFCACACA</color>         <!-- 亮灰，避免纯白刺眼 -->
+    <color name="cardScrim">#47000000</color>
+    <color name="syncBarBg">#66000000</color>
+    <color name="scrimLabel">#FFCACACA</color>
     <color name="scrimSync">#B3FFFFFF</color>
-
-    <color name="amountIncome">#FF90CAF9</color>  <!-- 亮度 +20% -->
+    <color name="amountIncome">#FF90CAF9</color>
     <color name="amountExpense">#FFFF8A80</color>
     <color name="textPrimary">#FFFFFFFF</color>
-    <color name="textSecondary">#B3FFFFFF</color>    <!-- 90% 黑 -->
-
+    <color name="textSecondary">#B3FFFFFF</color>
     <color name="tile_bg_books">#FF4E2F30</color>
     <color name="tile_bg_category">#FF5A4C21</color>
     <color name="tile_bg_category_map">#FF543654</color>
@@ -48,5 +80,4 @@
     <color name="tile_bg_tag">#FF4C3A10</color>
     <color name="tile_bg_app_whitelist">#FF2F4F2F</color>
     <color name="tile_bg_data_filter">#FF5C3D26</color>
-
 </resources>

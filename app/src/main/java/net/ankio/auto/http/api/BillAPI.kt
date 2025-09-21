@@ -250,4 +250,49 @@ object BillAPI {
                 null
             }
         }
+
+    // 统计 DTO（与服务端保持一致字段）
+    data class SummaryDto(
+        val totalExpense: Double,
+        val totalIncome: Double,
+        val net: Double,
+        val dailyAvgExpense: Double
+    )
+
+    data class TrendDto(
+        val labels: List<String>,
+        val incomes: List<Double>,
+        val expenses: List<Double>
+    )
+
+    data class CategoryItemDto(
+        val name: String,
+        val percent: Double,
+        val count: Int = 0,
+        val icon: String? = null,
+        val children: List<CategoryItemDto> = emptyList()
+    )
+
+    data class StatsResponse(
+        val summary: SummaryDto,
+        val trend: TrendDto,
+        val expenseCategories: List<CategoryItemDto>,
+        val incomeCategories: List<CategoryItemDto>
+    )
+
+    /**
+     * 获取指定时间范围的统计数据（服务端计算）。
+     */
+    suspend fun stats(startTime: Long, endTime: Long): StatsResponse? =
+        withContext(Dispatchers.IO) {
+
+            return@withContext runCatchingExceptCancel {
+                val url = "bill/stats?start=$startTime&end=$endTime"
+                val resp = LocalNetwork.get<StatsResponse>(url).getOrThrow()
+                resp.data
+            }.getOrElse {
+                Logger.e("stats error: ${it.message}", it)
+                null
+            }
+        }
 }

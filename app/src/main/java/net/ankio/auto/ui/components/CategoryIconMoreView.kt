@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.widget.ImageViewCompat
@@ -121,7 +122,7 @@ class CategoryIconMoreView @JvmOverloads constructor(
     /**
      * 暴露内部主图标视图，便于外部过渡/动画保持兼容
      */
-    fun getIconView(): View = binding.itemImageIcon
+    fun getIconView(): ImageView = binding.itemImageIcon
 
     /**
      * 外部设置：背景色与前景色

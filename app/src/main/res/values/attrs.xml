@@ -62,4 +62,16 @@
         <attr name="circleColor" format="color" />
     </declare-styleable>
 
+    <!-- 分类图标 + 右下角 more 组件属性 -->
+    <declare-styleable name="CategoryIconMoreView">
+        <!-- 主图标资源（默认 @drawable/default_cate） -->
+        <attr name="cim_icon" format="reference" />
+        <!-- 右下角 more 图标资源（默认 @drawable/ic_more2） -->
+        <attr name="cim_moreIcon" format="reference" />
+        <!-- 主背景色：未设置时使用主题 colorPrimary -->
+        <attr name="cim_primaryColor" format="color" />
+        <!-- 副背景色：未设置时使用主题 colorSecondary -->
+        <attr name="cim_secondaryColor" format="color" />
+    </declare-styleable>
+
 </resources>
