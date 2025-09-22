@@ -73,10 +73,7 @@
     </style>
 
     <style name="CardLine">
-        <item name="android:paddingStart">28dp</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingEnd">28dp</item>
-        <item name="android:paddingBottom">14dp</item>
+        <item name="android:padding">@dimen/cardPadding</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:background">@drawable/ripple_effect</item>

@@ -9,53 +9,107 @@
     style="@style/HomeCard"
     app:layout_constraintEnd_toEndOf="parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/card_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:background="?attr/colorPrimaryContainer"
         android:clickable="true"
-        android:padding="@dimen/state_padding">
+        android:padding="@dimen/cardPadding">
 
-        <!-- 图标 -->
-        <ImageView
-            android:id="@+id/icon_view"
-            android:layout_width="@dimen/image_size"
+        <!-- 上半部分：图标 + 文字信息，水平排列并垂直居中 -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/home_active_success"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="?colorOnPrimaryContainer" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <!-- 主标题（含版本号） -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/title_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="?colorOnPrimaryContainer"
-            app:layout_constraintStart_toEndOf="@id/icon_view"
-            app:layout_constraintTop_toTopOf="@id/icon_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="已激活（v1.2.3）" />
-        <!-- 副标题 -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/subtitle_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:textColor="?colorOnPrimaryContainer"
-            app:layout_constraintStart_toEndOf="@id/icon_view"
-            app:layout_constraintTop_toBottomOf="@id/title_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="Xposed模式" />
+            <!-- 图标 -->
+            <ImageView
+                android:id="@+id/icon_view"
+                android:layout_width="@dimen/image_size_small"
+                android:layout_height="@dimen/image_size_small"
+                android:layout_marginEnd="@dimen/padding"
+                android:src="@drawable/home_active_success"
+                app:tint="?colorOnPrimaryContainer" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- 右侧文字区域：垂直排列四行文本 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+
+                <!-- 第一行：工作状态 + 模式标签，水平排列 -->
+                <LinearLayout
+                    android:padding="@dimen/mini_padding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- 工作状态文本 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/title_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                        android:textColor="?colorOnPrimaryContainer"
+                        android:layout_marginEnd="@dimen/one_padding"
+                        tools:text="工作中" />
+
+                    <!-- 模式标签：小圆角背景 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/mode_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                        android:textColor="?colorOnPrimary"
+                        android:background="@drawable/bg_mode_tag"
+                        android:paddingHorizontal="@dimen/one_padding"
+                        android:paddingVertical="@dimen/mini_padding"
+                        tools:text="Xposed" />
+
+                </LinearLayout>
+
+                <!-- 第二行：App 版本 -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/subtitle_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/mini_padding"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    android:textColor="?colorOnPrimaryContainer"
+                    tools:text="App：v1.2.3" />
+
+                <!-- 第三行：规则版本 -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/rule_version_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/mini_padding"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    android:textColor="?colorOnPrimaryContainer"
+                    tools:text="规则：v0.0.0" />
+
+                <!-- 第四行：规则更新时间 -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/rule_update_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/mini_padding"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    android:textColor="?colorOnPrimaryContainer"
+                    tools:text="更新：2025-01-01" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- 下半部分：右下角按钮区域 -->
+
+    </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>

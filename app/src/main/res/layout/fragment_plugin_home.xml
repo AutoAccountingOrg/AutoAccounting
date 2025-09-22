@@ -46,14 +46,6 @@
                 android:layout_marginTop="0dp"
                 android:maxWidth="@dimen/max_content_width" />
 
-            <!-- 卡片 2：规则版本 -->
-            <include
-                android:id="@+id/rule_version_card"
-                layout="@layout/card_rule_version"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:maxWidth="@dimen/max_content_width" />
 
             <!-- 卡片 3：月度信息 -->
             <include

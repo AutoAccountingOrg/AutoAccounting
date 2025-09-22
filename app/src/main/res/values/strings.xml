@@ -1087,4 +1087,16 @@
     <!-- Short label -->
     <string name="regexLabel">Regex</string>
 
+    <string name="app_version_x">App Version (%1$s)</string>
+    <string name="check_app_update">Check App Update</string>
+    <string name="check_rule_update">Check Rule Update</string>
+
+    <string name="status_working">Working</string>
+    <string name="status_inactive">Inactive</string>
+    <string name="status_need_permission">Missing Permission</string>
+
+    <string name="app_version_colon">App Version: %1$s</string>
+    <string name="rule_version_colon">Rule Version: %1$s</string>
+    <string name="rule_update_colon">Rule Updated At: %1$s</string>
+
 </resources>

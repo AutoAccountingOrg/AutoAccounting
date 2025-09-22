@@ -1,4 +1,3 @@
-
 <!--
   ~ Copyright (C) 2023 ankio(ankio@ankio.net)
   ~ Licensed under the Apache License, Version 3.0 (the "License");
@@ -1073,5 +1072,17 @@
     <!-- 删除二次确认设置 -->
     <string name="setting_confirm_delete_bill">删除前二次确认</string>
     <string name="setting_confirm_delete_bill_summary">删除账单时弹出确认提示</string>
+
+    <string name="app_version_x">应用版本（%1$s）</string>
+    <string name="check_app_update">检查应用更新</string>
+    <string name="check_rule_update">检查规则更新</string>
+
+    <string name="status_working">工作中</string>
+    <string name="status_inactive">未激活</string>
+    <string name="status_need_permission">缺少权限</string>
+
+    <string name="app_version_colon">App：%1$s</string>
+    <string name="rule_version_colon">规则：%1$s</string>
+    <string name="rule_update_colon">更新：%1$s</string>
 
 </resources>
