@@ -5,6 +5,7 @@
     style="@style/HomeCard">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:padding="@dimen/cardPadding2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -16,12 +17,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="@dimen/one_padding"
-            android:layout_marginTop="@dimen/one_padding"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout">
+            app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout"
+            android:layout_marginBottom="@dimen/padding">
 
             <!-- 收入区域 -->
             <LinearLayout
@@ -29,7 +30,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="@dimen/one_padding"
+
                 android:gravity="center_vertical">
 
                 <!-- 收入图标背景 -->
@@ -82,7 +83,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="@dimen/one_padding"
+
                 android:gravity="center_vertical">
 
                 <!-- 支出图标背景 -->
@@ -137,8 +138,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingHorizontal="@dimen/padding"
-            android:paddingBottom="@dimen/padding"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
