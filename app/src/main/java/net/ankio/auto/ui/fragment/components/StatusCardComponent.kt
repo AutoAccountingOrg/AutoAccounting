@@ -17,26 +17,16 @@ package net.ankio.auto.ui.fragment.components
 
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
-import androidx.core.net.toUri
-import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.CardStatusBinding
-import net.ankio.auto.http.license.AppAPI
 import net.ankio.auto.service.OcrService
-import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.ui.api.BaseComponent
-import net.ankio.auto.ui.dialog.UpdateDialog
-import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.CoroutineUtils.withIO
-import net.ankio.auto.utils.CoroutineUtils.withMain
-import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.VersionUtils
-import net.ankio.auto.ui.utils.toDrawable
 import net.ankio.auto.ui.theme.DynamicColors
+import net.ankio.auto.ui.utils.AppUpdateHelper
+import net.ankio.auto.ui.utils.toDrawable
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
 
 class StatusCardComponent(binding: CardStatusBinding) :
@@ -48,7 +38,7 @@ class StatusCardComponent(binding: CardStatusBinding) :
         // 设置点击监听器
         binding.cardContent.setOnClickListener {
             launch {
-                updateApps(true)
+                AppUpdateHelper.checkAndShow(context, true)
             }
         }
 
@@ -138,63 +128,11 @@ class StatusCardComponent(binding: CardStatusBinding) :
      */
     private fun autoCheckUpdateIfNeeded() {
         // 配置关闭则直接返回
-        if (!PrefManager.autoCheckAppUpdate) return
+        if (!AppUpdateHelper.isAutoCheckEnabled()) return
 
         // 后台检查，无需用户提示
         launch {
-            updateApps(false)
-        }
-    }
-
-    private suspend fun updateApps(fromUser: Boolean) {
-        // UI操作在主线程
-        if (fromUser) {
-            withMain {
-                ToastUtils.info(R.string.check_update)
-            }
-        }
-
-        // 网络请求在IO线程
-        val update = withIO {
-            val json = AppAPI.lastVer()
-            try {
-                VersionUtils.fromJSON(json)
-            } catch (e: NullPointerException) {
-                val channel = PrefManager.appChannel
-                CacheManager.remove("app_version_$channel")
-                null
-            }
-        }
-
-        if (update == null) {
-            if (fromUser) {
-                withMain {
-                    ToastUtils.error(R.string.no_need_to_update)
-                }
-            }
-            return
-        }
-
-        // 检查版本是否需要更新
-        if (!VersionUtils.isCloudVersionNewer(BuildConfig.VERSION_NAME, update.version)) {
-            if (fromUser) {
-                withMain {
-                    ToastUtils.error(R.string.no_need_to_update)
-                }
-            }
-            return
-        }
-
-        // UI操作在主线程 - 显示更新对话框
-        withMain {
-            BaseSheetDialog.create<UpdateDialog>(context)
-                .setUpdateModel(update)
-                .setRuleTitle(context.getString(R.string.app))
-                .setOnClickUpdate {
-                    val url =
-                        "https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/${PrefManager.appChannel}/${update.version}.apk"
-                    CustomTabsHelper.launchUrl(url.toUri())
-                }.show()
+            AppUpdateHelper.checkAndShow(context, false)
         }
     }
 }
