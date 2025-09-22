@@ -273,9 +273,13 @@ object BillManager {
     /**
      * 备注去重与规整：
      * - 使用空白与连字符作为分隔，将重复片段去重（保留首次出现）
+     * - 如果原文包含连字符，保留连字符作为分隔符；否则使用空格
      * - 规整多余空白，返回更简洁的备注
      */
     private fun normalizeRemark(text: String): String {
+        // 检测原文是否包含连字符
+        val hasHyphen = text.contains("-")
+        
         // 统一分隔：空白和连字符都作为分隔符
         val tokens = text
             .replace("\u00A0", " ") // 非断行空格
@@ -288,7 +292,10 @@ object BillManager {
             // 去重：只保留首次出现的片段
             if (!seen.contains(token)) seen.add(token)
         }
-        return seen.joinToString(" ")
+
+        // 根据原文是否有连字符选择分隔符
+        val separator = if (hasHyphen) "-" else " "
+        return seen.joinToString(separator)
     }
 
     /**
