@@ -26,7 +26,6 @@ import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.ui.utils.load
 import java.util.Locale
-import kotlin.math.abs
 
 /**
  * 分类统计适配器
@@ -50,11 +49,10 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
         position: Int
     ) {
         val binding = holder.binding
-        val density = holder.context.resources.displayMetrics.density
 
         setupBasicInfo(binding, data)
-        setupIconAndColor(holder, binding, data, position)
-        setupProgressBar(holder, binding, data, position)
+        setupIconAndColor(holder, binding, data)
+        setupProgressBar(holder, binding, data)
         setupExpansionState(binding, data)
     }
 
@@ -152,36 +150,6 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
     }
 
     /**
-     * 将名称与位置映射为 1..50 的色系索引，稳定且分散，尽量避免重合。
-     *
-     * 使用稳定的哈希算法确保相同输入总是产生相同输出，
-     * 结合位置信息进一步减少碰撞概率。
-     *
-     * @param name 分类名称，用于生成哈希的基础值
-     * @param position 分类在列表中的位置，用于增加哈希的随机性
-     * @return 1到50之间的色系索引
-     */
-    private fun computePaletteIndex(name: String?, position: Int): Int {
-        // 确保名称不为null且去除前后空格
-        val safeName = name?.trim().orEmpty()
-
-        // 使用大质数作为种子，减少哈希碰撞
-        var hash = 1125899906842597L
-
-        // 对每个字符进行哈希计算，使用另一个大质数作为乘数
-        safeName.forEach { ch ->
-            hash = (hash * 1315423911L) xor ch.code.toLong()
-        }
-
-        // 结合位置信息，进一步增加哈希的分散度
-        hash = hash xor (position.toLong() * 1469598103934665603L)
-
-        // 取绝对值后对总色系数量取模，确保结果在1-50范围内
-        val idx = (kotlin.math.abs(hash) % PaletteManager.TOTAL_FAMILIES) + 1
-        return idx.toInt()
-    }
-
-    /**
      * 设置分类数据
      *
      * 将API返回的分类数据转换为适配器使用的内部数据结构。
@@ -223,15 +191,12 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
     private fun setupIconAndColor(
         holder: BaseViewHolder<AdapterCategoryStatsBinding, CategoryStatsItem>,
         binding: AdapterCategoryStatsBinding,
-        data: CategoryStatsItem,
-        position: Int
+        data: CategoryStatsItem
     ) {
         // 设置分类图标（先加载图标，再着色）
         binding.categoryIconMore.getIconView().load(data.icon, R.drawable.default_cate)
 
-        // 按名称与位置稳定映射到 1..50 的色系，尽量减少重合
-        val paletteIndex = computePaletteIndex(data.name, position)
-        val duo = PaletteManager.getColors(holder.context, paletteIndex)
+        val duo = PaletteManager.getColorsByLabel(holder.context, data.name)
         val emphasisColor = duo.emphasis
 
         // 图标组件着色：背景=强调色，前景=OnPrimary
@@ -244,12 +209,10 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
     private fun setupProgressBar(
         holder: BaseViewHolder<AdapterCategoryStatsBinding, CategoryStatsItem>,
         binding: AdapterCategoryStatsBinding,
-        data: CategoryStatsItem,
-        position: Int
+        data: CategoryStatsItem
     ) {
         // 获取当前项目的强调色
-        val paletteIndex = computePaletteIndex(data.name, position)
-        val duo = PaletteManager.getColors(holder.context, paletteIndex)
+        val duo = PaletteManager.getColorsByLabel(holder.context, data.name)
         val emphasisColor = duo.emphasis
 
         // 进度条着色：进度=强调色，背景=Surface

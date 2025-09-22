@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.utils.ThemeUtils
 import rikka.material.app.MaterialActivity
 
@@ -69,6 +70,8 @@ open class BaseActivity : MaterialActivity() {
      * @param isDecorView 是否为装饰视图
      */
     override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
+        // 清除颜色缓存，确保主题切换后颜色正确更新
+        PaletteManager.clearCache()
 
         // 如果不是系统强调色，应用自定义颜色主题
         if (!ThemeUtils.isSystemAccent) {
@@ -80,8 +83,6 @@ open class BaseActivity : MaterialActivity() {
         val nightThemeRes = ThemeUtils.getNightThemeStyleRes(this)
         Logger.d("Applying night theme: $nightThemeRes")
         theme.applyStyle(nightThemeRes, true)
-
-
     }
 
     /**

@@ -18,24 +18,22 @@ package net.ankio.auto.ui.fragment.components
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
-import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.bumptech.glide.Glide
 import com.google.android.material.elevation.SurfaceColors
+import com.google.gson.Gson
 import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.CardBookBinding
 import net.ankio.auto.ui.api.BaseComponent
-import net.ankio.auto.ui.components.IconTileView
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.components.IconTileView
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
+import net.ankio.auto.ui.fragment.CategoryFragment
+import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.ui.utils.load
 import net.ankio.auto.utils.PrefManager
-import org.ezbook.server.db.model.BookNameModel
-import com.google.gson.Gson
-import net.ankio.auto.ui.fragment.CategoryFragment
 
 class BookCardComponent(binding: CardBookBinding) :
     BaseComponent<CardBookBinding>(binding) {
@@ -99,7 +97,6 @@ class BookCardComponent(binding: CardBookBinding) :
                 ActionTile(
                     icon = R.drawable.ic_book,
                     label = R.string.title_books,
-                    circleColor = R.color.tile_bg_books,
                     onClick = { openBookManager() }
                 )
             )
@@ -110,7 +107,6 @@ class BookCardComponent(binding: CardBookBinding) :
             ActionTile(
                 icon = R.drawable.ic_category,
                 label = R.string.title_category,
-                circleColor = R.color.tile_bg_category,
                 onClick = { openCategoryManager() }
             )
         )
@@ -120,7 +116,6 @@ class BookCardComponent(binding: CardBookBinding) :
             ActionTile(
                 icon = R.drawable.ic_swap_horiz,
                 label = R.string.title_category_mapping,
-                circleColor = R.color.tile_bg_category_map,
                 onClick = { openCategoryMapping() }
             )
         )
@@ -132,7 +127,6 @@ class BookCardComponent(binding: CardBookBinding) :
                 ActionTile(
                     icon = R.drawable.ic_account_balance_wallet,
                     label = R.string.title_assets,
-                    circleColor = R.color.tile_bg_assets,
                     onClick = { openAssetManager() }
                 )
             )
@@ -142,7 +136,6 @@ class BookCardComponent(binding: CardBookBinding) :
                 ActionTile(
                     icon = R.drawable.ic_compare_arrows,
                     label = R.string.title_assets_map,
-                    circleColor = R.color.tile_bg_assets_map,
                     onClick = { openAssetMapping() }
                 )
             )
@@ -154,7 +147,6 @@ class BookCardComponent(binding: CardBookBinding) :
                 ActionTile(
                     icon = R.drawable.ic_label,
                     label = R.string.title_tag,
-                    circleColor = R.color.tile_bg_tag,
                     onClick = { openTagManager() }
                 )
             )
@@ -165,7 +157,6 @@ class BookCardComponent(binding: CardBookBinding) :
             ActionTile(
                 icon = R.drawable.home_app_book,
                 label = R.string.title_app_whitelist,
-                circleColor = R.color.tile_bg_app_whitelist,
                 onClick = { openAppWhitelist() }
             )
         )
@@ -175,7 +166,6 @@ class BookCardComponent(binding: CardBookBinding) :
             ActionTile(
                 icon = R.drawable.data_filter,
                 label = R.string.title_data_filter,
-                circleColor = R.color.tile_bg_data_filter,
                 onClick = { openDataFilter() }
             )
         )
@@ -184,12 +174,11 @@ class BookCardComponent(binding: CardBookBinding) :
     }
 
     /* -------------------------------------------------------
-     * 数据模型保持不变
+     * 数据模型 - 基于 label 动态分配颜色
      * ----------------------------------------------------- */
     data class ActionTile(
         @DrawableRes val icon: Int,
         @StringRes val label: Int,
-        @ColorRes val circleColor: Int,
         val onClick: () -> Unit
     )
 
@@ -253,10 +242,12 @@ class BookCardComponent(binding: CardBookBinding) :
         grid.removeAllViews()
 
         actions.forEachIndexed { index, tile ->
+            val labelText = context.getString(tile.label)
+            val colors = PaletteManager.getColorsByLabel(context, labelText)
             val view = IconTileView(context).apply {
                 setIcon(tile.icon)
-                setLabel(context.getString(tile.label))
-                setCircleColor(context.getColor(tile.circleColor))
+                setLabel(labelText)
+                setColors(colors)  // 直接使用双色方案
                 setOnClickListener { tile.onClick() }
             }
 

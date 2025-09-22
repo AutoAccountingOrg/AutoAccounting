@@ -6,14 +6,27 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import kotlin.math.abs
 
 /**
- * 调色板管理器：提供 50 个色系的双色方案（背景色 + 强调色）。
+ * 调色板管理器：提供统一的颜色管理方案
  *
  * 设计原则：
- * 1. 简洁直接：仅维护 `palette_XX_bg` 背景资源（XX=01..50）。
- * 2. 强调色由背景色动态计算，避免维护多套资源，保证一致对比度。
- * 3. 轻量缓存：使用 SparseIntArray 缓存已解析过的颜色，避免重复解析与读取。
+ * 1. 简洁直接：统一管理所有应用颜色资源
+ * 2. 强调色由背景色动态计算，避免维护多套资源，保证一致对比度
+ * 3. 轻量缓存：使用 SparseIntArray 缓存已解析过的颜色，避免重复解析与读取
+ * 4. 动态分配：基于 label 内容自动分配颜色，无需硬编码映射
+ *
+ * 使用示例：
+ * ```kotlin
+ * // 基于 label 动态获取颜色
+ * val colors = PaletteManager.getColorsByLabel(context, "账本管理")
+ * view.setBackgroundColor(colors.background)
+ * icon.setColorFilter(colors.emphasis)
+ *
+ * // 获取调色板颜色
+ * val paletteColors = PaletteManager.getColors(context, 15)
+ * ```
  */
 object PaletteManager {
 
@@ -21,7 +34,7 @@ object PaletteManager {
     const val TOTAL_FAMILIES: Int = 50
 
     /**
-     * 双色结果（同一色系下的 强调/背景）。
+     * 双色结果（同一色系下的 强调/背景）
      */
     data class Duo(
         @ColorInt val emphasis: Int,
@@ -32,8 +45,46 @@ object PaletteManager {
     private val cacheBg = SparseIntArray()
     private val cacheEmphasis = SparseIntArray()
 
+    // 基于 label 的颜色缓存：key=label.hashCode()，value=Duo
+    private val cacheLabelColors = mutableMapOf<String, Duo>()
+
     /**
-     * 获取指定色系的双色（强调/背景）。
+     * 基于 label 获取颜色
+     * 相同的 label 总是返回相同的颜色
+     *
+     * @param context 上下文
+     * @param label 标签字符串
+     * @return 双色方案
+     */
+    fun getColorsByLabel(context: Context, label: String): Duo {
+        return cacheLabelColors.getOrPut(label) {
+            val index = calculateColorIndex(label)
+            getColors(context, index)
+        }
+    }
+
+    /**
+     * 基于 label 计算调色板索引
+     * 使用稳定的哈希算法确保相同输入总是得到相同输出
+     *
+     * @param label 标签字符串
+     * @return 调色板索引 (1-50)
+     */
+    fun calculateColorIndex(label: String): Int {
+        if (label.isEmpty()) return 1
+
+        // 使用 Java 字符串哈希算法，确保跨平台一致性
+        var hash = 0
+        for (char in label) {
+            hash = 31 * hash + char.code
+        }
+
+        // 将哈希值映射到 1-50 范围
+        return (abs(hash) % TOTAL_FAMILIES) + 1
+    }
+
+    /**
+     * 获取指定色系的双色（强调/背景）
      * @param context 上下文
      * @param index 色系索引（1..50），超出范围会被正规化到 1..50
      */
@@ -58,7 +109,7 @@ object PaletteManager {
     }
 
     /**
-     * 返回指定色系的背景颜色资源 id。
+     * 返回指定色系的背景颜色资源 id
      * 命名规则：palette_XX_bg
      */
     fun getBgColorResId(
@@ -78,6 +129,15 @@ object PaletteManager {
             return if (fallback != 0) fallback else android.R.color.transparent
         }
         return resId
+    }
+
+    /**
+     * 清除缓存（主题切换时调用）
+     */
+    fun clearCache() {
+        cacheBg.clear()
+        cacheEmphasis.clear()
+        cacheLabelColors.clear()
     }
 
     private fun normalizeIndex(index: Int): Int {

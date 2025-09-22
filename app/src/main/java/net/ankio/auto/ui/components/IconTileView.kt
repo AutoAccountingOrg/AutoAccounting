@@ -14,6 +14,7 @@ import androidx.core.content.res.use
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.ImageViewCompat
 import net.ankio.auto.ui.theme.DynamicColors
+import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.R
 
 /**
@@ -21,8 +22,22 @@ import net.ankio.auto.R
  *
  * 特性：
  * - 自动根据背景色调整图标颜色
+ * - 支持外部传入强调色
  * - 支持XML属性配置
  * - Material Design 风格
+ *
+ * 使用示例：
+ * ```kotlin
+ * // 方式1：仅设置背景色，自动计算图标颜色
+ * iconTile.setCircleColor(backgroundColor)
+ *
+ * // 方式2：同时设置背景色和图标色
+ * iconTile.setColors(backgroundColor, iconColor)
+ *
+ * // 方式3：使用PaletteManager的双色方案（推荐）
+ * val colors = PaletteManager.getColorsByLabel(context, "标签")
+ * iconTile.setColors(colors)
+ * ```
  */
 class IconTileView @JvmOverloads constructor(
     context: Context,
@@ -115,7 +130,6 @@ class IconTileView @JvmOverloads constructor(
         context.theme.obtainStyledAttributes(attrs, R.styleable.IconTileView, 0, 0).use { ta ->
             setIcon(ta.getResourceId(R.styleable.IconTileView_tileIcon, 0))
             setLabel(ta.getString(R.styleable.IconTileView_tileLabel) ?: "")
-            setCircleColor(ta.getColor(R.styleable.IconTileView_circleColor, circleColor))
         }
     }
 
@@ -140,27 +154,26 @@ class IconTileView @JvmOverloads constructor(
     fun setLabel(text: CharSequence) {
         labelView.text = text
     }
+    /**
+     * 设置背景色和图标色
+     * @param backgroundColor 背景颜色
+     * @param iconColor 图标颜色
+     */
+    fun setColors(@ColorInt backgroundColor: Int, @ColorInt iconColor: Int) {
+        circleColor = backgroundColor
+        circleBg.setColor(backgroundColor)
+        ImageViewCompat.setImageTintList(iconView, ColorStateList.valueOf(iconColor))
+    }
 
     /**
-     * 设置圆形背景色并自动调整图标颜色
-     * @param color 背景颜色
+     * 使用PaletteManager的双色方案
+     * @param colors 包含背景色和强调色的双色方案
      */
-    fun setCircleColor(@ColorInt color: Int) {
-        circleColor = color
-        circleBg.setColor(color)
-        applyAutoIconTint()
+    fun setColors(colors: PaletteManager.Duo) {
+        setColors(colors.background, colors.emphasis)
     }
 
     // ========== 颜色处理 ==========
-
-    /**
-     * 根据背景色自动计算图标颜色
-     * 使用HSL颜色空间确保足够的对比度
-     */
-    private fun applyAutoIconTint() {
-        val iconColor = calculateContrastingColor(circleColor)
-        ImageViewCompat.setImageTintList(iconView, ColorStateList.valueOf(iconColor))
-    }
 
     /**
      * 计算与背景色形成良好对比的图标颜色
