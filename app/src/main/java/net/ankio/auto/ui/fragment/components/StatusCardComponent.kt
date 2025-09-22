@@ -21,10 +21,12 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.CardStatusBinding
+import net.ankio.auto.service.CoreService
 import net.ankio.auto.service.OcrService
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.ui.utils.AppUpdateHelper
+import net.ankio.auto.ui.utils.RuleUpdateHelper
 import net.ankio.auto.ui.utils.toDrawable
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
@@ -35,77 +37,88 @@ class StatusCardComponent(binding: CardStatusBinding) :
     override fun onComponentCreate() {
         super.onComponentCreate()
 
-        // 设置点击监听器
+        // 整卡点击：检查规则更新
         binding.cardContent.setOnClickListener {
             launch {
-                AppUpdateHelper.checkAndShow(context, true)
+                RuleUpdateHelper.checkAndShow(context, true) { updateRuleTexts() }
             }
+        }
+
+        // 长按：强制规则更新
+        binding.cardContent.setOnLongClickListener {
+            PrefManager.ruleVersion = ""
+            launch {
+                RuleUpdateHelper.checkAndShow(context, true) { updateRuleTexts() }
+            }
+            true
         }
 
         // 初始化状态显示
         updateActiveStatus()
+        updateRuleTexts()
     }
 
     override fun onComponentResume() {
         super.onComponentResume()
-        // 每次恢复时更新状态
         updateActiveStatus()
-        // 自动检查更新（遵循开关与时间间隔）
+        updateRuleTexts()
         autoCheckUpdateIfNeeded()
     }
 
     /**
-     * 检查当前工作模式下的激活状态
+     * 当前模式是否处于"工作中"
      */
     private fun isCurrentModeActive(): Boolean {
         return when (PrefManager.workMode) {
             WorkMode.Ocr -> OcrService.serverStarted
-            else -> XposedModule.active()
+            WorkMode.LSPatch -> CoreService.isRunning(context)
+            WorkMode.Xposed -> XposedModule.active()
         }
     }
 
     /**
-     * 获取当前模式的标题文本
-     */
-    private fun getCurrentModeTitle(): String {
-        return when (PrefManager.workMode) {
-            WorkMode.Xposed -> context.getString(R.string.xposed_mode_title)
-            WorkMode.LSPatch -> context.getString(R.string.lspatch_mode_title)
-            WorkMode.Ocr -> context.getString(R.string.ocr_mode_title)
-        }
-    }
-
-    /**
-     * 统一更新激活状态显示
+     * 统一更新激活状态显示（第一行：工作状态 + 模式标签）
      */
     private fun updateActiveStatus() {
         val isActive = isCurrentModeActive()
         val versionName = BuildConfig.VERSION_NAME
 
+        // 工作状态文本
+        val statusText = if (isActive) {
+            context.getString(R.string.status_working)
+        } else {
+            context.getString(R.string.status_inactive)
+        }
+        binding.titleText.text = statusText
+
+        binding.modeText.text = PrefManager.workMode.name
+
         if (isActive) {
-            // 激活状态：绿色背景
             setActive(
-                backgroundColor = DynamicColors.Primary,
-                textColor = DynamicColors.OnPrimary,
+                backgroundColor = DynamicColors.PrimaryContainer,
+                textColor = DynamicColors.OnPrimaryContainer,
                 drawable = R.drawable.home_active_success
             )
-            binding.titleText.text = context.getString(R.string.active_success, versionName)
         } else {
-            // 未激活状态：灰色背景
             setActive(
                 backgroundColor = DynamicColors.SurfaceColor3,
                 textColor = DynamicColors.Primary,
                 drawable = R.drawable.home_active_error
             )
-            binding.titleText.text = context.getString(R.string.active_error, versionName)
         }
 
-        // 设置模式标题
-        binding.subtitleText.text = getCurrentModeTitle()
+        // 第二行：App 版本
+        binding.subtitleText.text = context.getString(R.string.app_version_colon, versionName)
     }
 
-    override fun onComponentDestroy() {
-        super.onComponentDestroy()
+    /**
+     * 更新第三、四行：规则版本与规则更新时间
+     */
+    private fun updateRuleTexts() {
+        binding.ruleVersionText.text =
+            context.getString(R.string.rule_version_colon, PrefManager.ruleVersion)
+        binding.ruleUpdateText.text =
+            context.getString(R.string.rule_update_colon, PrefManager.ruleUpdate)
     }
 
     private fun setActive(
@@ -117,22 +130,24 @@ class StatusCardComponent(binding: CardStatusBinding) :
         binding.iconView.setImageDrawable(drawable.toDrawable())
         binding.iconView.setColorFilter(textColor)
         binding.titleText.setTextColor(textColor)
+        binding.modeText.setTextColor(DynamicColors.OnPrimary)
         binding.subtitleText.setTextColor(textColor)
+        binding.ruleVersionText.setTextColor(textColor)
+        binding.ruleUpdateText.setTextColor(textColor)
+
     }
 
     /**
-     * 自动检查应用更新（最小实现）：
-     * - 受用户开关 `PrefManager.autoCheckAppUpdate` 控制
-     * - 每次恢复时触发一次检查，请求层有缓存
-     * - 有新版本则弹出更新对话框（沿用现有逻辑），无新版本静默
+     * 自动检查更新：规则 + 应用
      */
     private fun autoCheckUpdateIfNeeded() {
-        // 配置关闭则直接返回
-        if (!AppUpdateHelper.isAutoCheckEnabled()) return
-
-        // 后台检查，无需用户提示
-        launch {
-            AppUpdateHelper.checkAndShow(context, false)
+        // 规则自动检查
+        if (RuleUpdateHelper.isAutoCheckEnabled()) {
+            launch { RuleUpdateHelper.checkAndShow(context, false) { updateRuleTexts() } }
+        }
+        // 应用自动检查
+        if (AppUpdateHelper.isAutoCheckEnabled()) {
+            launch { AppUpdateHelper.checkAndShow(context, false) }
         }
     }
 }

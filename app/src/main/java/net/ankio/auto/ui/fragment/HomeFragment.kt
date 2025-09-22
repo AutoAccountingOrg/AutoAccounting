@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
-import kotlinx.coroutines.delay
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
@@ -28,7 +27,6 @@ import net.ankio.auto.databinding.FragmentPluginHomeBinding
 import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.service.CoreService
-import net.ankio.auto.service.OverlayService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseFragment
@@ -37,7 +35,6 @@ import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.components.BookCardComponent
 import net.ankio.auto.ui.fragment.components.MonthlyCardComponent
-import net.ankio.auto.ui.fragment.components.RuleVersionCardComponent
 import net.ankio.auto.ui.fragment.components.StatusCardComponent
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.intent.BillInfoIntent
@@ -49,7 +46,6 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         super.onViewCreated(view, savedInstanceState)
         val statusCard: StatusCardComponent = binding.activeCard.bindAs()
 
-        val ruleVersionCard: RuleVersionCardComponent = binding.ruleVersionCard.bindAs()
 
         val monthlyCard: MonthlyCardComponent = binding.monthlyCard.bindAs()
         monthlyCard
