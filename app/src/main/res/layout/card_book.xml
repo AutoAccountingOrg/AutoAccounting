@@ -12,34 +12,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/padding">
+        android:padding="@dimen/cardPadding2">
 
         <!-- 优化后的 Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="@dimen/padding"
-            android:paddingEnd="@dimen/padding"
-            android:paddingTop="@dimen/padding"
-            android:paddingBottom="@dimen/padding">
+            android:gravity="center_vertical">
 
             <!-- ① 应用 Icon：圆形背景 + 图标 -->
             <ImageView
                 android:id="@+id/ivAppIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="@dimen/image_size"
+                android:layout_height="@dimen/image_size"
                 android:layout_gravity="center"
                 android:src="@mipmap/ic_launcher"
                 android:contentDescription="@string/app_icon_desc" />
 
             <!-- ② 应用名：占满剩余空间 -->
             <LinearLayout
+                android:id="@+id/app"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="@dimen/one_padding"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
@@ -57,7 +54,7 @@
                     style="@style/TextAppearance.Material3.BodySmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textColor="?attr/colorOnSurfaceVariant"
@@ -65,13 +62,6 @@
             </LinearLayout>
 
             <!-- ③ 编辑按钮：MaterialIconButton -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/ic_switch"
-                style="@style/Widget.Material3.Button.IconButton.Outlined"
-                android:layout_marginEnd="8dp" />
 
             <!-- ④ 刷新按钮 -->
             <com.google.android.material.button.MaterialButton
@@ -79,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:icon="@drawable/icon_restart"
-                style="@style/Widget.Material3.Button.IconButton.Filled" />
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal" />
         </LinearLayout>
 
         <!-- ↓↓↓ 4 列功能图标：保持原样 ↓↓↓ -->

@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.utils
 
-import net.ankio.auto.App
 import net.ankio.auto.autoApp
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.models.AppInfo

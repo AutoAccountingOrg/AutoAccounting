@@ -32,6 +32,7 @@ import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.fragment.CategoryFragment
 import net.ankio.auto.ui.theme.DynamicColors
+import net.ankio.auto.ui.utils.AppUtils
 import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.ui.utils.load
 import net.ankio.auto.utils.PrefManager
@@ -54,7 +55,7 @@ class BookCardComponent(binding: CardBookBinding) :
 
     override fun onComponentCreate() {
         super.onComponentCreate()
-        binding.btnSwitch.setOnClickListener {
+        binding.app.setOnClickListener {
             BaseSheetDialog.create<AppDialog>(context)
                 .setOnClose {
                     onComponentResume()
@@ -82,7 +83,8 @@ class BookCardComponent(binding: CardBookBinding) :
         }
         binding.tvAppName.text = adapter.name
         binding.tvPackageName.text = adapter.pkg
-        binding.ivAppIcon.load(adapter.icon, R.mipmap.ic_launcher)
+        val appInfo = AppUtils.get(adapter.pkg)
+        binding.ivAppIcon.setImageDrawable(appInfo?.icon)
     }
 
 
