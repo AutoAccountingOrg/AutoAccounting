@@ -1099,4 +1099,6 @@
     <string name="rule_version_colon">Rule Version: %1$s</string>
     <string name="rule_update_colon">Rule Updated At: %1$s</string>
 
+    <string name="whitelist_info">This whitelist applies to notifications and OCR data. It filters out apps you do not want to capture from. Manual OCR (started by you) is not affected by this whitelist.</string>
+
 </resources>

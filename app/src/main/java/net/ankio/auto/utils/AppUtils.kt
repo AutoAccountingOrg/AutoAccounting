@@ -43,13 +43,13 @@ fun Context.toThemeCtx(): Context {
     return ThemeUtils.themedCtx(this)
 }
 
-data class AppInfo(
+data class InstalledAppInfo(
     val name: String,
     val icon: Drawable?,
     val version: String
 )
 
-fun getAppInfoFromPackageName(packageName: String): AppInfo? {
+fun getAppInfoFromPackageName(packageName: String): InstalledAppInfo? {
     val pm = autoApp.packageManager
     
     val appInfo = PackageManagerCompat.getApplicationInfo(pm, packageName) ?: return null
@@ -58,6 +58,6 @@ fun getAppInfoFromPackageName(packageName: String): AppInfo? {
     val appName = pm.getApplicationLabel(appInfo).toString()
     val appIcon = runCatching { pm.getApplicationIcon(appInfo) }.getOrNull()
     val appVersion = packageInfo.versionName ?: ""
-    
-    return AppInfo(appName, appIcon, appVersion)
+
+    return InstalledAppInfo(appName, appIcon, appVersion)
 }

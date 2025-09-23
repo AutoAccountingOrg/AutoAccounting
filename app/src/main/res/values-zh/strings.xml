@@ -1085,4 +1085,6 @@
     <string name="rule_version_colon">规则：%1$s</string>
     <string name="rule_update_colon">更新：%1$s</string>
 
+    <string name="whitelist_info">此白名单仅对通知与 OCR 数据生效，可直接过滤不希望获取数据的应用；手动发起的 OCR 不受此白名单影响。</string>
+
 </resources>

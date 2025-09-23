@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/whitelist_info_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/one_padding"
+    app:cardUseCompatPadding="true"
+    app:cardCornerRadius="@dimen/radius"
+    app:cardBackgroundColor="?colorSecondaryContainer"
+    style="@style/HomeCard">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/whitelist_info_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding"
+        android:text="@string/whitelist_info"
+        android:textAppearance="?textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurface" />
+</com.google.android.material.card.MaterialCardView> 

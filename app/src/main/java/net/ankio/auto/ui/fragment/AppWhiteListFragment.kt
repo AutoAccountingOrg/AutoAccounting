@@ -21,6 +21,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentNoticeBinding
 import net.ankio.auto.storage.Logger
@@ -46,12 +51,21 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
     /** 当前已选择的应用包名集合 */
     private var selectedApps: MutableList<String> = mutableListOf()
 
+    /** 应用名称缓存：减少重复 label 解析 */
+    private val appNameCache: MutableMap<String, String> = mutableMapOf()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // 返回按钮
         binding.topAppBar.setNavigationOnClickListener { findNavController().popBackStack() }
         // 搜索
         setUpSearch()
+        // 将说明卡片作为 RecyclerView 头部，避免覆盖与滚动冲突
+        val rv = binding.statusPage.contentView
+        val current = rv?.adapter
+        if (current != null && current !is ConcatAdapter) {
+            rv.adapter = ConcatAdapter(WhitelistInfoHeaderAdapter(), current)
+        }
     }
 
     /**
@@ -60,15 +74,17 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
     override suspend fun loadData(): List<AppInfo> {
         // 读取配置中的白名单（以逗号分隔）
         selectedApps = PrefManager.appWhiteList
-        Logger.d("selected apps: $selectedApps")
+        Logger.d("selected apps size: ${selectedApps.size}")
 
         val pm = requireContext().packageManager
-        val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+        // 使用 flag=0，避免不必要的 meta 读取，加快速度
+        val apps = pm.getInstalledApplications(0)
             .map { applicationInfo ->
+                // 不在此阶段解析图标和名称，避免 O(N) UI 阻塞
                 AppInfo(
-                    appName = applicationInfo.loadLabel(pm).toString() ?: "",
+                    appName = "",
                     packageName = applicationInfo.packageName,
-                    icon = applicationInfo.loadIcon(pm),
+                    icon = null,
                     pkg = applicationInfo
                 )
             }
@@ -77,18 +93,24 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
         // 标记选中状态
         apps.forEach { it.isSelected = selectedApps.contains(it.packageName) }
 
-        // 按搜索过滤
+        // 按搜索过滤（当有关键字时才解析名称，并做简单缓存）
         val filtered = if (query.isEmpty()) {
             apps
         } else {
-            apps.filter {
-                it.appName.contains(query, ignoreCase = true) ||
-                        it.packageName.contains(query, ignoreCase = true)
+            val q = query
+            apps.filter { info ->
+                val name = appNameCache.getOrPut(info.packageName) {
+                    runCatching { info.pkg.loadLabel(pm).toString() }.getOrDefault("")
+                }
+                name.contains(q, ignoreCase = true) || info.packageName.contains(
+                    q,
+                    ignoreCase = true
+                )
             }.toMutableList()
         }
 
-        // 排序
-        sortApps(filtered)
+        // 排序（优先：已选 → 金融关键词 → 用户应用 → 名称/包名）
+        sortApps(filtered, pm)
         return filtered
     }
 
@@ -101,19 +123,15 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
         return AppAdapter()
             .setPackageManager(requireActivity().packageManager)
             .setOnAppSelectionChangedListener { appInfo ->
-                // 根据当前选中状态就地更新白名单列表，保持唯一性
                 if (!appInfo.isSelected) {
-                    // 当前为未选中状态，表示用户取消选择 → 从白名单移除
                     selectedApps.removeAll { packageName -> packageName == appInfo.packageName }
                 } else {
-                    // 当前为选中状态，表示用户选择 → 加入白名单（避免重复）
                     if (!selectedApps.contains(appInfo.packageName)) {
                         selectedApps.add(appInfo.packageName)
+                    }
                 }
+                PrefManager.appWhiteList = selectedApps
             }
-            // 每次状态变化立即持久化保存白名单，避免依赖页面生命周期
-            PrefManager.appWhiteList = selectedApps
-        }
     }
 
     /**
@@ -145,22 +163,51 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
     /**
      * 应用排序：优先显示已选应用、金融相关关键词、用户应用、名称
      */
-    private fun sortApps(mutableList: MutableList<AppInfo>) {
-        val financialKeywords = listOf("bank", "finance", "wallet", "pay")
+    private fun sortApps(mutableList: MutableList<AppInfo>, pm: android.content.pm.PackageManager) {
+        val financialKeywords = listOf("bank", "finance", "wallet", "pay", "支付", "银行", "钱包")
         mutableList.forEach { it.isSelected = selectedApps.contains(it.packageName) }
         mutableList.sortWith(
             compareByDescending<AppInfo> { it.isSelected }
                 .thenByDescending { appInfo ->
                     financialKeywords.any { keyword ->
-                        appInfo.pkg.packageName.contains(keyword, ignoreCase = true)
+                        appInfo.pkg.packageName.contains(keyword, ignoreCase = true) ||
+                                appNameCache.getOrPut(appInfo.packageName) {
+                                    runCatching {
+                                        appInfo.pkg.loadLabel(pm).toString()
+                                    }.getOrDefault("")
+                                }.contains(keyword, ignoreCase = true)
                     }
                 }
                 .thenByDescending { appInfo ->
                     (appInfo.pkg.flags and ApplicationInfo.FLAG_SYSTEM) == 0
                 }
-                .thenBy { it.appName }
+                .thenBy { appInfo ->
+                    val name = appNameCache.getOrPut(appInfo.packageName) {
+                        runCatching { appInfo.pkg.loadLabel(pm).toString() }.getOrDefault("")
+                    }
+                    if (name.isNotEmpty()) name else appInfo.packageName
+                }
         )
-        Logger.d("sorted apps: $mutableList")
+        Logger.d("sorted apps size: ${mutableList.size}")
+    }
+
+    private class WhitelistInfoHeaderAdapter :
+        RecyclerView.Adapter<WhitelistInfoHeaderAdapter.VH>() {
+        class VH(val view: View) : RecyclerView.ViewHolder(view)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+            val v = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_whitelist_info, parent, false)
+            return VH(v)
+        }
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val card = holder.view.findViewById<MaterialCardView>(R.id.whitelist_info_card)
+            card.setCardBackgroundColor(net.ankio.auto.ui.theme.DynamicColors.SurfaceColor2)
+        }
+
+        override fun getItemCount(): Int = 1
+        override fun getItemViewType(position: Int): Int = R.layout.item_whitelist_info
     }
 }
 
