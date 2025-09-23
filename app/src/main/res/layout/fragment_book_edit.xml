@@ -119,7 +119,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tap_to_select_icon"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                         android:textColor="?colorOnPrimary"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -136,9 +136,8 @@
                 android:id="@+id/saveButton"
                 style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/btn_height_small"
-                android:text="@string/btn_save"
-                android:textSize="@dimen/save_size" />
+                android:layout_height="wrap_content"
+                android:text="@string/btn_save" />
 
         </LinearLayout>
 
