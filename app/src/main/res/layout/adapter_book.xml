@@ -6,6 +6,7 @@
     android:layout_margin="@dimen/one_padding"
     app:cardElevation="0dp"
     app:strokeColor="?attr/colorSurfaceContainerHighest"
+    app:cardCornerRadius="@dimen/radius_medium"
     app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -68,11 +69,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
                 android:layout_weight="1"
-                android:alpha="0.6"
-                android:backgroundTint="?colorPrimaryContainer"
+                android:alpha="0.8"
+                android:backgroundTint="?colorSecondaryContainer"
                 android:text="@string/float_income"
                 app:icon="@drawable/ic_trending_down"
-                android:textColor="?colorOnPrimaryContainer"
+                android:textColor="?colorOnSecondaryContainer"
                 app:cornerRadius="0dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -81,11 +82,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
                 android:layout_weight="1"
-                android:alpha="0.6"
-                android:backgroundTint="?colorPrimaryContainer"
+                android:alpha="0.8"
+                android:backgroundTint="?colorSecondaryContainer"
                 android:text="@string/float_expend"
                 app:icon="@drawable/ic_trending_up"
-                android:textColor="?colorOnPrimaryContainer"
+                android:textColor="?colorOnSecondaryContainer"
 
                 app:cornerRadius="0dp" />
 
@@ -110,10 +111,10 @@
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
-                android:alpha="0.6"
-                android:backgroundTint="?colorPrimaryContainer"
+                android:alpha="0.8"
+                android:backgroundTint="?colorSecondaryContainer"
                 android:text="@string/edit"
-                android:textColor="?colorOnPrimaryContainer"
+                android:textColor="?colorOnSecondaryContainer"
                 app:cornerRadius="0dp"
                 app:icon="@drawable/icon_edit" />
 
@@ -123,7 +124,7 @@
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
-                android:alpha="0.6"
+                android:alpha="0.8"
                 android:backgroundTint="?colorSecondaryContainer"
                 android:text="@string/set_default_book"
                 android:textColor="?colorOnSecondaryContainer"
@@ -136,10 +137,10 @@
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
-                android:alpha="0.6"
-                android:backgroundTint="?colorErrorContainer"
+                android:alpha="0.8"
+                android:backgroundTint="?colorSecondaryContainer"
                 android:text="@string/delete"
-                android:textColor="?colorOnErrorContainer"
+                android:textColor="?colorOnSecondaryContainer"
                 app:cornerRadius="0dp"
                 app:icon="@drawable/icon_delete" />
 

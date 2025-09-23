@@ -21,7 +21,6 @@ import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.utils.PrefManager
-import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.db.model.BookNameModel
 
 class BookComponent(binding: ComponentBookBinding) :
