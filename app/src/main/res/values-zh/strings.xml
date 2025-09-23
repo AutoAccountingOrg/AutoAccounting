@@ -136,8 +136,8 @@
     <string name="book_updated_success">账本更新成功</string>
     <string name="book_create_failed">创建账本失败</string>
     <string name="book_update_failed">更新账本失败</string>
-    <string name="set_default_book">设为默认</string>
-    <string name="set_default_book_success">默认账本设置成功</string>
+    <string name="set_default_book">默认</string>
+    <string name="set_default_book_success">已设为默认</string>
     <string name="icon_select_failed">选择图标失败</string>
     <string name="image_load_failed">加载图片失败</string>
     <string name="image_process_failed">处理图片失败</string>

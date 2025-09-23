@@ -135,8 +135,8 @@
     <string name="book_updated_success">Book updated successfully</string>
     <string name="book_create_failed">Failed to create book</string>
     <string name="book_update_failed">Failed to update book</string>
-    <string name="set_default_book">Set as default</string>
-    <string name="set_default_book_success">Default book set successfully</string>
+    <string name="set_default_book">Default</string>
+    <string name="set_default_book_success">Set as default</string>
     <string name="icon_select_failed">Failed to select icon</string>
     <string name="image_load_failed">Failed to load image</string>
     <string name="image_process_failed">Failed to process image</string>
