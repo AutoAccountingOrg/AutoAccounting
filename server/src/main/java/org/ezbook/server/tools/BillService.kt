@@ -224,8 +224,14 @@ class BillService(
                 ServerLog.d("自动去重找到父账单：parentId=${parent.id}")
                 // 父账单设置特殊规则名称
                 parent.ruleName = formatParentBillRuleName()
-                categorize(parent)
-                ServerLog.d("进行分类之后的账单 $parent")
+                if (analysisParams.fromAppData) {
+                    ServerLog.d("用户手动启动分析，重新生成分类")
+                    categorize(billInfo)
+                    ServerLog.d("进行分类之后的账单 $billInfo")
+                } else {
+                    categorize(parent)
+                    ServerLog.d("进行分类之后的账单 $parent")
+                }
             }
             // 根据处理结果更新账单状态
             billInfo.state = if (parent == null) BillState.Wait2Edit else BillState.Edited
