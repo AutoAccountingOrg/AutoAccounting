@@ -203,7 +203,16 @@ object SettingUtils {
         getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
 
 
-    suspend fun noteFormat(): String = getString(Setting.NOTE_FORMAT, DefaultData.NOTE_FORMAT)
+    /**
+     * 备注格式模板
+     *
+     * 允许设置为空字符串以关闭备注生成。
+     * - 返回逻辑：数据库为 null 时返回默认值；否则如实返回（包括空串）
+     */
+    suspend fun noteFormat(): String {
+        val raw = getRawOrNull(Setting.NOTE_FORMAT)
+        return raw ?: DefaultData.NOTE_FORMAT
+    }
 
 
     suspend fun bookName(): String =

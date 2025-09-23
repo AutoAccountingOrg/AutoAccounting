@@ -196,8 +196,10 @@ class BillService(
             // 记录资产映射摘要
             ServerLog.d("资产映射完成：from=${billInfo.accountNameFrom}, to=${billInfo.accountNameTo}")
 
-            // 生成账单备注
-            billInfo.remark = BillManager.getRemark(billInfo, context)
+            // 生成账单备注（仅当模板非空时）
+            BillManager.getRemark(billInfo, context).let { generated ->
+                billInfo.remark = generated
+            }
             // 记录备注生成结果
             ServerLog.d("备注生成完成：remark=${billInfo.remark}")
 
