@@ -71,9 +71,12 @@ object ThemeUtils {
 
     fun themedCtx(context: Context): Context {
         return if (isSystemAccent) {
+            // 跟随系统：启用动态色，并应用基础 AppTheme，确保完整的 MD3 token 存在
             ContextThemeWrapper(DynamicColors.wrapContextIfAvailable(context), R.style.AppTheme)
         } else {
-            ContextThemeWrapper(context, colorThemeStyleRes)
+            // 自定义主题：先套用基础 AppTheme，提供完整的 MD3 token，再叠加自定义配色 Overlay
+            val base = ContextThemeWrapper(context, R.style.AppTheme)
+            ContextThemeWrapper(base, colorThemeStyleRes)
         }
 
     }
