@@ -181,6 +181,18 @@ class AssetsMap {
             return mapping.mapName
         }
 
+        // 在进入 AI 处理之前，优先创建空白资产映射占位符，避免 AI 不稳定导致错过创建
+        if (!billInfoModel.generateByAi() && SettingUtils.autoAssetMap()) {
+            runCatchingExceptCancel {
+                val emptyMapping = AssetsMapModel().apply {
+                    name = accountName
+                    mapName = ""
+                }
+                ServerLog.d("创建空资产映射占位符: '$accountName'")
+                Db.get().assetsMapDao().insert(emptyMapping)
+            }
+        }
+
         // 3.5 让AI处理
         if (useAi && SettingUtils.aiAssetMapping() && !isAccountName2) {
             ServerLog.d("通过AI进行资产映射")
@@ -203,17 +215,7 @@ class AssetsMap {
         // 3.5 基于算法的保守匹配（数字优先 → 最长连续相似子串）
         findByAlgorithm(accountName)?.let { return it }
 
-        // 4. 创建空映射（仅当非AI生成且不存在映射时）
-        if (!billInfoModel.generateByAi() && SettingUtils.autoAssetMap()) {
-            runCatchingExceptCancel {
-                val emptyMapping = AssetsMapModel().apply {
-                    name = accountName
-                    mapName = ""
-                }
-                ServerLog.d("创建空资产映射占位符: '$accountName'")
-                Db.get().assetsMapDao().insert(emptyMapping)
-            }
-        }
+        // 空映射占位符已在 AI 之前创建
 
         return null
     }
