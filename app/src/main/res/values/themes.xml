@@ -96,4 +96,10 @@
         <item name="android:backgroundDimAmount">0.8</item> <!-- 0 = 完全透明，1 = 完全不透明 -->
         <!-- 可添加其他样式属性 -->
     </style>
+
+    <!-- 圆形ImageView样式 -->
+    <style name="CircleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_small</item>
+    </style>
 </resources>

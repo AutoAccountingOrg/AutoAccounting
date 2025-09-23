@@ -22,13 +22,14 @@
             android:gravity="center_vertical">
 
             <!-- ① 应用 Icon：圆形背景 + 图标 -->
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivAppIcon"
                 android:layout_width="@dimen/image_size"
                 android:layout_height="@dimen/image_size"
                 android:layout_gravity="center"
                 android:src="@mipmap/ic_launcher"
-                android:contentDescription="@string/app_icon_desc" />
+                android:contentDescription="@string/app_icon_desc"
+                app:shapeAppearanceOverlay="@style/CircleImageView" />
 
             <!-- ② 应用名：占满剩余空间 -->
             <LinearLayout
