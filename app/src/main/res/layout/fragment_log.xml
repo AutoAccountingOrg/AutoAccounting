@@ -40,8 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="8dp">
+            android:layout_marginHorizontal="@dimen/padding">
 
             <com.google.android.material.button.MaterialSplitButton
                 android:id="@+id/input_app_split_button"

@@ -15,11 +15,11 @@
 
 package net.ankio.auto.ui.adapter
 
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.utils.getAppInfoFromPackageName
@@ -47,6 +47,7 @@ class LogAdapter :
         holder.binding.root.setOnLongClickListener {
             val item = holder.item!!
             SystemUtils.copyToClipboard(item.message)
+            ToastUtils.info(R.string.copy_command_success)
             true
         }
     }
