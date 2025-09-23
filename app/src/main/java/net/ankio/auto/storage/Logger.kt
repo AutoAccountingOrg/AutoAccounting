@@ -8,7 +8,6 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.http.api.LogAPI
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.Throttle
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.tools.BaseLogger
@@ -20,16 +19,15 @@ import java.util.*
 import java.util.concurrent.Executors
 
 /**
- * 日志工具类，支持写入本地文件、自动清理（仅保留当天）、分页读取。
+ * 日志工具类，支持发送到服务端和按需导出到本地文件。
  *
  * 主要功能：
  * 1. 提供统一的日志输出接口（d, i, w, e）
  * 2. 自动获取调用类名作为日志标签
  * 3. 支持日志级别过滤（DEBUG模式下才输出DEBUG日志）
  * 4. 通过API将日志发送到服务器
- * 5. 支持本地文件日志存储和清理
+ * 5. 支持导出时生成本地日志文件
  * 6. 支持分页读取日志记录
- * 7. 支持日志文件打包导出
  *
  * 使用示例：
  * ```
@@ -43,80 +41,26 @@ object Logger : BaseLogger() {
     /** 日志文件存储目录名 */
     private const val LOG_DIR = "logs"
 
-    /** 日志文件名前缀 */
-    private const val LOG_FILE_PREFIX = "app_log_"
-
-    /** 日志文件名后缀 */
-    private const val LOG_FILE_SUFFIX = ".txt"
-
-    /** 日志清理限流间隔（1小时） */
-    private const val CLEANUP_INTERVAL_MS = 1L * 60L * 60L * 1000L // 1小时限流
-
     /** 日志时间格式 */
     private const val FORMAT = "yyyy-MM-dd HH:mm:ss.SSS"
 
-    /** 单线程执行器，用于异步写入日志文件 */
-    private val executor = Executors.newSingleThreadExecutor()
-
-    /** 日志清理限流器，防止频繁清理操作 */
-    @Volatile
-    private var cleaner = Throttle.asFunction(CLEANUP_INTERVAL_MS) {
-        executor.execute { cleanupOldLogs(autoApp) }
-    }
-
     /**
-     * 获取今天的日志文件
-     *
-     * @param context 应用上下文
-     * @return 今天的日志文件对象
-     */
-    private fun getLogFile(context: Context): File {
-        val dir = File(context.cacheDir, LOG_DIR)
-        if (!dir.exists()) dir.mkdirs()
-        val date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
-        return File(dir, "$LOG_FILE_PREFIX$date$LOG_FILE_SUFFIX")
-    }
-
-    /**
-     * 清理旧的日志文件，只保留今天的日志文件
+     * 删除日志文件夹并重新创建
      *
      * @param context 应用上下文
      */
-    private fun cleanupOldLogs(context: Context) {
+    private fun cleanLogDir(context: Context) {
         val dir = File(context.cacheDir, LOG_DIR)
-        if (!dir.exists()) return
-        val todayFileName = getLogFile(context).name
-        dir.listFiles()?.forEach { file ->
-            if (file.name != todayFileName) {
-                file.delete()
-            }
+        if (dir.exists()) {
+            dir.deleteRecursively()
         }
-    }
-
-    /**
-     * 写入日志到文件（自动触发清理）
-     *
-     * @param entry 要写入的日志条目
-     */
-    private fun writeToFile(entry: String) {
-        val context = autoApp
-        executor.execute {
-            try {
-                cleaner()
-                val file = getLogFile(context)
-                BufferedWriter(FileWriter(file, true)).use { writer ->
-                    writer.append(entry).append('\n')
-                }
-            } catch (e: Exception) {
-                Log.e("Logger", "Write log file error", e)
-            }
-        }
+        dir.mkdirs()
     }
 
     private val scope = CoroutineScope(SupervisorJob())
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private val actor = scope.actor(Dispatchers.IO) {
+    private val actor = scope.actor<LogModel>(Dispatchers.IO) {
         for (log in channel) {
             try {
                 LogAPI.add(log)
@@ -182,23 +126,26 @@ object Logger : BaseLogger() {
 
     /**
      * 打包日志文件
-     * 从服务器拉取所有日志记录并写入本地文件
+     * 删除日志文件夹并重建，然后从服务器拉取所有日志记录并写入本地文件
      *
      * @param context 应用上下文
      * @return 打包后的日志文件
      */
     suspend fun packageLogs(context: Context): File = withContext(Dispatchers.IO) {
-        val file = getLogFile(context)
-        if (file.exists()) {
-            file.delete()
-        }
-
+        // 清理日志目录并重建
+        cleanLogDir(context)
+        val dir = File(context.cacheDir, LOG_DIR)
+        if (!dir.exists()) dir.mkdirs()
+        val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val file = File(dir, "Auto-$date.log")
         // 分页拉取所有日志记录
         var index = 0
         do {
-            val logs = LogAPI.list(index, 2000)
-            logs.forEach {
-                writeToFile(formatLog(it))
+            val logs = LogAPI.list(index, 1000)
+            logs.forEach { entry ->
+                BufferedWriter(FileWriter(file, true)).use { writer ->
+                    writer.append(formatLog(entry)).append('\n')
+                }
             }
             index++
         } while (logs.isNotEmpty() || index >= 20) // 最多拉取20页，防止无限循环
