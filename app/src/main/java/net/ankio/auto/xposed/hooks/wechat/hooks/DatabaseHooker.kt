@@ -22,8 +22,12 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.CoroutineUtils
+import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.hooks.wechat.models.WechatUserModel
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.tools.MD5HashTable
 import org.ezbook.server.tools.MemoryCache
 
@@ -53,10 +57,14 @@ class DatabaseHooker : PartHooker() {
     }
 
     private val mD5HashTable by lazy {
-        MD5HashTable(300_000)
+        MD5HashTable(30_000)
     }
 
+    private var autoGroup = DefaultData.AUTO_GROUP
     override fun hook() {
+        CoroutineUtils.withIO {
+            autoGroup = DataUtils.configBoolean(Setting.AUTO_GROUP, DefaultData.AUTO_GROUP)
+        }
         // 分析版本 8.0.43
         val database = Hooker.loader("com.tencent.wcdb.database.SQLiteDatabase")
         Hooker.after(
@@ -102,7 +110,7 @@ class DatabaseHooker : PartHooker() {
     private fun handleAppMessageInsert(type: Int, contentValues: ContentValues) {
         if (type == APPMSG_TYPE_ARTICLE) {
             val md5 = MD5HashTable.md5(contentValues.get("description").toString())
-            if (mD5HashTable.contains(md5)) {
+            if (autoGroup && mD5HashTable.contains(md5)) {
                 return
             }
             mD5HashTable.put(md5)
@@ -135,7 +143,7 @@ class DatabaseHooker : PartHooker() {
 
 
         val md5 = MD5HashTable.md5(msg.get("des").asString.trim())
-        if (mD5HashTable.contains(md5)) {
+        if (autoGroup && mD5HashTable.contains(md5)) {
             return
         }
         mD5HashTable.put(md5)
