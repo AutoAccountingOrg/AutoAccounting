@@ -1,5 +1,6 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -26,17 +27,99 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_layout"
+    <!-- 主内容区域 - 使用 LinearLayout 包装筛选器和 SwipeRefreshLayout -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <net.ankio.auto.ui.components.StatusPage
-            android:id="@+id/status_page"
+        <!-- 筛选区域：应用 + 日志级别 -->
+        <LinearLayout
+            android:id="@+id/filterContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="8dp">
+
+            <com.google.android.material.button.MaterialSplitButton
+                android:id="@+id/input_app_split_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:contentDescription="@string/app_name">
+
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialSplitButtonLeadingFilledTonalStyle"
+                    android:id="@+id/input_app_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/filter_type_all"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="所有应用"
+                    app:icon="@drawable/ic_explore" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialSplitButtonLeadingFilledTonalStyle"
+                    android:id="@+id/input_app_chevron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/app_name"
+                    app:iconSize="18dp"
+                    app:icon="@drawable/m3_split_button_chevron_avd" />
+            </com.google.android.material.button.MaterialSplitButton>
+
+            <Space
+                android:layout_width="8dp"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.button.MaterialSplitButton
+                android:gravity="center_horizontal"
+                android:id="@+id/input_level_split_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="@string/log_level">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/input_level_button"
+                    style="?attr/materialSplitButtonLeadingFilledTonalStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/filter_type_all"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    app:icon="@drawable/data_filter" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="?attr/materialSplitButtonLeadingFilledTonalStyle"
+                    android:id="@+id/input_level_chevron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/log_level"
+                    app:iconSize="18dp"
+                    app:icon="@drawable/m3_split_button_chevron_avd" />
+            </com.google.android.material.button.MaterialSplitButton>
+
+        </LinearLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <net.ankio.auto.ui.components.StatusPage
+                android:id="@+id/status_page"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/shareButton"

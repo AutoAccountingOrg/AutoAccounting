@@ -15,6 +15,7 @@
 
 package net.ankio.auto.http.api
 
+import android.net.Uri
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,18 +43,44 @@ object LogAPI {
     }
 
     /**
-     * 获取日志列表
+     * 获取日志列表（支持筛选）
      * @param page 页码
      * @param limit 每页数量
+     * @param appFilter 应用筛选，为空表示所有应用
+     * @param levelFilter 日志级别筛选列表，为空表示所有级别
      * @return 日志列表
      */
-    suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> = withContext(Dispatchers.IO) {
+    suspend fun list(
+        page: Int = 1,
+        limit: Int = 10,
+        appFilter: String = "",
+        levelFilter: List<String> = emptyList()
+    ): List<LogModel> = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
-            val resp = LocalNetwork.get<List<LogModel>>("log/list?page=$page&limit=$limit").getOrThrow()
+            val url = buildString {
+                append("log/list?page=$page&limit=$limit")
+                if (appFilter.isNotEmpty()) append("&app=${Uri.encode(appFilter)}")
+                if (levelFilter.isNotEmpty()) append("&levels=${levelFilter.joinToString(",")}")
+            }
+            val resp = LocalNetwork.get<List<LogModel>>(url).getOrThrow()
             resp.data ?: emptyList()
         }.getOrElse {
             Logger.e("list error: ${it.message}", it)
+            emptyList()
+        }
+    }
+
+    /**
+     * 获取所有应用列表（用于筛选器）
+     * @return 应用包名列表
+     */
+    suspend fun getApps(): List<String> = withContext(Dispatchers.IO) {
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<String>>("log/apps").getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("getApps error: ${it.message}", it)
             emptyList()
         }
     }

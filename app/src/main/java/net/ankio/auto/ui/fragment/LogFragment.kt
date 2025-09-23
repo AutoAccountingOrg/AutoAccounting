@@ -19,8 +19,10 @@ import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.adapterBottom
+import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 import java.io.File
 
@@ -28,7 +30,7 @@ import java.io.File
  * 日志管理Fragment
  *
  * 该Fragment负责显示应用程序的日志信息，提供以下功能：
- * - 分页显示日志列表
+ * - 分页显示日志列表，支持应用和日志级别筛选
  * - 分享日志文件
  * - 清空日志数据
  *
@@ -36,14 +38,18 @@ import java.io.File
  */
 class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
 
+    /** 应用筛选：空表示所有应用 */
+    private var appFilter = ""
+
+    /** 日志级别筛选：空表示所有级别 */
+    private var levelFilter = mutableListOf<String>()
+
     /**
      * 加载日志数据
-     *
-     * 从Logger中分页读取日志数据并转换为LogModel列表
-     *
-     * @return 当前页的日志数据列表
      */
-    override suspend fun loadData(): List<LogModel> = Logger.readLogsAsModelsPaged(page, pageSize)
+    override suspend fun loadData(): List<LogModel> = LogAPI.list(
+        page, pageSize, appFilter, levelFilter
+    )
 
     /**
      * 创建RecyclerView适配器
@@ -68,8 +74,69 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
             )
         )
 
+        // 设置筛选器
+        setupFilters()
+        
         // 返回日志适配器
         return LogAdapter()
+    }
+
+    /**
+     * 设置筛选器
+     */
+    private fun setupFilters() {
+        levelFilter.clear()
+
+        // 设置应用筛选
+        binding.inputAppButton.text = getString(R.string.filter_type_all)
+        binding.inputAppChevron.setOnClickListener { anchorView ->
+            launch {
+                val apps = LogAPI.getApps()
+                val appItems = linkedMapOf<String, String>().apply {
+                    put(getString(R.string.filter_type_all), "")
+                    apps.forEach { app ->
+                        val displayName = app.substringAfterLast(".")
+                        put(displayName, app)
+                    }
+                }
+
+                ListPopupUtilsGeneric.create<Map.Entry<String, String>>(requireContext())
+                    .setAnchor(anchorView)
+                    .setList(appItems.entries.associateBy({ it.key }, { it }))
+                    .setOnItemClick { _, key, entry ->
+                        appFilter = entry.value
+                        binding.inputAppButton.text = key
+                        reload()
+                    }.setOnDismiss {
+                        binding.inputAppChevron.isChecked = false
+                    }
+                    .show()
+            }
+        }
+
+        // 设置级别筛选
+        val levelItems = linkedMapOf(
+            getString(R.string.filter_type_all) to null,
+            getString(R.string.log_level_debug) to LogLevel.DEBUG,
+            getString(R.string.log_level_info) to LogLevel.INFO,
+            getString(R.string.log_level_warn) to LogLevel.WARN,
+            getString(R.string.log_level_error) to LogLevel.ERROR
+        )
+        binding.inputLevelButton.text = levelItems.keys.first()
+        binding.inputLevelChevron.setOnClickListener { anchorView ->
+            ListPopupUtilsGeneric.create<Map.Entry<String, LogLevel?>>(requireContext())
+                .setAnchor(anchorView)
+                .setList(levelItems.entries.associateBy({ it.key }, { it }))
+                .setOnItemClick { _, key, entry ->
+                    levelFilter.clear()
+                    entry.value?.let { levelFilter.add(it.name) }
+                    binding.inputLevelButton.text = key
+                    reload()
+                }.setOnDismiss {
+                    binding.inputLevelChevron.isChecked = false
+                }
+                .show()
+        }
     }
 
     /**
@@ -126,9 +193,7 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
                 loadingUtils.close()
             }
         }
-
     }
-
 
     /**
      * 分享日志文件

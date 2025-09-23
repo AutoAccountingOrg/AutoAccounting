@@ -114,16 +114,6 @@ object Logger : BaseLogger() {
         scope.launch { actor.send(model) }
     }
 
-    /**
-     * 分页读取日志记录并转换为LogModel列表
-     *
-     * @param page 页码（从0开始）
-     * @param pageSize 每页大小
-     * @return 日志模型列表
-     */
-    suspend fun readLogsAsModelsPaged(
-        page: Int, pageSize: Int
-    ): List<LogModel> = withContext(Dispatchers.IO) { LogAPI.list(page, pageSize) }
 
     /**
      * 生成系统信息头部

@@ -22,9 +22,27 @@ import org.ezbook.server.db.model.LogModel
 
 @Dao
 interface LogDao {
-    // change page
-    @Query("SELECT * FROM LogModel ORDER BY time DESC limit :limit OFFSET :offset")
-    suspend fun loadPage(limit: Int, offset: Int): List<LogModel>
+    @Query(
+        """
+        SELECT * FROM LogModel 
+        WHERE (:app = '' OR app = :app)
+        AND (:levels IS NULL OR level IN (:levels))
+        ORDER BY time DESC 
+        LIMIT :limit OFFSET :offset
+    """
+    )
+    suspend fun loadPage(
+        limit: Int,
+        offset: Int,
+        app: String = "",
+        levels: List<String>? = null
+    ): List<LogModel>
+
+    /**
+     * 获取所有应用列表
+     */
+    @Query("SELECT DISTINCT app FROM LogModel ORDER BY app")
+    suspend fun getApps(): List<String>
 
     @Insert
     suspend fun insert(log: LogModel): Long

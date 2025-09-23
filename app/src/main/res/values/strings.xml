@@ -1101,4 +1101,11 @@
 
     <string name="whitelist_info">This whitelist applies to notifications and OCR data. It filters out apps you do not want to capture from. Manual OCR (started by you) is not affected by this whitelist.</string>
 
+    <!-- 日志相关 -->
+    <string name="log_level">Log Level</string>
+    <string name="log_level_debug">Debug</string>
+    <string name="log_level_info">Info</string>
+    <string name="log_level_warn">Warning</string>
+    <string name="log_level_error">Error</string>
+
 </resources>

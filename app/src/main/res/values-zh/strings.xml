@@ -1087,4 +1087,11 @@
 
     <string name="whitelist_info">此白名单仅对通知与 OCR 数据生效，可直接过滤不希望获取数据的应用；手动发起的 OCR 不受此白名单影响。</string>
 
+    <!-- 日志相关 -->
+    <string name="log_level">日志级别</string>
+    <string name="log_level_debug">调试</string>
+    <string name="log_level_info">信息</string>
+    <string name="log_level_warn">警告</string>
+    <string name="log_level_error">错误</string>
+
 </resources>

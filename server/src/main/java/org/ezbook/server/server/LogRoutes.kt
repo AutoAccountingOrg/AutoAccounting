@@ -28,16 +28,18 @@ import org.ezbook.server.models.ResultModel
 
 /**
  * 日志管理路由配置
- * 提供日志的增删查改功能，支持分页查询和自动清理过期数据
+ * 提供日志的增删查改功能，支持分页查询、筛选和自动清理过期数据
  */
 fun Route.logRoutes() {
     route("/log") {
         /**
          * GET /log/list - 获取日志列表
-         * 支持分页查询，自动清理过期日志数据
+         * 支持分页查询和筛选，自动清理过期日志数据
          *
          * @param page 页码，默认为1
          * @param limit 每页条数，默认为10
+         * @param app 应用筛选，空表示所有应用
+         * @param levels 日志级别筛选，逗号分隔，空表示所有级别
          * @return ResultModel 包含日志列表数据
          */
         get("/list") {
@@ -48,8 +50,24 @@ fun Route.logRoutes() {
             val limit = call.request.queryParameters["limit"]?.toInt() ?: 10
             val offset = (page - 1) * limit
 
-            val logs = Db.get().logDao().loadPage(limit, offset)
+            val app = call.request.queryParameters["app"] ?: ""
+            val levelsParam = call.request.queryParameters["levels"]
+            val levels = if (levelsParam.isNullOrEmpty()) null else levelsParam.split(",")
+
+            val logs = Db.get().logDao().loadPage(limit, offset, app, levels)
+            
             call.respond(ResultModel.ok(logs))
+        }
+
+        /**
+         * GET /log/apps - 获取所有应用列表
+         * 用于筛选器的应用选择
+         *
+         * @return ResultModel 包含应用包名列表
+         */
+        get("/apps") {
+            val apps = Db.get().logDao().getApps()
+            call.respond(ResultModel.ok(apps))
         }
 
         /**
