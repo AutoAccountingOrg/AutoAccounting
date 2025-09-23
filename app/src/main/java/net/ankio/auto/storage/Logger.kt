@@ -1,6 +1,7 @@
 package net.ankio.auto.storage
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.actor
@@ -125,6 +126,37 @@ object Logger : BaseLogger() {
     ): List<LogModel> = withContext(Dispatchers.IO) { LogAPI.list(page, pageSize) }
 
     /**
+     * 生成系统信息头部
+     *
+     * @param context 应用上下文
+     * @return 系统信息字符串
+     */
+    private suspend fun generateSystemInfo(context: Context): String {
+        val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val appVersion = "${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
+        val androidVersion = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+        val deviceInfo = "${Build.BRAND} ${Build.MODEL}"
+
+        // 获取规则版本
+        val ruleVersion = runCatching {
+            net.ankio.auto.utils.PrefManager.ruleVersion.ifEmpty { "未知" }
+        }.getOrElse { "获取失败" }
+
+        return buildString {
+            appendLine("=".repeat(60))
+            appendLine("自动记账日志文件")
+            appendLine("=".repeat(60))
+            appendLine("导出时间: $timestamp")
+            appendLine("应用版本: $appVersion")
+            appendLine("规则版本: $ruleVersion")
+            appendLine("安卓版本: $androidVersion")
+            appendLine("设备信息: $deviceInfo")
+            appendLine("=".repeat(60))
+            appendLine()
+        }
+    }
+
+    /**
      * 打包日志文件
      * 删除日志文件夹并重建，然后从服务器拉取所有日志记录并写入本地文件
      *
@@ -136,19 +168,27 @@ object Logger : BaseLogger() {
         cleanLogDir(context)
         val dir = File(context.cacheDir, LOG_DIR)
         if (!dir.exists()) dir.mkdirs()
-        val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-        val file = File(dir, "Auto-$date.log")
-        // 分页拉取所有日志记录
+        val date = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault()).format(Date())
+        val file = File(dir, "AutoAccounting_$date.log")
+
+        // 写入系统信息头部
+        BufferedWriter(FileWriter(file, false)).use { writer ->
+            writer.append(generateSystemInfo(context))
+        }
+
+        // 分页拉取所有日志记录并追加到文件
         var index = 0
         do {
             val logs = LogAPI.list(index, 1000)
-            logs.forEach { entry ->
+            if (logs.isNotEmpty()) {
                 BufferedWriter(FileWriter(file, true)).use { writer ->
-                    writer.append(formatLog(entry)).append('\n')
+                    logs.forEach { entry ->
+                        writer.append(formatLog(entry)).append('\n')
+                    }
                 }
             }
             index++
-        } while (logs.isNotEmpty() || index >= 20) // 最多拉取20页，防止无限循环
+        } while (logs.isNotEmpty() && index < 20) // 最多拉取20页，防止无限循环
 
         file
     }
