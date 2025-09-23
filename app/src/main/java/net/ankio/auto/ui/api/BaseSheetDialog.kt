@@ -304,7 +304,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
             val drawable = ContextCompat.getDrawable(ctx, drawableRes)?.mutate()
 
             // 设置主题颜色
-            drawable?.setTint(SurfaceColors.SURFACE_3.getColor(ctx))
+            drawable?.setTint(DynamicColors.SurfaceColor3)
             background = drawable
 
             // 直角样式时底部添加导航栏高度

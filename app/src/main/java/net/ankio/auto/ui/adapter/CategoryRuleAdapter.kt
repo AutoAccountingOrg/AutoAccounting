@@ -31,6 +31,7 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.components.CategoryRuleEditComponent
+import net.ankio.auto.ui.theme.DynamicColors
 import org.ezbook.server.db.model.CategoryRuleModel
 
 /**
@@ -59,7 +60,7 @@ class CategoryRuleAdapter(
         val binding = holder.binding
 
         // 设置卡片背景色
-        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(activity))
+        binding.groupCard.setCardBackgroundColor(DynamicColors.SurfaceColor1)
 
         // 编辑规则点击事件
         binding.editRule.setOnClickListener {

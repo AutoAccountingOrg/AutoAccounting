@@ -95,7 +95,7 @@ class StatusCardComponent(binding: CardStatusBinding) :
 
         if (isActive) {
             setActive(
-                backgroundColor = DynamicColors.PrimaryContainer,
+                backgroundColor = DynamicColors.SecondaryContainer,
                 textColor = DynamicColors.OnPrimaryContainer,
                 drawable = R.drawable.home_active_success
             )

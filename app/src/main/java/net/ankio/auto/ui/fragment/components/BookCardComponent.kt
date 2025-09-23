@@ -31,6 +31,7 @@ import net.ankio.auto.ui.components.IconTileView
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.fragment.CategoryFragment
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.ui.utils.load
 import net.ankio.auto.utils.PrefManager
@@ -68,7 +69,7 @@ class BookCardComponent(binding: CardBookBinding) :
 
         initActionGrid(actionItems())
 
-        binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
+        binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor1)
     }
 
     override fun onComponentResume() {

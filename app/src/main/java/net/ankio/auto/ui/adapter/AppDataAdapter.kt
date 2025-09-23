@@ -22,6 +22,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.AppDataModel
 
@@ -81,7 +82,7 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
             true
         }
 
-        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
+        binding.groupCard.setCardBackgroundColor(DynamicColors.SurfaceColor1)
     }
 
 

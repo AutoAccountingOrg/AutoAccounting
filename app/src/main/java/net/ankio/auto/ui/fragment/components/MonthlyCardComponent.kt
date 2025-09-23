@@ -50,7 +50,6 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
     override fun onComponentCreate() {
         super.onComponentCreate()
         binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor1)
-
         setupColors()
         // 设置底部操作按钮
         setupBottomButtons()
