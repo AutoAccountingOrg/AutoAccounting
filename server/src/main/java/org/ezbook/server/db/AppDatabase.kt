@@ -18,6 +18,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import org.ezbook.server.db.dao.AnalysisTaskDao
 import org.ezbook.server.db.dao.AppDataDao
 import org.ezbook.server.db.dao.AssetMapDao
 import org.ezbook.server.db.dao.AssetsDao
@@ -31,6 +32,7 @@ import org.ezbook.server.db.dao.LogDao
 import org.ezbook.server.db.dao.RuleDao
 import org.ezbook.server.db.dao.SettingDao
 import org.ezbook.server.db.dao.TagDao
+import org.ezbook.server.db.model.AnalysisTaskModel
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
@@ -59,9 +61,10 @@ import org.ezbook.server.db.model.TagModel
         CategoryMapModel::class,
         CategoryRuleModel::class,
         BookBillModel::class,
-        TagModel::class
+        TagModel::class,
+        AnalysisTaskModel::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -78,6 +81,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryRuleDao(): CategoryRuleDao
     abstract fun bookBillDao(): BookBillDao
     abstract fun tagDao(): TagDao
+    abstract fun analysisTaskDao(): AnalysisTaskDao
 }
 
 val MIGRATION_2_3 = object : Migration(2, 3) {
@@ -346,6 +350,28 @@ val MIGRATION_13_14 = object : Migration(13, 14) {
 
         database.execSQL(
             "CREATE UNIQUE INDEX IF NOT EXISTS index_BookNameModel_name ON BookNameModel(name)"
+        )
+    }
+}
+
+val MIGRATION_14_15 = object : Migration(14, 15) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 创建AI分析任务表
+        database.execSQL(
+            """
+            CREATE TABLE AnalysisTaskModel (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                title TEXT NOT NULL,
+                startTime INTEGER NOT NULL,
+                endTime INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                createTime INTEGER NOT NULL,
+                updateTime INTEGER NOT NULL,
+                resultHtml TEXT,
+                errorMessage TEXT,
+                progress INTEGER NOT NULL
+            )
+            """.trimIndent()
         )
     }
 }

@@ -114,6 +114,9 @@ fun Application.module(context: Context) {
 
         // 数据库路由
         databaseRoutes(context)
+
+        // AI分析任务路由
+        analysisTaskRoutes()
     }
 }
 
