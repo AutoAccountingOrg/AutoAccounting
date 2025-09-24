@@ -20,6 +20,9 @@ import android.view.View
 import net.ankio.auto.databinding.FragmentStatisticBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.storage.Logger
+import org.ezbook.server.models.CategoryItemDto
+import org.ezbook.server.models.SummaryDto
+import org.ezbook.server.models.TrendDto
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.BillTool
@@ -52,8 +55,8 @@ class StatisticFragment : BaseFragment<FragmentStatisticBinding>() {
     private val categoryAdapter = CategoryStatsAdapter()
 
     // 当前分类数据
-    private var currentExpenseCategories: List<BillAPI.CategoryItemDto> = emptyList()
-    private var currentIncomeCategories: List<BillAPI.CategoryItemDto> = emptyList()
+    private var currentExpenseCategories: List<CategoryItemDto> = emptyList()
+    private var currentIncomeCategories: List<CategoryItemDto> = emptyList()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -265,7 +268,7 @@ class StatisticFragment : BaseFragment<FragmentStatisticBinding>() {
     }
 
     /** 渲染汇总数据 */
-    private fun renderSummary(summary: BillAPI.SummaryDto) {
+    private fun renderSummary(summary: SummaryDto) {
         with(binding) {
             tvTotalExpense.text = BillTool.formatAmount(summary.totalExpense)
             tvTotalIncome.text = BillTool.formatAmount(summary.totalIncome)
@@ -275,7 +278,7 @@ class StatisticFragment : BaseFragment<FragmentStatisticBinding>() {
     }
 
     /** 渲势图表 */
-    private fun renderTrend(trend: BillAPI.TrendDto) {
+    private fun renderTrend(trend: TrendDto) {
         if (trend.labels.isEmpty()) return
 
         // 根据用户偏好获取收入和支出颜色
@@ -295,8 +298,8 @@ class StatisticFragment : BaseFragment<FragmentStatisticBinding>() {
 
     /** 渲染分类统计 */
     private fun renderCategory(
-        expenseCategories: List<BillAPI.CategoryItemDto>,
-        incomeCategories: List<BillAPI.CategoryItemDto>
+        expenseCategories: List<CategoryItemDto>,
+        incomeCategories: List<CategoryItemDto>
     ) {
         // 保存数据
         currentExpenseCategories = expenseCategories

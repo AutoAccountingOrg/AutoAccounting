@@ -23,6 +23,10 @@ import net.ankio.auto.storage.Logger
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.constant.BillState
+import org.ezbook.server.models.SummaryDto
+import org.ezbook.server.models.TrendDto
+import org.ezbook.server.models.CategoryItemDto
+import org.ezbook.server.models.StatsResponse
 
 /**
  * 账单API接口对象，提供与账单相关的所有网络请求操作
@@ -228,57 +232,6 @@ object BillAPI {
                 null
             }
         }
-
-
-    /**
-     * 获取账单摘要字符串（服务端生成）
-     * @param startTime 开始时间戳（毫秒）
-     * @param endTime 结束时间戳（毫秒）
-     * @param periodName 周期名称
-     * @return 格式化的摘要字符串，如果获取失败则返回null
-     */
-    suspend fun getBillSummary(startTime: Long, endTime: Long, periodName: String): String? =
-        withContext(Dispatchers.IO) {
-
-            return@withContext runCatchingExceptCancel {
-                val resp =
-                    LocalNetwork.get<String>("bill/summary?start=$startTime&end=$endTime&period=$periodName")
-                        .getOrThrow()
-                resp.data
-            }.getOrElse {
-                Logger.e("getBillSummary error: ${it.message}", it)
-                null
-            }
-        }
-
-    // 统计 DTO（与服务端保持一致字段）
-    data class SummaryDto(
-        val totalExpense: Double,
-        val totalIncome: Double,
-        val net: Double,
-        val dailyAvgExpense: Double
-    )
-
-    data class TrendDto(
-        val labels: List<String>,
-        val incomes: List<Double>,
-        val expenses: List<Double>
-    )
-
-    data class CategoryItemDto(
-        val name: String,
-        val percent: Double,
-        val count: Int = 0,
-        val icon: String? = null,
-        val children: List<CategoryItemDto> = emptyList()
-    )
-
-    data class StatsResponse(
-        val summary: SummaryDto,
-        val trend: TrendDto,
-        val expenseCategories: List<CategoryItemDto>,
-        val incomeCategories: List<CategoryItemDto>
-    )
 
     /**
      * 获取指定时间范围的统计数据（服务端计算）。

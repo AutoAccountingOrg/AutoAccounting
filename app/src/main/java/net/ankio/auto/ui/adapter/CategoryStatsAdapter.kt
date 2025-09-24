@@ -20,6 +20,7 @@ import androidx.core.view.isVisible
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterCategoryStatsBinding
 import net.ankio.auto.http.api.BillAPI
+import org.ezbook.server.models.CategoryItemDto
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.utils.PaletteManager
@@ -106,7 +107,7 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
     /**
      * 创建子项列表
      */
-    private fun createChildItems(children: List<BillAPI.CategoryItemDto>): List<CategoryStatsItem> {
+    private fun createChildItems(children: List<CategoryItemDto>): List<CategoryStatsItem> {
         return children.map { child ->
             CategoryStatsItem(
                 name = child.name,
@@ -157,7 +158,7 @@ class CategoryStatsAdapter : BaseAdapter<AdapterCategoryStatsBinding, CategorySt
      *
      * @param categories 从API获取的分类列表数据
      */
-    fun setCategoryData(categories: List<BillAPI.CategoryItemDto>) {
+    fun setCategoryData(categories: List<CategoryItemDto>) {
         val flatItems = categories.map { parent ->
             CategoryStatsItem(
                 name = parent.name,
@@ -271,6 +272,6 @@ data class CategoryStatsItem(
     val icon: String? = null,
     val isChild: Boolean = false,
     val hasChildren: Boolean = false,
-    val children: List<BillAPI.CategoryItemDto> = emptyList(),
+    val children: List<CategoryItemDto> = emptyList(),
     var isExpanded: Boolean = false
 )

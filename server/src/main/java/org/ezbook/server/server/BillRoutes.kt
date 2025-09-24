@@ -252,35 +252,6 @@ fun Route.billRoutes() {
         }
 
         /**
-         * GET /bill/summary - 获取账单摘要字符串
-         * 服务端直接返回格式化的摘要，客户端零计算
-         *
-         * @param start 开始时间戳（毫秒）
-         * @param end 结束时间戳（毫秒）
-         * @param period 周期名称，默认为"指定时间段"
-         * @return ResultModel 包含格式化的摘要字符串
-         */
-        get("/summary") {
-            val startTime = call.request.queryParameters["start"]?.toLong()
-                ?: return@get call.respond(
-                    ResultModel.error(
-                        400,
-                        "Start time parameter is required"
-                    )
-                )
-            val endTime = call.request.queryParameters["end"]?.toLong()
-                ?: return@get call.respond(ResultModel.error(400, "End time parameter is required"))
-            val periodName = call.request.queryParameters["period"] ?: "指定时间段"
-
-            val summary = SummaryService.generateSummary(
-                startTime,
-                endTime,
-                periodName
-            )
-            call.respond(ResultModel.ok(summary))
-        }
-
-        /**
          * GET /bill/stats - 获取指定时间范围的统计数据
          * 返回汇总、趋势、分类占比三部分，客户端无需再遍历账单构建。
          *
