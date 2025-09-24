@@ -73,6 +73,7 @@
     <string name="money_range_info" formatted="false">金额范围从 %s 到 %s</string>
     <string name="money_equal_info">金额等于 %s</string>
     <string name="time_range" formatted="false">时间在 %s - %s 之间</string>
+    <string name="date_range_simple" formatted="false">%s 至 %s</string>
     <string name="select_time_lower">请选择开始时间</string>
     <string name="select_time_higher">请选择结束时间</string>
     <string name="regex">请输入匹配内容</string>

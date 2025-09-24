@@ -19,6 +19,7 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,9 +37,13 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.ThemeUtils
+import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.AnalysisTaskModel
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * AI分析详情页面
@@ -148,7 +153,9 @@ class AnalysisDetailFragment : BaseFragment<FragmentAnalysisDetailBinding>() {
                 if (task != null && !task.resultHtml.isNullOrBlank()) {
                     taskModel = task
                     binding.topAppBar.title = task.title
-                    val htmlContent = convertToHtml(task.resultHtml!!, task.title)
+                    binding.topAppBar.subtitle =
+                        DateUtils.formatTimeRange(requireContext(), task.startTime, task.endTime)
+                    val htmlContent = convertToHtml(task.resultHtml!!)
                     displayHtml(htmlContent)
                 } else {
                     showError(getString(R.string.analysis_result_not_found))
@@ -316,13 +323,47 @@ class AnalysisDetailFragment : BaseFragment<FragmentAnalysisDetailBinding>() {
     }
 
     /**
-     * 将分析内容转换为HTML格式
+     * 获取应用logo的base64编码
      */
-    private fun convertToHtml(content: String, title: String): String {
-        val isDarkMode = ThemeUtils.isDark
-        val colorScheme = if (isDarkMode) "dark" else "light"
-        val textPrimary = if (isDarkMode) "#e5e7eb" else "#1f2937"
-        val textSecondary = if (isDarkMode) "#9ca3af" else "#6b7280"
+    private fun getAppLogoBase64(): String {
+        return try {
+            // 获取应用logo drawable
+            val drawable = requireContext().getDrawable(R.mipmap.ic_launcher)
+            if (drawable != null) {
+                // 转换为bitmap
+                val bitmap = if (drawable is android.graphics.drawable.BitmapDrawable) {
+                    drawable.bitmap
+                } else {
+                    val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 48
+                    val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 48
+                    val bitmap = createBitmap(width, height)
+
+                    val canvas = Canvas(bitmap)
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable.draw(canvas)
+                    bitmap
+                }
+
+                // 转换为base64
+                val outputStream = ByteArrayOutputStream()
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outputStream)
+                val byteArray = outputStream.toByteArray()
+                "data:image/png;base64," + Base64.encodeToString(byteArray, Base64.NO_WRAP)
+            } else {
+                "" // 如果获取失败，返回空字符串
+            }
+        } catch (e: Exception) {
+            Logger.e("获取应用logo失败", e)
+            "" // 出错时返回空字符串
+        }
+    }
+
+    /**
+     * 将AI生成的内容转换为HTML
+     */
+    private fun convertToHtml(content: String): String {
+        val appName = getString(R.string.app_name)
+        val logoBase64 = getAppLogoBase64()
 
         return """
         <!DOCTYPE html>
@@ -330,29 +371,47 @@ class AnalysisDetailFragment : BaseFragment<FragmentAnalysisDetailBinding>() {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="color-scheme" content="$colorScheme">
+          
+            <meta name="color-scheme" content="light dark">
             <style>
+              
                 :root {
-                    --text-primary: $textPrimary;
-                    --text-secondary: $textSecondary;
+                 
+                    --text-primary: #1f2937;          /* 浅色主文本（更稳的深灰） */
+                    --text-secondary: #6b7280;        /* 浅色次文本 */
                 }
-                body {
-                    padding: 1.5rem;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    line-height: 1.6;
-                    color: var(--text-primary);
-                    background-color: ${if (isDarkMode) "#111827" else "#ffffff"};
+                @media (prefers-color-scheme: dark) {
+                    :root {
+                      
+                        --text-primary: #e5e7eb;      /* 深色主文本（近 Gray-200） */
+                        --text-secondary: #9ca3af;    /* 深色次文本（Gray-400） */
+                    }
                 }
+                body{
+                    padding:1.5rem
+                }
+
+
+                /* 顶部页眉：左侧小 Logo + 周期标题 */
                 .header {
                     display: flex;
                     align-items: center;
                     gap: 12px;
                     padding: 1.5rem;
-                    border-bottom: 1px solid var(--text-secondary);
-                    margin-bottom: 2rem;
                 }
                 .logo {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .logo img {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                }
+                .logo .emoji {
                     font-size: 20px;
+                    line-height: 1;
                 }
                 .period-title {
                     font-size: 18px;
@@ -360,37 +419,36 @@ class AnalysisDetailFragment : BaseFragment<FragmentAnalysisDetailBinding>() {
                     color: var(--text-primary);
                     margin: 0;
                 }
-                .content {
-                    max-width: 800px;
-                    margin: 0 auto;
-                }
+                
                 .footer {
                     text-align: center;
-                    padding: 1.5rem;
+                        padding:1.5rem;
                     color: var(--text-secondary);
                     font-size: 14px;
-                    margin-top: 2rem;
-                    border-top: 1px solid var(--text-secondary);
                 }
+               
             </style>
         </head>
         <body>
             <div class="container">
+                <!-- 顶部页眉：左侧小 Logo，不显示应用标题，仅显示周期标题 -->
                 <div class="header">
-                    <div class="logo">💰</div>
-                    <p class="period-title">自动记账 • $title</p>
+                    <div class="logo">${if (logoBase64.isNotEmpty()) "<img src=\"$logoBase64\" alt=\"Logo\">" else "<span class=\"emoji\">💰</span>"}</div>
+                    <p class="period-title">自动记账 • 财务分析</p>
                 </div>
                 
+                <!-- AI分析内容 -->
                 <div class="content">
-                    $content
+                    ${content}
                 </div>
                 
+                <!-- 底部信息 -->
                 <div class="footer">
-                    由自动记账生成 • ${
-            java.text.SimpleDateFormat(
+                    由 $appName 生成 • ${
+            SimpleDateFormat(
                 "yyyy-MM-dd HH:mm",
-                java.util.Locale.getDefault()
-            ).format(java.util.Date())
+                Locale.getDefault()
+            ).format(Date())
         }
                 </div>
             </div>

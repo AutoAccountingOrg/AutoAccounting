@@ -15,6 +15,8 @@
 
 package net.ankio.auto.utils
 
+import android.content.Context
+import net.ankio.auto.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -76,5 +78,24 @@ object DateUtils {
         calendar.set(Calendar.MILLISECOND, 0)
         return calendar.timeInMillis
     }
+
+    /**
+     * 格式化时间范围显示
+     * @param context 上下文，用于获取字符串资源
+     * @param startTime 开始时间戳
+     * @param endTime 结束时间戳
+     * @return 格式化后的时间范围字符串
+     */
+    fun formatTimeRange(context: Context, startTime: Long, endTime: Long): String {
+        val startDate = stampToDate(startTime, "yyyy-MM-dd")
+        val endDate = stampToDate(endTime, "yyyy-MM-dd")
+
+        return if (startDate == endDate) {
+            startDate // 同一天只显示一个日期
+        } else {
+            context.getString(R.string.date_range_simple, startDate, endDate)
+        }
+    }
+
 
 }

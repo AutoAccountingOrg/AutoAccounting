@@ -24,6 +24,8 @@ import org.ezbook.server.constant.AnalysisTaskStatus
 import org.ezbook.server.db.model.AnalysisTaskModel
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import android.content.Context
+import net.ankio.auto.utils.DateUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -80,6 +82,10 @@ class AnalysisTaskAdapter : BaseAdapter<ItemAnalysisTaskBinding, AnalysisTaskMod
         binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor3)
         // 设置任务标题
         binding.titleText.text = data.title
+
+        // 设置时间范围二级标题
+        binding.timeRangeText.text =
+            DateUtils.formatTimeRange(binding.root.context, data.startTime, data.endTime)
 
         // 设置创建时间
         val dateFormat = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
@@ -169,4 +175,6 @@ class AnalysisTaskAdapter : BaseAdapter<ItemAnalysisTaskBinding, AnalysisTaskMod
     override fun areContentsSame(oldItem: AnalysisTaskModel, newItem: AnalysisTaskModel): Boolean {
         return oldItem == newItem
     }
-} 
+
+
+}

@@ -72,6 +72,7 @@
     <string name="money_range_info" formatted="false">Amount range from %s to %s</string>
     <string name="money_equal_info">Amount equals %s</string>
     <string name="time_range" formatted="false">Time between %s - %s</string>
+    <string name="date_range_simple" formatted="false">%s - %s</string>
     <string name="select_time_lower">Please select start time</string>
     <string name="select_time_higher">Please select end time</string>
     <string name="regex">Please enter matching content</string>
