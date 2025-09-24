@@ -24,94 +24,109 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.updateLayoutParams
 import net.ankio.auto.R
 import net.ankio.auto.databinding.IconViewLayoutBinding
 
 class IconView : ConstraintLayout {
-    private val binding: IconViewLayoutBinding
-    private var color: Int = Color.BLACK
+    private val binding = IconViewLayoutBinding.inflate(LayoutInflater.from(context), this, true)
+    private var color = Color.BLACK
+    private var tintEnabled = true
+    private var baseSpacing = 0f     // 基础间距（dp）
 
     constructor(context: Context) : this(context, null)
-
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
     ) {
-        // 使用 ViewBinding 加载布局
-        binding = IconViewLayoutBinding.inflate(LayoutInflater.from(context), this, true)
-
-        attrs?.let { initAttributes(it) }
+        attrs?.let(::initAttributes)
     }
 
-    /**
-     * 获取内部ImageView引用
-     * "最佳实践"：暴露ImageView让调用方自行处理业务逻辑
-     * 保持组件独立性，不与业务耦合
-     */
     fun imageView(): ImageView = binding.iconViewImage
 
     private fun initAttributes(attrs: AttributeSet) {
-        context.obtainStyledAttributes(attrs, R.styleable.IconView).apply {
-            try {
-                val iconTintEnabled = getBoolean(R.styleable.IconView_iconTintEnabled, true)
-                getDrawable(R.styleable.IconView_iconSrc)?.let { icon ->
-                    setIcon(icon, iconTintEnabled)
-                }
-                getString(R.styleable.IconView_text)?.let { text ->
-                    setText(text)
-                }
-                val textSizePx = getDimension(R.styleable.IconView_textSize, 14f.spToPx())
-                binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx)
-                val iconSizePx = getDimensionPixelSize(R.styleable.IconView_iconSize, 24.dpToPx())
-                val iconSizeDp = (iconSizePx / resources.displayMetrics.density).toInt()
-                setIconSize(iconSizeDp)
-                setColor(getColor(R.styleable.IconView_textColor, Color.BLACK), iconTintEnabled)
+        context.obtainStyledAttributes(attrs, R.styleable.IconView).use { a ->
+            tintEnabled = a.getBoolean(R.styleable.IconView_iconTintEnabled, true)
+            color = a.getColor(R.styleable.IconView_textColor, Color.BLACK)
 
-                val maxLines = getInt(R.styleable.IconView_maxLines, 1)  // 默认值为 1
-                setMaxLines(maxLines)
-
-            } finally {
-                recycle()
+            a.getDrawable(R.styleable.IconView_iconSrc)?.let {
+                binding.iconViewImage.setImageDrawable(it)
             }
+            a.getString(R.styleable.IconView_text)?.let {
+                binding.iconViewText.text = it
+            }
+
+            val textSizePx = a.getDimension(
+                R.styleable.IconView_textSize,
+                14f * resources.displayMetrics.scaledDensity
+            )
+            binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx)
+
+            // 设置间距，默认为文字大小的0.5倍
+            baseSpacing = a.getDimension(
+                R.styleable.IconView_iconSpacing,
+                textSizePx * 0.5f
+            ) / resources.displayMetrics.density
+
+            binding.iconViewText.maxLines = a.getInt(R.styleable.IconView_maxLines, 1)
+
+            updateSizesAndSpacing()
+            updateColors()
         }
     }
 
     fun setIcon(icon: Drawable?, tintEnabled: Boolean = true) {
         binding.iconViewImage.setImageDrawable(icon)
-        setImageColorFilter(color, tintEnabled)
+        this.tintEnabled = tintEnabled
+        updateIconColor()
     }
 
-    /**
-     * 设置图标着色状态
-     * @param tint 是否启用着色
-     */
     fun setTint(tint: Boolean) {
-        setImageColorFilter(color, tint)
+        tintEnabled = tint
+        updateIconColor()
     }
 
-    /**
-     * 设置文字内容
-     * @param text 文字内容，可为null
-     */
     fun setText(text: CharSequence?) {
         binding.iconViewText.text = text
         binding.iconViewText.setTextColor(color)
     }
 
-    /**
-     * 获取文字内容
-     * @return 当前显示的文字
-     */
     fun getText(): String = binding.iconViewText.text.toString()
 
+    fun setColor(col: Int, tintEnabled: Boolean = true) {
+        color = col
+        this.tintEnabled = tintEnabled
+        updateColors()
+    }
+
+    fun setTextSize(size: Float) {
+        require(size > 0) { "文字大小必须大于0" }
+        binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        updateSizesAndSpacing()
+    }
+
     /**
-     * 设置图标颜色过滤器
-     * "好品味"：消除不必要的when语句，直接用if
+     * 设置图标和文字的间距
      */
-    private fun setImageColorFilter(color: Int, tintEnabled: Boolean = true) {
+    fun setIconSpacing(spacingDp: Float) {
+        require(spacingDp >= 0) { "间距不能为负数" }
+        baseSpacing = spacingDp
+        updateSizesAndSpacing()
+    }
+
+    fun setMaxLines(maxLines: Int) {
+        require(maxLines > 0) { "最大行数必须大于0" }
+        binding.iconViewText.maxLines = maxLines
+    }
+
+    private fun updateColors() {
+        binding.iconViewText.setTextColor(color)
+        updateIconColor()
+    }
+
+    private fun updateIconColor() {
         if (tintEnabled) {
             binding.iconViewImage.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         } else {
@@ -120,54 +135,24 @@ class IconView : ConstraintLayout {
     }
 
     /**
-     * 设置组件颜色（包括文字和图标）
-     * @param col 颜色值
-     * @param tintEnabled 是否对图标启用着色
+     * 根据文字大小自动调整图标尺寸和间距
+     * "好品味"：图标始终跟随文字，保持视觉一致性
      */
-    fun setColor(col: Int, tintEnabled: Boolean = true) {
-        color = col
-        binding.iconViewText.setTextColor(col)
-        setImageColorFilter(col, tintEnabled)
-    }
+    private fun updateSizesAndSpacing() {
+        // 图标高度始终等于文字高度
+        val textSizePx = binding.iconViewText.textSize
+        val iconSizePx = textSizePx.toInt()
 
-    /**
-     * 设置文字大小
-     * @param size 文字大小，单位 sp，必须大于0
-     */
-    fun setTextSize(size: Float) {
-        require(size > 0) { "文字大小必须大于0" }
-        binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
-    }
-
-    /**
-     * 设置图标大小
-     * @param sizeDp 图标大小，单位 dp
-     */
-    fun setIconSize(sizeDp: Int) {
-        require(sizeDp > 0) { "图标大小必须大于0" }
-        val sizePx = sizeDp.dpToPx()
-        binding.iconViewImage.layoutParams = binding.iconViewImage.layoutParams.apply {
-            width = sizePx
-            height = sizePx
+        binding.iconViewImage.layoutParams.apply {
+            width = iconSizePx
+            height = iconSizePx
         }
         binding.iconViewImage.requestLayout()
-    }
 
-    /**
-     * 统一的单位转换工具方法
-     * "好品味"：集中单位转换逻辑，消除重复
-     */
-    @Suppress("DEPRECATION")
-    private fun Float.spToPx(): Float = this * resources.displayMetrics.scaledDensity
-
-    private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
-
-    /**
-     * 设置文本的最大行数
-     * @param maxLines 最大行数，必须大于0
-     */
-    fun setMaxLines(maxLines: Int) {
-        require(maxLines > 0) { "最大行数必须大于0" }
-        binding.iconViewText.maxLines = maxLines
+        // 更新间距
+        val scaledSpacingPx = (baseSpacing * resources.displayMetrics.density).toInt()
+        binding.iconViewText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            marginStart = scaledSpacingPx
+        }
     }
 }

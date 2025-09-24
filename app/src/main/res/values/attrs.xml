@@ -27,8 +27,8 @@
         <attr name="text" format="string" />
         <attr name="textColor" format="color" />
         <attr name="textSize" format="dimension" />
-        <attr name="iconSize" format="dimension" />
         <attr name="maxLines" format="integer" />
+        <attr name="iconSpacing" format="dimension" />
     </declare-styleable>
     <declare-styleable name="StatusPage">
         <attr name="innerHeight" format="string" />
