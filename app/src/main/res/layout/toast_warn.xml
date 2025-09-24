@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/toast_hint_bg"
+    android:background="@drawable/toast_warn_bg"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingStart="20dp"
@@ -15,16 +15,16 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_info"
-        android:tint="?attr/colorOnPrimaryContainer" />
+        android:src="@drawable/ic_warning"
+        android:tint="?attr/colorOnSecondaryContainer" />
 
     <TextView
         android:id="@android:id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:lineSpacingExtra="5dp"
-        android:textColor="?colorOnPrimaryContainer"
+        android:textColor="?colorOnSecondaryContainer"
         android:textSize="15sp"
         tools:text="我是 Toast 文本" />
 
-</LinearLayout>
+</LinearLayout> 
