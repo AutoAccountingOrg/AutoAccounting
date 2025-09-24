@@ -55,7 +55,6 @@ class Server(private val context: Application) {
             module(context)
         }
         server.start()
-        println("Server started on port $port")
         billProcessor = BillProcessor()
         application = context
     }
