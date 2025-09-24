@@ -1072,6 +1072,13 @@
     <string name="setting_confirm_delete_bill">Confirm before deleting bills</string>
     <string name="setting_confirm_delete_bill_summary">Ask for confirmation before removing a bill</string>
 
+    <!-- Sync status messages -->
+    <string name="sync_starting">Starting sync...</string>
+    <string name="sync_progress">Syncing %1$d of %2$d bills</string>
+    <string name="sync_completed">Sync completed! %1$d bills synced</string>
+    <string name="sync_no_bills">No bills to sync</string>
+    <string name="sync_failed">Sync failed: %1$s</string>
+
     <!-- Period selection -->
     <string name="period_selector_title">Select Analysis Period</string>
     <string name="period_today">Today</string>

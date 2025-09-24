@@ -91,7 +91,7 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
             btnSync.apply {
                 visibility =
                     if (PrefManager.bookApp != BuildConfig.APPLICATION_ID) View.VISIBLE else View.GONE
-                setOnClickListener { performSync() }
+                setOnClickListener { BillTool.syncBills() }
             }
 
             btnAnalysis.setOnClickListener {
@@ -112,14 +112,6 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
             .show()
     }
 
-    /**
-     * 执行同步操作
-     */
-    private fun performSync() {
-        launch {
-            BillTool.syncBills()
-        }
-    }
 
     /**
      * 刷新数据

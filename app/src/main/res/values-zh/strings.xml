@@ -1094,4 +1094,10 @@
     <string name="log_level_warn">警告</string>
     <string name="log_level_error">错误</string>
 
+    <!-- 同步状态消息 -->
+    <string name="sync_starting">开始同步...</string>
+    <string name="sync_progress">正在同步 %1$d / %2$d 条账单</string>
+    <string name="sync_completed">同步完成！已同步 %1$d 条账单</string>
+    <string name="sync_no_bills">没有需要同步的账单</string>
+    <string name="sync_failed">同步失败：%1$s</string>
 </resources>

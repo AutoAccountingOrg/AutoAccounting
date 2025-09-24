@@ -183,10 +183,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.item_sync -> {
-                    Logger.i("账单同步")
-                    launch {
-                        BillTool.syncBills()
-                    }
+                    BillTool.syncBills()
                     true
                 }
 

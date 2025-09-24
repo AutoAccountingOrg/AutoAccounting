@@ -134,20 +134,43 @@ object BillTool {
         return "$category1 - $category2"
     }
 
-    suspend fun syncBills() {
-        //获取所有未同步的账单
-        BillAPI.sync().forEach {
-            App.launch(Dispatchers.IO) {
-                syncBill(it)
-            }
-        }
+    fun syncBills() {
+        App.launch {
+            // 开始同步提示
+            ToastUtils.info(R.string.sync_starting)
 
+            // 获取所有未同步的账单
+            val billsToSync = BillAPI.sync()
+
+            if (billsToSync.isEmpty()) {
+                ToastUtils.info(R.string.sync_no_bills)
+                return@launch
+            }
+
+            var syncedCount = 0
+
+            // 逐个同步账单
+            billsToSync.forEach { bill ->
+                try {
+                    syncBill(bill)
+                    syncedCount++
+                } catch (e: Exception) {
+                    Logger.e("同步账单失败: ${bill.id}", e)
+                    // 继续同步其他账单，不因单个失败而中断
+                }
+            }
+
+            ToastUtils.info(autoApp.getString(R.string.sync_completed, syncedCount))
+
+
+        }
     }
 
     suspend fun syncBill(billInfoModel: BillInfoModel) {
         AppAdapterManager.adapter().syncBill(billInfoModel)
         delay(AppAdapterManager.adapter().sleep())
     }
+
     fun saveBill(bill: BillInfoModel, onComplete: (() -> Unit)? = null) {
         Logger.d("保存账单: ${bill.id}")
 
