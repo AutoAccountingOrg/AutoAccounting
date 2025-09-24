@@ -136,12 +136,12 @@ class IconView : ConstraintLayout {
 
     /**
      * 根据文字大小自动调整图标尺寸和间距
-     * "好品味"：图标始终跟随文字，保持视觉一致性
+     * "好品味"：图标比文字大25%，保持视觉平衡
      */
     private fun updateSizesAndSpacing() {
-        // 图标高度始终等于文字高度
+        // 图标高度比文字高度大25%，补偿视觉差异
         val textSizePx = binding.iconViewText.textSize
-        val iconSizePx = textSizePx.toInt()
+        val iconSizePx = (textSizePx * 1.35f).toInt()
 
         binding.iconViewImage.layoutParams.apply {
             width = iconSizePx

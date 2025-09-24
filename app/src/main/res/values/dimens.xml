@@ -39,6 +39,8 @@
     <dimen name="float_icon_size">25dp</dimen>
     <dimen name="save_size">20sp</dimen>
     <dimen name="font_size_normal">12sp</dimen>
+    <dimen name="font_size_title">16sp</dimen>
+    <dimen name="icon_text_spacing">8dp</dimen>
     <dimen name="btn_height">80dp</dimen>
     <dimen name="btn_height_small">60dp</dimen>
     <dimen name="screen_horizontal_margin">16dp</dimen>
