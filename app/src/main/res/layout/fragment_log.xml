@@ -60,7 +60,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     tools:text="所有应用"
-                    app:icon="@drawable/ic_explore" />
+                    app:icon="@drawable/ic_apps" />
 
                 <com.google.android.material.button.MaterialButton
                     style="?attr/materialSplitButtonLeadingFilledTonalStyle"
@@ -93,7 +93,7 @@
                     android:text="@string/filter_type_all"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    app:icon="@drawable/data_filter" />
+                    app:icon="@drawable/ic_bug_report" />
 
                 <com.google.android.material.button.MaterialButton
                     style="?attr/materialSplitButtonLeadingFilledTonalStyle"
