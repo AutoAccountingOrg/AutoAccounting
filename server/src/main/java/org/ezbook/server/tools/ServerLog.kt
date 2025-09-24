@@ -27,7 +27,7 @@ object ServerLog : BaseLogger() {
         var prefix = "[ 自动记账S ]"
         if (line != -1) prefix = "$prefix($file:$line) "
 
-        return prefix + msg
+        return prefix + "$msg\n${tr?.stackTrace?.joinToString("\n") ?: ""}".trimEnd()
     }
 
     override fun logModelFormater(

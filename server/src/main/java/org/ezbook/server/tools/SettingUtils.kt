@@ -15,6 +15,7 @@
 
 package org.ezbook.server.tools
 
+import org.ezbook.server.Server
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
@@ -183,7 +184,7 @@ object SettingUtils {
 
 
     /** 调试开关（Server.logD 用） */
-    suspend fun debugMode(): Boolean = getBoolean(Setting.DEBUG_MODE, DefaultData.DEBUG_MODE)
+    suspend fun debugMode(): Boolean = getBoolean(Setting.DEBUG_MODE, Server.debug)
 
     /** 注入的通用 JS（RuleGenerator 用） */
     suspend fun jsCommon(): String = getString(Setting.JS_COMMON, DefaultData.JS_COMMON)
