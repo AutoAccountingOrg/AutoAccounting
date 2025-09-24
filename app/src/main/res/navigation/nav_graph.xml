@@ -342,6 +342,22 @@
         android:label="@string/ai_summary_title"
         tools:layout="@layout/fragment_ai_summary">
 
+        <action
+            android:id="@+id/action_aiSummaryFragment_to_analysisDetailFragment"
+            app:destination="@id/analysisDetailFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/analysisDetailFragment"
+        android:name="net.ankio.auto.ui.fragment.AnalysisDetailFragment"
+        android:label="@string/analysis_detail_title"
+        tools:layout="@layout/fragment_analysis_detail">
+
+        <argument
+            android:name="task_id"
+            app:argType="long" />
+
     </fragment>
 
     <fragment

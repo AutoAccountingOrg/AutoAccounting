@@ -936,6 +936,25 @@
     <string name="ai_summary_image_failed">生成图片失败</string>
     <string name="ai_summary_image_error">图片生成错误：%s</string>
 
+    <!-- 分析任务状态 -->
+    <string name="analysis_status_pending">待处理</string>
+    <string name="analysis_status_processing">分析中</string>
+    <string name="analysis_status_completed">已完成</string>
+    <string name="analysis_status_failed">失败</string>
+
+    <!-- 分析详情 -->
+    <string name="analysis_detail_title">分析报告</string>
+    <string name="analysis_result_not_found">未找到分析结果</string>
+    <string name="analysis_load_error">加载错误：%s</string>
+    <string name="analysis_generating_image">生成图片中…</string>
+    <string name="analysis_image_error">图片错误：%s</string>
+    <string name="analysis_share_title">分享分析</string>
+    <string name="analysis_share_failed">分享失败</string>
+
+    <!-- 删除分析任务 -->
+    <string name="delete_analysis_task">删除分析任务</string>
+    <string name="delete_analysis_task_message">确定要删除分析任务"%s"吗？此操作无法撤销。</string>
+
     <!-- 按钮文字 -->
     <string name="btn_ai_analysis">AI</string>
     <string name="btn_bill_sync">同步</string>

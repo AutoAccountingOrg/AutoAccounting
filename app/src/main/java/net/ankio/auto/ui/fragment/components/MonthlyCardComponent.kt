@@ -24,8 +24,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.CardMonthlyBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.ui.api.BaseComponent
-import net.ankio.auto.ui.dialog.PeriodSelectorDialog
-import net.ankio.auto.ui.api.BaseSheetDialog
+
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
@@ -36,10 +35,10 @@ import java.util.Locale
 class MonthlyCardComponent(binding: CardMonthlyBinding) :
     BaseComponent<CardMonthlyBinding>(binding) {
 
-    private var onNavigateToAiSummary: ((PeriodSelectorDialog.PeriodData?) -> Unit)? = null
+    private var onNavigateToAiSummary: (() -> Unit)? = null
     private var onNavigateToStatistics: (() -> Unit)? = null
 
-    fun setOnNavigateToAiSummary(callback: (PeriodSelectorDialog.PeriodData?) -> Unit) = apply {
+    fun setOnNavigateToAiSummary(callback: () -> Unit) = apply {
         onNavigateToAiSummary = callback
     }
 
@@ -86,7 +85,7 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
         with(binding) {
             btnAiAnalysis.apply {
                 visibility = if (PrefManager.aiMonthlySummary) View.VISIBLE else View.GONE
-                setOnClickListener { showPeriodSelector() }
+                setOnClickListener { onNavigateToAiSummary?.invoke() }
             }
             btnSync.apply {
                 visibility =
@@ -99,17 +98,6 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
                 onNavigateToStatistics?.invoke()
             }
         }
-    }
-
-    /**
-     * 显示周期选择对话框
-     */
-    private fun showPeriodSelector() {
-        BaseSheetDialog.create<PeriodSelectorDialog>(context)
-            .setOnPeriodSelected { periodData ->
-                onNavigateToAiSummary?.invoke(periodData)
-            }
-            .show()
     }
 
 

@@ -1115,4 +1115,23 @@
     <string name="log_level_warn">Warning</string>
     <string name="log_level_error">Error</string>
 
+    <!-- Analysis Task Status -->
+    <string name="analysis_status_pending">Pending</string>
+    <string name="analysis_status_processing">Processing</string>
+    <string name="analysis_status_completed">Completed</string>
+    <string name="analysis_status_failed">Failed</string>
+
+    <!-- Analysis Detail -->
+    <string name="analysis_detail_title">Analysis Report</string>
+    <string name="analysis_result_not_found">Analysis result not found</string>
+    <string name="analysis_load_error">Load error: %s</string>
+    <string name="analysis_generating_image">Generating image…</string>
+    <string name="analysis_image_error">Image error: %s</string>
+    <string name="analysis_share_title">Share Analysis</string>
+    <string name="analysis_share_failed">Share failed</string>
+
+    <!-- Delete Analysis Task -->
+    <string name="delete_analysis_task">Delete Analysis Task</string>
+    <string name="delete_analysis_task_message">Are you sure you want to delete the analysis task "%s"? This action cannot be undone.</string>
+
 </resources>

@@ -49,14 +49,9 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
 
         val monthlyCard: MonthlyCardComponent = binding.monthlyCard.bindAs()
         monthlyCard
-            .setOnNavigateToAiSummary { periodData ->
-                // 使用Bundle传递周期数据
-                val bundle = Bundle()
-                if (periodData != null) {
-                    bundle.putString("period_data", gson.toJson(periodData))
-                }
-                // 使用目的地 ID 导航，避免当前目的地识别为 NavGraph 时解析不到 action
-                findNavController().navigate(R.id.aiSummaryFragment, bundle)
+            .setOnNavigateToAiSummary {
+                // 直接跳转到AI分析任务列表页面
+                findNavController().navigate(R.id.aiSummaryFragment)
             }
             .setOnNavigateToStatistics {
                 // 跳转到统计页面

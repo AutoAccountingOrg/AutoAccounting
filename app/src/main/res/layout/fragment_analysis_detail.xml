@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.ankio.auto.ui.components.AdaptiveCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -11,7 +10,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
         app:liftOnScroll="true"
-        app:liftOnScrollTargetViewId="@id/recyclerView"
+        app:liftOnScrollTargetViewId="@id/webView"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -20,41 +19,36 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
             android:tag="back_button"
-            app:menu="@menu/analysis_menu"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
-            app:title="@string/ai_summary_title" />
+            app:title="@string/analysis_detail_title" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-
-    <!-- 主内容区域 - 使用 LinearLayout 包装筛选器和 SwipeRefreshLayout -->
-    <LinearLayout
+    <!-- 状态页面 -->
+    <net.ankio.auto.ui.components.StatusPage
+        android:id="@+id/status_page"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipe_refresh_layout"
+        <!-- WebView容器 -->
+        <WebView
+            android:id="@+id/webView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:visibility="gone" />
 
-            <net.ankio.auto.ui.components.StatusPage
-                android:id="@+id/status_page"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </net.ankio.auto.ui.components.StatusPage>
 
-    </LinearLayout>
-    <!-- 创建任务按钮 -->
+    <!-- 分享按钮 -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabCreate"
+        android:id="@+id/btnShare"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/padding_side"
+        android:visibility="gone"
         android:importantForAccessibility="no"
-        app:srcCompat="@drawable/float_add" />
+        app:srcCompat="@drawable/menu_icon_share" />
 
-</net.ankio.auto.ui.components.AdaptiveCoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 
