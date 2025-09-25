@@ -7,6 +7,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.actor
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
+import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.http.api.LogAPI
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.LogLevel
@@ -127,6 +128,8 @@ object Logger : BaseLogger() {
         val androidVersion = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
         val deviceInfo = "${Build.BRAND} ${Build.MODEL}"
 
+        val server = LocalNetwork.get<String>("/").getOrNull()
+
         // 获取规则版本
         val ruleVersion = runCatching {
             net.ankio.auto.utils.PrefManager.ruleVersion.ifEmpty { "未知" }
@@ -139,6 +142,7 @@ object Logger : BaseLogger() {
             appendLine("导出时间: $timestamp")
             appendLine("应用版本: $appVersion")
             appendLine("规则版本: $ruleVersion")
+            appendLine("服务版本: ${server?.data}")
             appendLine("安卓版本: $androidVersion")
             appendLine("设备信息: $deviceInfo")
             appendLine("=".repeat(60))
