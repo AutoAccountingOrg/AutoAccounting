@@ -94,10 +94,10 @@ object Logger : BaseLogger() {
     override fun logcatFormater(
         priority: LogLevel, file: String, line: Int, msg: String, tr: Throwable?
     ): String {
-        var prefix = "[ 自动记账 ]"
+        var prefix = "[ 自动记账A ]"
         if (line != -1) prefix = "$prefix($file:$line) "
 
-        return prefix + msg
+        return prefix + "$msg\n${tr?.stackTrace?.joinToString("\n") ?: ""}".trimEnd()
     }
 
     override fun logModelFormater(
