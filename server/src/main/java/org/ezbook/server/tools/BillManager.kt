@@ -52,11 +52,11 @@ object BillManager {
         //场景：用户通过A渠道支付2元，随后通过B渠道支付2元，且消费账户是同一个，
 
         //需要判断账户，如果支出或者收入账户完全一致
-
+// TODO 后续需要根据用户判断反馈去掉这里
         // 时间不同，规则也一样,细分渠道也一样，一定不是重复账单：场景，用户多次转账给某人
         if (!bill1.generateByAi() && bill1.ruleName == bill2.ruleName) {
             if (bill1.channel == bill2.channel) {
-                ServerLog.d("重复判断：规则相同且渠道相同 -> 非重复")
+                ServerLog.d("重复判断：规则相同(${bill1.ruleName})且渠道(${bill1.channel})相同 -> 非重复")
                 return false
             }
         }
@@ -184,6 +184,59 @@ object BillManager {
     }
 
     /**
+     * 规范化名称：去除名称中连续重复的子串（长度≥3），例如：
+     * - "京东自营京东自营旗舰店" -> "京东自营旗舰店"
+     * - "苹果苹果旗舰店旗舰店" -> "苹果旗舰店"
+     *
+     * 规则源于需求：去掉重复内容，并移除长度超过 2 个字的叠词（等价于长度≥3 的重复片段）。
+     */
+    private fun normalizeName(name: String): String {
+        var result = name.trim()
+        if (result.isEmpty()) return result
+
+        // 连续重复子串压缩：(.{3,}?)\1+ => \1
+        // 使用循环直至不再发生替换，处理嵌套/多层重复
+        val regex = Regex("(.{3,}?)\\1+")
+        while (true) {
+            val replaced = regex.replace(result, "\\1")
+            if (replaced == result) break
+            result = replaced
+        }
+        return result
+    }
+
+    /**
+     * 移除跨字段重复：若 A 包含 B，则从 A 中移除 B；若 B 包含 A，则从 B 中移除 A。
+     * 用于避免诸如 商户=“京东自营”、商品=“京东自营旗舰店” 的冗余，处理后商品变为“旗舰店”。
+     */
+    private fun removeCrossDuplicate(a: String, b: String): Pair<String, String> {
+        var left = a
+        var right = b
+        if (left.isNotEmpty() && right.isNotEmpty()) {
+            when {
+                right.contains(left) -> right = right.replace(left, "").trim()
+                left.contains(right) -> left = left.replace(right, "").trim()
+            }
+        }
+        return left to right
+    }
+
+    /**
+     * 清理备注（极简版）：只处理首尾
+     * - 去掉首尾空白
+     * - 去掉首尾分隔符（常见连接符/分隔符）
+     */
+    private fun cleanupRemark(text: String): String {
+        if (text.isEmpty()) return text
+        val sep = "[/|、,，;；:：-—~]"
+        var t = text.trim()
+        // 去掉首尾分隔符
+        t = t.replace(Regex("^$sep+"), "")
+        t = t.replace(Regex("$sep+$"), "")
+        return t.trim()
+    }
+
+    /**
      * 账单去重，用于检查重复账单
      * @return 返回匹配到的父账单，如果没有匹配则返回null
      */
@@ -256,47 +309,32 @@ object BillManager {
      */
     suspend fun getRemark(billInfoModel: BillInfoModel, context: Context): String {
         val settingBillRemark = SettingUtils.noteFormat()
+
+        // 在合并备注之前，清洗商户与商品名称的重复（含长度≥3的叠词）
+        var normalizedShopName = normalizeName(billInfoModel.shopName).trim()
+        var normalizedShopItem = normalizeName(billInfoModel.shopItem).trim()
+
+        // 跨字段去重：如果一方包含另一方，从较长的一方移除重复片段
+        val (finalShopName, finalShopItem) = removeCrossDuplicate(
+            normalizedShopName,
+            normalizedShopItem
+        )
+        normalizedShopName = finalShopName
+        normalizedShopItem = finalShopItem
+
         // 先按模板替换占位符
         val raw = settingBillRemark
-            .replace("【商户名称】", billInfoModel.shopName)
-            .replace("【商品名称】", billInfoModel.shopItem)
+            .replace("【商户名称】", normalizedShopName)
+            .replace("【商品名称】", normalizedShopItem)
             .replace("【金额】", billInfoModel.money.toString())
             .replace("【分类】", billInfoModel.cateName)
             .replace("【账本】", billInfoModel.bookName)
             .replace("【来源】", getAppName(billInfoModel.app, context))
             .replace("【原始资产】", billInfoModel.accountNameFrom)
             .replace("【渠道】", billInfoModel.channel)
-        // 去除重复片段并规整空白，避免合并后出现重复词（例如 商户/渠道/商品名重复）
-        return normalizeRemark(raw)
+        return cleanupRemark(raw)
     }
 
-    /**
-     * 备注去重与规整：
-     * - 使用空白与连字符作为分隔，将重复片段去重（保留首次出现）
-     * - 如果原文包含连字符，保留连字符作为分隔符；否则使用空格
-     * - 规整多余空白，返回更简洁的备注
-     */
-    private fun normalizeRemark(text: String): String {
-        // 检测原文是否包含连字符
-        val hasHyphen = text.contains("-")
-        
-        // 统一分隔：空白和连字符都作为分隔符
-        val tokens = text
-            .replace("\u00A0", " ") // 非断行空格
-            .trim()
-            .split(Regex("[\\s\u3000\\-]+"))
-            .filter { it.isNotBlank() }
-
-        val seen = LinkedHashSet<String>()
-        for (token in tokens) {
-            // 去重：只保留首次出现的片段
-            if (!seen.contains(token)) seen.add(token)
-        }
-
-        // 根据原文是否有连字符选择分隔符
-        val separator = if (hasHyphen) "-" else " "
-        return seen.joinToString(separator)
-    }
 
     /**
      * 获取应用名称
