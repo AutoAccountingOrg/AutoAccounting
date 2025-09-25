@@ -85,7 +85,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         // 检查并显示Canary版本警告
         checkAndShowCanaryWarning()
         checkServer()
-        checkNoEditBills()
+        //  checkNoEditBills()
     }
 
     /**
