@@ -194,32 +194,35 @@ object BillManager {
         var result = name.trim()
         if (result.isEmpty()) return result
 
-        // 连续重复子串压缩：(.{3,}?)\1+ => \1
-        // 使用循环直至不再发生替换，处理嵌套/多层重复
-        val regex = Regex("(.{3,}?)\\1+")
         while (true) {
-            val replaced = regex.replace(result, "\\1")
-            if (replaced == result) break
-            result = replaced
+            var found = false
+
+            // 从长子串开始，避免短子串干扰
+            outer@ for (len in result.length downTo 2) {
+                for (i in 0..result.length - len) {
+                    val sub = result.substring(i, i + len)
+                    val regex = Regex(Regex.escape(sub))
+                    val matches = regex.findAll(result).toList()
+                    if (matches.size > 1) {
+                        // 删除所有重复，只保留第一个
+                        val sb = StringBuilder(result)
+                        // 从后往前删，避免索引错乱
+                        matches.drop(1).reversed().forEach { m ->
+                            sb.delete(m.range.first, m.range.last + 1)
+                        }
+                        result = sb.toString()
+                        found = true
+                        break@outer
+                    }
+                }
+            }
+
+            if (!found) break
         }
+
         return result
     }
 
-    /**
-     * 移除跨字段重复：若 A 包含 B，则从 A 中移除 B；若 B 包含 A，则从 B 中移除 A。
-     * 用于避免诸如 商户=“京东自营”、商品=“京东自营旗舰店” 的冗余，处理后商品变为“旗舰店”。
-     */
-    private fun removeCrossDuplicate(a: String, b: String): Pair<String, String> {
-        var left = a
-        var right = b
-        if (left.isNotEmpty() && right.isNotEmpty()) {
-            when {
-                right.contains(left) -> right = right.replace(left, "").trim()
-                left.contains(right) -> left = left.replace(right, "").trim()
-            }
-        }
-        return left to right
-    }
 
     /**
      * 清理备注（极简版）：只处理首尾
@@ -314,18 +317,16 @@ object BillManager {
         var normalizedShopName = normalizeName(billInfoModel.shopName).trim()
         var normalizedShopItem = normalizeName(billInfoModel.shopItem).trim()
 
-        // 跨字段去重：如果一方包含另一方，从较长的一方移除重复片段
-        val (finalShopName, finalShopItem) = removeCrossDuplicate(
-            normalizedShopName,
-            normalizedShopItem
-        )
-        normalizedShopName = finalShopName
-        normalizedShopItem = finalShopItem
+        val key = "/=@=/"
+
+        val normal = "$normalizedShopName$key$normalizedShopItem"
+        val (shopName, shopItem) = normalizeName(normal).trim().split(key)
+
 
         // 先按模板替换占位符
         val raw = settingBillRemark
-            .replace("【商户名称】", normalizedShopName)
-            .replace("【商品名称】", normalizedShopItem)
+            .replace("【商户名称】", shopName)
+            .replace("【商品名称】", shopItem)
             .replace("【金额】", billInfoModel.money.toString())
             .replace("【分类】", billInfoModel.cateName)
             .replace("【账本】", billInfoModel.bookName)
