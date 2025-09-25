@@ -96,17 +96,18 @@ class OverlayService : ICoreService() {
                 ToastUtils.info(coreService.getString(R.string.repeat_bill))
             }
             billWindowManager.updateCurrentBill(parent)
+            billWindowManager.suppressByParent(parent)
             Logger.d("Repeat Bill, Parent: $parent")
         } else {
             if (floatIntent.billInfoModel.auto || PrefManager.autoRecordBill) {
                 Logger.d("自动记录账单")
                 // 显示1像素透明悬浮窗
                 val saveProgress = SaveProgressView()
-                saveProgress.show(service())
+                saveProgress.show(this)
 
                 BillTool.saveBill(floatIntent.billInfoModel) {
                     // 保存完成后关闭悬浮窗
-                    saveProgress.hide()
+                    saveProgress.destroy()
                 }
             } else {
                 billWindowManager.addBill(floatIntent.billInfoModel)

@@ -20,6 +20,7 @@ import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.OcrProcessor
 import net.ankio.auto.service.ocr.FlipDetector
 import net.ankio.auto.service.ocr.OcrViews
+import net.ankio.auto.service.overlay.SaveProgressView
 import net.ankio.shell.Shell
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
@@ -41,6 +42,7 @@ class OcrService : ICoreService() {
 
     // OCR处理器
     private lateinit var ocrProcessor: OcrProcessor
+    private var saveProgressView: SaveProgressView? = null
 
     // 翻转检测器，当设备从朝下翻转到朝上时触发OCR
     private val detector by lazy {
@@ -74,6 +76,12 @@ class OcrService : ICoreService() {
 
         serverStarted = true
         Logger.d("OCR服务初始化成功，等待触发")
+
+        if (WorkMode.isOcrOrLSPatch()) {
+            saveProgressView = SaveProgressView()
+            saveProgressView?.show(this)
+            Logger.d("Ocr 或 LSPatch模式，使用1px悬浮窗保活")
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
@@ -98,6 +106,8 @@ class OcrService : ICoreService() {
         shell.close()
         // 确保悬浮窗被清理
         ocrView.stopOcrView()
+
+        saveProgressView?.destroy()
     }
 
     /* -------------------------------- 业务逻辑 ------------------------------- */
