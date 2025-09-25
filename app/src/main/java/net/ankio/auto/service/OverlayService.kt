@@ -103,29 +103,34 @@ class OverlayService : ICoreService() {
                     launch {
                         BillAPI.put(floatIntent.billInfoModel)
                     }
-                    // 点击“不去重”后，作为新账单处理
-                    billWindowManager.addBill(floatIntent.billInfoModel)
-                    Logger.d("Repeat toast action -> add as new bill: ${floatIntent.billInfoModel}")
+                    // 点击“不去重”后，按统一逻辑处理当前账单
+                    processBillAccordingToSettings(floatIntent.billInfoModel)
                 }
             }
             // 用户未点击或未开启提示：保持默认行为，合并处理
             billWindowManager.updateCurrentBill(parent)
             Logger.d("Repeat Bill, Parent: $parent")
         } else {
-            if (floatIntent.billInfoModel.auto || PrefManager.autoRecordBill) {
-                Logger.d("自动记录账单")
-                // 显示1像素透明悬浮窗
-                val saveProgress = SaveProgressView()
-                saveProgress.show(this)
+            processBillAccordingToSettings(floatIntent.billInfoModel)
 
-                BillTool.saveBill(floatIntent.billInfoModel) {
-                    // 保存完成后关闭悬浮窗
-                    saveProgress.destroy()
-                }
-            } else {
-                billWindowManager.addBill(floatIntent.billInfoModel)
+        }
+    }
+
+    /**
+     * 根据配置处理账单：自动记录或进入编辑流程。
+     * - 若为自动账单或开启自动记录，则显示保活悬浮窗并直接保存；
+     * - 否则加入窗口队列进入编辑。
+     */
+    private fun processBillAccordingToSettings(bill: org.ezbook.server.db.model.BillInfoModel) {
+        if (bill.auto || PrefManager.autoRecordBill) {
+            Logger.d("自动记录账单")
+            val saveProgress = SaveProgressView()
+            saveProgress.show(this)
+            BillTool.saveBill(bill) {
+                saveProgress.destroy()
             }
-
+        } else {
+            billWindowManager.addBill(bill)
         }
     }
 
