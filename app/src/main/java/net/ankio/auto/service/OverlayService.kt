@@ -27,8 +27,10 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.intent.BillInfoIntent
 import androidx.core.net.toUri
+import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
+import net.ankio.auto.service.overlay.RepeatToast
 import net.ankio.auto.utils.BillTool
 
 /**
@@ -92,11 +94,22 @@ class OverlayService : ICoreService() {
         val parent = floatIntent.parent
         if (parent != null) {
             if (PrefManager.showDuplicatedPopup) {
-                //说明是重复账单
-                ToastUtils.info(coreService.getString(R.string.repeat_bill))
+                // 说明是重复账单：显示悬浮 Toast（5 秒自动消失）。
+                RepeatToast(coreService).show(
+                    coreService.getString(R.string.repeat_bill),
+                    coreService.getString(R.string.repeat_toast_action_dont_merge)
+                ) {
+                    floatIntent.billInfoModel.groupId = -1
+                    launch {
+                        BillAPI.put(floatIntent.billInfoModel)
+                    }
+                    // 点击“不去重”后，作为新账单处理
+                    billWindowManager.addBill(floatIntent.billInfoModel)
+                    Logger.d("Repeat toast action -> add as new bill: ${floatIntent.billInfoModel}")
+                }
             }
+            // 用户未点击或未开启提示：保持默认行为，合并处理
             billWindowManager.updateCurrentBill(parent)
-            billWindowManager.suppressByParent(parent)
             Logger.d("Repeat Bill, Parent: $parent")
         } else {
             if (floatIntent.billInfoModel.auto || PrefManager.autoRecordBill) {

@@ -52,6 +52,8 @@ abstract class ICoreService {
         this.coreService = coreService
     }
 
+    fun context() = coreService
+
     fun launch(block: suspend CoroutineScope.() -> Unit) {
         coreService.lifecycleScope.launch {
             try {

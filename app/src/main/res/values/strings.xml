@@ -358,6 +358,7 @@
     <string name="income_lending">Debt - Borrow in</string>
     <string name="income_repayment_info">Debt - Collection</string>
     <string name="repeat_bill">Duplicate bill detected, automatically merged.</string>
+    <string name="repeat_toast_action_dont_merge">Don\'t deduplicate</string>
     <string name="setting_bill_show_rule">Show recognition rule on bill page</string>
     <string name="setting_bill_show_rule_summary">Display the name of the matching rule when editing bills</string>
     <string name="auto_create">Auto generate</string>

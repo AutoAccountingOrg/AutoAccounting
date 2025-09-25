@@ -1120,4 +1120,6 @@
     <string name="sync_completed">同步完成！已同步 %1$d 条账单</string>
     <string name="sync_no_bills">没有需要同步的账单</string>
     <string name="sync_failed">同步失败：%1$s</string>
+
+    <string name="repeat_toast_action_dont_merge">不去重</string>
 </resources>
