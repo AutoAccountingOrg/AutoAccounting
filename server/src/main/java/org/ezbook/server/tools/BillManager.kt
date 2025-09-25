@@ -224,16 +224,16 @@ object BillManager {
     /**
      * 清理备注（极简版）：只处理首尾
      * - 去掉首尾空白
-     * - 去掉首尾分隔符（常见连接符/分隔符）
+     * - 去掉首尾分隔符（常见连接符/分隔符），不使用正则
      */
     private fun cleanupRemark(text: String): String {
         if (text.isEmpty()) return text
-        val sep = "[/|、,，;；:：-—~]"
-        var t = text.trim()
-        // 去掉首尾分隔符
-        t = t.replace(Regex("^$sep+"), "")
-        t = t.replace(Regex("$sep+$"), "")
-        return t.trim()
+        val seps = charArrayOf('/', '|', '、', ',', '，', ';', '；', ':', '：', '-', '—', '~')
+        return text
+            .trim()                 // 先去首尾空白
+            .trimStart(*seps)       // 去首部分隔符
+            .trimEnd(*seps)         // 去尾部分隔符
+            .trim()                 // 再次去空白（以防分隔符后有空格）
     }
 
     /**
