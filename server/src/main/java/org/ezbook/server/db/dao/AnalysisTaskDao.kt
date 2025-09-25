@@ -54,6 +54,18 @@ interface AnalysisTaskDao {
     suspend fun getAll(): List<AnalysisTaskModel>
 
     /**
+     * 分页获取任务列表，按创建时间倒序
+     */
+    @Query("SELECT * FROM AnalysisTaskModel ORDER BY createTime DESC LIMIT :limit OFFSET :offset")
+    suspend fun getPage(limit: Int, offset: Int): List<AnalysisTaskModel>
+
+    /**
+     * 获取任务总数
+     */
+    @Query("SELECT COUNT(*) FROM AnalysisTaskModel")
+    suspend fun getCount(): Int
+
+    /**
      * 根据状态获取任务列表
      */
     @Query("SELECT * FROM AnalysisTaskModel WHERE status = :status ORDER BY createTime DESC")

@@ -41,21 +41,45 @@ import org.ezbook.server.tools.runCatchingExceptCancel
 fun Route.analysisTaskRoutes() {
     route("/analysis") {
         /**
-         * POST /analysis/all - 获取所有分析任务列表
+         * POST /analysis/all - 获取分析任务列表（支持分页）
+         * 请求参数：
+         * - page: 页码（从1开始，默认为1）
+         * - size: 每页大小（默认为20，最大100）
          */
         post("/all") {
+            val body = call.receiveText()
+            val json = if (body.isNotBlank()) {
+                com.google.gson.Gson().fromJson(body, com.google.gson.JsonObject::class.java)
+            } else {
+                null
+            }
+
+            val page = json?.get("page")?.asInt ?: 1
+            val size = json?.get("size")?.asInt ?: 20
+
+            // 参数校验
+            val validPage = maxOf(1, page)
+            val validSize = minOf(100, maxOf(1, size))
+            val offset = (validPage - 1) * validSize
+
             val dao = Db.get().analysisTaskDao()
 
-            // 删除3天前的任务
-            val threeDaysAgo = System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000L)
-            dao.deleteOldTasks(threeDaysAgo)
-
-            // 把超过30分钟还没完成的任务标记为超时
+            // 标记超时的未完成任务为失败状态
             val thirtyMinutesAgo = System.currentTimeMillis() - (30 * 60 * 1000L)
             dao.markTimeoutTasks(thirtyMinutesAgo)
 
-            val tasks = dao.getAll()
-            call.respond(ResultModel.ok(tasks))
+            val tasks = dao.getPage(validSize, offset)
+            val total = dao.getCount()
+
+            val result = mapOf(
+                "tasks" to tasks,
+                "total" to total,
+                "page" to validPage,
+                "size" to validSize,
+                "totalPages" to ((total + validSize - 1) / validSize) // 向上取整
+            )
+
+            call.respond(ResultModel.ok(result))
         }
 
         /**

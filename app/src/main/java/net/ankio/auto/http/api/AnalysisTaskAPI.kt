@@ -29,15 +29,40 @@ import org.ezbook.server.tools.runCatchingExceptCancel
 object AnalysisTaskAPI {
 
     /**
-     * 获取所有分析任务
+     * 分页响应数据类
+     */
+    data class PageResponse<T>(
+        val tasks: List<T>,
+        val total: Int,
+        val page: Int,
+        val size: Int,
+        val totalPages: Int
+    )
+
+    /**
+     * 获取所有分析任务（保持向后兼容）
      */
     suspend fun getAllTasks(): List<AnalysisTaskModel> = withContext(Dispatchers.IO) {
+        return@withContext getTasksPage(1, 1000) // 获取足够大的页面以保持兼容性
+    }
+
+    /**
+     * 分页获取分析任务
+     */
+    suspend fun getTasksPage(page: Int, size: Int): List<AnalysisTaskModel> =
+        withContext(Dispatchers.IO) {
         return@withContext runCatchingExceptCancel {
-            val resp =
-                LocalNetwork.post<List<AnalysisTaskModel>>("/analysis/all", "{}").getOrThrow()
-            resp.data ?: emptyList()
+            val requestData = mapOf(
+                "page" to page,
+                "size" to size
+            )
+            val resp = LocalNetwork.post<PageResponse<AnalysisTaskModel>>(
+                "/analysis/all",
+                Gson().toJson(requestData)
+            ).getOrThrow()
+            resp.data?.tasks ?: emptyList()
         }.getOrElse {
-            Logger.e("getAllTasks error: ${it.message}", it)
+            Logger.e("getTasksPage error: ${it.message}", it)
             emptyList()
         }
     }

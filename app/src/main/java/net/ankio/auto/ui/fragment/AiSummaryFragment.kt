@@ -70,7 +70,8 @@ class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryB
         val displayName: String
     )
 
-    override suspend fun loadData(): List<AnalysisTaskModel> = AnalysisTaskAPI.getAllTasks()
+    override suspend fun loadData(): List<AnalysisTaskModel> =
+        AnalysisTaskAPI.getTasksPage(page, pageSize)
 
     override fun onCreateAdapter(): RecyclerView.Adapter<*> {
         val recyclerView = binding.statusPage.contentView
