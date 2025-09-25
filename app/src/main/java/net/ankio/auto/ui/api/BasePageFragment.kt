@@ -10,6 +10,7 @@ import androidx.viewbinding.ViewBinding
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.components.StatusPage
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.CoroutineUtils.withIO
 
 /**
@@ -106,7 +107,10 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     private fun initializeComponents(view: View) {
         _statusPage = view.findViewById(R.id.status_page)
         _swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
-
+        _swipeRefreshLayout?.setColorSchemeColors(
+            DynamicColors.Primary,
+            DynamicColors.PrimaryContainer
+        )
         // 关联下拉刷新组件到状态页面
         statusPage.swipeRefreshLayout = _swipeRefreshLayout
         statusPage.showLoading()
