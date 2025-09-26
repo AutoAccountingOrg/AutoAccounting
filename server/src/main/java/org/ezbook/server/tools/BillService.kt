@@ -214,27 +214,27 @@ class BillService(
             // 对账单类型进行检查，这里如果没有开启资产管理，是没有转账类型的
 
 
-            // 将账单加入处理队列并等待自动去重处理完成
-            val task = Server.billProcessor.addTask(billInfo, context)
-            val parent = task.await()
+            // 将账单加入处理队列并等待自动去重处理完成（来自App的数据跳过去重）
+            val parent = if (analysisParams.fromAppData) {
+                ServerLog.d("来自App的数据，跳过去重处理")
+                null
+            } else {
+                val task = Server.billProcessor.addTask(billInfo, context)
+                task.await()
+            }
             // 记录自动去重处理的结果摘要
             if (parent == null) {
                 ServerLog.d("自动去重未找到父账单，待用户编辑")
-                categorize(billInfo)
-                ServerLog.d("进行分类之后的账单 $billInfo")
             } else {
                 ServerLog.d("自动去重找到父账单：parentId=${parent.id}")
                 // 父账单设置特殊规则名称
                 parent.ruleName = formatParentBillRuleName()
-                if (analysisParams.fromAppData) {
-                    ServerLog.d("用户手动启动分析，重新生成分类")
-                    categorize(billInfo)
-                    ServerLog.d("进行分类之后的账单 $billInfo")
-                } else {
-                    categorize(parent)
-                    ServerLog.d("进行分类之后的账单 $parent")
-                }
             }
+
+            // 统一分类目标：有父选父，无父选当前
+            val target = parent ?: billInfo
+            categorize(target)
+            ServerLog.d("进行分类之后的账单 $target")
             // 根据处理结果更新账单状态
             billInfo.state = if (parent == null) BillState.Wait2Edit else BillState.Edited
             db.billInfoDao().update(billInfo)
