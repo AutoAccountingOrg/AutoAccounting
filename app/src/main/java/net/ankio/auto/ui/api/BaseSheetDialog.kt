@@ -26,6 +26,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.CallSuper
+import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -316,6 +317,9 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
         }
     }
 
+    private var padding = R.dimen.cardPadding2
+
+
     /**
      * 创建内容承载的LinearLayout
      *
@@ -333,7 +337,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
             orientation = LinearLayout.VERTICAL
 
             // 设置内边距
-            val padding = resources.getDimensionPixelSize(R.dimen.cardPadding)
+            val padding = resources.getDimensionPixelSize(this@BaseSheetDialog.padding)
             setPadding(padding, padding, padding, padding)
         }
     }

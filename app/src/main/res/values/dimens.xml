@@ -16,6 +16,7 @@
 <resources>
     <dimen name="padding">16dp</dimen>
     <dimen name="half_padding">8dp</dimen>
+    <dimen name="noPadding">0dp</dimen>
     <dimen name="cardPadding">32dp</dimen>
     <dimen name="cardPadding2">24dp</dimen>
     <dimen name="mini_padding">4dp</dimen>

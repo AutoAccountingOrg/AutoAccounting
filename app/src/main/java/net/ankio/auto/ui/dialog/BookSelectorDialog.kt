@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.dialog
 
 import android.view.View
+import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentBookBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
@@ -40,7 +41,7 @@ import org.ezbook.server.db.model.BookNameModel
  *     .show()
  * ```
  */
-class BookSelectorDialog internal constructor(
+open class BookSelectorDialog internal constructor(
     context: android.content.Context
 ) : BaseSheetDialog<ComponentBookBinding>(context) {
 
@@ -48,6 +49,7 @@ class BookSelectorDialog internal constructor(
     private var callback: ((BookNameModel, BillType) -> Unit)? = null
     private lateinit var bookComponent: BookComponent
 
+    protected var padding = R.dimen.noPadding
     /**
      * 设置是否显示选择按钮
      * @param show 是否显示选择按钮
@@ -91,17 +93,6 @@ class BookSelectorDialog internal constructor(
     fun refreshData() {
         if (::bookComponent.isInitialized) {
             bookComponent.refreshData()
-        }
-    }
-
-    /**
-     * 获取当前账本列表
-     */
-    fun getBookList(): List<BookNameModel> {
-        return if (::bookComponent.isInitialized) {
-            bookComponent.getDataItems()
-        } else {
-            emptyList()
         }
     }
 

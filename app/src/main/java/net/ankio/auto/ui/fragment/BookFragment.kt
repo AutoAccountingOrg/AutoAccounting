@@ -17,9 +17,7 @@ package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBookBinding
 import net.ankio.auto.http.api.BookNameAPI
