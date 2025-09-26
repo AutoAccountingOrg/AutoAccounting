@@ -172,11 +172,13 @@ class CategoryComponent(
                 // 同一行，不需要做删除，直接更新数据即可
                 if (panelPosition == lastPanelPosition) {
                     if (hasChild) {
-                        if (expand) {
+                        // 修复：当 expand=true 但当前位置不存在面板或越界时，执行安全插入而不是 set
+                        if (expand && panelPosition in 0 until items.size && items[panelPosition].isPanel()) {
                             items[panelPosition] = category
                             adapter.updateItems(items)
                         } else {
-                            items.add(panelPosition, category)
+                            val insertIndex = panelPosition.coerceAtMost(items.size)
+                            items.add(insertIndex, category)
                             adapter.updateItems(items)
                             expand = true
                         }
@@ -202,7 +204,8 @@ class CategoryComponent(
                         expand = false
                     }
                     if (hasChild) {
-                        items.add(panelPosition, category)
+                        val insertIndex = panelPosition.coerceAtMost(items.size)
+                        items.add(insertIndex, category)
                         adapter.updateItems(items)
                         expand = true
                     }
