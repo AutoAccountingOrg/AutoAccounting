@@ -121,7 +121,8 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
      * @return 当前实例，支持链式调用
      */
     fun setList(list: Map<String, T>): ListPopupUtilsGeneric<T> {
-        this.itemList = list
+        // 使用快照拷贝，避免外部可变 Map 在弹窗显示期间被修改导致键存在但值缺失
+        this.itemList = list.toMap()
         return this
     }
 
@@ -227,9 +228,16 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
             setOnDismissListener { this@ListPopupUtilsGeneric.onDismissListener?.invoke() }
 
             setOnItemClickListener { _, _, position, _ ->
+                // 边界保护，避免非法 position 造成越界
+                if (position !in keys.indices) return@setOnItemClickListener
                 selectIndex = position
                 val selectedKey = keys[position]
-                val selectedValue = itemList[selectedKey]!!
+                // 安全获取，避免值为 null 或外部修改导致的空指针
+                val selectedValue = itemList[selectedKey] ?: run {
+                    // 值缺失时安全退出并关闭弹窗，避免崩溃
+                    dismiss()
+                    return@setOnItemClickListener
+                }
                 onItemClickListener?.invoke(position, selectedKey, selectedValue)
                 dismiss()
             }
