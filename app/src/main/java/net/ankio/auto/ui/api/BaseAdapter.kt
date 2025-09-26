@@ -194,13 +194,15 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
             val type = javaClass.genericSuperclass as ParameterizedType
 
             @Suppress("UNCHECKED_CAST")
+            // 获取第一个实现了 ViewBinding 的泛型实参作为绑定类
             val bindingClass = type.actualTypeArguments.firstOrNull {
                 it is Class<*> && ViewBinding::class.java.isAssignableFrom(it)
-            } as? Class<E> ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
+            } as? Class<out ViewBinding>
+                ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
 
-            // 获取 ViewBinding 的 inflate 方法
+            // 获取 ViewBinding 的 inflate 方法，注意第三个参数必须是原始 boolean 类型
             val method = bindingClass.getDeclaredMethod(
-                "inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.java
+                "inflate", LayoutInflater::class.java, ViewGroup::class.java, java.lang.Boolean.TYPE
             )
 
             // 调用 inflate 方法创建 ViewBinding 实例
