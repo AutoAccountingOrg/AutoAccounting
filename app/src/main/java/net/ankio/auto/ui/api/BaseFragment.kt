@@ -16,13 +16,10 @@
 package net.ankio.auto.ui.api
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
-import androidx.core.view.children
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -53,15 +50,9 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
     protected val binding get() = _binding!!
 
     /**
-     * 通用滚动容器（NestedScrollView/ScrollView）的引用
-     * 仅用于保存与恢复滚动位置，避免子类重复实现。
+     * 保存的滚动位置
      */
-    private var _scrollContainer: View? = null
-
-    /**
-     * 通用滚动位置（纵向）保存值。
-     */
-    private var _savedScrollY: Int? = null
+    private var savedScrollY: Int = 0
 
     /**
      * 创建 Fragment 的视图
@@ -83,14 +74,12 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         try {
-
             // 通过反射获取泛型参数中的 ViewBinding 类型
             val type = javaClass.genericSuperclass as ParameterizedType
             @Suppress("UNCHECKED_CAST") val bindingClass = type.actualTypeArguments.firstOrNull {
                 it is Class<*> && ViewBinding::class.java.isAssignableFrom(it)
             } as? Class<VB>
                 ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
-
 
             // 获取 ViewBinding 的 inflate 方法
             val method = bindingClass.getDeclaredMethod(
@@ -104,7 +93,6 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
             @Suppress("UNCHECKED_CAST")
             _binding = method.invoke(null, inflater, container, false) as VB
 
-
             return binding.root
         } catch (e: Exception) {
             Logger.e("Failed to create view for ${javaClass.simpleName}", e)
@@ -113,22 +101,48 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
     }
 
     /**
-     * 视图创建完成后，尝试定位通用滚动容器并恢复滚动位置。
+     * 视图创建后恢复滚动位置
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        try {
-            _scrollContainer = findScrollContainer(binding.root)
-            // 若之前保存过滚动位置，则在下一帧恢复，确保布局完成
-            val targetY = _savedScrollY
-            if (targetY != null) {
-                Handler(Looper.getMainLooper()).post {
-                    restoreScrollPosition(targetY)
+
+        // 如果有保存的滚动位置，恢复它
+        if (savedScrollY > 0) {
+            view.post {
+                findScrollView()?.scrollTo(0, savedScrollY)
+            }
+        }
+    }
+
+    /**
+     * Fragment暂停时保存滚动位置
+     */
+    override fun onPause() {
+        super.onPause()
+        savedScrollY = findScrollView()?.scrollY ?: 0
+    }
+
+    /**
+     * 查找第一个ScrollView或NestedScrollView
+     */
+    private fun findScrollView(): View? {
+        return findScrollViewRecursive(binding.root)
+    }
+
+    /**
+     * 递归查找滚动视图
+     */
+    private fun findScrollViewRecursive(view: View): View? {
+        when (view) {
+            is ScrollView, is NestedScrollView -> return view
+            is ViewGroup -> {
+                for (i in 0 until view.childCount) {
+                    val found = findScrollViewRecursive(view.getChildAt(i))
+                    if (found != null) return found
                 }
             }
-        } catch (e: Exception) {
-            Logger.w("定位滚动容器失败：${e.message}")
         }
+        return null
     }
 
     /**
@@ -141,7 +155,6 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
         super.onDestroyView()
         Logger.d("Destroying view for ${javaClass.simpleName}")
         _binding = null
-        _scrollContainer = null
     }
 
     /**
@@ -182,66 +195,10 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
                     is CancellationException -> {
                         Logger.d("Fragment协程已取消: ${e.message}")
                     }
-
                     else -> {
-                        Logger.e("Fragmentt协程执行异常: ${javaClass.simpleName}", e)
+                        Logger.e("Fragment协程执行异常: ${javaClass.simpleName}", e)
                     }
                 }
             }
         }
-
-
-    // ================================
-    // 通用滚动位置保存/恢复（NestedScrollView/ScrollView）
-    // ================================
-
-    /**
-     * 在Fragment暂停时保存滚动位置。
-     */
-    override fun onPause() {
-        super.onPause()
-        try {
-            val sc = _scrollContainer
-            if (sc is NestedScrollView) {
-                _savedScrollY = sc.scrollY
-                Logger.d("保存 NestedScrollView 滚动位置：${_savedScrollY}")
-            } else if (sc is ScrollView) {
-                _savedScrollY = sc.scrollY
-                Logger.d("保存 ScrollView 滚动位置：${_savedScrollY}")
-            }
-        } catch (e: Exception) {
-            Logger.w("保存滚动位置失败：${e.message}")
-        }
-    }
-
-    /**
-     * 恢复滚动位置。
-     */
-    private fun restoreScrollPosition(targetY: Int) {
-        val sc = _scrollContainer
-        try {
-            when (sc) {
-                is NestedScrollView -> sc.scrollTo(0, targetY)
-                is ScrollView -> sc.scrollTo(0, targetY)
-            }
-            Logger.d("恢复滚动位置到：${targetY}")
-        } catch (e: Exception) {
-            Logger.w("恢复滚动位置失败：${e.message}")
-        }
-    }
-
-    /**
-     * 在根视图下查找首个 NestedScrollView 或 ScrollView。
-     * 仅返回一个以保持简单，避免过度设计。
-     */
-    private fun findScrollContainer(root: View): View? {
-        if (root is NestedScrollView || root is ScrollView) return root
-        if (root is ViewGroup) {
-            root.children.forEach { child ->
-                val found = findScrollContainer(child)
-                if (found != null) return found
-            }
-        }
-        return null
-    }
 }
