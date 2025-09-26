@@ -206,8 +206,12 @@ class BillEditorDialog internal constructor(
      * 软键盘显示时滚动到底部
      */
     override fun onImeVisible() {
-        binding.scrollView.post {
-            binding.scrollView.fullScroll(View.FOCUS_DOWN)
+        // 提前获取 ScrollView 引用，避免异步执行时 binding 已被置空导致崩溃
+        val scroll = runCatching { binding.scrollView }.getOrNull() ?: return
+        scroll.post {
+            if (scroll.isAttachedToWindow) {
+                scroll.fullScroll(View.FOCUS_DOWN)
+            }
         }
     }
 

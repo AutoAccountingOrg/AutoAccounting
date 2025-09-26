@@ -410,7 +410,12 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
             // 通知子类键盘状态变化
             if (imeVisible) {
                 Logger.d("输入法可见，高度: $imeHeight")
-                onImeVisible()
+                // 增加UI就绪校验，避免在对话框已销毁或未附加窗口时访问binding导致崩溃
+                if (uiReady()) {
+                    onImeVisible()
+                } else {
+                    Logger.d("IME可见但UI未就绪或已销毁，跳过 onImeVisible 回调")
+                }
             }
             insets
         }
