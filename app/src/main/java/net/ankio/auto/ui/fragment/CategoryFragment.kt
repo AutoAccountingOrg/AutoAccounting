@@ -74,37 +74,15 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 设置工具栏
+        // 设置工具栏与FAB
         setupToolbar()
-        loadBookFromSavedState(savedInstanceState)
 
-        if (selectedBook == null) {
-            // 从参数中获取账本信息
-            loadBookFromArguments()
-        }
-
-        // 如果仍然没有账本信息，直接退出
-        if (selectedBook == null) {
+        // 解析初始账本并渲染
+        if (!resolveSelectedBook(savedInstanceState)) {
             findNavController().popBackStack()
             return
         }
-
-        // 初始化分类Tab
-        initializeCategoryTabs()
-    }
-
-    /**
-     * 从参数中加载账本信息
-     */
-    private fun loadBookFromArguments() {
-        arguments?.getString(ARG_BOOK_MODEL)?.let { bookJson ->
-            selectedBook = try {
-                Gson().fromJson(bookJson, BookNameModel::class.java)
-            } catch (e: Exception) {
-                // Gson反序列化失败，忽略错误继续其他逻辑
-                null
-            }
-        }
+        selectedBook?.let { setSelectedBook(it) }
     }
 
     /**
@@ -118,34 +96,55 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
     }
 
     /**
-     * 从保存的状态中加载账本信息
-     */
-    private fun loadBookFromSavedState(savedInstanceState: Bundle?) {
-        savedInstanceState?.getString(ARG_BOOK_MODEL)?.let { bookJson ->
-            selectedBook = try {
-                Gson().fromJson(bookJson, BookNameModel::class.java)
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-
-    /**
      * Fragment恢复时刷新数据
      */
     override fun onResume() {
         super.onResume()
-        // 如果已有选中的账本且已初始化ViewPager，刷新当前页面的数据
         if (selectedBook != null && ::pagerAdapter.isInitialized) {
             refreshCurrentPageData()
         }
     }
 
     /**
+     * 解析初始账本：先取 savedInstanceState，再退化到 arguments
+     * @return 是否解析到账本
+     */
+    private fun resolveSelectedBook(savedInstanceState: Bundle?): Boolean {
+        // 从保存状态恢复
+        savedInstanceState?.getString(ARG_BOOK_MODEL)?.let { json ->
+            selectedBook =
+                runCatching { Gson().fromJson(json, BookNameModel::class.java) }.getOrNull()
+        }
+        if (selectedBook != null) return true
+        // 从导航参数恢复
+        arguments?.getString(ARG_BOOK_MODEL)?.let { json ->
+            selectedBook =
+                runCatching { Gson().fromJson(json, BookNameModel::class.java) }.getOrNull()
+        }
+        return selectedBook != null
+    }
+
+    /**
+     * 设置当前账本，并同步标题与Tab内容
+     */
+    private fun setSelectedBook(book: BookNameModel) {
+        selectedBook = book
+        updateToolbarSubtitle(book)
+        initializeCategoryTabs(book)
+    }
+
+    /**
+     * 更新标题：主标题固定，子标题显示账本名称
+     */
+    private fun updateToolbarSubtitle(book: BookNameModel) {
+        binding.topAppBar.title = getString(R.string.title_category)
+        binding.topAppBar.subtitle = book.name
+    }
+
+    /**
      * 刷新当前页面的分类数据
      */
     private fun refreshCurrentPageData() {
-        val currentItem = binding.viewPager.currentItem
         val fragment = childFragmentManager.fragments.find {
             it is CategoryPageFragment && it.isVisible
         } as? CategoryPageFragment
@@ -153,16 +152,14 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
     }
 
     /**
-     * 设置工具栏
+     * 设置工具栏与FAB
      */
     private fun setupToolbar() {
-        // 设置返回按钮监听器
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
-
-        // 设置菜单项点击监听器
         binding.topAppBar.setOnMenuItemClickListener(this)
+
     }
 
     /**
@@ -172,46 +169,39 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
         BaseSheetDialog.create<BookSelectorDialog>(requireContext())
             .setShowSelect(false)
             .setCallback { bookModel, _ ->
-                selectedBook = bookModel
-                initializeCategoryTabs()
+                setSelectedBook(bookModel)
             }
             .show()
     }
 
     /**
-     * 初始化分类Tab页面
+     * 初始化分类Tab页面（传入账本，避免到处读/判空）
      */
-    private fun initializeCategoryTabs() {
-        selectedBook?.let { book ->
-            // 隐藏选择账本提示，显示Tab内容
-            binding.tabLayout.visibility = View.VISIBLE
-            binding.viewPager.visibility = View.VISIBLE
+    private fun initializeCategoryTabs(book: BookNameModel) {
+        // 显示Tab与ViewPager
+        binding.tabLayout.visibility = View.VISIBLE
+        binding.viewPager.visibility = View.VISIBLE
 
-            // 更新工具栏标题
-            binding.topAppBar.title = "${getString(R.string.title_category)} - ${book.name}"
+        // 解绑旧Mediator与Adapter
+        tabMediator?.detach()
+        tabMediator = null
+        binding.viewPager.adapter = null
 
-            // 如果之前已绑定，需要先解绑以避免泄露
-            tabMediator?.detach()
-            tabMediator = null
-            binding.viewPager.adapter = null
+        // 设置新适配器
+        pagerAdapter = CategoryPagerAdapter(this, book)
+        binding.viewPager.adapter = pagerAdapter
 
-            // 设置ViewPager适配器
-            pagerAdapter = CategoryPagerAdapter(this, book)
-            binding.viewPager.adapter = pagerAdapter
-
-            // 连接TabLayout和ViewPager2（保存引用以便销毁时detach）
-            tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-                tab.text = when (position) {
-                    0 -> getString(R.string.expend_category)
-                    1 -> getString(R.string.income_category)
-                    else -> ""
-                }
-            }.apply { attach() }
-        }
+        // 绑定TabLayoutMediator
+        tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> getString(R.string.expend_category)
+                1 -> getString(R.string.income_category)
+                else -> ""
+            }
+        }.apply { attach() }
     }
 
     override fun onDestroyView() {
-        // 先清理与视图相关的引用，再调用父类以置空 binding
         try {
             tabMediator?.detach()
         } catch (_: Exception) {
@@ -229,16 +219,10 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
      */
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return when (item?.itemId) {
-            R.id.action_switch_book -> {
-                showBookSelectorDialog()
-                true
-            }
-
             R.id.action_restore_default_categories -> {
                 showRestoreDefaultCategoriesDialog()
                 true
             }
-
             else -> false
         }
     }
@@ -269,11 +253,8 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
         launch {
             val defaults = CategoryUtils().setDefaultCategory(book)
             CategoryAPI.put(defaults, MD5HashTable.md5(Gson().toJson(defaults)))
-
             ToastUtils.info(getString(R.string.restore_default_categories_success))
-            // 刷新当前页
             refreshCurrentPageData()
-
         }
     }
 
