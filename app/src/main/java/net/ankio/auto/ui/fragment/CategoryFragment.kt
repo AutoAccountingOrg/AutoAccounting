@@ -68,6 +68,9 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
     /** Tab页面适配器 */
     private lateinit var pagerAdapter: CategoryPagerAdapter
 
+    // TabLayoutMediator 引用，便于在销毁时解除绑定，避免内存泄漏
+    private var tabMediator: TabLayoutMediator? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -187,19 +190,38 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             // 更新工具栏标题
             binding.topAppBar.title = "${getString(R.string.title_category)} - ${book.name}"
 
+            // 如果之前已绑定，需要先解绑以避免泄露
+            tabMediator?.detach()
+            tabMediator = null
+            binding.viewPager.adapter = null
+
             // 设置ViewPager适配器
             pagerAdapter = CategoryPagerAdapter(this, book)
             binding.viewPager.adapter = pagerAdapter
 
-            // 连接TabLayout和ViewPager2
-            TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            // 连接TabLayout和ViewPager2（保存引用以便销毁时detach）
+            tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
                 tab.text = when (position) {
                     0 -> getString(R.string.expend_category)
                     1 -> getString(R.string.income_category)
                     else -> ""
                 }
-            }.attach()
+            }.apply { attach() }
         }
+    }
+
+    override fun onDestroyView() {
+        // 先清理与视图相关的引用，再调用父类以置空 binding
+        try {
+            tabMediator?.detach()
+        } catch (_: Exception) {
+        }
+        tabMediator = null
+        try {
+            binding.viewPager.adapter = null
+        } catch (_: Exception) {
+        }
+        super.onDestroyView()
     }
 
     /**
@@ -299,7 +321,8 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             }
         }
 
-        private lateinit var categoryComponent: CategoryComponent
+        // 使用可空引用，onDestroyView 时置空以避免持有已销毁视图
+        private var categoryComponent: CategoryComponent? = null
         private lateinit var bookName: String
         private lateinit var bookRemoteId: String
         private lateinit var billType: BillType
@@ -325,10 +348,10 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             categoryComponent = binding.bindAs()
 
             // 设置账本信息
-            categoryComponent.setBookInfo(bookRemoteId, billType, true)
+            categoryComponent?.setBookInfo(bookRemoteId, billType, true)
 
             // 设置分类选择回调
-            categoryComponent.setOnCategorySelectedListener { parent, child ->
+            categoryComponent?.setOnCategorySelectedListener { parent, child ->
                 // 处理分类选择事件
                 when {
 
@@ -353,7 +376,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             }
 
             // 设置长按回调
-            categoryComponent.setOnCategoryLongClickListener { category, position, view ->
+            categoryComponent?.setOnCategoryLongClickListener { category, position, view ->
                 // 长按弹出编辑或删除选择对话框
                 showCategoryActionDialog(category, view)
             }
@@ -363,10 +386,9 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
          * 刷新分类数据
          */
         fun refreshData() {
-            if (::categoryComponent.isInitialized) {
-                launch {
-                    categoryComponent.refreshData()
-                }
+            val comp = categoryComponent ?: return
+            launch {
+                comp.refreshData()
             }
         }
 
@@ -453,6 +475,12 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
                     ToastUtils.error(getString(R.string.delete_failed))
                 }
             }
+        }
+
+        override fun onDestroyView() {
+            // 释放对视图及其子View的引用
+            categoryComponent = null
+            super.onDestroyView()
         }
     }
 }

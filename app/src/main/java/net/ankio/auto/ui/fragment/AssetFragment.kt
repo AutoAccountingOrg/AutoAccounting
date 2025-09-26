@@ -55,6 +55,9 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
     /** Tab页面适配器 */
     private lateinit var pagerAdapter: AssetPagerAdapter
 
+    // TabLayoutMediator 引用，onDestroyView 时解除绑定
+    private var tabMediator: TabLayoutMediator? = null
+
     /** 资产类型列表，根据功能开关动态构建 */
     private val assetTypes: List<AssetsType> by lazy {
         buildList {
@@ -127,12 +130,17 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
      * 初始化资产Tab页面
      */
     private fun initializeAssetTabs() {
+        // 清理旧绑定，避免泄漏
+        tabMediator?.detach()
+        tabMediator = null
+        binding.viewPager.adapter = null
+
         // 设置ViewPager适配器
         pagerAdapter = AssetPagerAdapter(this, assetTypes)
         binding.viewPager.adapter = pagerAdapter
 
         // 连接TabLayout和ViewPager2
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+        tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             // 根据实际的资产类型列表动态设置Tab标题
             tab.text = when (assetTypes.getOrNull(position)) {
                 AssetsType.NORMAL -> getString(R.string.type_normal)
@@ -141,7 +149,21 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
                 AssetsType.CREDITOR -> getString(R.string.type_creditor)
                 else -> ""
             }
-        }.attach()
+        }.apply { attach() }
+    }
+
+    override fun onDestroyView() {
+        // 解除 TabLayoutMediator 绑定并清空适配器
+        try {
+            tabMediator?.detach()
+        } catch (_: Exception) {
+        }
+        tabMediator = null
+        try {
+            binding.viewPager.adapter = null
+        } catch (_: Exception) {
+        }
+        super.onDestroyView()
     }
 
     /**
@@ -184,7 +206,9 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
         }
 
         private var parentAssetFragment: AssetFragment? = null
-        private lateinit var assetComponent: AssetComponent
+
+        // 使用可空引用并在 onDestroyView 置空，避免持有销毁视图
+        private var assetComponent: AssetComponent? = null
         private lateinit var assetType: AssetsType
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -202,28 +226,33 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
             assetComponent = binding.bindAs<AssetComponent>()
 
             // 设置资产选择回调
-            assetComponent.setOnAssetSelectedListener { asset ->
+            assetComponent?.setOnAssetSelectedListener { asset ->
                 asset.let {
                     Logger.d("资产被选中: ${it.name}")
                 }
             }
 
             // 设置长按回调
-            assetComponent.setOnAssetLongClickListener { asset, view ->
+            assetComponent?.setOnAssetLongClickListener { asset, view ->
                 showAssetActionDialog(asset, view)
             }
 
             // 设置资产类型过滤器（这将触发数据加载）
-            assetComponent.setAssetTypeFilter(assetType)
+            assetComponent?.setAssetTypeFilter(assetType)
         }
 
         /**
          * 刷新资产数据
          */
         fun refreshData() {
-            if (::assetComponent.isInitialized) {
-                assetComponent.refreshData()
-            }
+            assetComponent?.refreshData()
+        }
+
+        override fun onDestroyView() {
+            // 释放引用，防止持有已销毁视图
+            assetComponent = null
+            parentAssetFragment = null
+            super.onDestroyView()
         }
 
         /**

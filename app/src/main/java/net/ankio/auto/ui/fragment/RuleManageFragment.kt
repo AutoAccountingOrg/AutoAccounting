@@ -41,6 +41,9 @@ class RuleManageFragment : BaseFragment<FragmentRuleManageBinding>() {
     /** ViewPager适配器 */
     private lateinit var pagerAdapter: RulePagerAdapter
 
+    // TabLayoutMediator 引用，确保 onDestroyView 时解除绑定
+    private var tabMediator: TabLayoutMediator? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeRuleTabs()
@@ -51,18 +54,37 @@ class RuleManageFragment : BaseFragment<FragmentRuleManageBinding>() {
      * 初始化规则Tab页面
      */
     private fun initializeRuleTabs() {
+        // 先解除旧绑定，避免重复附着导致泄漏
+        tabMediator?.detach()
+        tabMediator = null
+        binding.viewPager.adapter = null
+
         // 设置ViewPager适配器
         pagerAdapter = RulePagerAdapter(this)
         binding.viewPager.adapter = pagerAdapter
 
-        // 连接TabLayout和ViewPager2
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+        // 连接TabLayout和ViewPager2（保存引用，便于销毁时detach）
+        tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = when (position) {
                 0 -> getString(R.string.tab_data_rules)
                 1 -> getString(R.string.tab_category_rules)
                 else -> ""
             }
-        }.attach()
+        }.apply { attach() }
+    }
+
+    override fun onDestroyView() {
+        // 解除 TabLayoutMediator 绑定并清空适配器，防止内存泄漏
+        try {
+            tabMediator?.detach()
+        } catch (_: Exception) {
+        }
+        tabMediator = null
+        try {
+            binding.viewPager.adapter = null
+        } catch (_: Exception) {
+        }
+        super.onDestroyView()
     }
 
 
