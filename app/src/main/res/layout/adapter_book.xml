@@ -3,11 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/one_padding"
-    app:cardElevation="0dp"
-    app:strokeColor="?attr/colorSurfaceContainerHighest"
-    app:cardCornerRadius="@dimen/radius_medium"
-    app:strokeWidth="0dp">
+    style="@style/HomeCard"
+    android:layout_marginHorizontal="@dimen/padding"
+    android:layout_marginVertical="@dimen/one_padding">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
