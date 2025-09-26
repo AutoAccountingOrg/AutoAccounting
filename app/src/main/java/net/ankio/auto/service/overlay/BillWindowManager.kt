@@ -204,10 +204,10 @@ class BillWindowManager(
         Logger.i("正在处理账单: ${bill.id}, 金额: ${bill.money}")
         if (PrefManager.floatTimeoutOff == 0) {
             Logger.d("超时时间为0，直接显示编辑器")
-            handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, bill)
+            handleBillAction(Setting.FLOAT_TIMEOUT_ACTION)
         } else {
             Logger.d("显示浮动提示窗口")
-            showFloatingTip(bill)
+            showFloatingTip()
         }
     }
 
@@ -226,12 +226,14 @@ class BillWindowManager(
      *
      * @param bill 要显示的账单信息
      */
-    private fun showFloatingTip(bill: BillInfoModel) {
-        floatingTip.show(bill) { event ->
-            when (event) {
-                is FloatingTip.Event.Click -> handleBillAction(Setting.FLOAT_CLICK, bill)
-                is FloatingTip.Event.LongClick -> handleBillAction(Setting.FLOAT_LONG_CLICK, bill)
-                is FloatingTip.Event.Timeout -> handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, bill)
+    private fun showFloatingTip() {
+        currentBill?.let {
+            floatingTip.show(it) { event ->
+                when (event) {
+                    is FloatingTip.Event.Click -> handleBillAction(Setting.FLOAT_CLICK)
+                    is FloatingTip.Event.LongClick -> handleBillAction(Setting.FLOAT_LONG_CLICK)
+                    is FloatingTip.Event.Timeout -> handleBillAction(Setting.FLOAT_TIMEOUT_ACTION)
+                }
             }
         }
     }
@@ -242,7 +244,7 @@ class BillWindowManager(
      * @param configKey 配置键
      * @param bill 账单信息
      */
-    private fun handleBillAction(configKey: String, bill: BillInfoModel) {
+    private fun handleBillAction(configKey: String) {
 
         // 获取用户配置的操作
         val actionStr = when (configKey) {
@@ -260,18 +262,18 @@ class BillWindowManager(
         when (action) {
             FloatEvent.AUTO_ACCOUNT -> {
                 Logger.d("用户操作: 自动记账")
-                BillTool.saveBill(bill)
+                currentBill?.let { BillTool.saveBill(it) }
                 processNextBill()
             }
 
             FloatEvent.POP_EDIT_WINDOW -> {
                 Logger.d("用户操作: 显示编辑窗口")
-                showEditDialog(bill)
+                currentBill?.let { showEditDialog() }
             }
 
             FloatEvent.NO_ACCOUNT -> {
                 Logger.d("用户操作: 不记账")
-                deleteBill(bill)
+                currentBill?.let { deleteBill() }
             }
         }
     }
@@ -279,20 +281,22 @@ class BillWindowManager(
     /**
      * 显示编辑对话框
      */
-    private fun showEditDialog(bill: BillInfoModel) {
+    private fun showEditDialog() {
         // 确保只有一个对话框
         currentDialog?.dismiss()
 
         currentDialog = BaseSheetDialog.create<BillEditorDialog>(service.service())
-        currentDialog?.setBillInfo(bill)
-            ?.setOnCancel {
-                Logger.d("编辑对话框已取消，删除账单")
-                deleteBill(bill)
-            }
-            ?.setOnConfirm { billInfo ->
-                Logger.d("编辑对话框已确认，处理下一个账单")
-                processNextBill()
-            }?.show(false)
+        currentBill?.let {
+            currentDialog?.setBillInfo(it)
+                ?.setOnCancel {
+                    Logger.d("编辑对话框已取消，删除账单")
+                    deleteBill()
+                }
+                ?.setOnConfirm { billInfo ->
+                    Logger.d("编辑对话框已确认，处理下一个账单")
+                    processNextBill()
+                }?.show(false)
+        }
     }
 
     /**
@@ -300,10 +304,10 @@ class BillWindowManager(
      *
      * @param bill 要删除的账单
      */
-    private fun deleteBill(bill: BillInfoModel) {
+    private fun deleteBill() {
         if (!PrefManager.confirmDeleteBill) {
-            Logger.d("直接删除账单: ${bill.id}")
-            launch { BillAPI.remove(bill.id) }
+            Logger.d("直接删除账单: ${currentBill?.id}")
+            launch { BillAPI.remove(currentBill?.id ?: 0) }
             processNextBill()
             return
         }
@@ -313,15 +317,15 @@ class BillWindowManager(
             .setTitleInt(R.string.delete_title)
             .setMessage(R.string.delete_bill_message)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
-                Logger.d("确认删除账单: ${bill.id}")
+                Logger.d("确认删除账单: ${currentBill?.id}")
                 launch {
-                    BillAPI.remove(bill.id)
+                    BillAPI.remove(currentBill?.id ?: 0)
                 }
                 processNextBill()
 
             }
             .setNegativeButton(R.string.cancel_msg) { _, _ ->
-                Logger.d("取消删除账单: ${bill.id}")
+                Logger.d("取消删除账单: ${currentBill?.id}")
                 // 返回编辑对话框，避免流程卡住
                 processNextBill()
             }

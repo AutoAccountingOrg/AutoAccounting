@@ -97,11 +97,7 @@ object BillManager {
             mergeShopInfo(sourceBill, this)
             mergeCategoryInfo(sourceBill, this)
 
-            // 更新备注：若模板为空，返回空串；仅当两者都非空且不同才覆盖，避免用户主动清空被回写
-            val currentRemark = getRemark(this, context)
-            if (currentRemark.isNotEmpty() && remark.isNotEmpty() && remark != currentRemark) {
-                remark = currentRemark
-            }
+            remark = getRemark(this, context)
         }
     }
 
