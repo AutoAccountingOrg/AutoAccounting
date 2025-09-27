@@ -16,8 +16,6 @@
 package org.ezbook.server.constant
 
 object DefaultData {
-    // ======== AI 默认值 ========
-    val AI_MODEL: String = "DeepSeek"
 
     val AI_BILL_RECOGNITION: Boolean = false
     val AI_CATEGORY_RECOGNITION: Boolean = false
@@ -60,11 +58,9 @@ object DefaultData {
     // ======== 自动记账 默认值 ========
     const val IGNORE_ASSET: Boolean = false
     const val PROACTIVELY_MODEL: Boolean = true
-    const val BOOK_APP_ACTIVITY: String = "com.mutangtech.qianji.bill.auto.AddBillIntentAct"
     const val SHOW_AUTO_BILL_TIP: Boolean = true
     const val NOTE_FORMAT: String = "【商户名称】【商品名称】"
     const val WECHAT_PACKAGE: String = "com.tencent.mm"
-    const val WECHAT_PACKAGE_ALIAS: String = "${WECHAT_PACKAGE}2"
 
     // 数据过滤关键字（逗号分隔存储）
     val DATA_FILTER = listOf(
