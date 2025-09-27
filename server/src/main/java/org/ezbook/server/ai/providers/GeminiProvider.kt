@@ -23,12 +23,16 @@ class GeminiProvider : BaseAIProvider() {
 
     override var model: String = "gemini-2.0-flash"
 
+    private suspend fun base(): String {
+        val base = getApiUri().trimEnd('/')
+        return if (base.endsWith("/v1beta/models")) base else "$base/v1beta/models"
+    }
 
     /**
      * 获取可用模型列表
      */
     override suspend fun getAvailableModels(): List<String> = withContext(Dispatchers.IO) {
-        val url = "$${getApiUri()}?key=${getApiKey()}"
+        val url = "${base()}?key=${getApiKey()}"
         val request = Request.Builder()
             .url(url)
             .get()
@@ -60,7 +64,7 @@ class GeminiProvider : BaseAIProvider() {
     ): Result<String> =
         withContext(Dispatchers.IO) {
             val path = if (onChunk === null) "generateContent" else "streamGenerateContent?alt=sse"
-            val url = "${getApiUri()}/$model:$path"
+            val url = "${base()}/$model:$path"
             val requestBody = mapOf(
                 "contents" to listOf(
                     mapOf(
