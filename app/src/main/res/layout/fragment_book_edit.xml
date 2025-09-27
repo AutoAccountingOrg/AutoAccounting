@@ -85,9 +85,7 @@
                 android:layout_marginBottom="@dimen/padding"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardElevation="0dp"
-                app:strokeColor="?attr/colorSurfaceContainerHighest"
-                app:strokeWidth="0dp">
+                style="@style/HomeCard">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
