@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/card_dashboard"
-    style="@style/HomeCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="8dp">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <!-- 头部信息卡片 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_header"
+        style="@style/HomeCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/cardPadding2">
+        android:layout_margin="0dp">
 
-        <!-- 优化后的 Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:padding="@dimen/cardPadding2">
 
             <!-- ① 应用 Icon：圆形背景 + 图标 -->
             <com.google.android.material.imageview.ShapeableImageView
@@ -55,16 +55,13 @@
                     style="@style/TextAppearance.Material3.BodySmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     tools:text="com.example.app" />
             </LinearLayout>
 
-            <!-- ③ 编辑按钮：MaterialIconButton -->
-
-            <!-- ④ 刷新按钮 -->
+            <!-- ③ 刷新按钮 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRefresh"
                 android:layout_width="wrap_content"
@@ -72,16 +69,24 @@
                 app:icon="@drawable/icon_restart"
                 style="@style/Widget.Material3.Button.IconButton.Filled.Tonal" />
         </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-        <!-- ↓↓↓ 4 列功能图标：保持原样 ↓↓↓ -->
+    <!-- 功能操作卡片 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_actions"
+        style="@style/HomeCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding">
+
         <GridLayout
             android:id="@+id/gridActions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:columnCount="4"
-            android:paddingTop="12dp">
-
+            android:padding="@dimen/cardPadding2">
 
         </GridLayout>
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

@@ -70,7 +70,9 @@ class BookCardComponent(binding: CardBookBinding) :
 
         initActionGrid(actionItems())
 
-        binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor1)
+        binding.cardHeader.setCardBackgroundColor(DynamicColors.SurfaceColor1)
+        binding.cardActions.setCardBackgroundColor(DynamicColors.SurfaceColor1)
+        //  binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor1)
     }
 
     override fun onComponentResume() {
