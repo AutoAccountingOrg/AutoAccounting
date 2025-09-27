@@ -30,6 +30,7 @@ import net.ankio.auto.ui.utils.RuleUpdateHelper
 import net.ankio.auto.ui.utils.toDrawable
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
+import java.util.Locale
 
 class StatusCardComponent(binding: CardStatusBinding) :
     BaseComponent<CardStatusBinding>(binding) {
@@ -38,21 +39,35 @@ class StatusCardComponent(binding: CardStatusBinding) :
         super.onComponentCreate()
 
         // 整卡点击：检查规则更新
-        binding.cardContent.setOnClickListener {
+        binding.cardContentRule.setOnClickListener {
             launch {
                 RuleUpdateHelper.checkAndShow(context, true) { updateRuleTexts() }
             }
         }
 
+        binding.cardContentApp.setOnClickListener {
+            launch {
+                AppUpdateHelper.checkAndShow(context, true)
+            }
+        }
+
         // 长按：强制规则更新
-        binding.cardContent.setOnLongClickListener {
+        binding.cardContentRule.setOnLongClickListener {
             PrefManager.ruleVersion = ""
             launch {
                 RuleUpdateHelper.checkAndShow(context, true) { updateRuleTexts() }
             }
             true
         }
+        binding.cardContentApp.setOnLongClickListener {
+            launch {
+                AppUpdateHelper.checkAndShow(context, true)
+            }
+            true
+        }
 
+        binding.cardContentRule.setBackgroundColor(DynamicColors.SurfaceColor3)
+        binding.cardContentApp.setBackgroundColor(DynamicColors.SurfaceColor3)
         // 初始化状态显示
         updateActiveStatus()
         updateRuleTexts()
@@ -91,7 +106,7 @@ class StatusCardComponent(binding: CardStatusBinding) :
         }
         binding.titleText.text = statusText
 
-        binding.modeText.text = PrefManager.workMode.name
+        binding.modeText.text = PrefManager.workMode.name.uppercase()
 
         if (isActive) {
             setActive(
@@ -106,19 +121,21 @@ class StatusCardComponent(binding: CardStatusBinding) :
                 drawable = R.drawable.home_active_error
             )
         }
-
-        // 第二行：App 版本
-        binding.subtitleText.text = context.getString(R.string.app_version_colon, versionName)
+        binding.subtitleText.text = "v$versionName"
+        val channelValue = PrefManager.appChannel.lowercase(Locale.getDefault())
+        val values = context.resources.getStringArray(R.array.update_channel_values)
+        val texts = context.resources.getStringArray(R.array.update_channel_texts)
+        val channelIndex = values.indexOf(channelValue).coerceAtLeast(0)
+        binding.channelText.text =
+            texts.getOrElse(channelIndex) { texts.firstOrNull() ?: channelValue }
     }
 
     /**
      * 更新第三、四行：规则版本与规则更新时间
      */
     private fun updateRuleTexts() {
-        binding.ruleVersionText.text =
-            context.getString(R.string.rule_version_colon, PrefManager.ruleVersion)
-        binding.ruleUpdateText.text =
-            context.getString(R.string.rule_update_colon, PrefManager.ruleUpdate)
+        binding.ruleVersionText.text = PrefManager.ruleVersion
+        binding.ruleUpdateText.text = PrefManager.ruleUpdate
     }
 
     private fun setActive(
@@ -126,14 +143,16 @@ class StatusCardComponent(binding: CardStatusBinding) :
         @ColorInt textColor: Int,
         @DrawableRes drawable: Int,
     ) {
-        binding.cardContent.setBackgroundColor(backgroundColor)
-        binding.iconView.setImageDrawable(drawable.toDrawable())
-        binding.iconView.setColorFilter(textColor)
+        binding.cardContentStatus.setBackgroundColor(backgroundColor)
+        //   binding.iconView.setImageDrawable(drawable.toDrawable())
+        //   binding.iconView.setColorFilter(textColor)
         binding.titleText.setTextColor(textColor)
         binding.modeText.setTextColor(DynamicColors.OnPrimary)
         binding.subtitleText.setTextColor(textColor)
         binding.ruleVersionText.setTextColor(textColor)
         binding.ruleUpdateText.setTextColor(textColor)
+        // 同步更新右下角装饰图标（保持 XML 中的 alpha/tint，仅更新图形）
+        binding.statusBgIcon.setImageDrawable(drawable.toDrawable())
 
     }
 
