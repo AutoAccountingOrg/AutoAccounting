@@ -27,6 +27,7 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBookEditBinding
@@ -47,23 +48,29 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
 
     private var currentBookModel: BookNameModel = BookNameModel()
     private var isEditMode = false
-    private var bookId: Long = 0L
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // 获取参数并判断编辑模式
         arguments?.let { bundle ->
-            bookId = bundle.getLong("bookId", 0L)
-            isEditMode = bookId > 0
+            bundle.getString("bookModel")?.let { json ->
+                // 编辑模式：从序列化的 BookNameModel 恢复数据
+                runCatching {
+                    Gson().fromJson(json, BookNameModel::class.java)
+                }.getOrNull()?.let { book ->
+                    currentBookModel = book
+                    isEditMode = true
+                }
+            }
         }
 
         setupUI()
         setupEvents()
 
-        // 加载现有数据（编辑模式）
+        // 如果是编辑模式，直接使用传入的数据填充UI
         if (isEditMode) {
-            loadBookData()
+            populateUIWithBookData()
         }
     }
 
@@ -96,26 +103,12 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
     }
 
     /**
-     * 加载现有账本数据
+     * 使用传入的账本数据填充UI界面
      */
-    private fun loadBookData() {
-        launch {
-            val books = runCatchingExceptCancel { BookNameAPI.list() }.getOrDefault(emptyList())
-            val book = books.find { it.id == bookId }
-            if (book == null) {
-                ToastUtils.error(getString(R.string.book_not_found))
-                findNavController().popBackStack()
-                return@launch
-            }
-            currentBookModel = BookNameModel().apply {
-                id = book.id
-                name = book.name
-                icon = book.icon
-                remoteId = book.remoteId
-            }
-            binding.bookNameEditText.setText(book.name)
-            updateIconPreview()
-        }
+    private fun populateUIWithBookData() {
+        // 直接使用已经传入的 currentBookModel 数据填充UI
+        binding.bookNameEditText.setText(currentBookModel.name)
+        updateIconPreview()
     }
 
     /**

@@ -18,6 +18,7 @@ package net.ankio.auto.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
+import com.google.gson.Gson
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBookBinding
 import net.ankio.auto.http.api.BookNameAPI
@@ -55,7 +56,7 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
         // 设置账本操作回调
         bookComponent.setOnBookSelectedListener { bookNameModel, billType ->
             when (billType) {
-                "edit" -> navigateToBookEdit(bookNameModel.id)
+                "edit" -> navigateToBookEdit(bookNameModel)
                 "setDefault" -> {
                     PrefManager.defaultBook = bookNameModel.name
                     ToastUtils.info(R.string.set_default_book_success)
@@ -78,17 +79,19 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
         }
 
         binding.addButton.setOnClickListener {
-            navigateToBookEdit(0L)
+            navigateToBookEdit(null)
         }
     }
 
     /**
      * 跳转到账本编辑页面
-     * @param bookId 账本ID，0表示新建账本
+     * @param bookModel 账本模型，null表示新建账本
      */
-    private fun navigateToBookEdit(bookId: Long) {
+    private fun navigateToBookEdit(bookModel: BookNameModel?) {
         val bundle = Bundle().apply {
-            putLong("bookId", bookId)
+            bookModel?.let { model ->
+                putString("bookModel", Gson().toJson(model))
+            }
         }
         // 使用目的地 ID 导航，避免当前目的地识别为 NavGraph 时解析不到 action
         findNavController().navigate(R.id.bookEditFragment, bundle)
