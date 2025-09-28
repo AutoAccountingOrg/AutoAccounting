@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import net.ankio.auto.R
 import net.ankio.auto.databinding.IconViewLayoutBinding
+import androidx.core.content.res.use
 
 class IconView : ConstraintLayout {
     private val binding = IconViewLayoutBinding.inflate(LayoutInflater.from(context), this, true)
