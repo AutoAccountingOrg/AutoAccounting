@@ -110,17 +110,11 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
      * @return 是否解析到账本
      */
     private fun resolveSelectedBook(savedInstanceState: Bundle?): Boolean {
-        // 从保存状态恢复
-        savedInstanceState?.getString(ARG_BOOK_MODEL)?.let { json ->
-            selectedBook =
-                runCatching { Gson().fromJson(json, BookNameModel::class.java) }.getOrNull()
-        }
-        if (selectedBook != null) return true
-        // 从导航参数恢复
-        arguments?.getString(ARG_BOOK_MODEL)?.let { json ->
-            selectedBook =
-                runCatching { Gson().fromJson(json, BookNameModel::class.java) }.getOrNull()
-        }
+        // 优先从保存状态恢复，其次从导航参数恢复
+        val json = savedInstanceState?.getString(ARG_BOOK_MODEL)
+            ?: arguments?.getString(ARG_BOOK_MODEL)
+        selectedBook =
+            json?.let { runCatching { Gson().fromJson(it, BookNameModel::class.java) }.getOrNull() }
         return selectedBook != null
     }
 
@@ -202,23 +196,17 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
     }
 
     override fun onDestroyView() {
-        try {
-            tabMediator?.detach()
-        } catch (_: Exception) {
-        }
+        tabMediator?.detach()
         tabMediator = null
-        try {
-            binding.viewPager.adapter = null
-        } catch (_: Exception) {
-        }
+        binding.viewPager.adapter = null
         super.onDestroyView()
     }
 
     /**
      * 处理工具栏菜单点击
      */
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        return when (item.itemId) {
             R.id.action_switch_book -> {
                 showBookSelectorDialog()
                 true
@@ -272,15 +260,13 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
         private val book: BookNameModel,
     ) : FragmentStateAdapter(fragment) {
 
-        override fun getItemCount(): Int = 2
+        private val billTypes = arrayOf(BillType.Expend, BillType.Income)
+
+        override fun getItemCount(): Int = billTypes.size
 
         override fun createFragment(position: Int): Fragment {
-            val billType = when (position) {
-                0 -> BillType.Expend  // 支出
-                1 -> BillType.Income  // 收入
-                else -> BillType.Expend
-            }
-            return CategoryPageFragment.newInstance(book, billType)
+            val type = billTypes.getOrElse(position) { BillType.Expend }
+            return CategoryPageFragment.newInstance(book, type)
         }
     }
 
@@ -318,9 +304,11 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             super.onViewCreated(view, savedInstanceState)
 
             // 获取参数
-            bookRemoteId = arguments?.getString(ARG_REMOTE_BOOK_ID) ?: ""
-            bookName = arguments?.getString(ARG_BOOK_NAME) ?: ""
-            billType = BillType.valueOf(arguments?.getString(ARG_BILL_TYPE) ?: BillType.Expend.name)
+            val args = requireArguments()
+            bookRemoteId = args.getString(ARG_REMOTE_BOOK_ID).orEmpty()
+            bookName = args.getString(ARG_BOOK_NAME).orEmpty()
+            billType = runCatching { BillType.valueOf(args.getString(ARG_BILL_TYPE).orEmpty()) }
+                .getOrDefault(BillType.Expend)
 
             // 初始化分类组件
             initCategoryComponent()
