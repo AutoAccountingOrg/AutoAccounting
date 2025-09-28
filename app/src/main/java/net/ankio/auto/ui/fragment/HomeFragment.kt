@@ -123,14 +123,33 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         if (WorkMode.isOcrOrLSPatch()) return
 
         launch {
-            LocalNetwork.get<String>("/").onSuccess {
-                if (it.data != BuildConfig.VERSION_NAME) {
-                    Logger.d("server:${it.data}, ${BuildConfig.VERSION_NAME}")
-                    // 版本不匹配，提示用户重启设备
-                    showServerVersionMismatchDialog(it.data ?: "")
-                }
-            }.onFailure {
-                // 连接失败，提示用户
+            checkServerWithRetry()
+        }
+    }
+
+    /**
+     * 带重试机制的服务器检查
+     * 重试延迟：3秒 -> 10秒 -> 30秒，共3次重试
+     */
+    private suspend fun checkServerWithRetry(attempt: Int = 0) {
+        val retryDelays = arrayOf(3000L, 10000L, 30000L)
+
+        LocalNetwork.get<String>("/").onSuccess {
+            if (it.data != BuildConfig.VERSION_NAME) {
+                Logger.d("server:${it.data}, ${BuildConfig.VERSION_NAME}")
+                // 版本不匹配，提示用户重启设备
+                showServerVersionMismatchDialog(it.data ?: "")
+            }
+            // 成功则结束，不继续重试
+        }.onFailure { error ->
+            if (attempt < retryDelays.size) {
+                // 还有重试机会，等待后递归重试
+                Logger.d("本地服务连接失败，${retryDelays[attempt] / 1000}秒后重试 (${attempt + 1}/${retryDelays.size})")
+                kotlinx.coroutines.delay(retryDelays[attempt])
+                checkServerWithRetry(attempt + 1)
+            } else {
+                // 所有重试都失败，显示错误对话框
+                Logger.d("本地服务连接失败，已重试${retryDelays.size}次，显示错误提示")
                 showServerConnectionFailedDialog()
             }
         }

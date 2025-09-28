@@ -369,7 +369,7 @@
 
     <string name="server_error_restart_title">需要重新启动</string>
     <string name="server_error_version_message">检测到版本不匹配：\n服务器版本：%1$s\n应用版本：%2$s\n\n请重启设备以确保功能正常运行。</string>
-    <string name="server_error_connection_message">无法连接到自动记账服务器，请重启设备。</string>
+    <string name="server_error_connection_message">无法连接到本地服务器（127.0.0.1:52045），请重启设备。</string>
     <string name="server_error_btn_ok">我知道了</string>
     <string name="restart_device_hint_title">重启提示</string>
     <string name="restart_device_hint_message">请手动重启设备以使更改生效，或者您可以尝试在设置中重启自动记账服务。</string>
