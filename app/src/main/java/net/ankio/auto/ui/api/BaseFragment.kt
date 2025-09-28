@@ -118,15 +118,20 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
      * Fragment暂停时保存滚动位置
      */
     override fun onPause() {
+        // 在视图存在时才尝试读取滚动位置，避免在视图已销毁（_binding==null）时触发 NPE
+        _binding?.root?.let { root ->
+            savedScrollY = findScrollViewRecursive(root)?.scrollY ?: 0
+        }
         super.onPause()
-        savedScrollY = findScrollView()?.scrollY ?: 0
     }
 
     /**
      * 查找第一个ScrollView或NestedScrollView
      */
     private fun findScrollView(): View? {
-        return findScrollViewRecursive(binding.root)
+        // 当视图已销毁时直接返回 null，避免通过 binding 触发 NPE
+        val root = _binding?.root ?: return null
+        return findScrollViewRecursive(root)
     }
 
     /**
