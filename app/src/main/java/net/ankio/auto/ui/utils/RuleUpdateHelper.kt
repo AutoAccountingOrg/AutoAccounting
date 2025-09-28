@@ -163,6 +163,7 @@ object RuleUpdateHelper {
                 type = when (ruleType) {
                     "app", "helper" -> DataType.DATA.name
                     "notice" -> DataType.NOTICE.name
+                    "ocr" -> DataType.OCR.name
                     else -> ""
                 }
                 js = distDir.resolve(jsPath).readText()
