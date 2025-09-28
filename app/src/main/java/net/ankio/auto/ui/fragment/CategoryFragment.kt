@@ -219,10 +219,16 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
      */
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return when (item?.itemId) {
+            R.id.action_switch_book -> {
+                showBookSelectorDialog()
+                true
+            }
+            
             R.id.action_restore_default_categories -> {
                 showRestoreDefaultCategoriesDialog()
                 true
             }
+
             else -> false
         }
     }
