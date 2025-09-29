@@ -329,7 +329,7 @@ object BillManager {
             .replace("【来源】", getAppName(billInfoModel.app, context))
             .replace("【原始资产】", billInfoModel.accountNameFrom)
             .replace("【渠道】", billInfoModel.channel)
-        return cleanupRemark(raw)
+        return raw
     }
 
 
