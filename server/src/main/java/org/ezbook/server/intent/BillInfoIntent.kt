@@ -72,4 +72,12 @@ data class BillInfoIntent(
         }
         return intent
     }
+
+    /**
+     * 便于日志调试的人类可读表示，仅包含关键信息，避免过长输出
+     */
+    override fun toString(): String {
+        val parentId = parent?.id ?: -1L
+        return "BillInfoIntent(type=$type, t=$t, from='${from}', billId=${billInfoModel.id}, billType=${billInfoModel.type}, money=${billInfoModel.money}, currency='${billInfoModel.currency}', app='${billInfoModel.app}', parentId=${parentId})"
+    }
 }

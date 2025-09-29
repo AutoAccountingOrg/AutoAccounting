@@ -157,7 +157,6 @@ class CoreService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         startForegroundNotification()
-        Logger.i("收到启动命令 - intent=$intent, flags=$flags, startId=$startId")
         services.forEach { service ->
             try {
                 service.onStartCommand(intent, flags, startId)

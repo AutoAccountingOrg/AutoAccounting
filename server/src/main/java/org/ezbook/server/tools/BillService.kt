@@ -42,6 +42,10 @@ import java.io.Closeable
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.channels.Channel
 
 
 /**
@@ -89,7 +93,7 @@ class BillService(
             return
         }
 
-        // 创建并启动悬浮窗
+        // 创建并启动悬浮窗（改为入队串行处理）
         launchFloatingWindow(billInfoModel, parent)
     }
 
@@ -108,15 +112,9 @@ class BillService(
      * @throws SecurityException 如果应用没有必要的权限
      */
     private suspend fun launchFloatingWindow(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
-        val intent = BillInfoIntent(billInfoModel, "JsRoute", parent).toIntent()
-        // 调起悬浮窗（调试用日志）
-        ServerLog.d("拉起自动记账悬浮窗口：$intent")
-
-        runCatchingExceptCancel {
-            Server.application.startActivity(intent)
-        }.onFailure { throwable ->
-            ServerLog.e("自动记账悬浮窗拉起失败：$throwable", throwable)
-        }
+        val intent = BillInfoIntent(billInfoModel, "JsRoute", parent)
+        // 入队，由全局主线程消费者串行拉起，确保队列式显示
+        floatingIntentChannel.send(intent)
     }
 
     /**
@@ -502,6 +500,28 @@ class BillService(
 
     companion object {
         private val hash = MD5HashTable(300_000)
+
+        /**
+         * 悬浮窗启动全局队列：确保多次触发时严格按序执行，避免并发拉起
+         */
+        private val floatingIntentChannel = Channel<BillInfoIntent>(Channel.UNLIMITED)
+        private val floatingIntentScope =
+            CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+
+        init {
+            // 在主线程上顺序消费队列，保证顺序与 UI 线程安全
+            floatingIntentScope.launch {
+                for (intent in floatingIntentChannel) {
+                    // 调起悬浮窗（调试用日志）
+                    ServerLog.d("拉起自动记账悬浮窗口：$intent")
+                    runCatchingExceptCancel {
+                        Server.application.startActivity(intent.toIntent())
+                    }.onFailure { throwable ->
+                        ServerLog.e("自动记账悬浮窗拉起失败：$throwable", throwable)
+                    }
+                }
+            }
+        }
     }
 }
 

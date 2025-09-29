@@ -94,11 +94,12 @@ class OverlayService : ICoreService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
         if (intent == null) return
         val floatIntent = BillInfoIntent.parse(intent) ?: return
-
+        Logger.d("收到账单请求：$floatIntent")
         if (md5HashTable.contains(floatIntent.billInfoModel.id.toString())) return
         md5HashTable.put(floatIntent.billInfoModel.id.toString())
 
         val parent = floatIntent.parent
+        Logger.d("处理账单：ID=${floatIntent.billInfoModel.id}")
         if (parent != null) {
             if (PrefManager.showDuplicatedPopup) {
                 // 说明是重复账单：显示悬浮 Toast（5 秒自动消失）。
