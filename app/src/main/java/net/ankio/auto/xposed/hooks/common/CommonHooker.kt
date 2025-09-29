@@ -57,6 +57,7 @@ object CommonHooker {
             Server.debug = AppRuntime.debug
             server.startServer()
             AppInstaller.init(AppRuntime.application!!, server)
+            UnLockScreen.init()
             Logger.d("Server start success")
         } catch (e: Throwable) {
             Logger.d(e.message ?: "")

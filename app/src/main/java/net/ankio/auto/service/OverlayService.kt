@@ -32,6 +32,7 @@ import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.overlay.RepeatToast
 import net.ankio.auto.utils.BillTool
+import org.ezbook.server.tools.MD5HashTable
 
 /**
  * 悬浮窗服务（OverlayService）。
@@ -49,6 +50,8 @@ class OverlayService : ICoreService() {
 
     /** 悬浮窗窗口控制器，负责具体的视图生命周期与渲染。 */
     private lateinit var billWindowManager: BillWindowManager
+
+    private var md5HashTable = MD5HashTable(300_000)
 
 
     /**
@@ -91,6 +94,10 @@ class OverlayService : ICoreService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
         if (intent == null) return
         val floatIntent = BillInfoIntent.parse(intent) ?: return
+
+        if (md5HashTable.contains(floatIntent.billInfoModel.id.toString())) return
+        md5HashTable.put(floatIntent.billInfoModel.id.toString())
+
         val parent = floatIntent.parent
         if (parent != null) {
             if (PrefManager.showDuplicatedPopup) {
