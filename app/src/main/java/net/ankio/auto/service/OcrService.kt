@@ -214,6 +214,7 @@ class OcrService : ICoreService() {
                 // 显示OCR界面
                 ocrView.startOcrView(coreService)
 
+
                 // 执行截图和识别
                 val ocrResult = performOcrCapture()
 
@@ -257,6 +258,8 @@ class OcrService : ICoreService() {
         }
         // 通过 Shell 执行系统截图
         runCatchingExceptCancel {
+            shell.exec("service call statusbar 2")
+            delay(300)
             shell.exec("screencap -p ${outFile.absolutePath}")
         }.onFailure {
             // 提醒用户未授权root或者shizuku未运行（使用资源字符串，避免硬编码）
