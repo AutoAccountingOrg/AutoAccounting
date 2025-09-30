@@ -51,7 +51,7 @@ class OverlayService : ICoreService() {
     /** 悬浮窗窗口控制器，负责具体的视图生命周期与渲染。 */
     private lateinit var billWindowManager: BillWindowManager
 
-    private var md5HashTable = MD5HashTable(300_000)
+
 
 
     /**
@@ -143,6 +143,7 @@ class OverlayService : ICoreService() {
     }
 
     companion object : IService {
+        private var md5HashTable = MD5HashTable(300_000)
         /**
          * 检查是否已具备系统悬浮窗权限。
          * @return true 表示已授权；false 表示尚未授权。
