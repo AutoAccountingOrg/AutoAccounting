@@ -87,6 +87,8 @@ class BillWindowManager(
     /** 当前显示的账单编辑对话框，确保同时只有一个对话框 */
     private var currentDialog: BillEditorDialog? = null
 
+    private var parentBills = hashMapOf<Long, BillInfoModel>()
+
     /** 浮动提示视图控制器 */
     private val floatingTip: FloatingTip by lazy { FloatingTip(themedContext, windowManager) }
 
@@ -124,7 +126,7 @@ class BillWindowManager(
         // 关闭通道并清理状态
         billChannel.close()
         currentBill = null
-
+        parentBills.clear()
         Logger.d("账单窗口管理器已销毁")
     }
 
@@ -152,8 +154,12 @@ class BillWindowManager(
      */
     fun updateCurrentBill(parentBill: BillInfoModel) {
         Logger.d("使用父账单更新：$parentBill")
-        currentBill = parentBill
-        currentDialog?.setBillInfo(parentBill)
+        if (currentBill != null && currentBill?.id == parentBill.id) {
+            currentBill = parentBill
+            currentDialog?.setBillInfo(parentBill)
+        } else {
+            parentBills[parentBill.id] = parentBill
+        }
     }
 
     // ============ 核心处理逻辑 ============
@@ -169,13 +175,12 @@ class BillWindowManager(
         currentBill = null
         currentDialog = null
         // 只有在tipBinding已经初始化的情况下才尝试移除窗口
-
-
         launch {
             try {
                 Logger.d("等待接收下一个账单...")
                 // 阻塞等待下一个账单
-                val bill = billChannel.receive()
+                var bill = billChannel.receive()
+                parentBills.remove(bill.id)?.let { bill = it }
                 Logger.d("成功接收到账单: ${bill.id}")
                 processBill(bill)
             } catch (e: Exception) {

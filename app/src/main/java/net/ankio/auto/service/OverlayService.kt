@@ -33,6 +33,7 @@ import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.overlay.RepeatToast
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.tools.MD5HashTable
+import kotlin.LazyThreadSafetyMode
 
 /**
  * 悬浮窗服务（OverlayService）。
@@ -48,10 +49,16 @@ import org.ezbook.server.tools.MD5HashTable
  */
 class OverlayService : ICoreService() {
 
-    /** 悬浮窗窗口控制器，负责具体的视图生命周期与渲染。 */
-    private lateinit var billWindowManager: BillWindowManager
+    /**
+     * 悬浮窗窗口控制器，负责具体的视图生命周期与渲染。
+     * 使用同步懒加载，确保在整个服务实例生命周期内仅初始化一次，避免并发和重复启动错觉。
+     */
+    private val billWindowManagerLazy =
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) { BillWindowManager(this) }
 
-
+    /** 对外只暴露实例访问，按需初始化。 */
+    private val billWindowManager: BillWindowManager
+        get() = billWindowManagerLazy.value
 
 
     /**
@@ -68,7 +75,6 @@ class OverlayService : ICoreService() {
      */
     override fun onCreate(coreService: CoreService) {
         super.onCreate(coreService)
-        billWindowManager = BillWindowManager(this)
 
     }
 
@@ -76,7 +82,9 @@ class OverlayService : ICoreService() {
      * 销毁时释放窗口资源，避免内存泄漏或窗口残留。
      */
     override fun onDestroy() {
-        billWindowManager.destroy()
+        if (billWindowManagerLazy.isInitialized()) {
+            billWindowManager.destroy()
+        }
     }
 
     /**
