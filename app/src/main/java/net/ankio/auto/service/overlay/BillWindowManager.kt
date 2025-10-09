@@ -46,6 +46,7 @@ import kotlinx.coroutines.channels.Channel
 // removed unused: receiveAsFlow, BuildConfig, AppAdapterManager
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import org.ezbook.server.constant.BillState
 
 /**
  * 账单浮动窗口管理器
@@ -182,7 +183,13 @@ class BillWindowManager(
                 var bill = billChannel.receive()
                 parentBills.remove(bill.id)?.let { bill = it }
                 Logger.d("成功接收到账单: ${bill.id}")
-                processBill(bill)
+                val bill2 = BillAPI.get(bill.id)
+                if (bill2 == null || bill2.state != BillState.Wait2Edit) {
+                    Logger.d("账单数据 $bill 已经删除或已经处理")
+                } else {
+                    processBill(bill)
+                }
+
             } catch (e: Exception) {
                 Logger.e("从通道接收账单时出错", e)
                 // 如果通道未关闭，继续等待下一个账单
