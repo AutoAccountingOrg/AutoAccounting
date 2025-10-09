@@ -60,11 +60,7 @@ class DatabaseHooker : PartHooker() {
         MD5HashTable(30_000)
     }
 
-    private var autoGroup = DefaultData.AUTO_GROUP
     override fun hook() {
-        CoroutineUtils.withIO {
-            autoGroup = DataUtils.configBoolean(Setting.AUTO_GROUP, DefaultData.AUTO_GROUP)
-        }
         // 分析版本 8.0.43
         val database = Hooker.loader("com.tencent.wcdb.database.SQLiteDatabase")
         Hooker.after(
@@ -110,7 +106,7 @@ class DatabaseHooker : PartHooker() {
     private fun handleAppMessageInsert(type: Int, contentValues: ContentValues) {
         if (type == APPMSG_TYPE_ARTICLE) {
             val md5 = MD5HashTable.md5(contentValues.get("description").toString())
-            if (autoGroup && mD5HashTable.contains(md5)) {
+            if (mD5HashTable.contains(md5)) {
                 return
             }
             mD5HashTable.put(md5)
@@ -143,7 +139,7 @@ class DatabaseHooker : PartHooker() {
 
 
         val md5 = MD5HashTable.md5(msg.get("des").asString.trim())
-        if (autoGroup && mD5HashTable.contains(md5)) {
+        if (mD5HashTable.contains(md5)) {
             return
         }
         mD5HashTable.put(md5)
