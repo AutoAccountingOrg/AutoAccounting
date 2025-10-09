@@ -186,8 +186,21 @@ class BillWindowManager(
                 val bill2 = BillAPI.get(bill.id)
                 if (bill2 == null || bill2.state != BillState.Wait2Edit) {
                     Logger.d("账单数据 $bill 已经删除或已经处理")
+                    processNextBill()
                 } else {
-                    processBill(bill)
+                    if (bill.auto || PrefManager.autoRecordBill) {
+                        Logger.d("自动记录账单")
+                        val saveProgress = SaveProgressView()
+                        saveProgress.show(service)
+
+                        BillTool.saveBill(bill) {
+                            saveProgress.destroy()
+                            processNextBill()
+                        }
+                    } else {
+                        processBill(bill)
+                    }
+
                 }
 
             } catch (e: Exception) {
