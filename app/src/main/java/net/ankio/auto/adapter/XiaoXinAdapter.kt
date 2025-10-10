@@ -30,11 +30,9 @@ import java.util.Locale
 
 /**
  * 小星记账适配器
- * 支持通过URL Scheme进行快捷记账和自动记账弹窗功能
+ * 仅使用 URL Scheme 精确记账接口
  *
- * 小星记账URL Scheme接口文档：
- * 1. 记账接口：xxjz://api/create?参数
- * 2. 自动记账弹窗：xxjz://api/dialog?参数
+ * 接口：xxjz://api/create?参数
  */
 class XiaoXinAdapter : IAppAdapter {
 
@@ -98,37 +96,10 @@ class XiaoXinAdapter : IAppAdapter {
     }
 
     /**
-     * 构建小星记账URL Scheme
-     * 优先使用精确记账接口，如果分类信息不完整则使用自动记账弹窗
+     * 构建小星记账URL Scheme（仅 create 接口）
      */
     private fun buildXiaoXinUrl(billInfoModel: BillInfoModel): String {
-        // 判断是否使用精确记账接口
-        val useCreateApi = shouldUseCreateApi(billInfoModel)
-
-        return if (useCreateApi) {
-            buildCreateApiUrl(billInfoModel)
-        } else {
-            buildDialogApiUrl(billInfoModel)
-        }
-    }
-
-    /**
-     * 判断是否应该使用精确记账接口
-     * 如果分类信息完整且账户信息明确，使用create接口；否则使用dialog接口
-     */
-    private fun shouldUseCreateApi(billInfoModel: BillInfoModel): Boolean {
-        // 基本条件：必须有分类信息和账户信息
-        val hasCategory = billInfoModel.cateName.isNotEmpty() &&
-                billInfoModel.cateName != "其他" &&
-                billInfoModel.cateName != "其它"
-        val hasAccount = billInfoModel.accountNameFrom.isNotEmpty()
-
-        // 转账类型需要两个账户
-        val isTransferValid = if (billInfoModel.type == BillType.Transfer) {
-            billInfoModel.accountNameTo.isNotEmpty()
-        } else true
-
-        return hasCategory && hasAccount && isTransferValid
+        return buildCreateApiUrl(billInfoModel)
     }
 
     /**
@@ -140,7 +111,7 @@ class XiaoXinAdapter : IAppAdapter {
 
         // 必填参数：类型、金额、账户
         params["type"] = mapBillTypeToXiaoXin(billInfoModel.type)
-        params["amount"] = billInfoModel.money.toString()
+        params["amount"] = formatAmount(billInfoModel.money)
         params["account"] = billInfoModel.accountNameFrom
 
         // 分类处理：支持一二级分类（默认单级在前）
@@ -166,40 +137,7 @@ class XiaoXinAdapter : IAppAdapter {
         return buildUrl("xxjz://api/create", params)
     }
 
-    /**
-     * 构建自动记账弹窗接口URL
-     * xxjz://api/dialog?参数
-     */
-    private fun buildDialogApiUrl(billInfoModel: BillInfoModel): String {
-        val params = mutableMapOf<String, String>()
-
-        // 基本参数
-        params["type"] = mapBillTypeToXiaoXin(billInfoModel.type)
-        params["amount"] = billInfoModel.money.toString()
-
-        // 账户信息（作为关键字传递）
-        if (billInfoModel.accountNameFrom.isNotEmpty()) {
-            params["account"] = billInfoModel.accountNameFrom
-        }
-        if (billInfoModel.accountNameTo.isNotEmpty()) {
-            params["account2"] = billInfoModel.accountNameTo
-        }
-
-        // 商户信息（作为关键字）
-        if (billInfoModel.shopName.isNotEmpty()) {
-            params["shop"] = billInfoModel.shopName
-        }
-
-        // 渠道信息
-        if (billInfoModel.channel.isNotEmpty()) {
-            params["channel"] = billInfoModel.channel
-        }
-
-        // 可选参数
-        addOptionalParams(params, billInfoModel)
-
-        return buildUrl("xxjz://api/dialog", params)
-    }
+    // dialog 接口已移除：根据需求，始终使用 create 接口
 
     /**
      * 添加通用可选参数
@@ -250,18 +188,17 @@ class XiaoXinAdapter : IAppAdapter {
      */
     private fun mapBillTypeToXiaoXin(type: BillType): String {
         return when (type) {
-            BillType.Expend,
-            BillType.ExpendReimbursement,
-            BillType.ExpendLending,
-            BillType.ExpendRepayment -> "支出"
-
-            BillType.Income,
-            BillType.IncomeLending,
-            BillType.IncomeRepayment,
-            BillType.IncomeReimbursement,
-            BillType.IncomeRefund -> "收入"
-
             BillType.Transfer -> "转账"
+
+            // 借贷/还款
+            BillType.IncomeLending,
+            BillType.ExpendLending,
+            BillType.IncomeRepayment,
+            BillType.ExpendRepayment -> "借贷"
+
+            // 普通收支
+            BillType.Expend, BillType.ExpendReimbursement -> "支出"
+            BillType.Income, BillType.IncomeReimbursement, BillType.IncomeRefund -> "收入"
         }
     }
 
@@ -284,6 +221,13 @@ class XiaoXinAdapter : IAppAdapter {
         val date = Date(timeMillis)
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(date)
+    }
+
+    /**
+     * 金额格式化为两位小数，满足外部接口对数字格式的一致性要求
+     */
+    private fun formatAmount(amount: Double): String {
+        return String.format(Locale.US, "%.2f", amount)
     }
 
     override fun sleep(): Long {
