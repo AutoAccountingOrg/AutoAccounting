@@ -22,6 +22,7 @@ import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
@@ -103,8 +104,11 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 加载包时的回调
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-        Logger.app = TAG
+        Logger.app = lpparam.packageName
         Logger.debugging = BuildConfig.DEBUG
+        Logger.extendLoggerPrinter = {
+            XposedBridge.log(it)
+        }
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
 
 

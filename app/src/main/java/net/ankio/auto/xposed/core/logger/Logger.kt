@@ -24,8 +24,6 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.LogAPI
-import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.CoroutineUtils
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.tools.BaseLogger
@@ -40,7 +38,7 @@ object Logger : BaseLogger() {
     private val scope = CoroutineScope(SupervisorJob())
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private val actor = scope.actor(Dispatchers.IO) {
+    private val actor = scope.actor<LogModel>(Dispatchers.IO) {
         for (log in channel) {
             try {
                 LogAPI.add(log)
@@ -52,19 +50,15 @@ object Logger : BaseLogger() {
         }
     }
 
-    override fun xposedBridgeFormater(
-        priority: LogLevel, className: String, file: String, line: Int, msg: String, tr: Throwable?
+
+    override fun logcatFormater(
+        priority: LogLevel,
+        file: String,
+        line: Int,
+        msg: String,
+        tr: Throwable?
     ): String {
-        var prefix = "[ 自动记账 ][ $app ]"
-        if (line != -1) prefix = "$prefix $className($file:$line) "
-
-        return "$prefix $msg\n${tr?.stackTrace?.joinToString("\n")}".trimEnd()
-    }
-
-    override fun logcatFormater(priority: LogLevel, file: String, line: Int, msg: String, tr: Throwable?): String? {
-        if (xposedBridgeLogMethod != null) return null
-
-        var prefix = "[ 自动记账 ][ $app ]"
+        var prefix = "[ 自动记账X ][ $app ]"
         if (line != -1) prefix = "$prefix($file:$line) "
         return "$prefix $msg\n${tr?.stackTrace?.joinToString("\n")}".trimEnd()
     }

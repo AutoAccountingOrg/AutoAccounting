@@ -20,9 +20,9 @@ import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
 abstract class BaseLogger : ILogger {
-    protected val defaultClassName: String = this.javaClass.name
+    private val defaultClassName: String = this.javaClass.name
 
-    protected val callerData: StackTraceElement?
+    private val callerData: StackTraceElement?
         get() = Throwable().stackTrace.firstOrNull { element ->
             // 过滤掉 BaseLogger 类及其子类的方法调用
             val className = element.className
@@ -33,9 +33,7 @@ abstract class BaseLogger : ILogger {
 
     var debugging: Boolean = false
 
-    companion object {
-        var xposedBridgeLogMethod: ((String) -> Unit)? = null
-    }
+    var extendLoggerPrinter: ((String) -> Unit)? = null
 
     override fun d(msg: String, tr: Throwable?) = if (debugging) log(LogLevel.DEBUG, msg, tr) else Unit
 
@@ -59,19 +57,9 @@ abstract class BaseLogger : ILogger {
 
         logcatFormater(priority, file, line, msg, tr)?.let {
             Log.println(priority.toAndroidLevel(), className, it)
+            extendLoggerPrinter?.let { printer -> printer(it) }
         }
 
-        xposedBridgeLogMethod?.let {
-            xposedBridgeFormater(
-                priority, className, file, line, msg, tr
-            )?.let { log ->
-                try {
-                    it(log)
-                } catch (e: Exception) {
-                    // ignore
-                }
-            }
-        }
 
         logModelFormater(priority, className, file, line, msg, tr)?.let {
             onLogModel(it)
@@ -85,10 +73,6 @@ abstract class BaseLogger : ILogger {
     protected open fun logModelFormater(
         priority: LogLevel, className: String, file: String, line: Int, msg: String, tr: Throwable? = null
     ): LogModel? = null
-
-    protected open fun xposedBridgeFormater(
-        priority: LogLevel, className: String, file: String, line: Int, msg: String, tr: Throwable? = null
-    ): String? = null
 
     /**
      * 如果重写 logModelFormater，则必须实现此方法。

@@ -17,7 +17,6 @@ package net.ankio.auto.xposed.core.utils
 
 import android.widget.Toast
 import com.hjq.toast.Toaster
-import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.CoroutineUtils.Companion.withMain
 

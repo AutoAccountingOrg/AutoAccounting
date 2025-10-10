@@ -16,7 +16,6 @@
 package net.ankio.auto.xposed.hooks.common
 
 import android.os.Build
-import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 

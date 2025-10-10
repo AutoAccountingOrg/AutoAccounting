@@ -24,7 +24,7 @@ import org.ezbook.server.tools.ILogger
  * HookerManifest
  * 所有的Hooker都需要继承这个接口
  */
-abstract class HookerManifest : ILogger by Logger {
+abstract class HookerManifest {
     /**
      * 包名
      */
@@ -78,4 +78,13 @@ abstract class HookerManifest : ILogger by Logger {
      */
     open var clazz = HashMap<String, ClazzResult>()
 
+    fun d(msg: String, tr: Throwable? = null) = Logger.d(msg, tr)
+
+    fun i(msg: String, tr: Throwable? = null) = Logger.i(msg, tr)
+
+    fun w(msg: String, tr: Throwable? = null) = Logger.w(msg, tr)
+
+    fun e(msg: String, tr: Throwable? = null) = Logger.e(msg, tr)
+
+    fun e(tr: Throwable) = Logger.e(tr)
 }
