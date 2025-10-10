@@ -105,7 +105,8 @@ class DatabaseHooker : PartHooker() {
     /** 处理 AppMessage 表插入 */
     private fun handleAppMessageInsert(type: Int, contentValues: ContentValues) {
         if (type == APPMSG_TYPE_ARTICLE) {
-            val md5 = MD5HashTable.md5(contentValues.get("description").toString())
+            val desc = contentValues.get("description").toString()
+            val md5 = MD5HashTable.md5(desc)
             if (mD5HashTable.contains(md5)) {
                 return
             }
@@ -137,13 +138,13 @@ class DatabaseHooker : PartHooker() {
 
         val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
 
-
-        val md5 = MD5HashTable.md5(msg.get("des").asString.trim())
+        val desc = msg.get("des").asString.trim()
+        val md5 = MD5HashTable.md5(desc)
         if (mD5HashTable.contains(md5)) {
             return
         }
         mD5HashTable.put(md5)
-        tpl.addProperty("description", msg.get("des").asString)
+        tpl.addProperty("description", desc)
 
 
         tpl.addProperty("title", msg.get("title").asString)
