@@ -133,7 +133,7 @@ class XiaoXinAdapter : IAppAdapter {
             }
 
             "借贷" -> {
-                params["child"] = if (child.isNotEmpty()) child else "借入"
+                params["child"] = child.ifEmpty { "借入" }
                 if (billInfoModel.accountNameTo.isNotEmpty()) {
                     params["account2"] = billInfoModel.accountNameTo
                 }
