@@ -59,11 +59,10 @@ object BxPresenterImpl : HookerClazz() {
      * 实现：反射构造宿主 `BxPresenterImpl`，以代理对象接收 `onGetList` 回调；
      * 调用宿主 `refresh(...)` 触发加载，回调到达时恢复协程并返回账单列表。
      *
-     * @param all 是否查询全部（true 使用枚举 ALL；false 使用 NOT）
      * @param books 账本筛选，须为宿主类加载器下的 Book 实例
      * @return 宿主返回的账单列表（元素类型由宿主定义）
      */
-    private suspend fun getBaoXiaoList(all: Boolean = false, books: List<*>): List<*> =
+    private suspend fun getBaoXiaoList(books: List<*>): List<*> =
         suspendCoroutine { continuation ->
             var resumed = false
             val constructor = baoXiaoImpl.constructors.first()!!
@@ -91,7 +90,7 @@ object BxPresenterImpl : HookerClazz() {
             val clazzEnum = refreshMethod.parameterTypes[0]
 
             val enumValue =
-                clazzEnum?.declaredFields?.firstOrNull { it.name == if (all) "ALL" else "NOT" }!!
+                clazzEnum?.declaredFields?.firstOrNull { it.name == "NOT" }!!
                     .get(null)
 
             //BookFilter
@@ -136,7 +135,7 @@ object BxPresenterImpl : HookerClazz() {
     suspend fun syncBaoXiao() = withContext(Dispatchers.IO) {
         val books = BookManagerImpl.getBooks()
         // 报销账单
-        val bxList = getBaoXiaoList(true, books)
+        val bxList = getBaoXiaoList(books)
 
         val bills = convert2Bill(bxList, Setting.HASH_BAOXIAO_BILL)
         val sync = Gson().toJson(bills)
@@ -177,7 +176,7 @@ object BxPresenterImpl : HookerClazz() {
             .distinct()
             .toMutableList()
 
-        val billList = getBaoXiaoList(true, books)
+        val billList = getBaoXiaoList(books)
 
         val selectBills =
             billList.filter {
@@ -269,12 +268,10 @@ object BxPresenterImpl : HookerClazz() {
      */
     fun convert2Bill(anyBills: List<*>, type: String): ArrayList<BookBillModel> {
         val bills = arrayListOf<BookBillModel>()
-        AppRuntime.manifest.d("账单总数：${bills.size}")
+        AppRuntime.manifest.d("账单总数：${anyBills.size}")
         anyBills.forEach {
             AppRuntime.manifest.d("报销/支出：$it")
-            if (it == null || (type == Setting.HASH_BAOXIAO_BILL && !it.toString()
-                    .contains("baoxiaoExtras=null"))
-            ) {
+            if (it == null) {
                 return@forEach
             }
             val bill = BookBillModel()
