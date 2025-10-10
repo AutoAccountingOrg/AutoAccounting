@@ -83,7 +83,7 @@ class XiaoXinAdapter : IAppAdapter {
      */
     override fun syncBill(billInfoModel: BillInfoModel) {
         // 根据账单信息构建URL Scheme参数
-        val url = buildXiaoXinUrl(billInfoModel)
+        val url = buildCreateApiUrl(billInfoModel)
 
         // 通过隐式Intent启动小星记账
         val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
@@ -96,41 +96,49 @@ class XiaoXinAdapter : IAppAdapter {
     }
 
     /**
-     * 构建小星记账URL Scheme（仅 create 接口）
-     */
-    private fun buildXiaoXinUrl(billInfoModel: BillInfoModel): String {
-        return buildCreateApiUrl(billInfoModel)
-    }
-
-    /**
      * 构建精确记账接口URL
      * xxjz://api/create?参数
      */
     private fun buildCreateApiUrl(billInfoModel: BillInfoModel): String {
         val params = mutableMapOf<String, String>()
-
+        val type = mapBillTypeToXiaoXin(billInfoModel.type)
         // 必填参数：类型、金额、账户
-        params["type"] = mapBillTypeToXiaoXin(billInfoModel.type)
-        params["amount"] = formatAmount(billInfoModel.money)
+        params["type"] = type
+        params["amount"] = billInfoModel.money.toString()
         params["account"] = billInfoModel.accountNameFrom
 
         // 分类处理：支持一二级分类（默认单级在前）
         val (parent, child) = billInfoModel.categoryPair()
-        if (parent.isNotEmpty()) params["parent"] = parent
-        if (child.isNotEmpty()) params["child"] = child
 
-        // 转账和借贷需要第二个账户
-        if (billInfoModel.type == BillType.Transfer ||
-            billInfoModel.type == BillType.IncomeLending ||
-            billInfoModel.type == BillType.ExpendLending ||
-            billInfoModel.type == BillType.IncomeRepayment ||
-            billInfoModel.type == BillType.ExpendRepayment
-        ) {
-            if (billInfoModel.accountNameTo.isNotEmpty()) {
-                params["account2"] = billInfoModel.accountNameTo
+        when (type) {
+            "支出" -> {
+                if (parent.isNotEmpty()) params["parent"] = parent
+                params["child"] = child.ifEmpty { "其他支出" }
+            }
+
+            "收入" -> {
+                // 不传 parent，只传 child，保证收入分类正确
+                params["child"] = when {
+                    child.isNotEmpty() -> child
+                    billInfoModel.cateName.isNotEmpty() -> billInfoModel.cateName
+                    else -> "其他收入"
+                }
+            }
+
+            "转账" -> {
+                params["child"] = "账户互转"
+                if (billInfoModel.accountNameTo.isNotEmpty()) {
+                    params["account2"] = billInfoModel.accountNameTo
+                }
+            }
+
+            "借贷" -> {
+                params["child"] = if (child.isNotEmpty()) child else "借入"
+                if (billInfoModel.accountNameTo.isNotEmpty()) {
+                    params["account2"] = billInfoModel.accountNameTo
+                }
             }
         }
-
         // 可选参数
         addOptionalParams(params, billInfoModel)
 
@@ -221,13 +229,6 @@ class XiaoXinAdapter : IAppAdapter {
         val date = Date(timeMillis)
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(date)
-    }
-
-    /**
-     * 金额格式化为两位小数，满足外部接口对数字格式的一致性要求
-     */
-    private fun formatAmount(amount: Double): String {
-        return String.format(Locale.US, "%.2f", amount)
     }
 
     override fun sleep(): Long {
