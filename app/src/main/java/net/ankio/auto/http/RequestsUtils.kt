@@ -49,8 +49,20 @@ class RequestsUtils {
         private const val DEFAULT_TIMEOUT = 300L
         private const val DEFAULT_MEDIA_TYPE = "application/json; charset=utf-8"
 
-        private val okHttpClient = OkHttpClient.Builder()
+        /**
+         * 默认客户端：遵循系统代理设置
+         */
+        private val defaultClient: OkHttpClient = OkHttpClient.Builder()
+            .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+            .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+            .build()
 
+        /**
+         * 禁用代理的客户端：用于需要直连本机回环地址等场景
+         */
+        private val noProxyClient: OkHttpClient = OkHttpClient.Builder()
+            .proxy(java.net.Proxy.NO_PROXY)
             .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
@@ -60,10 +72,24 @@ class RequestsUtils {
 
 
     private val headers = HashMap<String, String>()
-    private val client: OkHttpClient = okHttpClient  // 使用单例实例
+
+    /**
+     * 当前使用的 OkHttpClient 实例。
+     * - 默认使用系统代理（defaultClient）
+     * - 调用 noProxy() 后切换为禁用代理的实例（noProxyClient）
+     */
+    private var client: OkHttpClient = defaultClient
 
     fun addHeader(key: String, value: String) {
         headers[key] = value
+    }
+
+    /**
+     * 禁用代理：切换到不使用任何代理的 OkHttpClient。
+     * 典型场景：访问 127.0.0.1/localhost 回环地址，避免被系统代理劫持。
+     */
+    fun noProxy() = apply {
+        client = noProxyClient
     }
 
     private fun Request.Builder.addHeaders() = apply {

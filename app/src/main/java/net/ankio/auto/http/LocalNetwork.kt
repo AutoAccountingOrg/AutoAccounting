@@ -47,7 +47,7 @@ object LocalNetwork {
         payload: Any? = null,
     ): Result<ResultModel<T>> = withContext(Dispatchers.IO) {
         val url = "${baseUrl}/${path.trimStart('/')}"
-        client.addHeader("Authorize", "")
+        client.noProxy().addHeader("Authorize", "")
         val data = when (payload) {
             is JsonObject -> client.json(url, payload)
             else -> client.jsonStr(url, payload.toString())
@@ -65,7 +65,7 @@ object LocalNetwork {
         path: String,
     ): Result<ResultModel<T>> = withContext(Dispatchers.IO) {
         val url = "${baseUrl}/${path.trimStart('/')}"
-        client.addHeader("Authorize", "")
+        client.noProxy().addHeader("Authorize", "")
         val data = client.get(url)
         data.map { json ->
             val type = object : TypeToken<ResultModel<T>>() {}.type
