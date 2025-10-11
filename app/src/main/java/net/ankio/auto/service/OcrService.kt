@@ -10,14 +10,15 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
-import net.ankio.auto.service.ocr.OcrProcessor
 import net.ankio.auto.service.ocr.FlipDetector
 import net.ankio.auto.service.ocr.OcrViews
 import net.ankio.auto.service.overlay.SaveProgressView
@@ -25,7 +26,9 @@ import net.ankio.shell.Shell
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.ocr.OcrProcessor
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.intent.IntentType
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
@@ -65,7 +68,8 @@ class OcrService : ICoreService() {
     override fun onCreate(coreService: CoreService) {
         super.onCreate(coreService)
 
-        ocrProcessor = OcrProcessor(coreService)
+        ocrProcessor = OcrProcessor().attach(coreService)
+            .log { string, type -> Logger.log(LogLevel.fromAndroidLevel(type), string) }
 
         if (WorkMode.isOcr()) {
             // 启动翻转检测
@@ -216,19 +220,21 @@ class OcrService : ICoreService() {
 
 
                 // 执行截图和识别
-                val ocrResult = performOcrCapture()
 
-                // 处理识别结果
-                if (ocrResult != null) {
-                    if (PrefManager.dataFilter.any { !ocrResult.contains(it) }) {
-                        Logger.d("识别文本长度: ${ocrResult.length}")
-                        // 手动触发 → 强制AI识别
-                        send2JsEngine(ocrResult, packageName, forceAI = manual)
+                withContext(Dispatchers.IO) {
+                    val ocrResult = performOcrCapture()
+                    // 处理识别结果
+                    if (ocrResult != null) {
+                        if (PrefManager.dataFilter.any { !ocrResult.contains(it) }) {
+                            Logger.d("识别文本长度: ${ocrResult.length}")
+                            // 手动触发 → 强制AI识别
+                            send2JsEngine(ocrResult, packageName, forceAI = manual)
+                        } else {
+                            Logger.d("数据信息不在识别关键字里面，忽略")
+                        }
                     } else {
-                        Logger.d("数据信息不在识别关键字里面，忽略")
+                        Logger.d("识别结果为空，跳过处理")
                     }
-                } else {
-                    Logger.d("识别结果为空，跳过处理")
                 }
 
                 val totalTime = System.currentTimeMillis() - startTime
@@ -279,7 +285,7 @@ class OcrService : ICoreService() {
             return null
         }
 
-        val text = runCatching { ocrProcessor.recognize(bitmap) }.getOrElse {
+        val text = runCatching { ocrProcessor.startProcess(bitmap) }.getOrElse {
             Logger.e("OCR 识别失败: ${it.message}")
             outFile.delete()
             bitmap.recycle()
@@ -290,8 +296,6 @@ class OcrService : ICoreService() {
         outFile.delete()
         return text.ifBlank { null }
     }
-
-
 
 
     /**
@@ -369,7 +373,7 @@ class OcrService : ICoreService() {
 
         /** 服务启动状态 */
         var serverStarted = false
-        
+
         /**
          * 检查是否有使用情况访问权限
          */
