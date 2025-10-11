@@ -116,6 +116,9 @@ open class OcrProcessor {
             }
             return ""
         }
+        output?.let {
+            it("ocr process start", Log.DEBUG)
+        }
         val result = ocr!!.runSync(bitmap)
         if (result.isFailure) {
             output?.let {
@@ -123,7 +126,14 @@ open class OcrProcessor {
             }
             return ""
         }
-        return result.getOrNull()?.simpleText ?: ""
+
+        val item = result.getOrNull()
+
+        output?.let {
+            it("ocr process time : ${item?.inferenceTime ?: "0"}ms", Log.DEBUG)
+        }
+
+        return item?.simpleText ?: ""
     }
 
 
