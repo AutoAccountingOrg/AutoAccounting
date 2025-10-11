@@ -190,6 +190,7 @@ dependencies {
 
     implementation(project(":server"))
     implementation(project(":shell"))
+    implementation(project(":ocr"))
     implementation(libs.markdownj.core)
 
     // debug依赖

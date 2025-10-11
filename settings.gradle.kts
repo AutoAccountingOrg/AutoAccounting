@@ -20,3 +20,4 @@ dependencyResolutionManagement {
 rootProject.name = "AutoAccounting"
 include(":app", ":dex", ":server")
 include(":shell")
+include(":ocr")
