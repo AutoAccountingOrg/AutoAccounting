@@ -60,7 +60,7 @@ object Logger : BaseLogger() {
     ): String {
         var prefix = "[ 自动记账X ][ $app ]"
         if (line != -1) prefix = "$prefix($file:$line) "
-        return "$prefix $msg\n${tr?.stackTrace?.joinToString("\n")}".trimEnd()
+        return "$prefix $msg\n${tr?.stackTrace?.joinToString("\n") ?: ""}".trimEnd()
     }
 
     override fun logModelFormater(
