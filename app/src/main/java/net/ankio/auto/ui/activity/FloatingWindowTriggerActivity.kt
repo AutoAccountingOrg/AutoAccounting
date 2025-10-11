@@ -16,7 +16,6 @@ class FloatingWindowTriggerActivity : BaseActivity() {
     companion object {
         private const val WINDOW_SIZE = 1
         private const val INTENT_TYPE_KEY = "intentType"
-        private const val TIMESTAMP_KEY = "t"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,17 +46,9 @@ class FloatingWindowTriggerActivity : BaseActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
-        val t = intent.getLongExtra(TIMESTAMP_KEY, 0L)
         val type = intent.getStringExtra(INTENT_TYPE_KEY)
 
-        Logger.i("处理Intent: 类型=$type, 时间戳=$t")
-
-        // 1. 超时检查
-        if (t < System.currentTimeMillis() - Constants.INTENT_TIMEOUT) {
-            Logger.e("Intent已超时: 时间戳=$t")
-            exitActivity()
-            return
-        }
+        Logger.i("处理Intent: 类型=$type")
 
 
         // https://stackoverflow.com/questions/46173460/why-does-settings-candrawoverlays-method-in-android-8-returns-false-when-use

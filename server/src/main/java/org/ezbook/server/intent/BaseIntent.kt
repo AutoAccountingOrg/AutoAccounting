@@ -27,7 +27,6 @@ open class BaseIntent(
 
     open fun toIntent(): Intent {
         val intent = Intent()
-        intent.putExtra("t", System.currentTimeMillis())
         intent.putExtra("intentType", type.name)
         intent.setComponent(
             ComponentName(
