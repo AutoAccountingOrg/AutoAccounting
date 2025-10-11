@@ -15,38 +15,30 @@
 
 package net.ankio.auto.service.overlay
 
-import android.content.Context
-import android.graphics.PixelFormat
-import android.os.CountDownTimer
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
-import androidx.core.content.ContextCompat
 // removed unused: lifecycleScope
+// removed unused: Dispatchers, App, R
+// removed unused: AssetsUtils, ToastUtils
+// removed unused: receiveAsFlow, BuildConfig, AppAdapterManager
+import android.content.Context
+import android.view.WindowManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
-// removed unused: Dispatchers, App, R
-import kotlinx.coroutines.launch
-import net.ankio.auto.constant.FloatEvent
+import kotlinx.coroutines.channels.Channel
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FloatTipBinding
+import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.service.OverlayService
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BillEditorDialog
-// removed unused: AssetsUtils, ToastUtils
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.toThemeCtx
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
-import java.util.Locale
-import kotlinx.coroutines.channels.Channel
-// removed unused: receiveAsFlow, BuildConfig, AppAdapterManager
-import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import org.ezbook.server.constant.BillState
+import org.ezbook.server.tools.MD5HashTable
 
 /**
  * 账单浮动窗口管理器
@@ -165,6 +157,7 @@ class BillWindowManager(
 
     // ============ 核心处理逻辑 ============
 
+    private val hashTable = MD5HashTable(7200_000)
     /**
      * 处理下一个账单
      *
@@ -183,25 +176,33 @@ class BillWindowManager(
                 var bill = billChannel.receive()
                 parentBills.remove(bill.id)?.let { bill = it }
                 Logger.d("成功接收到账单: ${bill.id}")
-                val bill2 = BillAPI.get(bill.id)
-                if (bill2 == null || bill2.state != BillState.Wait2Edit) {
-                    Logger.d("账单数据 $bill 已经删除或已经处理")
+                if (hashTable.contains(bill.id.toString())) {
+                    Logger.d("账单数据 ${bill.id} 已经处理")
                     processNextBill()
                 } else {
-                    if (bill.auto || PrefManager.autoRecordBill) {
-                        Logger.d("自动记录账单")
-                        val saveProgress = SaveProgressView()
-                        saveProgress.show(service)
-
-                        BillTool.saveBill(bill) {
-                            saveProgress.destroy()
-                            processNextBill()
-                        }
+                    val bill2 = BillAPI.get(bill.id)
+                    Logger.d("服务端状态: ${bill2}")
+                    if (bill2 == null || bill2.state != BillState.Wait2Edit) {
+                        Logger.d("账单数据 ${bill.id} 已经删除或已经处理")
+                        processNextBill()
                     } else {
-                        processBill(bill)
-                    }
+                        hashTable.put(bill.id.toString())
+                        if (bill.auto || PrefManager.autoRecordBill) {
+                            Logger.d("自动记录账单")
+                            val saveProgress = SaveProgressView()
+                            saveProgress.show(service)
 
+                            BillTool.saveBill(bill) {
+                                saveProgress.destroy()
+                                processNextBill()
+                            }
+                        } else {
+                            processBill(bill)
+                        }
+
+                    }
                 }
+
 
             } catch (e: Exception) {
                 Logger.e("从通道接收账单时出错", e)

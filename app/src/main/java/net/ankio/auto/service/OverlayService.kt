@@ -103,8 +103,6 @@ class OverlayService : ICoreService() {
         if (intent == null) return
         val floatIntent = BillInfoIntent.parse(intent) ?: return
         Logger.d("收到账单请求：$floatIntent")
-        if (md5HashTable.contains(floatIntent.billInfoModel.id.toString())) return
-        md5HashTable.put(floatIntent.billInfoModel.id.toString())
 
         val parent = floatIntent.parent
         Logger.d("处理账单：ID=${floatIntent.billInfoModel.id}")
@@ -134,7 +132,6 @@ class OverlayService : ICoreService() {
 
 
     companion object : IService {
-        private var md5HashTable = MD5HashTable(300_000)
         /**
          * 检查是否已具备系统悬浮窗权限。
          * @return true 表示已授权；false 表示尚未授权。
