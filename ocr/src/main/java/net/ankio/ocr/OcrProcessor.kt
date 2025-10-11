@@ -76,7 +76,7 @@ open class OcrProcessor {
         }
         val reservedAware = cores - 1
         val candidate = if (reservedAware <= 0) 1 else reservedAware
-        return minOf(4, maxOf(1, candidate))
+        return candidate
     }
 
     /**
@@ -84,12 +84,7 @@ open class OcrProcessor {
      * 简单规则，避免过度设计：多核偏高性能，少核偏低功耗。
      */
     private fun autoSelectCpuPowerMode(): CpuPowerMode {
-        val cores = try {
-            Runtime.getRuntime().availableProcessors()
-        } catch (_: Throwable) {
-            1
-        }
-        return if (cores >= 4) CpuPowerMode.LITE_POWER_HIGH else CpuPowerMode.LITE_POWER_LOW
+        return if (config.cpuThreadNum >= 4) CpuPowerMode.LITE_POWER_FULL else CpuPowerMode.LITE_POWER_LOW
     }
 
 
