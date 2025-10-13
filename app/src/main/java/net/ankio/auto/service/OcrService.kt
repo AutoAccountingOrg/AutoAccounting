@@ -68,7 +68,7 @@ class OcrService : ICoreService() {
     override fun onCreate(coreService: CoreService) {
         super.onCreate(coreService)
 
-        ocrProcessor = OcrProcessor().attach(coreService)
+        ocrProcessor = OcrProcessor().debug(PrefManager.debugMode).attach(coreService)
             .log { string, type -> Logger.log(LogLevel.fromAndroidLevel(type), string) }
 
         if (WorkMode.isOcr()) {
