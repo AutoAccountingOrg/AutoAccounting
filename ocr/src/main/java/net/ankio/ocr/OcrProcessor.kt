@@ -17,40 +17,19 @@ package net.ankio.ocr
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.equationl.paddleocr4android.CpuPowerMode
-import com.equationl.paddleocr4android.OCR
-import com.equationl.paddleocr4android.OcrConfig
 import android.util.Log
+import androidx.core.graphics.createBitmap
+import com.benjaminwan.ocrlibrary.OcrEngine
+import kotlin.math.max
 
 open class OcrProcessor {
-    private val config = OcrConfig()
-    private var ocr: OCR? = null
-
-    init {
-        config.modelPath =
-            "models" // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
-//config.modelPath = "/sdcard/Android/data/com.equationl.paddleocr4android.app/files/models" // 使用 "/" 表示手机储存路径，测试时请将下载的三个模型放置于该目录下
-        config.clsModelFilename = "cls.nb" // cls 模型文件名
-        config.detModelFilename = "det.nb" // det 模型文件名
-        config.recModelFilename = "rec.nb" // rec 模型文件名
-
-// 运行全部模型
-// 请根据需要配置，三项全开识别率最高；如果只开识别几乎无法正确识别，至少需要搭配检测或分类其中之一
-// 也可单独运行 检测模型 获取文本位置
-        config.isRunDet = true
-        config.isRunCls = true
-        config.isRunRec = true
-
-        config.cpuThreadNum = autoSelectCpuThreads()
-        config.cpuPowerMode = autoSelectCpuPowerMode()
-
-        config.isDrwwTextPositionBox = false
-    }
-
+    lateinit var ocrEngine: OcrEngine
     /**
      * 应用上下文，用于访问 assets 与缓存目录。
      */
     private lateinit var appCtx: Context
+
+    private var debug: Boolean = false
 
     /**
      * 绑定上下文（会持有 applicationContext 以避免泄露）。
@@ -59,76 +38,40 @@ open class OcrProcessor {
         this.appCtx = context.applicationContext
     }
 
+    fun debug(boolean: Boolean) = apply {
+        this.debug = boolean
+    }
+
     private var output: ((string: String, type: Int) -> Unit)? = null
     fun log(output: (string: String, type: Int) -> Unit) = apply {
         this.output = output
     }
 
-    /**
-     * 基于设备 CPU 可用核心数选择推理线程数。
-     * 返回范围：[1, 4]，并为系统/前台线程预留至少 1 核。
-     */
-    private fun autoSelectCpuThreads(): Int {
-        val cores = try {
-            Runtime.getRuntime().availableProcessors()
-        } catch (_: Throwable) {
-            1
-        }
-        val reservedAware = cores - 1
-        val candidate = if (reservedAware <= 0) 1 else reservedAware
-        return candidate
-    }
 
-    /**
-     * 基于设备 CPU 可用核心数选择功耗模式。
-     * 简单规则，避免过度设计：多核偏高性能，少核偏低功耗。
-     */
-    private fun autoSelectCpuPowerMode(): CpuPowerMode {
-        return if (config.cpuThreadNum >= 4) CpuPowerMode.LITE_POWER_FULL else CpuPowerMode.LITE_POWER_LOW
-    }
-
-
-    private suspend fun ensureInit(): Boolean {
-        if (ocr == null) {
-            ocr = OCR(appCtx)
-            val result = ocr!!.initModelSync(config)
-            output?.let {
-                it("init ocr ${result.isSuccess},cpu: ${config.cpuThreadNum}", Log.DEBUG)
-                if (result.isFailure) {
-                    it("init ocr error  ${result.exceptionOrNull()}", Log.ERROR)
-                }
-            }
-            return result.isSuccess
-        }
-        return true
+    private suspend fun ensureInit() {
+        if (::ocrEngine.isInitialized) return
+        ocrEngine = OcrEngine(this.appCtx)
+        ocrEngine.doAngle = true
     }
 
 
     suspend fun startProcess(bitmap: Bitmap): String {
-        if (!ensureInit()) {
-            output?.let {
-                it("ocr process error: not init", Log.DEBUG)
-            }
-            return ""
-        }
+        ensureInit()
         output?.let {
             it("ocr process start", Log.DEBUG)
         }
-        val result = ocr!!.runSync(bitmap)
-        if (result.isFailure) {
-            output?.let {
-                it("ocr process error: ${result.exceptionOrNull()?.message ?: ""}", Log.ERROR)
-            }
-            return ""
-        }
-
-        val item = result.getOrNull()
+        val boxImg = createBitmap(bitmap.width, bitmap.height)
+        val maxSize = max(bitmap.height, bitmap.width)
+        val result = ocrEngine.detect(bitmap, boxImg, maxSize)
 
         output?.let {
-            it("ocr process time : ${item?.inferenceTime ?: "0"}ms", Log.DEBUG)
+            it(
+                "ocr process detectTime : ${result.detectTime}ms, dbNetTime : ${result.dbNetTime}ms",
+                Log.DEBUG
+            )
         }
 
-        return item?.simpleText ?: ""
+        return result.strRes
     }
 
 

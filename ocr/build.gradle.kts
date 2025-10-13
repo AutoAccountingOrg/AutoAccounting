@@ -12,6 +12,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        // 只保留 arm64-v8a 架构的 native library，减小体积
+        ndk {
+            abiFilters.add("arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -34,11 +39,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.paddleocr4android)
+    implementation(files("libs/OcrLibrary-1.3.0-release.aar"))
     implementation(libs.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }
