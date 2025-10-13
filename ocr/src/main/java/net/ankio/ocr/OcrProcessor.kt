@@ -20,6 +20,8 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.graphics.createBitmap
 import com.benjaminwan.ocrlibrary.OcrEngine
+import java.io.File
+import java.io.FileOutputStream
 import kotlin.math.max
 
 open class OcrProcessor {
@@ -54,22 +56,62 @@ open class OcrProcessor {
         ocrEngine.doAngle = true
     }
 
+    /**
+     * 保存调试图片到缓存目录
+     * @param bitmap 要保存的图片
+     */
+    private fun saveDebugImage(bitmap: Bitmap) {
+        val dir = File(appCtx.cacheDir, "images_ocr")
+        dir.mkdirs()
+        val fileName = "ocr_${System.currentTimeMillis()}.png"
+        val file = File(dir, fileName)
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
+        output?.invoke("Debug image saved: ${file.absolutePath}", Log.DEBUG)
+
+        // 清理旧文件，保持最多 100 张图片
+        cleanupOldImages(dir, maxCount = 100)
+    }
+
+    /**
+     * 清理目录下的旧文件，保持文件数量不超过指定限制
+     * @param dir 目标目录
+     * @param maxCount 最大文件数量
+     */
+    private fun cleanupOldImages(dir: File, maxCount: Int) {
+        val files = dir.listFiles() ?: return
+        if (files.size <= maxCount) return
+
+        // 按修改时间排序，最旧的在前
+        files.sortBy { it.lastModified() }
+
+        // 删除超出限制的旧文件
+        val deleteCount = files.size - maxCount
+        files.take(deleteCount).forEach { file ->
+            if (file.delete()) {
+                output?.invoke("Deleted old debug image: ${file.name}", Log.DEBUG)
+            }
+        }
+    }
+
 
     suspend fun startProcess(bitmap: Bitmap): String {
         ensureInit()
-        output?.let {
-            it("ocr process start", Log.DEBUG)
-        }
+        output?.invoke("ocr process start", Log.DEBUG)
         val boxImg = createBitmap(bitmap.width, bitmap.height)
         val maxSize = max(bitmap.height, bitmap.width)
         val result = ocrEngine.detect(bitmap, boxImg, maxSize)
 
-        output?.let {
-            it(
-                "ocr process detectTime : ${result.detectTime}ms, dbNetTime : ${result.dbNetTime}ms",
-                Log.DEBUG
-            )
+        // 调试模式下保存标注框图片
+        if (debug) {
+            saveDebugImage(boxImg)
         }
+
+        output?.invoke(
+            "ocr process detectTime : ${result.detectTime}ms, dbNetTime : ${result.dbNetTime}ms",
+            Log.DEBUG
+        )
 
         return result.strRes
     }
