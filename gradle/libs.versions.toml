@@ -6,20 +6,15 @@ core-ktx = "1.16.0"
 ksp = "2.1.20-2.0.0"
 # AndroidX Components
 appcompat = "1.6.1"
-appcompatResources = "1.7.0"
 activity = "1.10.1"
 browser = "1.8.0"
 constraintlayout = "2.2.1"
-paddleocr4android = "v1.2.9"
 swiperefreshlayout = "1.1.0"
 preferenceKtx = "1.2.1"
-recyclerviewSelection = "1.1.0"
 
 # Navigation and Lifecycle
 navigationFragment = "2.9.0"
 lifecycleRuntimeKtx = "2.9.3"
-lifecycleLiveDataKtx = "2.8.7"
-fragmentKtx = "1.8.6"
 
 # Database and Storage
 roomVersion = "2.7.1"
@@ -30,7 +25,6 @@ flexbox = "3.0.0"
 round = "1.1.2"
 toaster = "12.6"
 about = "2.5.2"
-fastscroll = "1.3.0"
 rikkaMaterial = "2.7.2"
 rikkaMaterialPreference = "2.0.0"
 
@@ -39,7 +33,6 @@ ktorVersion = "1.6.4"
 okhttp = "4.12.0"
 gson = "2.12.1"
 xmltojson = "1.5.3"
-guava = "33.4.0-jre"
 markdownjCore = "0.4"
 htmlKtx = "1.1.2"
 
@@ -83,7 +76,6 @@ androidx-browser = { group = "androidx.browser", name = "browser", version.ref =
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
-paddleocr4android = { module = "com.github.equationl.paddleocr4android:paddleocr4android", version.ref = "paddleocr4android" }
 preferenceKtx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 
 # UI Components

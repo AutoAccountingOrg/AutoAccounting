@@ -191,7 +191,6 @@ dependencies {
     implementation(project(":server"))
     implementation(project(":shell"))
     implementation(project(":ocr"))
-    implementation(libs.markdownj.core)
 
     // debug依赖
     debugImplementation(libs.leakcanary.android)
@@ -200,7 +199,6 @@ dependencies {
 
     implementation(libs.rikkaMaterial)
     implementation(libs.rikkaMaterialPreference)
-    implementation(libs.about)
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
