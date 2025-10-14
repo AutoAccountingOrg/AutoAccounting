@@ -39,6 +39,8 @@ android {
 }
 
 dependencies {
-    implementation(files("libs/OcrLibrary-1.3.0-release.aar"))
+    // AAR library 不能直接 implementation 本地 .aar，使用 compileOnly
+    // 运行时依赖由 app 模块提供
+    compileOnly(files("libs/OcrLibrary-1.3.0-release.aar"))
     implementation(libs.core.ktx)
 }

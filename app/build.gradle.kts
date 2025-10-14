@@ -191,6 +191,8 @@ dependencies {
     implementation(project(":server"))
     implementation(project(":shell"))
     implementation(project(":ocr"))
+    // ocr 模块的运行时依赖
+    implementation(files("ocr/libs/OcrLibrary-1.3.0-release.aar"))
 
     // debug依赖
     debugImplementation(libs.leakcanary.android)
@@ -199,6 +201,7 @@ dependencies {
 
     implementation(libs.rikkaMaterial)
     implementation(libs.rikkaMaterialPreference)
+    implementation(libs.about)
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
