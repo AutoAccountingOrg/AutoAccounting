@@ -421,6 +421,11 @@ def truncate_content(content):
         # 如果长度不超过 4000，返回原字符串
         return content
 def send_apk_with_changelog(workspace, title):
+    """
+    发送 APK 和更新日志到 Telegram
+    优先尝试发送媒体组，失败则降级为纯文本消息
+    确保无论如何都会通知用户
+    """
     # 读取更新日志
     with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
         content = file.read()
@@ -429,10 +434,11 @@ def send_apk_with_changelog(workspace, title):
     channel_id = "@qianji_auto"
     base_url = f"https://api.telegram.org/bot{token}"
     
-    # 上传 APK 文件
+    # 尝试上传 APK 文件
     file_ids = []
     file_path = os.path.join(workspace, 'dist', 'app-release-signed.apk')
     new_name = f"{title}-release.apk"
+    upload_success = False
     
     try:
         with open(file_path, "rb") as apk_file:
@@ -447,39 +453,64 @@ def send_apk_with_changelog(workspace, title):
             response.raise_for_status()
             file_id = response.json()['result']['document']['file_id']
             file_ids.append(file_id)
-            print(f"成功上传 release 版本")
+            upload_success = True
+            print(f"成功上传 release 版本到归档频道")
     except Exception as e:
-        print(f"上传 release 版本时出错: {str(e)}")
+        print(f"警告: 上传 release 版本时出错: {str(e)}")
+        print("将降级为纯文本消息")
     
-    # 构建媒体组
-    media = []
-    for i, file_id in enumerate(file_ids):
-        item = {
-            "type": "document",
-            "media": file_id,
-        }
-        # 在最后一个文件添加说明文本
-        if i == len(file_ids) - 1:
-            item.update({
-                "caption": truncate_content(content),
-                "parse_mode": "MarkdownV2"
-            })
-        media.append(item)
+    # 尝试发送媒体组（如果上传成功）
+    message_sent = False
+    if upload_success and file_ids:
+        try:
+            media = []
+            for i, file_id in enumerate(file_ids):
+                item = {
+                    "type": "document",
+                    "media": file_id,
+                }
+                # 在最后一个文件添加说明文本
+                if i == len(file_ids) - 1:
+                    item.update({
+                        "caption": truncate_content(content),
+                        "parse_mode": "MarkdownV2"
+                    })
+                media.append(item)
+            
+            response = requests.post(
+                f"{base_url}/sendMediaGroup",
+                json={
+                    "chat_id": channel_id,
+                    "media": media
+                }
+            )
+            response.raise_for_status()
+            message_sent = True
+            print("成功发送带 APK 的媒体组消息")
+        except Exception as e:
+            print(f"警告: 发送媒体组时出错: {str(e)}")
+            print(f"错误详情: {response.text if 'response' in locals() else '无响应'}")
+            print("将降级为纯文本消息")
     
-    # 发送媒体组
-    try:
-        response = requests.post(
-            f"{base_url}/sendMediaGroup",
-            json={
-                "chat_id": channel_id,
-                "media": media
-            }
-        )
-        response.raise_for_status()
-        print("成功发送所有APK文件")
-    except Exception as e:
-        print(f"发送媒体组时出错: {str(e)}")
-        print(f"错误详情: {response.text if 'response' in locals() else '无响应'}")
+    # 降级方案：发送纯文本消息
+    if not message_sent:
+        try:
+            response = requests.post(
+                f"{base_url}/sendMessage",
+                json={
+                    "chat_id": channel_id,
+                    "text": truncate_content(content),
+                    "parse_mode": "MarkdownV2",
+                    "disable_web_page_preview": True
+                }
+            )
+            response.raise_for_status()
+            print("成功发送纯文本更新通知（降级方案）")
+        except Exception as e:
+            print(f"错误: 发送纯文本消息也失败: {str(e)}")
+            print(f"错误详情: {response.text if 'response' in locals() else '无响应'}")
+            # 即使失败也不抛异常，避免中断整个发布流程
+            print("警告: Telegram 通知完全失败，但不影响发布流程")
 
 
 def send_forums( title, channel,workspace):
