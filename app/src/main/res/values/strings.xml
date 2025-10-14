@@ -567,7 +567,12 @@
     </string>
 
     <!-- OCR Tile -->
-    <string name="ocr_tile_title">OCR识别</string>
+    <string name="ocr_tile_title">OCR Recognition</string>
+
+    <!-- OCR Shortcut -->
+    <string name="ocr_shortcut_short_label">OCR</string>
+    <string name="ocr_shortcut_long_label">Launch OCR Recognition</string>
+    <string name="ocr_shortcut_disabled_message">OCR recognition is temporarily unavailable</string>
 
     <!-- Action -->
     <string name="action_next">Next</string>

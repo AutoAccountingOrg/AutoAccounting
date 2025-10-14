@@ -546,6 +546,11 @@
     <!-- OCR Tile -->
     <string name="ocr_tile_title">OCR识别</string>
 
+    <!-- OCR Shortcut -->
+    <string name="ocr_shortcut_short_label">OCR识别</string>
+    <string name="ocr_shortcut_long_label">启动OCR识别</string>
+    <string name="ocr_shortcut_disabled_message">OCR识别功能暂时不可用</string>
+
     <!-- Action -->
     <string name="action_next">下一步</string>
 

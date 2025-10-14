@@ -54,7 +54,6 @@
             android:exported="true"
             android:theme="@style/TransparentActivityTheme" />
 
-
         <activity android:name=".ui.activity.HomeActivity" />
         <activity
             android:name=".ui.activity.MainActivity"
@@ -65,6 +64,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- 静态快捷方式配置 -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
         <activity
             android:name=".ui.activity.ErrorActivity"
