@@ -191,8 +191,8 @@ dependencies {
     implementation(project(":server"))
     implementation(project(":shell"))
     implementation(project(":ocr"))
-    // ocr 模块的运行时依赖
-    implementation(files("ocr/libs/OcrLibrary-1.3.0-release.aar"))
+    // ocr 模块的运行时依赖（使用项目对象引用保证路径正确）
+    implementation(files("../ocr/libs/OcrLibrary-1.3.0-release.aar"))
 
     // debug依赖
     debugImplementation(libs.leakcanary.android)
