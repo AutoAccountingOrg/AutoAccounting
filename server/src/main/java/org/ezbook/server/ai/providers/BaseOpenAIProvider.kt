@@ -139,7 +139,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                         ServerLog.e(
                             "AI Provider: 响应失败 code=${response.code}，body=${
                                 body.take(
-                                    300
+                                    3000
                                 )
                             }"
                         )
@@ -151,7 +151,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                     val body =
                         response.body?.string()?.removeThink() ?: error("Empty response body")
                     // 日志：非流式成功，打印响应片段以便排查
-                    ServerLog.d("AI Provider: 响应成功(非流)，片段=${body.take(300)}")
+                    ServerLog.d("AI Provider: 响应成功(非流)，片段=${body.take(3000)}")
                     val jsonObject = JsonParser.parseString(body).asJsonObject
 
                     jsonObject

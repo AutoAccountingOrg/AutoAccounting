@@ -106,10 +106,11 @@ Input:
   ```      
         """.trimIndent()
 
-        val data = AiManager.getInstance().request(prompt, user).getOrThrow()
-        val bill = data.replace("```json", "").replace("```", "")
-        ServerLog.d("AI分析结果: $bill")
         return runCatchingExceptCancel {
+            val data = AiManager.getInstance().request(prompt, user).getOrThrow()
+
+            val bill = data.replace("```json", "").replace("```", "")
+            ServerLog.d("AI分析结果: $bill")
             // 提取 timeText 并转换为时间戳（毫秒）。为空或解析失败则为 0。
             val json = JsonParser.parseString(bill).asJsonObject
             val timeText = if (json.has("timeText")) json.get("timeText").asString else ""

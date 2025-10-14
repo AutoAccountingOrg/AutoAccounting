@@ -18,6 +18,7 @@ package org.ezbook.server.ai.tools
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.db.Db
 import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 class CategoryTool {
     private val prompt = """
@@ -77,14 +78,17 @@ Input:
 
         // 调用 AI 进行分类选择
         ServerLog.d("调用AI进行分类匹配...")
-        val resp = AiManager.getInstance().request(prompt, user).getOrThrow()
-        if (resp.isEmpty()) {
-            // AI 无返回
-            ServerLog.d("AI分类返回空响应")
-            return null
-        }
-        // 记录 AI 的原始输出（期望为单行纯文本）
-        ServerLog.d("AI分类结果：$resp")
-        return resp
+
+        return runCatchingExceptCancel {
+            val resp = AiManager.getInstance().request(prompt, user).getOrThrow()
+            if (resp.isEmpty()) {
+                // AI 无返回
+                ServerLog.d("AI分类返回空响应")
+                return null
+            }
+            // 记录 AI 的原始输出（期望为单行纯文本）
+            ServerLog.d("AI分类结果：$resp")
+            resp
+        }.getOrDefault("其他")
     }
 }

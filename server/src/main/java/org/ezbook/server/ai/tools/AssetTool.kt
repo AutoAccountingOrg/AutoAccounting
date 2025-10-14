@@ -89,12 +89,15 @@ Input:
 
         // 调用 AI 进行资产名匹配
         ServerLog.d("调用AI进行资产匹配...")
-        val resp = AiManager.getInstance().request(prompt, user).getOrThrow()
-        // 打印原始响应（严格JSON预期），便于快速定位问题
-        ServerLog.d("AI资产匹配原始响应：$resp")
+
 
         // 解析 AI 响应为 JSON，如失败则记录错误并返回空
-        return runCatchingExceptCancel { Gson().fromJson(resp, JsonObject::class.java) }
+        return runCatchingExceptCancel {
+            val resp = AiManager.getInstance().request(prompt, user).getOrThrow()
+            // 打印原始响应（严格JSON预期），便于快速定位问题
+            ServerLog.d("AI资产匹配原始响应：$resp")
+            Gson().fromJson(resp, JsonObject::class.java)
+        }
             .onFailure { ServerLog.e("AI资产匹配JSON解析失败：${it.message}", it) }
             .getOrNull()
             .also { ServerLog.d("AI资产匹配解析结果：$it") }
