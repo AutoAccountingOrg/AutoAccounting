@@ -227,6 +227,9 @@ class BillService(
                 ServerLog.d("自动去重找到父账单：parentId=${parent.id}")
                 // 父账单设置特殊规则名称
                 parent.ruleName = formatParentBillRuleName()
+                // 去重后商户信息已更新，强制重新分类
+                parent.cateName = "其他"
+                ServerLog.d("去重后强制父账单重新分类")
             }
 
             // 统一分类目标：有父选父，无父选当前
