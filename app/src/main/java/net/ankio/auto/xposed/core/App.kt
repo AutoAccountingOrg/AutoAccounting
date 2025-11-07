@@ -132,15 +132,18 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 加载包时的回调
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+        val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
+
         Logger.app = lpparam.packageName
         Logger.debugging = runBlocking {
-            DataUtils.configBoolean(Setting.DEBUG_MODE, BuildConfig.DEBUG)
+            DataUtils.configBoolean(Setting.DEBUG_MODE, true)
         }
+        // 如果无法通过api获取当前是否为调试模式应该默认会退到调试模式，因为此时的API服务尚未启动或者被其他应用阻止
+        // 会退到调试模式有利于用户通过xposed日志反馈问题
+
         Logger.extendLoggerPrinter = {
             XposedBridge.log(it)
         }
-        val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
-
 
         hookAppContext(targetApp) { application ->
             val classLoader = application?.classLoader ?: lpparam.classLoader
