@@ -35,50 +35,39 @@ object BillManager {
 
     /**
      * 检查账单是否重复
+     *
+     * 重复账单的定义：同一笔交易通过不同渠道产生的多条记录
+     * 
      * @param bill1 账单1
      * @param bill2 账单2
      * @return true 表示是重复账单，false 表示不是重复账单
      */
     private suspend fun checkRepeat(bill1: BillInfoModel, bill2: BillInfoModel): Boolean {
         ServerLog.d("重复判断开始：b1(${brief(bill1)}), b2(${brief(bill2)})")
-        // 前提：金额相同、类型相同
-        // 时间完全相同，是同一笔交易，场景：用户重复打开账单列表识别
+
+        // 规则1：时间完全相同 → 一定是重复（用户重复识别同一条通知/短信）
         if (bill1.time == bill2.time) {
-            ServerLog.d("重复判断：时间相同 -> 重复")
+            ServerLog.d("重复判断：时间完全相同 -> 重复")
             return true
         }
 
-        //场景：用户通过A渠道支付2元，随后收到A渠道和B渠道的提醒
-        //场景：用户通过A渠道支付2元，随后通过B渠道支付2元，且消费账户是同一个，
-
-        //需要判断账户，如果支出或者收入账户完全一致
-// TODO 后续需要根据用户判断反馈去掉这里
-        // 时间不同，规则也一样,细分渠道也一样，一定不是重复账单：场景，用户多次转账给某人
-        if (!bill1.generateByAi() && bill1.ruleName == bill2.ruleName) {
-            if (bill1.channel == bill2.channel) {
-                ServerLog.d("重复判断：规则相同(${bill1.ruleName})且渠道(${bill1.channel})相同 -> 非重复")
-                return false
-            }
+        // 规则2：如果两个都是AI生成，不做去重（AI识别不稳定，易误判）
+        if (bill1.generateByAi() && bill2.generateByAi()) {
+            ServerLog.d("重复判断：双方都是AI生成 -> 非重复")
+            return false
         }
 
-        // 有一些支出账户不同的重复账单
 
-        /* // 账户判断依据不准确
+        // 规则4：规则相同 && 渠道相同 → 一定不是重复（场景：用户多次转账给同一个人）
+        if (bill1.channel == bill2.channel && bill1.channel.isNotEmpty()) {
+            ServerLog.d("重复判断：规则相同且渠道相同(${bill1.channel}) -> 非重复")
+            return false
+        }
 
-         if (bill1.accountNameFrom.isNotEmpty() && bill2.accountNameFrom.isNotEmpty() && bill1.accountNameFrom != bill2.accountNameFrom) {
-             ServerLog.d("重复判断：支出账户不同 -> 非重复")
-             return false
-         }
-
-
-         if (bill1.accountNameTo.isNotEmpty() && bill2.accountNameTo.isNotEmpty() && bill1.accountNameTo != bill2.accountNameTo) {
-             ServerLog.d("重复判断：收入账户不同 -> 非重复")
-             return false
-         }*/
-
-        ServerLog.d("重复判断：未命中排除条件 -> 可能重复")
+        // 规则5：规则相同但渠道不同 → 可能是重复（同一笔交易的不同通知源）
+        // 例如：微信支付通知 + 银行卡扣款通知
+        ServerLog.d("重复判断：规则相同(${bill1.ruleName})但渠道不同 -> 可能重复")
         return true
-
     }
 
     /**
