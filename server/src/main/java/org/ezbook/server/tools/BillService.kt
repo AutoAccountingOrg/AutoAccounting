@@ -522,6 +522,9 @@ class BillService(
                     }.onFailure { throwable ->
                         ServerLog.e("自动记账悬浮窗拉起失败：$throwable", throwable)
                     }
+                    // 节流：避免频繁启动Activity（如一笔消费产生多个通知时）
+                    // 延迟1s确保用户体验流畅，不会出现窗口闪烁
+                    kotlinx.coroutines.delay(1000)
                 }
             }
         }
