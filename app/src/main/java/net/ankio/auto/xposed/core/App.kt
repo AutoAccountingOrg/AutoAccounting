@@ -24,6 +24,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import kotlinx.coroutines.runBlocking
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.XposedModule
@@ -52,37 +53,64 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     /**
      * Hook应用上下文
+     *
+     * 根据不同场景获取目标应用的 Application 实例：
+     * 1. android 系统进程：无需 Application，直接返回 null
+     * 2. 使用默认 Application：从当前运行环境获取
+     * 3. 自定义 Application：Hook Instrumentation.callApplicationOnCreate 来捕获
      */
     private fun hookAppContext(
         manifest: HookerManifest,
         callback: (Application?) -> Unit
     ) {
         when {
-            manifest.packageName == "android" -> callback(null)
+            // 系统进程无需 Application 实例
+            manifest.packageName == "android" -> {
+                callback(null)
+            }
+
+            // 默认 Application，直接获取
             manifest.applicationName.isEmpty() -> {
-                Logger.d("使用当前应用程序: ${manifest.appName}")
+                Logger.d("使用默认 Application: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
-            else -> {
-                try {
-                    var hooked = false
-                    Hooker.after(
-                        Instrumentation::class.java,
-                        "callApplicationOnCreate",
-                        Application::class.java
-                    ) {
-                        if (hooked) return@after
-                        hooked = true
-                        val application = it.args[0] as Application
-                        Logger.d("Hook成功: ${manifest.applicationName} -> $application")
-                        callback(application)
 
-                    }
-                } catch (e: Exception) {
-                    Logger.i( "Hook失败: ${e.message}")
-                    Logger.e( e)
-                }
+            // 自定义 Application，Hook 生命周期方法
+            else -> {
+                hookCustomApplication(manifest, callback)
             }
+        }
+    }
+
+    /**
+     * Hook 自定义 Application 的创建过程
+     *
+     * 通过 Hook Instrumentation.callApplicationOnCreate 在 Application 创建时获取实例。
+     * 使用 runOnce 标志确保回调只执行一次，避免重复初始化。
+     */
+    private fun hookCustomApplication(
+        manifest: HookerManifest,
+        callback: (Application?) -> Unit
+    ) {
+        try {
+            var runOnce = false
+
+            Hooker.after(
+                Instrumentation::class.java,
+                "callApplicationOnCreate",
+                Application::class.java
+            ) { param ->
+                // 确保回调只执行一次
+                if (runOnce) return@after
+                runOnce = true
+
+                val application = param.args[0] as Application
+                Logger.d("Hook Application 成功: ${manifest.applicationName} -> ${application.javaClass.name}")
+                callback(application)
+            }
+        } catch (e: Exception) {
+            Logger.i("Hook Application 失败: ${manifest.applicationName}, 错误: ${e.message}")
+            Logger.e(e)
         }
     }
 
@@ -105,7 +133,9 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         Logger.app = lpparam.packageName
-        Logger.debugging = BuildConfig.DEBUG
+        Logger.debugging = runBlocking {
+            DataUtils.configBoolean(Setting.DEBUG_MODE, BuildConfig.DEBUG)
+        }
         Logger.extendLoggerPrinter = {
             XposedBridge.log(it)
         }
