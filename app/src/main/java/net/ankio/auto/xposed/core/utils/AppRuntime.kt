@@ -25,6 +25,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.logger.Logger
+import org.ezbook.server.constant.Setting
 
 object AppRuntime {
     /**
@@ -101,7 +102,7 @@ object AppRuntime {
         manifest = m
         name = m.appName
         CoroutineUtils.withIO {
-            debug = DataUtils.configBoolean("debugMode", BuildConfig.DEBUG)
+            debug = DataUtils.configBoolean(Setting.DEBUG_MODE, BuildConfig.DEBUG)
             Logger.d("Hook: ${m.appName}(${m.packageName}) 运行在${if (debug) "调试" else "生产"}模式")
         }
     }
