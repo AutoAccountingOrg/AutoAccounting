@@ -37,6 +37,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/content_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -46,188 +47,119 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/padding">
+            android:paddingHorizontal="16dp">
 
-            <!-- 高级版信息卡片 -->
+            <!-- 高级版信息卡片 - 优化版 -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/pro_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/padding"
-                android:layout_marginBottom="@dimen/padding"
-                app:cardCornerRadius="18dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
                 app:strokeWidth="0dp">
 
-                <FrameLayout
+                <LinearLayout
+                    android:id="@+id/pro_card_content"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:background="?colorPrimaryContainer"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="20dp">
 
-                    <!-- 渐变背景图片层 (仅激活时显示) -->
-                    <net.ankio.auto.ui.components.BreathingGradientView
-                        android:id="@+id/pro_gradient_background"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop">
+                    <!-- 图标容器 - 增加背景圆圈 -->
+                    <FrameLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/circle_background"
+                        android:backgroundTint="?attr/colorSurface"
+                        android:elevation="1dp">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/pro_card_content"
-                            android:layout_width="match_parent"
+                        <ImageView
+                            android:id="@+id/pro_icon"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_verified"
+                            app:tint="?attr/colorPrimary" />
+                    </FrameLayout>
+
+                    <!-- 文字区域 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/pro_title"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="?colorPrimaryContainer"
-                            android:padding="24dp">
+                            android:text="@string/pro_rule_update_plan"
+                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.01" />
 
-                            <!-- 图标容器 -->
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/icon_container"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                app:cardCornerRadius="14dp"
-                                app:cardElevation="3dp"
-                                app:cardBackgroundColor="?attr/colorSurface"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent">
+                        <TextView
+                            android:id="@+id/pro_activate_info"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/pro_activate_click_to_enter"
+                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:textSize="13sp"
+                            android:alpha="0.75" />
+                    </LinearLayout>
 
-                                <ImageView
-                                    android:id="@+id/pro_icon"
-                                    android:layout_width="26dp"
-                                    android:layout_height="26dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_verified"
-                                    app:tint="?attr/colorPrimary" />
+                    <!-- 箭头指示器 -->
 
-                            </com.google.android.material.card.MaterialCardView>
-
-                            <!-- 标题区域 -->
-                            <LinearLayout
-                                android:id="@+id/title_container"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:orientation="vertical"
-                                app:layout_constraintBottom_toBottomOf="@id/icon_container"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toEndOf="@id/icon_container"
-                                app:layout_constraintTop_toTopOf="@id/icon_container">
-
-                                <TextView
-                                    android:id="@+id/pro_title"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/pro_rule_update_plan"
-                                    android:textColor="?attr/colorOnPrimaryContainer"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold"
-                                    android:letterSpacing="0.01" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="@string/pro_subtitle"
-                                    android:textColor="?attr/colorOnPrimaryContainer"
-                                    android:textSize="12sp"
-                                    android:alpha="0.85" />
-
-                            </LinearLayout>
-
-                            <!-- 激活信息区域 -->
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="18dp"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/icon_container"
-                                app:layout_constraintBottom_toBottomOf="parent">
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:src="@drawable/ic_info_outline"
-                                    app:tint="?attr/colorOnPrimaryContainer"
-                                    android:alpha="0.8" />
-
-                                <com.google.android.material.textview.MaterialTextView
-                                    android:id="@+id/pro_activate_info"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:layout_marginStart="8dp"
-                                    android:text=""
-                                    android:textColor="?attr/colorOnPrimaryContainer"
-                                    android:textSize="13sp"
-                                    android:lineSpacingExtra="2dp"
-                                    android:alpha="0.9" />
-
-                            </LinearLayout>
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-                    </net.ankio.auto.ui.components.BreathingGradientView>
-
-
-                </FrameLayout>
+                </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 核心功能设置 -->
+            <!-- 核心记账 -->
             <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_bill"
+                android:id="@+id/setting_core_recording"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:settingDesc="@string/setting_desc_bill"
+                android:layout_marginTop="16dp"
+                app:settingDesc="@string/setting_desc_core_recording"
                 app:settingIcon="@drawable/ic_receipt_long"
-                app:settingTitle="@string/setting_title_bill" />
+                app:settingTitle="@string/setting_title_core_recording" />
 
+            <!-- 数据与显示 -->
             <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_popup"
+                android:id="@+id/setting_data_display"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:settingDesc="@string/setting_desc_popup"
-                app:settingIcon="@drawable/ic_open_in_new"
-                app:settingTitle="@string/setting_title_popup" />
+                android:layout_marginTop="8dp"
+                app:settingDesc="@string/setting_desc_data_display"
+                app:settingIcon="@drawable/ic_statistic"
+                app:settingTitle="@string/setting_title_data_display" />
 
+            <!-- 智能功能 -->
             <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_features"
+                android:id="@+id/setting_smart_features"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:settingDesc="@string/setting_desc_features"
-                app:settingIcon="@drawable/ic_payments"
-                app:settingTitle="@string/setting_title_features" />
-
-            <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_ai"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:settingDesc="@string/setting_desc_ai"
+                android:layout_marginTop="8dp"
+                app:settingDesc="@string/setting_desc_smart_features"
                 app:settingIcon="@drawable/ic_ai"
-                app:settingTitle="@string/setting_title_ai" />
+                app:settingTitle="@string/setting_title_smart_features" />
 
-            <!-- 个性设置 -->
+            <!-- 系统 -->
             <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_appearance"
+                android:id="@+id/setting_system"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:settingDesc="@string/setting_desc_appearance"
-                app:settingIcon="@drawable/ic_palette"
-                app:settingTitle="@string/setting_title_appearance" />
-
-            <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_backup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:settingDesc="@string/setting_desc_backup"
-                app:settingIcon="@drawable/ic_backup"
-                app:settingTitle="@string/setting_title_backup" />
-
-
-            <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_others"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:settingDesc="@string/setting_desc_danger"
-                app:settingIcon="@drawable/ic_info"
-                app:settingTitle="@string/setting_title_others" />
+                android:layout_marginTop="8dp"
+                app:settingDesc="@string/setting_desc_system"
+                app:settingIcon="@drawable/ic_theme"
+                app:settingTitle="@string/setting_title_system" />
 
         </LinearLayout>
 

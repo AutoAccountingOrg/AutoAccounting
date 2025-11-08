@@ -75,14 +75,11 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
      */
     private fun setupNavigationClickListeners() {
         val navigationMap = mapOf(
-            // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
-            binding.settingBill to R.id.billPreferenceFragment,
-            binding.settingPopup to R.id.popupPreferenceFragment,
-            binding.settingFeatures to R.id.featuresPreferenceFragment,
-            binding.settingAi to R.id.aiPreferenceFragment,
-            binding.settingAppearance to R.id.appearancePreferenceFragment,
-            binding.settingBackup to R.id.backupPreferenceFragment,
-            binding.settingOthers to R.id.othersPreferenceFragment
+            // 新的4大分类
+            binding.settingCoreRecording to R.id.coreRecordingPreferenceFragment,
+            binding.settingDataDisplay to R.id.dataDisplayPreferenceFragment,
+            binding.settingSmartFeatures to R.id.smartFeaturesPreferenceFragment,
+            binding.settingSystem to R.id.systemSettingsPreferenceFragment
         )
 
         navigationMap.forEach { (view, actionId) ->
@@ -210,17 +207,9 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
      * @param isActivated 是否激活
      */
     private fun updateProCardState(isActivated: Boolean) {
-        if (isActivated) {
-            // 激活状态：显示渐变背景图片，隐藏普通背景
-            // binding.proGradientBackground.visibility = View.VISIBLE
-            binding.proCardContent.setBackgroundResource(android.R.color.transparent)
-        } else {
-            // 未激活状态：隐藏渐变背景图片，显示普通背景
-            //  binding.proGradientBackground.visibility = View.GONE
-            // 使用主题颜色作为背景
-            val backgroundColor = DynamicColors.PrimaryContainer
-            binding.proCardContent.setBackgroundColor(backgroundColor)
-        }
+        // 简化：统一使用主题色背景
+        val backgroundColor = DynamicColors.PrimaryContainer
+        binding.proCardContent.setBackgroundColor(backgroundColor)
     }
 }
 

@@ -1,35 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!-- Google设置页面风格：简洁、扁平、内容优先 -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/HomeCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/padding">
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="@dimen/padding">
+        android:padding="@dimen/cardPadding2">
 
-        <FrameLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/circle_background"
-            android:backgroundTint="?attr/colorPrimary">
+        <!-- 图标 - Google风格：直接显示，无背景容器 -->
+        <ImageView
+            android:id="@+id/setting_icon"
+            android:layout_width="@dimen/image_size_small"
+            android:layout_height="@dimen/image_size_small"
+            android:layout_marginEnd="@dimen/padding"
+            app:tint="?attr/colorPrimary"
+            tools:src="@drawable/ic_receipt_long" />
 
-            <ImageView
-                android:id="@+id/setting_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                app:tint="?attr/colorOnPrimary"
-                tools:src="@android:drawable/ic_menu_preferences" />
-        </FrameLayout>
-
+        <!-- 文字内容区域 -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -40,18 +36,23 @@
                 android:id="@+id/setting_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="?android:attr/textColorPrimary"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp"
-                tools:text="设置项标题" />
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="核心记账设置" />
 
             <TextView
                 android:id="@+id/setting_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="?android:attr/textColorSecondary"
+                android:layout_marginTop="2dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="14sp"
-                tools:text="设置项描述" />
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:alpha="0.6"
+                tools:text="自动记账 · 通知设置 · 弹窗交互" />
         </LinearLayout>
 
 

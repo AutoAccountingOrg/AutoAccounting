@@ -7,6 +7,7 @@ import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ViewSettingItemBinding
+import net.ankio.auto.ui.theme.DynamicColors
 
 class SettingItemView @JvmOverloads constructor(
     context: Context,
@@ -34,6 +35,8 @@ class SettingItemView @JvmOverloads constructor(
 
                 // 设置描述
                 binding.settingDesc.text = getString(R.styleable.SettingItemView_settingDesc)
+
+                binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor1)
 
             } finally {
                 recycle()
