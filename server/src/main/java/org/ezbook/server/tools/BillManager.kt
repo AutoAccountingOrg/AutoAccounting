@@ -320,6 +320,7 @@ object BillManager {
             .replace("【来源】", getAppName(billInfoModel.app, context))
             .replace("【原始资产】", billInfoModel.accountNameFrom)
             .replace("【渠道】", billInfoModel.channel)
+            .replace("【AI】", getAIProvider(billInfoModel))
         return raw
     }
 
@@ -335,6 +336,21 @@ object BillManager {
         }.onFailure {
             ServerLog.e("获取应用名称失败：${it.message}", it)
         }.getOrDefault(packageName)
+    }
+
+    /**
+     * 获取AI提供商名称
+     * @param billInfoModel 账单信息
+     * @return AI提供商名称，如果不是AI生成则返回空字符串
+     */
+    private fun getAIProvider(billInfoModel: BillInfoModel): String {
+        val ruleName = billInfoModel.ruleName
+        // AI生成的账单格式："{提供商名称} 生成"
+        return if (ruleName.endsWith(" 生成")) {
+            ruleName.substringBeforeLast(" 生成")
+        } else {
+            ""
+        }
     }
 
 }
