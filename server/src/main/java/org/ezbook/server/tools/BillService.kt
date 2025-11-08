@@ -194,13 +194,6 @@ class BillService(
             // 记录资产映射摘要
             ServerLog.d("资产映射完成：from=${billInfo.accountNameFrom}, to=${billInfo.accountNameTo}")
 
-            // 生成账单备注（仅当模板非空时）
-            BillManager.getRemark(billInfo, context).let { generated ->
-                billInfo.remark = generated
-            }
-            // 记录备注生成结果
-            ServerLog.d("备注生成完成：remark=${billInfo.remark}")
-
             // 如果不是来自应用数据，则保存到数据库
             if (!analysisParams.fromAppData) {
                 billInfo.id = db.billInfoDao().insert(billInfo)
@@ -220,25 +213,39 @@ class BillService(
                 val task = Server.billProcessor.addTask(billInfo, context)
                 task.await()
             }
-            // 记录自动去重处理的结果摘要
-            if (parent == null) {
-                ServerLog.d("自动去重未找到父账单，待用户编辑")
-            } else {
+
+            // 确定最终要分类和保存的账单
+            val finalBill = if (parent != null) {
                 ServerLog.d("自动去重找到父账单：parentId=${parent.id}")
                 // 父账单设置特殊规则名称
                 parent.ruleName = formatParentBillRuleName()
-                // 去重后商户信息已更新，强制重新分类
-                parent.cateName = "其他"
-                ServerLog.d("去重后强制父账单重新分类")
+                ServerLog.d("使用父账单作为最终账单，准备重新分类")
+                parent
+            } else {
+                ServerLog.d("自动去重未找到父账单，使用当前账单")
+                billInfo
             }
 
-            // 统一分类目标：有父选父，无父选当前
-            val target = parent ?: billInfo
-            categorize(target)
-            ServerLog.d("进行分类之后的账单 $target")
-            // 根据处理结果更新账单状态
-            billInfo.state = if (parent == null) BillState.Wait2Edit else BillState.Edited
-            db.billInfoDao().update(billInfo)
+            // 统一分类处理（只此一处）
+            categorize(finalBill)
+            ServerLog.d("分类完成后的账单：$finalBill")
+
+            // 生成账单备注（在分类之后，因为备注可能依赖分类信息）
+            finalBill.remark = BillManager.getRemark(finalBill, context)
+            ServerLog.d("备注生成完成：remark=${finalBill.remark}")
+
+            // 保存最终账单（包含分类、备注等完整信息）
+            db.billInfoDao().update(finalBill)
+
+            // 如果有父账单，需要额外更新子账单状态
+            if (parent != null) {
+                billInfo.state = BillState.Edited
+                db.billInfoDao().update(billInfo)
+                ServerLog.d("子账单状态更新为已编辑：billId=${billInfo.id}")
+            } else {
+                // 无父账单，更新当前账单状态为等待编辑
+                billInfo.state = BillState.Wait2Edit
+            }
             // 记录账单最终状态
             ServerLog.d("账单状态更新：state=${billInfo.state}")
 

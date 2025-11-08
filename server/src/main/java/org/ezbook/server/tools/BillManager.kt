@@ -71,22 +71,24 @@ object BillManager {
     }
 
     /**
-     * 合并重复账单,将bill1的信息合并到bill2
+     * 合并重复账单数据
+     *
+     * 职责：仅合并账户、商户等基础数据
+     * 不负责：分类决策、备注生成（这些由 BillService 统一处理）
+     * 
      * @param sourceBill 源账单
      * @param targetBill 目标账单（将被更新）
      */
     private suspend fun mergeRepeatBill(
         sourceBill: BillInfoModel,
-        targetBill: BillInfoModel,
-        context: Context
+        targetBill: BillInfoModel
     ) {
         targetBill.apply {
-            // 合并各类信息
+            // 只合并基础数据字段
             mergeAccountInfo(sourceBill, this)
             mergeShopInfo(sourceBill, this)
-            mergeCategoryInfo(sourceBill, this)
-
-            remark = getRemark(this, context)
+            // 不再合并分类信息 - 由 BillService 统一处理
+            // 不再生成备注 - 由 BillService 在分类后统一处理
         }
     }
 
@@ -158,15 +160,6 @@ object BillManager {
         }
     }
 
-    /**
-     * 合并分类信息
-     */
-    private fun mergeCategoryInfo(source: BillInfoModel, target: BillInfoModel) {
-        // 如果目标账单的分类是"其他"，则使用源账单的分类
-        if (target.cateName in listOf(OTHER_CATEGORY_1, OTHER_CATEGORY_2)) {
-            target.cateName = source.cateName
-        }
-    }
 
     /**
      * 规范化名称：去除名称中连续重复的子串（长度≥3），例如：
@@ -226,11 +219,14 @@ object BillManager {
 
     /**
      * 账单去重，用于检查重复账单
+     *
+     * 返回父账单表示发现重复，返回 null 表示无重复
+     * 注意：返回的父账单分类信息已被清空，需要调用方重新分类
+     * 
      * @return 返回匹配到的父账单，如果没有匹配则返回null
      */
     suspend fun groupBillInfo(
-        billInfoModel: BillInfoModel,
-        context: Context
+        billInfoModel: BillInfoModel
     ): BillInfoModel? {
         ServerLog.d("去重：开始，bill=${brief(billInfoModel)}")
         // 检查是否启用自动去重
@@ -250,7 +246,7 @@ object BillManager {
             }
             ?.also { parentBill ->
                 ServerLog.d("去重：命中父账单 parentId=${parentBill.id}, currentId=${billInfoModel.id}")
-                handleDuplicateBill(billInfoModel, parentBill, context)
+                handleDuplicateBill(billInfoModel, parentBill)
             }
     }
 
@@ -267,19 +263,25 @@ object BillManager {
 
     /**
      * 处理重复账单
+     *
+     * 职责：标记去重关系、合并基础数据、持久化
+     * 不负责：分类决策（返回后由 BillService 统一处理）
      */
     private suspend fun handleDuplicateBill(
         currentBill: BillInfoModel,
-        parentBill: BillInfoModel,
-        context: Context
+        parentBill: BillInfoModel
     ) {
         ServerLog.d("去重：合并 parentId=${parentBill.id}, currentId=${currentBill.id}")
 
-        // 设置去重ID
+        // 设置去重关系
         currentBill.groupId = parentBill.id
 
-        // 合并账单信息
-        mergeRepeatBill(currentBill, parentBill, context)
+        // 合并账单基础数据（不含分类）
+        mergeRepeatBill(currentBill, parentBill)
+
+        // 清空父账单的分类信息，标记需要重新分类
+        parentBill.cateName = ""
+        parentBill.bookName = ""
 
         // 更新数据库
         Db.get().billInfoDao().run {
@@ -287,7 +289,7 @@ object BillManager {
             update(currentBill)
         }
 
-        ServerLog.d("去重：合并完成 parentId=${parentBill.id}, currentId=${currentBill.id}")
+        ServerLog.d("去重：合并完成，父账单已清空分类等待重新处理")
     }
 
     /**

@@ -23,7 +23,7 @@ class BillProcessor {
         Server.withIO {
             for (task in taskChannel) {
                 runCatchingExceptCancel {
-                    task.result = BillManager.groupBillInfo(task.billInfoModel, task.context)
+                    task.result = BillManager.groupBillInfo(task.billInfoModel)
                 }.onFailure {
                     ServerLog.e("处理任务失败: ${it.message}", it)
                     task.result = null
