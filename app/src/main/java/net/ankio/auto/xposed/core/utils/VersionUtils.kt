@@ -37,11 +37,9 @@ object VersionUtils {
     }
 
     fun check(manifest: HookerManifest): Boolean {
-        if (manifest.minVersion == 0L) return true
         val (code, name) = version()
-
         Logger.i("应用版本号: $code, 版本名: $name")
-
+        if (manifest.minVersion == 0L) return true
         // 检查App版本是否过低，过低无法使用
         return code >= manifest.minVersion
     }
