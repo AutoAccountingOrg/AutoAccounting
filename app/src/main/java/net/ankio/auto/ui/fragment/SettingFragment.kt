@@ -207,9 +207,8 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
      * @param isActivated 是否激活
      */
     private fun updateProCardState(isActivated: Boolean) {
-        // 简化：统一使用主题色背景
-        val backgroundColor = DynamicColors.PrimaryContainer
-        binding.proCardContent.setBackgroundColor(backgroundColor)
+        // 背景色已在XML中设置为SurfaceVariant，无需动态修改
+        // 保持方法签名以兼容现有调用
     }
 }
 

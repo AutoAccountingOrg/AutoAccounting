@@ -47,77 +47,77 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp">
+            android:padding="@dimen/padding">
 
-            <!-- 高级版信息卡片 - 优化版 -->
+            <!-- 高级版信息卡片 -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/pro_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                android:layout_marginTop="@dimen/padding"
+                app:cardCornerRadius="@dimen/radius"
                 app:strokeWidth="0dp">
 
-                <LinearLayout
-                    android:id="@+id/pro_card_content"
+                <!-- 渐变背景层：BreathingGradientView 本身就是 FrameLayout，无需额外包裹 -->
+                <net.ankio.auto.ui.components.BreathingGradientView
+                    android:id="@+id/pro_gradient_background"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?colorPrimaryContainer"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:layout_height="wrap_content">
 
-                    <!-- 图标容器 - 增加背景圆圈 -->
-                    <FrameLayout
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="@drawable/circle_background"
-                        android:backgroundTint="?attr/colorSurface"
-                        android:elevation="1dp">
+                    <!-- 内容区域：简化布局，仅保留图标、标题和激活信息 -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/pro_card_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?colorPrimaryContainer"
+                        android:padding="24dp">
 
+                        <!-- 图标 -->
                         <ImageView
                             android:id="@+id/pro_icon"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:layout_gravity="center"
+                            android:layout_width="@dimen/image_size"
+                            android:layout_height="@dimen/image_size"
                             android:src="@drawable/ic_verified"
-                            app:tint="?attr/colorPrimary" />
-                    </FrameLayout>
+                            app:tint="?attr/colorPrimary"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent" />
 
-                    <!-- 文字区域 -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="16dp"
-                        android:orientation="vertical">
-
+                        <!-- 标题 -->
                         <TextView
                             android:id="@+id/pro_title"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
                             android:text="@string/pro_rule_update_plan"
                             android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="16sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
-                            android:letterSpacing="0.01" />
+                            android:letterSpacing="0.01"
+                            app:layout_constraintStart_toEndOf="@id/pro_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toTopOf="@id/pro_activate_info" />
 
-                        <TextView
+                        <!-- 激活信息文本 -->
+                        <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/pro_activate_info"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/pro_activate_click_to_enter"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:text=""
                             android:textColor="?attr/colorOnPrimaryContainer"
                             android:textSize="13sp"
-                            android:alpha="0.75" />
-                    </LinearLayout>
+                            android:lineSpacingExtra="2dp"
+                            android:alpha="0.9"
+                            app:layout_constraintStart_toEndOf="@id/pro_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/pro_title"
+                            app:layout_constraintBottom_toBottomOf="parent" />
 
-                    <!-- 箭头指示器 -->
-
-                </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </net.ankio.auto.ui.components.BreathingGradientView>
 
             </com.google.android.material.card.MaterialCardView>
 
