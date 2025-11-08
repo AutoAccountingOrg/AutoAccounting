@@ -431,11 +431,6 @@ class BillService(
      * @param bill 需要分类的账单信息
      */
     private suspend fun categorize(bill: BillInfoModel) {
-        if (!bill.needReCategory()) {
-            ServerLog.d("之前账单已有有效分类，无需重新分析")
-            return
-        }
-
         val win = JsonObject().apply {
             addProperty("type", bill.type.name)
             addProperty("money", bill.money)

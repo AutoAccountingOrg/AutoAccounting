@@ -1,0 +1,123 @@
+[
+  {
+    "name": "微信支付消息",
+    "timestamp": "2025-11-07 17:26:59.398",
+    "app": "com.tencent.mm",
+    "type": "DATA",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "mMap": {
+        "description": "使用招商银行信用卡(1356)支付￥42.10",
+        "source": "微信支付",
+        "title": "已支付¥42.10",
+        "display_name": "美团",
+        "cachedPayTools": "招商银行信用卡",
+        "cachedPayMoney": "￥42.10",
+        "cachedPayShop": "",
+        "t": 1762507619233
+      }
+    }
+  },
+  {
+    "name": "掌上生活App通知",
+    "timestamp": "2025-11-07 17:27:03.216",
+    "app": "com.cmbchina.ccd.pluto.cmbActivity",
+    "type": "NOTICE",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "title": "交易提醒",
+      "text": "您在财付通-美团平台商户有一笔42.10人民币的消费已成功，点击查看详情【0元抽手机 11.11巅峰盛典】",
+      "t": 1762507623094
+    }
+  },
+  {
+    "name": "招商银行App通知",
+    "timestamp": "2025-11-07 17:27:03.676",
+    "app": "cmb.pb",
+    "type": "NOTICE",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "title": "招商银行",
+      "text": "信用卡通知：您尾号1356的招行信用卡消费42.10人民币。",
+      "t": 1762507623410
+    }
+  },
+  {
+    "name": "美团App通知",
+    "timestamp": "2025-11-07 17:27:03.705",
+    "app": "com.sankuai.meituan",
+    "type": "NOTICE",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "title": "您已成功付款42.10元",
+      "text": "您的美团订单已支付成功，点击查看详情>",
+      "t": 1762507623673
+    }
+  },
+  {
+    "name": "微信公众号招行信用卡消息",
+    "timestamp": "2025-11-07 17:27:08.138",
+    "app": "com.tencent.mm",
+    "type": "DATA",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "mMap": {
+        "description": "交易时间：尾号1356信用卡11月07日17:26\n交易类型：消费\n交易金额：42.10人民币\n交易商户：财付通-美团平台商户\n可用额度：￥58497.69",
+        "source": "招商银行信用卡",
+        "title": "交易成功提醒",
+        "cachedPayTools": "招商银行信用卡",
+        "cachedPayMoney": "￥42.10",
+        "cachedPayShop": "",
+        "t": 1762507628065
+      }
+    }
+  },
+  {
+    "name": "微信公众号美团消息1",
+    "timestamp": "2025-11-07 17:27:08.284",
+    "app": "com.tencent.mm",
+    "type": "DATA",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "mMap": {
+        "description": "消费账户：185****6230\n支付金额：42.10元\n支付方式：微信支付\n支付时间：2025年11月07日 17:26",
+        "source": "美团",
+        "title": "支付成功通知",
+        "cachedPayTools": "招商银行信用卡",
+        "cachedPayMoney": "￥42.10",
+        "cachedPayShop": "",
+        "t": 1762507628231
+      }
+    }
+  },
+  {
+    "name": "微信公众号美团消息2",
+    "timestamp": "2025-11-07 17:27:08.284",
+    "app": "com.tencent.mm",
+    "type": "DATA",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "mMap": {
+        "tableName": "AppMessage",
+        "description": "消费账户：185****6230\n支付金额：42.10元\n支付方式：微信支付\n支付时间：2025年11月07日 17:26  ",
+        "msgTalker": "wxid_6853388533711",
+        "msgSvrId": 8747473646995561891,
+        "source": "美团",
+        "t": 1762507628255,
+        "arg": "msgId",
+        "type": 5,
+        "appId": "",
+        "msgId": 83641,
+        "title": "支付成功通知"
+      }
+    }
+  }
+]
+

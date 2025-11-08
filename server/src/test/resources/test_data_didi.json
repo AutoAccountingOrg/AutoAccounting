@@ -1,0 +1,35 @@
+[
+  {
+    "name": "掌上生活App通知",
+    "timestamp": "2025-11-07 08:29:39.245",
+    "app": "com.cmbchina.ccd.pluto.cmbActivity",
+    "type": "NOTICE",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "title": "交易提醒",
+      "text": "您在支付宝-北京嘀嘀无限科技发展有限公司有一笔48.10人民币的消费已成功，点击查看详情",
+      "t": 1762475379237
+    }
+  },
+  {
+    "name": "微信公众号招行信用卡消息",
+    "timestamp": "2025-11-07 08:30:55.154",
+    "app": "com.tencent.mm",
+    "type": "DATA",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "mMap": {
+        "description": "交易时间：尾号1356信用卡11月07日08:29\n交易类型：消费\n交易金额：48.10人民币\n交易商户：支付宝-北京嘀嘀无限科技发展有限公司\n可用额度：￥58539.79",
+        "source": "招商银行信用卡",
+        "title": "交易成功提醒",
+        "cachedPayTools": "",
+        "cachedPayMoney": "",
+        "cachedPayShop": "",
+        "t": 1762475455124
+      }
+    }
+  }
+]
+
