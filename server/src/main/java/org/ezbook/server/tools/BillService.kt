@@ -46,6 +46,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 
 /**
@@ -194,24 +196,26 @@ class BillService(
             // 记录资产映射摘要
             ServerLog.d("资产映射完成：from=${billInfo.accountNameFrom}, to=${billInfo.accountNameTo}")
 
-            // 如果不是来自应用数据，则保存到数据库
-            if (!analysisParams.fromAppData) {
-                billInfo.id = db.billInfoDao().insert(billInfo)
-                // 记录账单入库主键
-                ServerLog.d("账单入库成功：billId=${billInfo.id}")
-            }
+            // 🔒 关键区间：账单入库+去重查询必须串行执行
+            // 防止并发竞态：7个请求同时insert，导致去重查询时数据不一致
+            val parent = deduplicationMutex.withLock {
+                // 如果不是来自应用数据，则保存到数据库
+                if (!analysisParams.fromAppData) {
+                    billInfo.id = db.billInfoDao().insert(billInfo)
+                    // 记录账单入库主键
+                    ServerLog.d("账单入库成功：billId=${billInfo.id}")
+                }
 
+                // 对账单类型进行检查，这里如果没有开启资产管理，是没有转账类型的
 
-            // 对账单类型进行检查，这里如果没有开启资产管理，是没有转账类型的
-
-
-            // 将账单加入处理队列并等待自动去重处理完成（来自App的数据跳过去重）
-            val parent = if (analysisParams.fromAppData) {
-                ServerLog.d("来自App的数据，跳过去重处理")
-                null
-            } else {
-                val task = Server.billProcessor.addTask(billInfo, context)
-                task.await()
+                // 自动去重处理（来自App的数据跳过去重）
+                if (analysisParams.fromAppData) {
+                    ServerLog.d("来自App的数据，跳过去重处理")
+                    null
+                } else {
+                    // 直接调用去重逻辑，不需要任务队列
+                    BillManager.groupBillInfo(billInfo)
+                }
             }
 
             // 确定最终要分类和保存的账单
@@ -505,6 +509,18 @@ class BillService(
 
     companion object {
         private val hash = MD5HashTable(300_000)
+
+        /**
+         * 去重锁：确保账单入库和去重查询串行执行，避免并发竞态
+         *
+         * 并发场景下的问题：
+         * - 账单A入库 → 查询重复 → 没找到
+         * - 账单B入库 → 查询重复 → 找到A
+         * - 结果：A和B应该去重但A先入库时还找不到B
+         *
+         * 解决方案：用锁保护"入库+去重查询"这个关键区间
+         */
+        private val deduplicationMutex = kotlinx.coroutines.sync.Mutex()
 
         /**
          * 悬浮窗启动全局队列：确保多次触发时严格按序执行，避免并发拉起

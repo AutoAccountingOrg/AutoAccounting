@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.ezbook.server.db.Db
 import org.ezbook.server.server.module
-import org.ezbook.server.task.BillProcessor
 import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SettingUtils
 
@@ -55,7 +54,6 @@ class Server(private val context: Application) {
             module(context)
         }
         server.start()
-        billProcessor = BillProcessor()
         application = context
     }
 
@@ -66,7 +64,6 @@ class Server(private val context: Application) {
 
     fun stopServer() {
         server.stop(0, 0)
-        billProcessor.shutdown()
     }
 
 
@@ -79,7 +76,6 @@ class Server(private val context: Application) {
         var versionName = "1.0.0"
         var packageName = "net.ankio.auto"
         var debug = false
-        lateinit var billProcessor: BillProcessor
         lateinit var application: Application
 
         /**
