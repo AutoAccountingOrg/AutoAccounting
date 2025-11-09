@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 关于应用：应用信息、交流社区、作者信息 -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 应用信息 -->
+    <PreferenceCategory android:title="@string/setting_category_app_info">
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_code"
+            android:key="openSourceCode"
+            android:summary="@string/setting_open_source_code_url"
+            android:title="@string/setting_open_source_code" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_link"
+            android:key="officialWebsite"
+            android:summary="@string/setting_official_website_url"
+            android:title="@string/setting_official_website" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_key"
+            android:key="activationCode"
+            android:summary="@string/setting_activation_code_url"
+            android:title="@string/setting_activation_code" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_history"
+            android:key="updateLog"
+            android:summary="@string/setting_update_log_url"
+            android:title="@string/setting_update_log" />
+    </PreferenceCategory>
+
+    <!-- 交流社区 -->
+    <PreferenceCategory android:title="@string/setting_category_community">
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_chat_bubble"
+            android:key="forum"
+            android:summary="@string/setting_forum_url"
+            android:title="@string/setting_forum" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_chat_bubble"
+            android:key="qqGroup"
+            android:summary="@string/setting_qq_group_url"
+            android:title="@string/setting_qq_group" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_chat_bubble"
+            android:key="telegram"
+            android:summary="@string/setting_telegram_url"
+            android:title="@string/setting_telegram" />
+    </PreferenceCategory>
+
+    <!-- 作者信息 -->
+    <PreferenceCategory android:title="@string/setting_category_author">
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_article"
+            android:key="authorBlog"
+            android:summary="@string/setting_author_blog_url"
+            android:title="@string/setting_author_blog" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_code"
+            android:key="authorGithub"
+            android:summary="@string/setting_author_github_url"
+            android:title="@string/setting_author_github" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_email"
+            android:key="authorContact"
+            android:summary="@string/setting_author_contact_url"
+            android:title="@string/setting_author_contact" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_chat_bubble"
+            android:key="authorCoolapk"
+            android:summary="@string/setting_author_coolapk_url"
+            android:title="@string/setting_author_coolapk" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_chat_bubble"
+            android:key="authorWechat"
+            android:summary="@string/setting_author_wechat_name"
+            android:title="@string/setting_author_wechat" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_chat_bubble"
+            android:key="authorBilibili"
+            android:summary="@string/setting_author_bilibili_url"
+            android:title="@string/setting_author_bilibili" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
+

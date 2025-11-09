@@ -302,7 +302,6 @@
     <string name="ai_test_success_message">AI 连接成功！模型工作正常。</string>
     <string name="ai_test_failed_message">AI 连接失败：%s</string>
     <string name="ai_test_no_config">请先配置服务商、模型和 API 密钥</string>
-    <string name="setting_title_appearance">外观</string>
     <string name="setting_title_backup">备份和同步</string>
     <string name="setting_backup_to_local">备份到本地</string>
     <string name="setting_backup_to_local_summary">导出数据到本地文件</string>
@@ -651,6 +650,22 @@
     <string name="setting_category_update">更新设置</string>
     <string name="setting_category_dangerous">危险操作</string>
 
+    <!-- 新的分类标题 -->
+    <string name="setting_category_book_app">记账应用</string>
+    <string name="setting_category_recording_mode">记录方式</string>
+    <string name="setting_category_bill_recognition">账单识别</string>
+    <string name="setting_category_bill_management">账单管理</string>
+    <string name="setting_category_category_management">分类管理</string>
+    <string name="setting_category_notification_settings">提醒设置</string>
+    <string name="setting_category_popup_style_settings">弹窗风格</string>
+    <string name="setting_category_recording_panel">记账面板</string>
+    <string name="setting_category_prompt_management">提示词管理</string>
+    <string name="setting_category_import_export">导入导出</string>
+    <string name="setting_category_advanced_features_settings">高级功能</string>
+    <string name="setting_category_app_info">应用信息</string>
+    <string name="setting_category_community">交流社区</string>
+    <string name="setting_category_author">作者信息</string>
+
     <!-- 更新设置 -->
     <string name="setting_auto_check_app_update">自动检查应用更新</string>
     <string name="setting_auto_check_app_update_summary">自动检查应用程序更新</string>
@@ -717,6 +732,12 @@
     <string name="setting_category_ai_advanced">高级设置</string>
     <string name="setting_ai_summary_prompt">自定义 AI 摘要提示</string>
     <string name="setting_ai_summary_prompt_summary">自定义 AI 用于生成摘要的提示模板</string>
+    <string name="setting_ai_bill_recognition_prompt">账单识别提示词</string>
+    <string name="setting_ai_bill_recognition_prompt_summary">自定义 AI 用于识别账单的提示词</string>
+    <string name="setting_ai_asset_mapping_prompt">资产映射提示词</string>
+    <string name="setting_ai_asset_mapping_prompt_summary">自定义 AI 用于资产映射的提示词</string>
+    <string name="setting_ai_category_recognition_prompt">分类识别提示词</string>
+    <string name="setting_ai_category_recognition_prompt_summary">自定义 AI 用于分类识别的提示词</string>
 
     <!-- WebDAV 相关字符串 -->
     <string name="setting_use_webdav">使用 WebDAV</string><!-- AI Summary 相关字符串 -->
@@ -796,6 +817,7 @@
     <string name="item_count_format">共 %1$d 项</string>
 
     <!-- 浮窗动作显示名称 & 通用字符串 -->
+    <string name="clearing">清除中...</string>
     <string name="never">从不</string>
     <string name="setting_not_set">未设置</string>
     <string name="setting_timeout_seconds">%d 秒</string>
@@ -854,6 +876,7 @@
     <string name="setting_category_popup_interaction">弹窗交互</string>
     <string name="setting_category_bill_display">账单显示</string>
     <string name="setting_category_category_asset">分类与资产</string>
+    <string name="setting_category_appearance">外观</string>
     <string name="setting_category_backup_sync">备份与同步</string>
     <string name="setting_category_about">关于</string>
     <string name="setting_local_backup_path">本地备份路径</string>
@@ -892,18 +915,27 @@
     <!-- 设置页面相关字符串（方便review） -->
     <!-- ============================================ -->
 
-    <!-- 新的4大分类 -->
-    <string name="setting_title_core_recording">核心记账</string>
-    <string name="setting_desc_core_recording">自动记录 · 通知 · 弹窗交互</string>
+    <!-- 新的7大分类 -->
+    <string name="setting_title_recording">记账设置</string>
+    <string name="setting_desc_recording">记账应用 · 记录方式 · 账单识别 · 分类管理 · 资产管理 · 账本配置</string>
 
-    <string name="setting_title_data_display">数据与显示</string>
-    <string name="setting_desc_data_display">账单显示 · 分类 · 资产 · 账本</string>
+    <string name="setting_title_interaction">交互设置</string>
+    <string name="setting_desc_interaction">提醒设置 · OCR识别 · 弹窗风格 · 记账面板</string>
 
-    <string name="setting_title_smart_features">智能功能</string>
-    <string name="setting_desc_smart_features">AI 助手 · 高级功能</string>
+    <string name="setting_title_ai_assistant">AI助理</string>
+    <string name="setting_desc_ai_assistant">AI配置 · 提示词管理 · AI功能</string>
 
-    <string name="setting_title_system">系统</string>
-    <string name="setting_desc_system">外观 · 备份 · 更新 · 关于</string>
+    <string name="setting_title_appearance">外观设置</string>
+    <string name="setting_desc_appearance">语言 · 主题</string>
+
+    <string name="setting_title_data_management">数据管理</string>
+    <string name="setting_desc_data_management">导入导出 · 自动备份 · 本地备份 · WebDAV备份</string>
+
+    <string name="setting_title_system">系统设置</string>
+    <string name="setting_desc_system">外观设置 · 更新设置 · 高级功能</string>
+
+    <string name="setting_title_about">关于应用</string>
+    <string name="setting_desc_about">应用信息 · 交流社区 · 作者信息</string>
 
     <!-- Pro激活相关 -->
     <string name="pro_rule_update_plan">规则更新计划</string>
@@ -914,4 +946,32 @@
     <string name="pro_activate_code_format_error">激活码格式无效</string>
     <string name="pro_activate_info_failed">获取激活信息失败：%s</string>
     <string name="pro_activate_info_format">激活次数：%1$s\n激活时间：%2$s</string>
+
+    <!-- 关于应用相关 -->
+    <string name="setting_open_source_code">开源地址</string>
+    <string name="setting_open_source_code_summary">在GitHub上查看源代码</string>
+    <string name="setting_official_website">官网</string>
+    <string name="setting_official_website_summary">访问应用官方网站</string>
+    <string name="setting_activation_code">激活记录</string>
+    <string name="setting_activation_code_summary">查询该激活码使用的记录</string>
+    <string name="setting_update_log">更新日志</string>
+    <string name="setting_update_log_summary">查看应用更新历史</string>
+    <string name="setting_forum">论坛</string>
+    <string name="setting_forum_summary">访问用户交流论坛</string>
+    <string name="setting_qq_group">QQ群</string>
+    <string name="setting_qq_group_summary">加入QQ群交流</string>
+    <string name="setting_telegram">Telegram</string>
+    <string name="setting_telegram_summary">加入Telegram群组</string>
+    <string name="setting_author_blog">博客</string>
+    <string name="setting_author_blog_summary">访问作者博客</string>
+    <string name="setting_author_github">Github</string>
+    <string name="setting_author_github_summary">访问作者GitHub主页</string>
+    <string name="setting_author_contact">联系方式</string>
+    <string name="setting_author_contact_summary">发送邮件联系作者</string>
+    <string name="setting_author_coolapk">酷安</string>
+    <string name="setting_author_coolapk_summary">在酷安关注作者</string>
+    <string name="setting_author_wechat">微信公众号</string>
+    <string name="setting_author_wechat_summary">关注微信公众号</string>
+    <string name="setting_author_bilibili">哔哩哔哩</string>
+    <string name="setting_author_bilibili_summary">在B站关注作者</string>
 </resources>

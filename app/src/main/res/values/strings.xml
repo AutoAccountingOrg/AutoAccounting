@@ -318,7 +318,6 @@
     <string name="ai_test_success_message">AI connection successful! The model is working properly.</string>
     <string name="ai_test_failed_message">AI connection failed: %s</string>
     <string name="ai_test_no_config">Please configure provider, model and API key first</string>
-    <string name="setting_title_appearance">Appearance</string>
     <string name="setting_title_backup">Backup and sync</string>
     <string name="setting_backup_to_local">Backup to local</string>
     <string name="setting_backup_to_local_summary">Export data to local file</string>
@@ -813,6 +812,12 @@
     <string name="setting_category_ai_advanced">Advanced Settings</string>
     <string name="setting_ai_summary_prompt">Custom AI Summary Prompt</string>
     <string name="setting_ai_summary_prompt_summary">Customize the prompt template used by AI for generating summaries</string>
+    <string name="setting_ai_bill_recognition_prompt">Bill Recognition Prompt</string>
+    <string name="setting_ai_bill_recognition_prompt_summary">Customize the prompt used by AI for bill recognition</string>
+    <string name="setting_ai_asset_mapping_prompt">Asset Mapping Prompt</string>
+    <string name="setting_ai_asset_mapping_prompt_summary">Customize the prompt used by AI for asset mapping</string>
+    <string name="setting_ai_category_recognition_prompt">Category Recognition Prompt</string>
+    <string name="setting_ai_category_recognition_prompt_summary">Customize the prompt used by AI for category recognition</string>
 
     <!-- 新增：分类设置相关 -->
     <string name="setting_category_popup_interaction">Popup Interaction</string>
@@ -821,6 +826,22 @@
     <string name="setting_category_appearance">Appearance</string>
     <string name="setting_category_backup_sync">Backup &amp; Sync</string>
     <string name="setting_category_about">About</string>
+
+    <!-- New category titles -->
+    <string name="setting_category_book_app">Book App</string>
+    <string name="setting_category_recording_mode">Recording Mode</string>
+    <string name="setting_category_bill_recognition">Bill Recognition</string>
+    <string name="setting_category_bill_management">Bill Management</string>
+    <string name="setting_category_category_management">Category Management</string>
+    <string name="setting_category_notification_settings">Notification Settings</string>
+    <string name="setting_category_popup_style_settings">Popup Style</string>
+    <string name="setting_category_recording_panel">Recording Panel</string>
+    <string name="setting_category_prompt_management">Prompt Management</string>
+    <string name="setting_category_import_export">Import/Export</string>
+    <string name="setting_category_advanced_features_settings">Advanced Features</string>
+    <string name="setting_category_app_info">App Info</string>
+    <string name="setting_category_community">Community</string>
+    <string name="setting_category_author">Author Info</string>
 
     <!-- 保留的旧字符串（兼容性） -->
 
@@ -903,18 +924,27 @@
     <!-- Settings Page Related Strings (for review) -->
     <!-- ============================================ -->
 
-    <!-- New 4 Main Categories -->
-    <string name="setting_title_core_recording">Core Recording</string>
-    <string name="setting_desc_core_recording">Auto recording · Notifications · Popup interactions</string>
+    <!-- New 7 Main Categories -->
+    <string name="setting_title_recording">Recording Settings</string>
+    <string name="setting_desc_recording">Book App · Recording Mode · Bill Recognition · Category Management · Asset Management · Book Configuration</string>
 
-    <string name="setting_title_data_display">Data &amp; Display</string>
-    <string name="setting_desc_data_display">Bill display · Categories · Assets · Books</string>
+    <string name="setting_title_interaction">Interaction Settings</string>
+    <string name="setting_desc_interaction">Notification Settings · OCR Recognition · Popup Style · Recording Panel</string>
 
-    <string name="setting_title_smart_features">Smart Features</string>
-    <string name="setting_desc_smart_features">AI assistant · Advanced features</string>
+    <string name="setting_title_ai_assistant">AI Assistant</string>
+    <string name="setting_desc_ai_assistant">AI Configuration · Prompt Management · AI Features</string>
 
-    <string name="setting_title_system">System</string>
-    <string name="setting_desc_system">Appearance · Backup · Updates · About</string>
+    <string name="setting_title_appearance">Appearance Settings</string>
+    <string name="setting_desc_appearance">Language · Theme</string>
+
+    <string name="setting_title_data_management">Data Management</string>
+    <string name="setting_desc_data_management">Import/Export · Auto Backup · Local Backup · WebDAV Backup</string>
+
+    <string name="setting_title_system">System Settings</string>
+    <string name="setting_desc_system">Appearance · Update Settings · Advanced Features</string>
+
+    <string name="setting_title_about">About App</string>
+    <string name="setting_desc_about">App Info · Community · Author Info</string>
 
     <!-- Pro Activation Related -->
     <string name="pro_rule_update_plan">Rule Update Plan</string>
@@ -925,4 +955,45 @@
     <string name="pro_activate_code_format_error">Invalid activation code format</string>
     <string name="pro_activate_info_failed">Failed to get activation info: %s</string>
     <string name="pro_activate_info_format">Activation count: %1$s\nActivation time: %2$s</string>
+
+    <!-- About App Related -->
+    <string name="setting_open_source_code">Open Source</string>
+    <string name="setting_open_source_code_summary">View source code on GitHub</string>
+    <string name="setting_open_source_code_url" translatable="false">https://github.com/AutoAccountingOrg/AutoAccounting</string>
+    <string name="setting_official_website">Official Website</string>
+    <string name="setting_official_website_summary">Visit the official website</string>
+    <string name="setting_official_website_url" translatable="false">https://ez-book.org</string>
+    <string name="setting_activation_code">Activation Code</string>
+    <string name="setting_activation_code_summary">Enter activation code to activate Pro features</string>
+    <string name="setting_activation_code_url" translatable="false">https://license.ez-book.org/search</string>
+    <string name="setting_update_log">Update Log</string>
+    <string name="setting_update_log_summary">View app update history</string>
+    <string name="setting_update_log_url" translatable="false">https://github.com/AutoAccountingOrg/AutoAccounting/releases</string>
+    <string name="setting_forum">Forum</string>
+    <string name="setting_forum_summary">Visit user discussion forum</string>
+    <string name="setting_forum_url" translatable="false">https://forum.ez-book.org</string>
+    <string name="setting_qq_group">QQ Group</string>
+    <string name="setting_qq_group_summary">Join QQ group for discussion</string>
+    <string name="setting_qq_group_url" translatable="false">https://qm.qq.com/q/dnM8WvrpTO</string>
+    <string name="setting_telegram">Telegram</string>
+    <string name="setting_telegram_summary">Join Telegram group</string>
+    <string name="setting_telegram_url" translatable="false">https://t.me/qianji_auto</string>
+    <string name="setting_author_blog">Blog</string>
+    <string name="setting_author_blog_summary">Visit author\'s blog</string>
+    <string name="setting_author_blog_url" translatable="false">https://ankio.net</string>
+    <string name="setting_author_github">Github</string>
+    <string name="setting_author_github_summary">Visit author\'s GitHub profile</string>
+    <string name="setting_author_github_url" translatable="false">https://github.com/AnkioTomas</string>
+    <string name="setting_author_contact">Contact</string>
+    <string name="setting_author_contact_summary">Send email to contact author</string>
+    <string name="setting_author_contact_url" translatable="false">mailto:ankio@ankio.net</string>
+    <string name="setting_author_coolapk">Coolapk</string>
+    <string name="setting_author_coolapk_summary">Follow author on Coolapk</string>
+    <string name="setting_author_coolapk_url" translatable="false">http://www.coolapk.com/u/1503334</string>
+    <string name="setting_author_wechat">WeChat Official Account</string>
+    <string name="setting_author_wechat_summary">Follow WeChat Official Account</string>
+    <string name="setting_author_wechat_name" translatable="false">Ankio</string>
+    <string name="setting_author_bilibili">Bilibili</string>
+    <string name="setting_author_bilibili_summary">Follow author on Bilibili</string>
+    <string name="setting_author_bilibili_url" translatable="false">https://space.bilibili.com/442001950</string>
 </resources>
