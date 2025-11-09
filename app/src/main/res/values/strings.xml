@@ -26,28 +26,13 @@
     <string name="search_rules">Search rules</string>
     <string name="title_order">Orders</string>
     <string name="title_setting">Settings</string>
-    <string name="active_error">Inactive (%s)</string>
-    <string name="active_success">Activated (%s)</string>
     <string name="description">Local rule-based automatic accounting module.</string>
     <string name="title_log">Log</string>
-
-    <string name="setting_use_system_theme">Use system colors</string>
-    <string name="setting_use_dark_theme">Use pure black in dark mode</string>
-    <string name="setting_skin">Appearance</string>
     <string name="setting_theme">Theme</string>
-    <string name="setting_dark_theme">Dark theme</string>
     <string name="lang_follow_system">Follow system</string>
     <string name="setting_privacy">Privacy</string>
-    <string name="setting_analysis">Anonymous analytics</string>
-    <string name="setting_analysis_desc">We use Bugsnag to collect crash information</string>
     <string name="ok">OK</string>
-    <string name="dialog_cannot_open_browser_title">Cannot open browser</string>
-    <string name="toast_copied_to_clipboard_with_text"><![CDATA[<b>%s</b> has been copied to clipboard.]]></string>
     <string name="close">Close</string>
-    <string name="default_theme">Default theme</string>
-    <string name="always_off">Always off</string>
-    <string name="always_on">Always on</string>
-    <string name="choose_theme">Choose theme</string>
     <string name="delete_data">Delete data</string>
     <string name="delete_msg">Are you sure you want to delete this data?</string>
     <string name="cancel_msg">Close</string>
@@ -93,7 +78,6 @@
     <string name="upload_waiting">Uploading...</string>
     <string name="sure_update">Update</string>
     <string name="share_file">Share log</string>
-    <string name="setting_others">Others</string>
     <string name="setting_debug">Debug mode</string>
     <string name="auto_success">Auto accounting success, amount is %s</string>
     <string name="btn_save">Save</string>
@@ -105,11 +89,7 @@
     <string name="float_income_debt">Creditor</string>
     <string name="restart">Restart auto accounting</string>
     <string name="copy_command_success">Copied to clipboard</string>
-    <string name="setting_lang">Language</string>
-    <string name="setting_update">Update</string>
-    <string name="setting_rule">Auto check rule updates</string>
     <string name="setting_app">Auto check app updates</string>
-    <string name="setting_update_type">Check update type</string>
     <string name="cancel">Close</string>
 
     <string name="title_books">Books</string>
@@ -129,9 +109,6 @@
     <!-- Book Edit Messages -->
     <string name="book_name_required">Book name is required</string>
     <string name="book_name_too_long">Book name is too long</string>
-    <string name="book_name_exists">A book with this name already exists</string>
-    <string name="book_not_found">Book not found</string>
-    <string name="book_load_failed">Failed to load book data</string>
     <string name="book_created_success">Book created successfully</string>
     <string name="book_updated_success">Book updated successfully</string>
     <string name="book_create_failed">Failed to create book</string>
@@ -163,7 +140,6 @@
     <string name="asset_not_found">Asset not found</string>
     <string name="asset_load_failed">Failed to load asset</string>
     <string name="save_asset_success">Asset saved successfully</string>
-    <string name="save_bill_success">Bill saved successfully</string>
     <string name="delete_asset_success">Asset deleted successfully</string>
     <string name="title_tag">Tags</string>
     <string name="title_app_whitelist">App Whitelist</string>
@@ -173,13 +149,10 @@
     <!-- Rule Edit labels -->
     <string name="rule_name">Name</string>
     <string name="rule_type">Type</string>
-    <string name="rule_system_rule_name">System Rule Name</string>
     <string name="rule_enable">Enable</string>
     <string name="rule_edit_rule">Edit Rule</string>
     <string name="rule_tap_to_edit">Tap to edit rule</string>
     <string name="rule_name_required">Rule name is required</string>
-    <string name="rule_system_name_required">System rule name is required</string>
-    <string name="rule_save_failed">Failed to save rule</string>
     <string name="save_rule_success">Rule saved successfully</string>
     <string name="rule_enabled_successfully">Rule enabled successfully</string>
     <string name="rule_disabled_successfully">Rule disabled successfully</string>
@@ -193,7 +166,6 @@
     <string name="title_map">Asset mapping</string>
     <string name="map_input_raw">Please enter original asset</string>
     <string name="map_regex">Regex matching</string>
-    <string name="map_regex_desc"></string>
     <string name="map_target">Please select target asset</string>
     <string name="map_empty">Asset name or mapped asset cannot be empty</string>
     <string name="reapply_asset_mapping">Reapply Asset Mapping</string>
@@ -206,30 +178,16 @@
 
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
-    <string name="debug_msg">Please enable this option when reporting error logs.</string>
-    <string name="setting_use_round_style">Use rounded popup style</string>
-    <string name="item_share">Share</string>
     <string name="item_clear">Clear</string>
     <string name="setting_backup">Backup</string>
-    <string name="setting_backup_2_webdav">Backup to WebDav</string>
-    <string name="setting_backup_2_local">Backup to local</string>
-    <string name="setting_restore_2_local">Restore from local backup</string>
-    <string name="setting_restore_2_webdav">Restore from WebDav</string>
     <string name="setting_webdav_host">WebDav service provider</string>
-    <string name="setting_webdav_username">WebDav username</string>
     <string name="backup_success">Backup successful</string>
-    <string name="setting_backup_path">Local backup storage path</string>
-    <string name="setting_backup_path_desc">Not set</string>
-    <string name="backup_loading">Backing up...</string>
     <string name="restore_loading">Restoring...</string>
     <string name="unsupport_backup">Cannot restore 【%s】 version data, please downgrade the app to that version and try again.</string>
     <string name="backup_error">Database backup failed.</string>
     <string name="restore_success">Restore successful</string>
-    <string name="unspport_package_backup">Cannot restore using data packages from different architectures.</string>
-    <string name="backup_error_msg">Backup failed</string>
     <string name="net_error_msg">Network error</string>
     <string name="net_error_msg_rule">Network error, please change source in settings and try again.</string>
-    <string name="backup_auth">Username or password error</string>
     <string name="backup_not_found">No backup file found on server</string>
     <string name="restore_webdav">Downloading backup file</string>
     <string name="backup_webdav">Preparing to upload...</string>
@@ -246,29 +204,11 @@
     <string name="restore_preferences">Restoring preferences...</string>
     <string name="restore_clearing_cache">Clearing cache...</string>
     <string name="restore_restarting">Restarting app...</string>
-    <string name="setting_webdav_password_desc">Nutstore requires creating an app password for normal use.</string>
     <string name="setting_bill_remark">Remark format</string>
-    <string name="setting_bill_repeat">Bill deduplication</string>
-    <string name="setting_bill_repeat_desc">Bill deduplication function will use built-in deduplication algorithm to deduplicate currently recognized bills (this function only works when bills are not synced to accounting software)</string>
     <string name="setting_bill_remark_desc">Supports using the following Chinese variables: 【Merchant name】, 【Item name】, 【Currency type】, 【Amount】, 【Category】, 【Book】, 【Source】, 【Original asset】, 【Channel】</string>
     <string name="setting_float_time">Countdown duration (seconds)</string>
-    <string name="setting_float_time_desc">When countdown reaches 0, timeout event is triggered</string>
-    <string name="setting_float_on_badge_click">When floating badge is clicked</string>
-    <string name="pop_edit_window">Pop up accounting edit panel</string>
-    <string name="auto_account">Record bill directly</string>
-    <string name="no_account">Do not record bill</string>
-    <string name="setting_float_on_badge_long_click">When floating badge is long pressed</string>
-    <string name="setting_float_on_badge_timeout">After floating badge timeout</string>
     <string name="setting_category">Category</string>
     <string name="setting_auto_create_category">Remember category</string>
-    <string name="setting_auto_create_category_desc">When you manually select a category, remember it for similar bills.</string>
-    <string name="setting_color">Color preference</string>
-    <string name="setting_pay_color">Income/expense highlight color</string>
-    <string name="setting_pay_color_red">Red for expense, green for income.</string>
-    <string name="setting_pay_color_green">Green for expense, red for income.</string>
-    <string name="setting_category_show_parent">Show parent for secondary categories</string>
-    <string name="setting_book_success">Use popup notification after successful accounting</string>
-    <string name="setting_category_show_parent_desc">This item only takes effect when users write category rules themselves or manually select categories. Official automatic accounting rules will not show secondary categories.</string>
     <string name="item_sync">Sync</string>
     <string name="auto_category">Detected that the category used when saving the bill is inconsistent with the category identified by the automatic accounting rule. Would you like to generate a new category rule?</string>
     <string name="rule">Rule</string>
@@ -282,7 +222,6 @@
     <string name="no_need_to_update">No update needed. Long press to force update.</string>
     <string name="check_update">Checking for updates...</string>
     <string name="delete_bill_message">Are you sure you want to delete this bill?</string>
-    <string name="delete_option_is_delete">Also delete this bill</string>
     <string name="delete_data_message">Are you sure you want to delete this data?</string>
     <string name="copy">Copy</string>
     <string name="title_data_rule">Data rules</string>
@@ -328,29 +267,15 @@
     <string name="add_category_map">Add category mapping: %s</string>
     <string name="delete_category_map">Delete category mapping: %s</string>
     <string name="no_rule_hint">No rule matched</string>
-    <string name="reimbursement">Reimbursement</string>
     <string name="expend_reimbursement">Expense reimbursement</string>
     <string name="income_reimbursement">Income reimbursement</string>
     <string name="lend">Lend</string>
-    <string name="repayment">Repayment</string>
     <string name="borrow">Borrow</string>
     <string name="float_choose_bill">Please select bill</string>
     <string name="float_choose_bills">Selected %d bills</string>
     <string name="version_stable">Stable</string>
     <string name="version_beta">Beta</string>
     <string name="version_canary">Canary</string>
-    <string name="setting_update_channel">Update channel</string>
-    <string name="update_channel_github_raw">Github(Raw)</string>
-    <string name="update_channel_github_proxy">Github(ghproxy.net)</string>
-    <string name="update_channel_github_proxy2">Github(ghproxy.cc)</string>
-    <string name="update_channel_github_mirror">Github(gitmirror.com)</string>
-    <string name="update_channel_github_d">Github(dgithub.xyz)</string>
-    <string name="update_channel_github_kk">Github(kkgithub.com)</string>
-    <string name="update_channel_cloud">Auto Accounting Cloud Drive</string>
-    <string name="setting_reimbursement_manager">Reimbursement feature</string>
-    <string name="setting_lending_manager">Debt feature</string>
-    <string name="setting_mutilbooks_manager">Multi-book management</string>
-    <string name="setting_fee_manager">Fee feature</string>
     <string name="expend_repayment">Debt repayment</string>
     <string name="income_repayment">Debt collection</string>
     <string name="expend_lending">Debt - Lend out</string>
@@ -363,19 +288,9 @@
     <string name="setting_bill_show_rule_summary">Display the name of the matching rule when editing bills</string>
     <string name="auto_create">Auto generate</string>
     <string name="setting_ai">AI features</string>
-    <string name="setting_bill_ai">Use AI large model to assist bill recognition</string>
-    <string name="setting_bill_ai_desc">All unmatched bill data will be attempted to be recognized using large models by auto accounting.</string>
-    <string name="gemini">Google Gemini</string>
-    <string name="setting_bill_ai_type">Large model service provider</string>
-    <string name="setting_bill_ai_key">API Key</string>
     <string name="rule_testing">Testing rule...</string>
     <string name="loading">Loading...</string>
-    <string name="qwen">Qwen</string>
-    <string name="deepseek">DeepSeek</string>
-    <string name="chatgpt">ChatGPT</string>
-    <string name="oneapi">OneAPI</string>
     <string name="setting_bill_one_api_uri">API address</string>
-    <string name="setting_bill_one_api_model">Model selection</string>
     <string name="setting_bill_auto_record">Show notification for auto-recorded bills</string>
     <string name="setting_clear_database">Clear database</string>
     <string name="clear_db_desc">Irreversible operation, only use when uninstalling auto accounting.</string>
@@ -389,22 +304,10 @@
     <string name="server_error_version_message">Version mismatch detected:\nServer version: %1$s\nApp version: %2$s\n\nPlease restart device to ensure proper functionality.</string>
     <string name="server_error_connection_message">Unable to connect to local server (127.0.0.1:52045). Please restart device.</string>
     <string name="server_error_btn_ok">I Know</string>
-    <string name="restart_device_hint_title">Restart Hint</string>
-    <string name="restart_device_hint_message">Please manually restart your device to make changes effective, or try restarting Auto Accounting service in settings.</string>
-    <string name="restart_device_hint_btn">I Know</string>
-    <string name="setting_load_success">Show notification after successfully loading auto accounting</string>
-    <string name="load_msg">Enable on demand</string>
-    <string name="donate_alipay">Alipay</string>
-    <string name="donate_wechat">WeChat</string>
+    <string name="setting_load_success">Show notification after successfully loading auto accounting</string><!-- 旧的分类（保留用于兼容） -->
     <string name="setting_title_bill">Bill settings</string>
-    <string name="setting_desc_bill">Remark · Category · Bill deduplication · Accounting notification · Sync</string>
-
     <string name="setting_title_popup">Popup settings</string>
-    <string name="setting_desc_popup">Delay · Style · Events</string>
-
     <string name="setting_title_features">Accounting feature configuration</string>
-    <string name="setting_desc_features">Asset · Currency · Reimbursement · Debt · Multi-book · Fee</string>
-
     <string name="setting_title_ai">AI Assistant</string>
     <string name="setting_title_ai_config">AI Configuration</string>
     <string name="setting_ai_config">AI Configuration</string>
@@ -414,16 +317,8 @@
     <string name="ai_test_result">Test Result</string>
     <string name="ai_test_success_message">AI connection successful! The model is working properly.</string>
     <string name="ai_test_failed_message">AI connection failed: %s</string>
-    <string name="ai_test_in_progress">Testing AI connection...</string>
     <string name="ai_test_no_config">Please configure provider, model and API key first</string>
-    <string name="setting_desc_ai">AI model configuration · Smart recognition · Category mapping</string>
-
-    <string name="setting_title_experimental">Experimental features</string>
-    <string name="setting_desc_experimental">Beta features and advanced settings</string>
-
     <string name="setting_title_appearance">Appearance</string>
-    <string name="setting_desc_appearance">Theme · Language · Popup style</string>
-
     <string name="setting_title_backup">Backup and sync</string>
     <string name="setting_backup_to_local">Backup to local</string>
     <string name="setting_backup_to_local_summary">Export data to local file</string>
@@ -433,44 +328,13 @@
     <string name="setting_category_webdav_backup">WebDAV Backup</string>
     <string name="setting_use_webdav_replace_local">Use WebDAV instead of local backup</string>
     <string name="setting_use_webdav_replace_local_summary">When enabled, auto backup will use WebDAV instead of local storage</string>
-    <string name="setting_test_webdav">Test WebDAV Connection</string>
-    <string name="setting_test_webdav_summary">Test WebDAV server connectivity and authentication</string>
     <string name="setting_webdav_config_incomplete">Please configure WebDAV host, username and password first</string>
-    <string name="setting_webdav_testing">Testing WebDAV connection...</string>
-    <string name="setting_webdav_test_success">WebDAV connection successful!</string>
-    <string name="setting_webdav_test_failed">WebDAV connection failed</string>
-    <string name="setting_webdav_test_error">WebDAV test error: %s</string>
-    <string name="setting_webdav_test_uploading">Uploading test file...</string>
-    <string name="setting_webdav_test_downloading">Downloading test file...</string>
-    <string name="setting_webdav_test_verifying">Verifying data integrity...</string>
-    <string name="setting_webdav_test_cleaning">Cleaning up test files...</string>
     <string name="setting_backup_to_webdav">Backup to WebDAV</string>
     <string name="setting_backup_to_webdav_summary">Create backup and upload to WebDAV server</string>
     <string name="setting_restore_from_webdav">Restore from WebDAV</string>
     <string name="setting_restore_from_webdav_summary">Download and restore the latest backup from WebDAV server</string>
-    <string name="setting_desc_backup">Local backup · Cloud backup · App update · Rule update</string>
-
-    <string name="setting_desc_danger">Anonymous analytics · Debug · Database · Hook app adjustment</string>
-
-    <string name="pro_rule_update_plan">Rule Update Plan</string>
-    <string name="pro_subtitle">Professional features and updates</string>
-    <string name="pro_activate_click_to_enter">Click here to enter activation code</string>
-    <string name="pro_activate_dialog_title">Enter Activation Code</string>
-    <string name="pro_activate_success">Activation successful!</string>
-    <string name="pro_activate_failed">Activation failed: %s</string>
-    <string name="pro_activate_code_format_error">Invalid activation code format</string>
-    <string name="pro_activate_info_failed">Failed to get activation info: %s</string>
-    <string name="pro_activate_info_format">Activation count: %1$s\nActivation time: %2$s</string>
-    <string name="pro_activate_network_error">Network error, unable to get activation info</string>
     <string name="unknown">Unknown</string>
-    <string name="setting_bill_tip">Notification content</string>
-    <string name="setting_bill_category">Category</string>
-    <string name="setting_popup_style">Popup style</string>
-    <string name="setting_popup_event">Popup events</string>
-    <string name="setting_features">Auto accounting feature configuration must be consistent with feature configuration in accounting software.</string>
-    <string name="setting_bill_one_api_uri_desc">"Must fill in complete API address, including suffix: v1/chat/completions "</string>
     <string name="setting_title_others">Others</string>
-    <string name="setting_donate">Donate</string>
     <string name="title_category_rule">Auto category rules</string>
     <string name="title_sms_edit">Edit data filter conditions</string>
     <string name="add_filter">Filter keywords</string>
@@ -484,11 +348,7 @@
     <string name="date_time">Time</string>
     <string name="title_bill">Bill list</string>
     <string name="clear_db">Completely delete database</string>
-    <string name="setting_ai_desc">Privacy reminder: Enabling AI features will upload your app data, category data, and asset data to corresponding large models (third-party, unrelated to auto accounting) for recognition.</string>
-    <string name="setting_bill_use_ai">Use AI features</string>
-    <string name="setting_bill_key">Get API Key</string>
     <string name="setting_landscape_dnd">Landscape do not disturb</string>
-    <string name="setting_landscape_dnd_desc">When you are in landscape mode (e.g., gaming, watching videos), do not pop up to record bills to avoid affecting user experience.</string>
     <string name="un_group_title">Split into independent order</string>
     <string name="un_group_message">Are you sure you want to split this order from the current order into an independent order?</string>
     <string name="assets_map_title">Unrecognized asset found</string>
@@ -498,12 +358,7 @@
     <string name="income_reimbursement_info">Reimbursement - %s</string>
     <string name="income_refund_info">Refund - %s</string>
     <string name="refund">Refund</string>
-    <string name="setting_proactively">Proactive mode</string>
-    <string name="proactive_msg">Refers to auto accounting actively calling accounting software API when syncing data instead of needing to open accounting software like passive mode.</string>
     <string name="container">Fuzzy</string>
-    <string name="setting_bill_asset">Asset</string>
-    <string name="setting_bill_ignore_asset">Ignore asset errors</string>
-    <string name="setting_bill_ignore_asset_desc">Use this feature carefully, directly ignore current asset when recognized asset is not in asset list.</string>
     <string name="item_wait_sync">Pending sync</string>
     <string name="item_wait_edit">Pending edit</string>
     <string name="item_synced">Synced</string>
@@ -626,7 +481,6 @@
     </string>
 
     <string name="action_continue">Continue</string>
-    <string name="perm_not_complete">Some permissions are still missing. Please grant them before continuing.</string>
     <string name="perm_required_not_complete">Some required permissions are still missing. Please grant them before continuing.</string>
     <string name="perm_optional">optional</string>
     <string name="perm_optional_missing_hint">%d optional permissions not granted, may affect some features</string>
@@ -740,17 +594,9 @@
     <!-- Pending-sync footer; use String.format(Locale) or the XML %1$d placeholder -->
 
     <!-- Optional: content-description for the background image (accessibility) -->
-
-    <string name="rule_version_title">Rule Version（%1$s）</string>
-    <string name="rule_version_last_update">%1$s</string>
     <string name="action_back">Previous</string>
 
     <!-- res/values/strings.xml -->
-
-    <string name="perm_screenshot_title">Screenshot Access</string>
-    <string name="perm_screenshot_desc">Allow the app to read your screenshots for OCR.</string>
-    <string name="perm_usage_title">Usage Access</string>
-    <string name="perm_usage_desc">Let the app detect which foreground app you\'re using.</string>
     <string name="keepalive_notification_title">Notification Permission</string>
     <string name="keepalive_notification_desc">Allow the app to send notifications to keep the foreground service running.</string>
 
@@ -771,11 +617,7 @@
     <string name="dark_theme_follow_system">@string/follow_system</string>
 
 
-    <string name="settings_language">Language</string>
-    <string name="press_again_to_exit">Press again to exit</string>
-    <string name="ai_not_support">AI-generated data does not support feedback.</string>
-
-    <!-- 金额显示组件相关字符串 -->
+    <string name="settings_language">Language</string><!-- 金额显示组件相关字符串 -->
     <string name="edit_amount">Edit Amount</string>
     <string name="edit_fee">Edit Fee</string>
     <string name="no_discount">No discount</string>
@@ -800,9 +642,7 @@
     <string name="label_content">Content</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_confirm">Confirm</string>
-    <string name="replace_result">Replacement result</string>
     <string name="replace_preview_title">Replace Preview</string>
-    <string name="select_all">Select All</string>
     <string name="btn_confirm_replace">Confirm Replace</string>
     <string name="item_count_format">%1$d items total</string>
     <string name="rule_issue">Rules contain errors</string>
@@ -863,18 +703,7 @@
     <string name="restore_default_categories_success">Default categories restored successfully</string>
 
     <!-- JS Editor Strings -->
-    <string name="js_content_empty">JS content is empty</string>
-    <string name="js_code_empty_cannot_execute">JS code is empty, cannot execute</string>
-    <string name="executing_js_code">Executing JS code…</string>
-    <string name="execution_completed_no_result">Execution completed, no return result</string>
-    <string name="unknown_error">Unknown error</string>
-    <string name="execution_result">Execution Result</string>
-    <string name="confirm">Confirm</string>
-
-    <!-- JS Template Comments -->
-    <string name="no_test_data_create_from_data_page">No test data available, please create rule from data page first</string>
-
-    <!-- 设置分类标题 -->
+    <string name="unknown_error">Unknown error</string><!-- JS Template Comments --><!-- 设置分类标题 -->
     <string name="setting_category_auto_record">Auto Recording</string>
     <string name="setting_category_notification">Notifications</string>
     <string name="setting_category_display">Display Settings</string>
@@ -885,13 +714,8 @@
     <string name="setting_category_ocr">OCR</string>
     <string name="setting_category_asset_management">Asset Management</string>
     <string name="setting_category_advanced_features">Advanced Features</string>
-    <string name="setting_category_user_guidance">User Guidance</string>
     <string name="setting_category_ai_features">AI Features</string>
-    <string name="setting_category_experimental_features">Experimental Features</string>
     <string name="setting_category_local_backup">Local Backup</string>
-    <string name="setting_category_cloud_sync">Cloud Sync</string>
-    <string name="setting_category_app_update">App Update</string>
-    <string name="setting_category_rule_update">Rule Update</string>
     <string name="setting_category_system">System Settings</string>
     <string name="setting_category_update">Update Settings</string>
     <string name="setting_category_dangerous">Dangerous Operations</string>
@@ -901,16 +725,7 @@
     <string name="setting_auto_check_app_update_summary">Automatically check for application updates</string>
     <string name="setting_auto_check_rule_update">Auto Check Rule Updates</string>
     <string name="setting_auto_check_rule_update_summary">Automatically check for accounting rule updates</string>
-    <string name="setting_app_channel">Update Channel</string>
-    <string name="setting_app_channel_summary">Choose update channel: stable or beta</string>
-    <string name="setting_check_update_type">Update Check Type</string>
-    <string name="setting_check_update_type_summary">Choose how to check for updates</string>
-
-    <!-- 更新类型选项 -->
-    <string name="update_type_automatic">Automatic</string>
-    <string name="update_type_manual">Manual</string>
-
-    <!-- Canary版本警告 -->
+    <string name="setting_app_channel">Update Channel</string><!-- 更新类型选项 --><!-- Canary版本警告 -->
     <string name="canary_warning_title">Canary Version Risk Warning</string>
     <string name="canary_warning_message">You are currently using a Canary version with the following characteristics:\n\n• Built automatically every 3 hours\n• Contains latest features and fixes\n• No guarantee of stability and availability\n• May contain unknown bugs\n\nRecommendations:\n• Use with caution in production environments\n• Please enable debug mode before reporting bugs\n• Back up important data promptly</string>
     <string name="canary_warning_confirm">I understand</string>
@@ -919,8 +734,6 @@
     <!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">Automatic deduplication</string>
     <string name="setting_auto_group_summary">Automatically detect and merge duplicate bills</string>
-    <string name="setting_duplicated_bill_filter">Duplicate Bill Filter</string>
-    <string name="setting_duplicated_bill_filter_summary">Filter out duplicate bills</string>
     <string name="setting_bill_auto_record_summary">Show notification when auto recording bills</string>
     <string name="setting_load_success_summary">Show notification when loading successfully</string>
     <string name="setting_default_book">Default Book</string>
@@ -936,8 +749,6 @@
     <string name="setting_auto_record_bill">Auto Record Bills</string>
     <string name="setting_auto_record_bill_summary">Record every bill automatically</string>
     <string name="setting_auto_asset_mapping_disabled">Asset management feature must be enabled first</string>
-    <string name="setting_current_selection">Current selection: %s</string>
-
     <string name="setting_round_style">Use Rounded Popup Style</string>
     <string name="setting_round_style_summary">Enable rounded corners for popup windows</string>
     <string name="setting_float_badge_timeout">Float Badge Timeout</string>
@@ -946,32 +757,22 @@
     <string name="setting_float_click">Click Action</string>
     <string name="setting_float_long_click">Long Click Action</string>
     <string name="setting_float_badge_right">Show on right side</string>
-    <string name="setting_float_badge_right_summary">Toggle to switch floating badge between right and left</string>
-    <string name="left">Left</string>
-    <string name="right">Right</string>
-
-    <!-- Float action display names -->
+    <string name="setting_float_badge_right_summary">Toggle to switch floating badge between right and left</string><!-- Float action display names -->
     <string name="float_action_dismiss">Dismiss</string>
     <string name="float_action_auto_record">Auto Record</string>
-    <string name="float_action_minimize">Minimize</string>
-    <string name="float_action_settings">Settings</string>
     <string name="setting_ocr_show_animation">Show OCR animation</string>
     <string name="setting_ocr_show_animation_summary">Display an overlay animation while OCR is running</string>
 
     <!-- Common strings -->
-    <string name="seconds">seconds</string>
+    <string name="clearing">Clearing...</string>
     <string name="never">Never</string>
     <string name="setting_not_set">Not Set</string>
     <string name="setting_timeout_seconds">%d seconds</string>
     <string name="float_action_edit">Edit Bill</string>
-    <string name="float_action_save">Save</string>
-
     <string name="setting_asset_manager">Asset Management</string>
     <string name="setting_asset_manager_summary">Enable asset management features</string>
     <string name="setting_currency_manager">Multi-Currency</string>
     <string name="setting_currency_manager_summary">Enable multi-currency support</string>
-    <string name="setting_ignore_asset">Ignore Asset</string>
-    <string name="setting_ignore_asset_summary">Ignore asset changes when recording</string>
     <string name="setting_reimbursement">Reimbursement</string>
     <string name="setting_reimbursement_summary">Enable reimbursement tracking</string>
     <string name="setting_debt">Debt Management</string>
@@ -982,13 +783,8 @@
     <string name="setting_fee_summary">Enable transaction fee tracking</string>
     <string name="setting_tag">Tags</string>
     <string name="setting_tag_summary">Enable bill tagging</string>
-    <string name="setting_proactively_model">Proactive Mode</string>
-    <string name="setting_proactively_model_summary">Proactively guide users to record bills</string>
-
-
     <string name="setting_auto_backup">Auto Backup</string>
     <string name="setting_auto_backup_summary">Automatically backup data locally</string>
-    <string name="setting_sync_type">Sync Type</string>
     <string name="setting_webdav_url">WebDAV URL</string>
     <string name="setting_webdav_url_summary">WebDAV server URL</string>
     <string name="setting_webdav_user">WebDAV User</string>
@@ -999,20 +795,11 @@
     <string name="setting_webdav_path_summary">Remote backup path</string>
     <string name="setting_local_backup_path">Local Backup Path</string>
     <string name="setting_local_backup_path_summary">Local backup storage path</string>
-    <string name="setting_auto_update">Auto Update</string>
-    <string name="setting_auto_update_summary">Automatically check for app updates</string>
-    <string name="setting_auto_rule_update">Auto Rule Update</string>
-    <string name="setting_auto_rule_update_summary">Automatically update recognition rules</string>
-
     <string name="setting_debug_mode">Debug Mode</string>
     <string name="setting_debug_mode_summary">Enable debug logging and features</string>
     <string name="setting_send_error_report">Error Reporting</string>
     <string name="setting_send_error_report_summary">Automatically send crash reports</string>
-    <string name="setting_landscape_dnd_summary">Disable auto recording in landscape mode</string>
-    <string name="setting_sms_filter">SMS Filter</string>
-    <string name="setting_sms_filter_summary">Filter SMS messages using keywords</string>
-
-    <!-- AI Features -->
+    <string name="setting_landscape_dnd_summary">Disable auto recording in landscape mode</string><!-- AI Features -->
     <string name="setting_ai_bill_recognition">Automatically use AI for bill recognition</string>
     <string name="setting_ai_bill_recognition_summary">Automatically extract bill information from raw data</string>
     <string name="setting_ai_category_recognition">AI Category Recognition</string>
@@ -1027,28 +814,19 @@
     <string name="setting_ai_summary_prompt">Custom AI Summary Prompt</string>
     <string name="setting_ai_summary_prompt_summary">Customize the prompt template used by AI for generating summaries</string>
 
+    <!-- 新增：分类设置相关 -->
+    <string name="setting_category_popup_interaction">Popup Interaction</string>
+    <string name="setting_category_bill_display">Bill Display</string>
+    <string name="setting_category_category_asset">Categories &amp; Assets</string>
+    <string name="setting_category_appearance">Appearance</string>
+    <string name="setting_category_backup_sync">Backup &amp; Sync</string>
+    <string name="setting_category_about">About</string>
+
     <!-- 保留的旧字符串（兼容性） -->
 
     <!-- WebDAV 相关字符串 -->
-    <string name="setting_use_webdav">Use WebDAV</string>
-    <string name="setting_use_webdav_summary">Enable WebDAV cloud synchronization</string>
-
-    <!-- AI Summary 相关字符串 -->
-    <string name="ai_summary_title">AI Financial Analysis</string>
-    <string name="ai_summary_generating">Generating AI analysis…</string>
-    <string name="ai_summary_generate_failed">Failed to generate analysis</string>
-    <string name="ai_summary_generate_error">Analysis generation error: %s</string>
-    <string name="ai_summary_regenerate">Regenerate</string>
-    <string name="ai_summary_share">Share</string>
-    <string name="ai_summary_share_title">Share AI Analysis</string>
-    <string name="ai_summary_share_text">My %1$d-%2$02d financial analysis report</string>
-    <string name="ai_summary_share_failed">Failed to share</string>
-    <string name="ai_summary_no_content">No content to share</string>
-    <string name="ai_summary_generating_image">Generating share image…</string>
-    <string name="ai_summary_image_failed">Failed to generate image</string>
-    <string name="ai_summary_image_error">Image generation error: %s</string>
-
-    <!-- Statistics page -->
+    <string name="setting_use_webdav">Use WebDAV</string><!-- AI Summary 相关字符串 -->
+    <string name="ai_summary_title">AI Financial Analysis</string><!-- Statistics page -->
     <string name="stat_title">Statistics</string>
     <string name="stat_summary">Summary</string>
     <string name="total_expense">Total expense</string>
@@ -1057,10 +835,7 @@
     <string name="daily_avg_expense">Daily average expense</string>
     <string name="stat_trend">Trend</string>
     <string name="stat_category">Categories</string>
-    <string name="period_this_week">This week</string>
-    <string name="period_custom">Custom</string>
-
-    <!-- JS Editor UI Strings -->
+    <string name="period_this_week">This week</string><!-- JS Editor UI Strings -->
     <string name="js_code_empty">JS code is empty</string>
     <string name="test_data_empty">Test data is empty</string>
     <string name="js_executing">Executing...</string>
@@ -1081,14 +856,8 @@
 
     <!-- Sync status messages -->
     <string name="sync_starting">Starting sync...</string>
-    <string name="sync_progress">Syncing %1$d of %2$d bills</string>
     <string name="sync_completed">Sync completed! %1$d bills synced</string>
-    <string name="sync_no_bills">No bills to sync</string>
-    <string name="sync_failed">Sync failed: %1$s</string>
-
-    <!-- Period selection -->
-    <string name="period_selector_title">Select Analysis Period</string>
-    <string name="period_today">Today</string>
+    <string name="sync_no_bills">No bills to sync</string><!-- Period selection -->
     <string name="period_last_week">Last Week</string>
     <string name="period_last_30_days">Last 30 Days</string>
     <string name="period_this_month">This Month</string>
@@ -1100,19 +869,8 @@
 
     <!-- Short label -->
     <string name="regexLabel">Regex</string>
-
-    <string name="app_version_x">App Version (%1$s)</string>
-    <string name="check_app_update">Check App Update</string>
-    <string name="check_rule_update">Check Rule Update</string>
-
     <string name="status_working">Working</string>
     <string name="status_inactive">Inactive</string>
-    <string name="status_need_permission">Missing Permission</string>
-
-    <string name="app_version_colon">App Version: %1$s</string>
-    <string name="rule_version_colon">Rule Version: %1$s</string>
-    <string name="rule_update_colon">Rule Updated At: %1$s</string>
-
     <string name="whitelist_info">This whitelist applies to notifications and OCR data. It filters out apps you do not want to capture from. Manual OCR (started by you) is not affected by this whitelist.</string>
 
     <!-- 日志相关 -->
@@ -1141,4 +899,30 @@
     <string name="delete_analysis_task">Delete Analysis Task</string>
     <string name="delete_analysis_task_message">Are you sure you want to delete the analysis task "%s"? This action cannot be undone.</string>
 
+    <!-- ============================================ -->
+    <!-- Settings Page Related Strings (for review) -->
+    <!-- ============================================ -->
+
+    <!-- New 4 Main Categories -->
+    <string name="setting_title_core_recording">Core Recording</string>
+    <string name="setting_desc_core_recording">Auto recording · Notifications · Popup interactions</string>
+
+    <string name="setting_title_data_display">Data &amp; Display</string>
+    <string name="setting_desc_data_display">Bill display · Categories · Assets · Books</string>
+
+    <string name="setting_title_smart_features">Smart Features</string>
+    <string name="setting_desc_smart_features">AI assistant · Advanced features</string>
+
+    <string name="setting_title_system">System</string>
+    <string name="setting_desc_system">Appearance · Backup · Updates · About</string>
+
+    <!-- Pro Activation Related -->
+    <string name="pro_rule_update_plan">Rule Update Plan</string>
+    <string name="pro_activate_click_to_enter">Click here to enter activation code</string>
+    <string name="pro_activate_dialog_title">Enter Activation Code</string>
+    <string name="pro_activate_success">Activation successful!</string>
+    <string name="pro_activate_failed">Activation failed: %s</string>
+    <string name="pro_activate_code_format_error">Invalid activation code format</string>
+    <string name="pro_activate_info_failed">Failed to get activation info: %s</string>
+    <string name="pro_activate_info_format">Activation count: %1$s\nActivation time: %2$s</string>
 </resources>

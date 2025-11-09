@@ -27,28 +27,13 @@
     <string name="search_rules">搜索规则</string>
     <string name="title_order">账单</string>
     <string name="title_setting">设置</string>
-    <string name="active_error">未激活 (%s)</string>
-    <string name="active_success">已激活 (%s)</string>
     <string name="description">基于本地规则的自动记账模块。</string>
     <string name="title_log">日志</string>
-
-    <string name="setting_use_system_theme">使用系统颜色</string>
-    <string name="setting_use_dark_theme">深色模式下使用纯黑色</string>
-    <string name="setting_skin">外观</string>
     <string name="setting_theme">主题</string>
-    <string name="setting_dark_theme">深色主题</string>
     <string name="lang_follow_system">跟随系统</string>
     <string name="setting_privacy">隐私</string>
-    <string name="setting_analysis">匿名分析</string>
-    <string name="setting_analysis_desc">我们使用 Bugsnag 收集崩溃信息</string>
     <string name="ok">确定</string>
-    <string name="dialog_cannot_open_browser_title">无法打开浏览器</string>
-    <string name="toast_copied_to_clipboard_with_text"><![CDATA[<b>%s</b> 已复制到剪贴板。]]></string>
     <string name="close">关闭</string>
-    <string name="default_theme">默认主题</string>
-    <string name="always_off">始终关闭</string>
-    <string name="always_on">始终开启</string>
-    <string name="choose_theme">选择主题</string>
     <string name="delete_data">删除数据</string>
     <string name="delete_msg">您确定要删除此数据吗？</string>
     <string name="cancel_msg">关闭</string>
@@ -94,7 +79,6 @@
     <string name="upload_waiting">上传中...</string>
     <string name="sure_update">更新</string>
     <string name="share_file">分享日志</string>
-    <string name="setting_others">其他</string>
     <string name="setting_debug">调试模式</string>
     <string name="auto_success">自动记账成功，金额为 %s</string>
     <string name="btn_save">保存</string>
@@ -106,11 +90,7 @@
     <string name="float_income_debt">债主</string>
     <string name="restart">重启自动记账</string>
     <string name="copy_command_success">已复制到剪贴板</string>
-    <string name="setting_lang">语言</string>
-    <string name="setting_update">更新</string>
-    <string name="setting_rule">自动检查规则更新</string>
     <string name="setting_app">自动检查应用更新</string>
-    <string name="setting_update_type">检查更新类型</string>
     <string name="cancel">关闭</string>
 
     <string name="title_books">账本</string>
@@ -130,9 +110,6 @@
     <!-- Book Edit Messages -->
     <string name="book_name_required">账本名称是必需的</string>
     <string name="book_name_too_long">账本名称太长</string>
-    <string name="book_name_exists">此名称的账本已存在</string>
-    <string name="book_not_found">找不到账本</string>
-    <string name="book_load_failed">加载账本数据失败</string>
     <string name="book_created_success">账本创建成功</string>
     <string name="book_updated_success">账本更新成功</string>
     <string name="book_create_failed">创建账本失败</string>
@@ -173,13 +150,10 @@
     <!-- Rule Edit labels -->
     <string name="rule_name">名称</string>
     <string name="rule_type">类型</string>
-    <string name="rule_system_rule_name">系统规则名称</string>
     <string name="rule_enable">启用</string>
     <string name="rule_edit_rule">编辑规则</string>
     <string name="rule_tap_to_edit">点击编辑规则</string>
     <string name="rule_name_required">规则名称是必需的</string>
-    <string name="rule_system_name_required">系统规则名称是必需的</string>
-    <string name="rule_save_failed">保存规则失败</string>
     <string name="save_rule_success">规则保存成功</string>
     <string name="rule_enabled_successfully">规则启用成功</string>
     <string name="rule_disabled_successfully">规则禁用成功</string>
@@ -192,7 +166,6 @@
     <string name="title_map">资产映射</string>
     <string name="map_input_raw">请输入原始资产</string>
     <string name="map_regex">正则匹配</string>
-    <string name="map_regex_desc"></string>
     <string name="map_target">请选择目标资产</string>
     <string name="map_empty">资产名称或映射资产不能为空</string>
     <string name="reapply_asset_mapping">重新应用资产映射</string>
@@ -205,57 +178,25 @@
 
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
-    <string name="debug_msg">报告错误日志时请启用此选项。</string>
-    <string name="setting_use_round_style">使用圆角弹窗样式</string>
-    <string name="item_share">分享</string>
     <string name="item_clear">清除</string>
     <string name="setting_backup">备份</string>
-    <string name="setting_backup_2_webdav">备份到 WebDav</string>
-    <string name="setting_backup_2_local">备份到本地</string>
-    <string name="setting_restore_2_local">从本地备份恢复</string>
-    <string name="setting_restore_2_webdav">从 WebDav 恢复</string>
     <string name="setting_webdav_host">WebDav 服务提供商</string>
-    <string name="setting_webdav_username">WebDav 用户名</string>
     <string name="backup_success">备份成功</string>
-    <string name="setting_backup_path">本地备份存储路径</string>
-    <string name="setting_backup_path_desc">未设置</string>
-    <string name="backup_loading">备份中...</string>
     <string name="restore_loading">恢复中...</string>
     <string name="unsupport_backup">无法恢复 【%s】 版本数据，请将应用降级到该版本后重试。</string>
     <string name="backup_error">数据库备份失败。</string>
     <string name="restore_success">恢复成功</string>
-    <string name="unspport_package_backup">无法使用来自不同架构的数据包进行恢复。</string>
-    <string name="backup_error_msg">备份失败</string>
     <string name="net_error_msg">网络错误</string>
     <string name="net_error_msg_rule">网络错误，请在设置中更改源后重试。</string>
-    <string name="backup_auth">用户名或密码错误</string>
     <string name="backup_not_found">服务器上未找到备份文件</string>
     <string name="restore_webdav">下载备份文件</string>
     <string name="backup_webdav">准备上传...</string>
     <string name="backup_pack">打包数据...</string>
-    <string name="setting_webdav_password_desc">坚果云需要创建应用密码才能正常使用。</string>
     <string name="setting_bill_remark">备注格式</string>
-    <string name="setting_bill_repeat">账单去重</string>
-    <string name="setting_bill_repeat_desc">账单去重功能将使用内置去重算法对当前识别的账单进行去重（此功能仅在账单未同步到记账软件时有效）</string>
     <string name="setting_bill_remark_desc">支持使用以下中文变量：【商家名称】、【项目名称】、【货币类型】、【金额】、【分类】、【账本】、【来源】、【原始资产】、【渠道】</string>
     <string name="setting_float_time">倒计时持续时间（秒）</string>
-    <string name="setting_float_time_desc">倒计时归零时，触发超时事件</string>
-    <string name="setting_float_on_badge_click">点击浮动徽章时</string>
-    <string name="pop_edit_window">弹出记账编辑面板</string>
-    <string name="auto_account">直接记录账单</string>
-    <string name="no_account">不记录账单</string>
-    <string name="setting_float_on_badge_long_click">长按浮动徽章时</string>
-    <string name="setting_float_on_badge_timeout">浮动徽章超时后</string>
     <string name="setting_category">分类</string>
     <string name="setting_auto_create_category">记住分类</string>
-    <string name="setting_auto_create_category_desc">当你手动选择分类时，记住该选择以便相似账单复用。</string>
-    <string name="setting_color">颜色偏好</string>
-    <string name="setting_pay_color">收入/支出高亮颜色</string>
-    <string name="setting_pay_color_red">支出红色，收入绿色。</string>
-    <string name="setting_pay_color_green">支出绿色，收入红色。</string>
-    <string name="setting_category_show_parent">二级分类显示父级</string>
-    <string name="setting_book_success">记账成功后使用弹窗通知</string>
-    <string name="setting_category_show_parent_desc">此项仅在用户自己编写分类规则或手动选择分类时生效。官方自动记账规则不会显示二级分类。</string>
     <string name="item_sync">同步</string>
     <string name="auto_category">检测到保存账单时使用的分类与自动记账规则识别的分类不一致。是否要生成新的分类规则？</string>
     <string name="rule">规则</string>
@@ -314,27 +255,13 @@
     <string name="add_category_map">添加分类映射：%s</string>
     <string name="delete_category_map">删除分类映射：%s</string>
     <string name="no_rule_hint">没有匹配的规则</string>
-    <string name="reimbursement">报销</string>
     <string name="lend">借出</string>
-    <string name="repayment">还款</string>
     <string name="borrow">借入</string>
     <string name="float_choose_bill">请选择账单</string>
     <string name="float_choose_bills">已选择 %d 个账单</string>
     <string name="version_stable">稳定版</string>
     <string name="version_beta">测试版</string>
     <string name="version_canary">金丝雀版</string>
-    <string name="setting_update_channel">更新渠道</string>
-    <string name="update_channel_github_raw">Github(Raw)</string>
-    <string name="update_channel_github_proxy">Github(ghproxy.net)</string>
-    <string name="update_channel_github_proxy2">Github(ghproxy.cc)</string>
-    <string name="update_channel_github_mirror">Github(gitmirror.com)</string>
-    <string name="update_channel_github_d">Github(dgithub.xyz)</string>
-    <string name="update_channel_github_kk">Github(kkgithub.com)</string>
-    <string name="update_channel_cloud">自动记账云盘</string>
-    <string name="setting_reimbursement_manager">报销功能</string>
-    <string name="setting_lending_manager">债务功能</string>
-    <string name="setting_mutilbooks_manager">多账本管理</string>
-    <string name="setting_fee_manager">手续费功能</string>
     <string name="expend_repayment">债务还款</string>
     <string name="income_repayment">债务收回</string>
     <string name="expend_lending">债务 - 借出</string>
@@ -345,19 +272,9 @@
     <string name="setting_bill_show_rule">在账单页面显示识别规则</string>
     <string name="auto_create">自动生成</string>
     <string name="setting_ai">AI 功能</string>
-    <string name="setting_bill_ai">使用 AI 大模型辅助账单识别</string>
-    <string name="setting_bill_ai_desc">所有未匹配的账单数据将由自动记账尝试使用大模型进行识别。</string>
-    <string name="gemini">Google Gemini</string>
-    <string name="setting_bill_ai_type">大模型服务提供商</string>
-    <string name="setting_bill_ai_key">API Key</string>
     <string name="rule_testing">测试规则...</string>
     <string name="loading">加载中...</string>
-    <string name="qwen">通义千问</string>
-    <string name="deepseek">DeepSeek</string>
-    <string name="chatgpt">ChatGPT</string>
-    <string name="oneapi">OneAPI</string>
     <string name="setting_bill_one_api_uri">API 地址</string>
-    <string name="setting_bill_one_api_model">模型选择</string>
     <string name="setting_bill_auto_record">自动记录账单时显示通知</string>
     <string name="setting_clear_database">清除数据库</string>
     <string name="clear_db_desc">不可逆操作，仅在卸载自动记账时使用。</string>
@@ -371,23 +288,10 @@
     <string name="server_error_version_message">检测到版本不匹配：\n服务器版本：%1$s\n应用版本：%2$s\n\n请重启设备以确保功能正常运行。</string>
     <string name="server_error_connection_message">无法连接到本地服务器（127.0.0.1:52045），请重启设备。</string>
     <string name="server_error_btn_ok">我知道了</string>
-    <string name="restart_device_hint_title">重启提示</string>
-    <string name="restart_device_hint_message">请手动重启设备以使更改生效，或者您可以尝试在设置中重启自动记账服务。</string>
-    <string name="restart_device_hint_btn">我知道了</string>
     <string name="setting_load_success">成功加载自动记账后显示通知</string>
-    <string name="load_msg">按需启用</string>
-    <string name="donate_alipay">支付宝</string>
-    <string name="donate_wechat">微信</string>
-
     <string name="setting_title_bill">账单设置</string>
-    <string name="setting_desc_bill">备注 · 分类 · 账单去重 · 记账通知 · 同步</string>
-
     <string name="setting_title_popup">弹窗设置</string>
-    <string name="setting_desc_popup">延迟 · 样式 · 事件</string>
-
     <string name="setting_title_features">记账功能配置</string>
-    <string name="setting_desc_features">资产 · 货币 · 报销 · 债务 · 多账本 · 手续费</string>
-
     <string name="setting_title_ai">AI 助手</string>
     <string name="setting_title_ai_config">AI 配置</string>
     <string name="setting_ai_config">AI 配置</string>
@@ -397,16 +301,8 @@
     <string name="ai_test_result">测试结果</string>
     <string name="ai_test_success_message">AI 连接成功！模型工作正常。</string>
     <string name="ai_test_failed_message">AI 连接失败：%s</string>
-    <string name="ai_test_in_progress">正在测试 AI 连接...</string>
     <string name="ai_test_no_config">请先配置服务商、模型和 API 密钥</string>
-    <string name="setting_desc_ai">AI 模型配置 · 智能识别 · 分类映射</string>
-
-    <string name="setting_title_experimental">实验性功能</string>
-    <string name="setting_desc_experimental">测试功能和高级设置</string>
-
     <string name="setting_title_appearance">外观</string>
-    <string name="setting_desc_appearance">主题 · 语言 · 弹窗样式</string>
-
     <string name="setting_title_backup">备份和同步</string>
     <string name="setting_backup_to_local">备份到本地</string>
     <string name="setting_backup_to_local_summary">导出数据到本地文件</string>
@@ -416,44 +312,13 @@
     <string name="setting_category_webdav_backup">WebDAV 备份</string>
     <string name="setting_use_webdav_replace_local">使用 WebDAV 取代本地备份</string>
     <string name="setting_use_webdav_replace_local_summary">启用后，自动备份将使用 WebDAV 而不是本地存储</string>
-    <string name="setting_test_webdav">测试 WebDAV 连接</string>
-    <string name="setting_test_webdav_summary">测试 WebDAV 服务器连通性和身份验证</string>
     <string name="setting_webdav_config_incomplete">请先配置 WebDAV 主机、用户名和密码</string>
-    <string name="setting_webdav_testing">正在测试 WebDAV 连接...</string>
-    <string name="setting_webdav_test_success">WebDAV 连接成功！</string>
-    <string name="setting_webdav_test_failed">WebDAV 连接失败</string>
-    <string name="setting_webdav_test_error">WebDAV 测试错误：%s</string>
-    <string name="setting_webdav_test_uploading">正在上传测试文件...</string>
-    <string name="setting_webdav_test_downloading">正在下载测试文件...</string>
-    <string name="setting_webdav_test_verifying">正在校验数据完整性...</string>
-    <string name="setting_webdav_test_cleaning">正在清理测试文件...</string>
     <string name="setting_backup_to_webdav">备份到 WebDAV</string>
     <string name="setting_backup_to_webdav_summary">创建备份并上传到 WebDAV 服务器</string>
     <string name="setting_restore_from_webdav">从 WebDAV 恢复</string>
     <string name="setting_restore_from_webdav_summary">从 WebDAV 服务器下载并恢复最新备份</string>
-    <string name="setting_desc_backup">本地备份 · 云备份 · 应用更新 · 规则更新</string>
-
-    <string name="setting_desc_danger">匿名分析 · 调试 · 数据库 · Hook 应用调整</string>
-
-    <string name="pro_rule_update_plan">规则更新计划</string>
-    <string name="pro_subtitle">专业功能和更新</string>
-    <string name="pro_activate_click_to_enter">点击此处输入激活码</string>
-    <string name="pro_activate_dialog_title">输入激活码</string>
-    <string name="pro_activate_success">激活成功！</string>
-    <string name="pro_activate_failed">激活失败：%s</string>
-    <string name="pro_activate_code_format_error">激活码格式无效</string>
-    <string name="pro_activate_info_failed">获取激活信息失败：%s</string>
-    <string name="pro_activate_info_format">激活次数：%1$s\n激活时间：%2$s</string>
-    <string name="pro_activate_network_error">网络错误，无法获取激活信息</string>
     <string name="unknown">未知</string>
-    <string name="setting_bill_tip">通知内容</string>
-    <string name="setting_bill_category">分类</string>
-    <string name="setting_popup_style">弹窗样式</string>
-    <string name="setting_popup_event">弹窗事件</string>
-    <string name="setting_features">自动记账功能配置必须与记账软件中的功能配置保持一致。</string>
-    <string name="setting_bill_one_api_uri_desc">"必须填写完整的 API 地址，包括后缀：v1/chat/completions "</string>
     <string name="setting_title_others">其他</string>
-    <string name="setting_donate">捐赠</string>
     <string name="title_category_rule">自动分类规则</string>
     <string name="title_sms_edit">编辑数据过滤条件</string>
     <string name="add_filter">过滤关键词</string>
@@ -465,11 +330,7 @@
     <string name="date_time">时间</string>
     <string name="title_bill">账单列表</string>
     <string name="clear_db">完全删除数据库</string>
-    <string name="setting_ai_desc">隐私提醒：启用 AI 功能将上传您的应用数据、分类数据和资产数据到相应的大模型（第三方，与自动记账无关）进行识别。</string>
-    <string name="setting_bill_use_ai">使用 AI 功能</string>
-    <string name="setting_bill_key">获取 API Key</string>
     <string name="setting_landscape_dnd">横屏勿扰</string>
-    <string name="setting_landscape_dnd_desc">当您处于横屏模式时（例如游戏、看视频），不弹出记录账单以免影响用户体验。</string>
     <string name="un_group_title">拆分为独立账单</string>
     <string name="un_group_message">您确定要将此账单从当前账单中拆分为独立账单吗？</string>
     <string name="assets_map_title">发现未识别资产</string>
@@ -479,12 +340,7 @@
     <string name="income_reimbursement_info">报销 - %s</string>
     <string name="income_refund_info">退款 - %s</string>
     <string name="refund">退款</string>
-    <string name="setting_proactively">主动模式</string>
-    <string name="proactive_msg">指自动记账在同步数据时主动调用记账软件 API，而不是像被动模式那样需要打开记账软件。</string>
     <string name="container">模糊</string>
-    <string name="setting_bill_asset">资产</string>
-    <string name="setting_bill_ignore_asset">忽略资产错误</string>
-    <string name="setting_bill_ignore_asset_desc">谨慎使用此功能，当识别的资产不在资产列表中时直接忽略当前资产。</string>
     <string name="item_wait_sync">待同步</string>
     <string name="item_wait_edit">待编辑</string>
     <string name="item_synced">已同步</string>
@@ -565,10 +421,6 @@
 
     <string name="perm_overlay_title">悬浮窗权限</string>
     <string name="perm_overlay_desc">允许显示悬浮窗以快速提取工具。</string>
-
-    <string name="perm_screenshot_title">截图访问</string>
-    <string name="perm_screenshot_desc">允许应用读取您的截图进行 OCR。</string>
-
     <string name="perm_network_title">网络访问</string>
     <string name="perm_network_desc">
     允许应用访问互联网进行 AI 分析和数据同步。
@@ -600,10 +452,7 @@
         将应用从任务清理器中排除，防止被杀死。
     </string>
 
-    <string name="action_continue">继续</string>
-    <string name="perm_not_complete">某些权限仍然缺失。请在继续之前授予它们。</string>
-
-    <!-- Shell 能力（Root 或 Shizuku） -->
+    <string name="action_continue">继续</string><!-- Shell 能力（Root 或 Shizuku） -->
     <string name="perm_shell_title">Root 或 Shizuku</string>
     <string name="perm_shell_desc">授予 root（su）或 Shizuku 权限，使应用可执行 shell 命令（如截图）。若部分联发科设备通过 Shizuku 获取输出异常，请尝试使用 3.5.x 版本。</string>
 
@@ -699,13 +548,7 @@
     <!-- Finance card labels -->
     <string name="month_income">月收入</string>
     <string name="month_expense">月支出</string>
-
-    <string name="rule_version_title">规则版本（%1$s）</string>
-    <string name="rule_version_last_update">%1$s</string>
     <string name="action_back">上一步</string>
-
-    <string name="perm_usage_title">使用权限</string>
-    <string name="perm_usage_desc">让应用检测您正在使用的前台应用。</string>
     <string name="keepalive_notification_title">通知权限</string>
     <string name="keepalive_notification_desc">允许应用发送通知以保持前台服务运行。</string>
 
@@ -725,9 +568,6 @@
     <string name="dark_theme_follow_system">@string/follow_system</string>
 
     <string name="settings_language">语言</string>
-    <string name="press_again_to_exit">再次按下退出</string>
-    <string name="ai_not_support">AI 生成的数据不支持反馈。</string>
-
     <string name="label_replace">替换/替代</string>
     <string name="hint_raw">查找文本</string>
     <string name="hint_target">替换为</string>
@@ -737,7 +577,6 @@
     <string name="label_content">内容</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_confirm">确认</string>
-    <string name="replace_result">替换结果</string>
     <string name="rule_issue">规则包含错误</string>
 
     <!-- Category Fragment -->
@@ -796,16 +635,7 @@
     <string name="restore_default_categories_success">默认分类恢复成功</string>
 
     <!-- JS Editor Strings -->
-    <string name="js_content_empty">JS 内容为空</string>
-    <string name="js_code_empty_cannot_execute">JS 代码为空，无法执行</string>
-    <string name="executing_js_code">执行 JS 代码…</string>
-    <string name="execution_completed_no_result">执行完成，无返回结果</string>
-    <string name="unknown_error">未知错误</string>
-    <string name="execution_result">执行结果</string>
-    <string name="confirm">确认</string>
-    <string name="no_test_data_create_from_data_page">没有测试数据可用，请先从数据页面创建规则</string>
-
-    <!-- 设置分类标题 -->
+    <string name="unknown_error">未知错误</string><!-- 设置分类标题 -->
     <string name="setting_category_auto_record">自动记录</string>
     <string name="setting_category_notification">通知</string>
     <string name="setting_category_remark">备注设置</string>
@@ -815,13 +645,8 @@
     <string name="setting_category_ocr">OCR</string>
     <string name="setting_category_asset_management">资产管理</string>
     <string name="setting_category_advanced_features">高级功能</string>
-    <string name="setting_category_user_guidance">用户指导</string>
     <string name="setting_category_ai_features">AI 功能</string>
-    <string name="setting_category_experimental_features">实验性功能</string>
     <string name="setting_category_local_backup">本地备份</string>
-    <string name="setting_category_cloud_sync">云同步</string>
-    <string name="setting_category_app_update">应用更新</string>
-    <string name="setting_category_rule_update">规则更新</string>
     <string name="setting_category_system">系统设置</string>
     <string name="setting_category_update">更新设置</string>
     <string name="setting_category_dangerous">危险操作</string>
@@ -831,20 +656,9 @@
     <string name="setting_auto_check_app_update_summary">自动检查应用程序更新</string>
     <string name="setting_auto_check_rule_update">自动检查规则更新</string>
     <string name="setting_auto_check_rule_update_summary">自动检查记账规则更新</string>
-    <string name="setting_app_channel">更新渠道</string>
-    <string name="setting_app_channel_summary">选择更新渠道：稳定版或测试版</string>
-    <string name="setting_check_update_type">更新检查方式</string>
-    <string name="setting_check_update_type_summary">选择如何检查更新</string>
-
-    <!-- 更新类型选项 -->
-    <string name="update_type_automatic">自动</string>
-    <string name="update_type_manual">手动</string>
-
-    <!-- 设置项标题和摘要 -->
+    <string name="setting_app_channel">更新渠道</string><!-- 更新类型选项 --><!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">自动去重</string>
     <string name="setting_auto_group_summary">自动检测并合并重复账单</string>
-    <string name="setting_duplicated_bill_filter">重复账单过滤</string>
-    <string name="setting_duplicated_bill_filter_summary">过滤重复账单</string>
     <string name="setting_bill_auto_record_summary">自动记录账单时显示通知</string>
     <string name="setting_load_success_summary">成功加载时显示通知</string>
     <string name="setting_default_book">默认账本</string>
@@ -861,16 +675,10 @@
     <!-- 浮窗左右位置与删除选项（新增补全） -->
     <string name="setting_float_badge_right">在右侧显示</string>
     <string name="setting_float_badge_right_summary">切换浮动徽章在左右侧的显示位置</string>
-    <string name="left">左侧</string>
-    <string name="right">右侧</string>
-    <string name="delete_option_is_delete">同时删除此账单</string>
-
     <string name="setting_asset_manager">资产管理</string>
     <string name="setting_asset_manager_summary">启用资产管理功能</string>
     <string name="setting_currency_manager">多货币</string>
     <string name="setting_currency_manager_summary">启用多货币支持</string>
-    <string name="setting_ignore_asset">忽略资产</string>
-    <string name="setting_ignore_asset_summary">记录时忽略资产变化</string>
     <string name="setting_reimbursement">报销</string>
     <string name="setting_reimbursement_summary">启用报销跟踪</string>
     <string name="setting_debt">债务管理</string>
@@ -881,12 +689,8 @@
     <string name="setting_fee_summary">启用交易手续费跟踪</string>
     <string name="setting_tag">标签</string>
     <string name="setting_tag_summary">启用账单标签</string>
-    <string name="setting_proactively_model">主动模式</string>
-    <string name="setting_proactively_model_summary">主动引导用户记录账单</string>
-
     <string name="setting_auto_backup">自动备份</string>
     <string name="setting_auto_backup_summary">自动本地备份数据</string>
-    <string name="setting_sync_type">同步类型</string>
     <string name="setting_webdav_url">WebDAV URL</string>
     <string name="setting_webdav_url_summary">WebDAV 服务器 URL</string>
     <string name="setting_webdav_user">WebDAV 用户</string>
@@ -895,20 +699,11 @@
     <string name="setting_webdav_password_summary">WebDAV 密码</string>
     <string name="setting_webdav_path">WebDAV 路径</string>
     <string name="setting_webdav_path_summary">远程备份路径</string>
-    <string name="setting_auto_update">自动更新</string>
-    <string name="setting_auto_update_summary">自动检查应用更新</string>
-    <string name="setting_auto_rule_update">自动规则更新</string>
-    <string name="setting_auto_rule_update_summary">自动更新识别规则</string>
-
     <string name="setting_debug_mode">调试模式</string>
     <string name="setting_debug_mode_summary">启用调试日志和功能</string>
     <string name="setting_send_error_report">错误报告</string>
     <string name="setting_send_error_report_summary">自动发送崩溃报告</string>
-    <string name="setting_landscape_dnd_summary">在横屏模式下禁用自动记录</string>
-    <string name="setting_sms_filter">短信过滤</string>
-    <string name="setting_sms_filter_summary">使用关键词过滤短信</string>
-
-    <!-- AI Features -->
+    <string name="setting_landscape_dnd_summary">在横屏模式下禁用自动记录</string><!-- AI Features -->
     <string name="setting_ai_bill_recognition">自动使用AI进行账单识别</string>
     <string name="setting_ai_bill_recognition_summary">从原始数据自动提取账单信息</string>
     <string name="setting_ai_category_recognition">AI 分类识别</string>
@@ -924,25 +719,8 @@
     <string name="setting_ai_summary_prompt_summary">自定义 AI 用于生成摘要的提示模板</string>
 
     <!-- WebDAV 相关字符串 -->
-    <string name="setting_use_webdav">使用 WebDAV</string>
-    <string name="setting_use_webdav_summary">启用 WebDAV 云同步</string>
-
-    <!-- AI Summary 相关字符串 -->
-    <string name="ai_summary_title">AI 财务分析</string>
-    <string name="ai_summary_generating">生成 AI 分析中…</string>
-    <string name="ai_summary_generate_failed">生成分析失败</string>
-    <string name="ai_summary_generate_error">分析生成错误：%s</string>
-    <string name="ai_summary_regenerate">重新生成</string>
-    <string name="ai_summary_share">分享</string>
-    <string name="ai_summary_share_title">分享 AI 分析</string>
-    <string name="ai_summary_share_text">我的 %1$d-%2$02d 财务分析报告</string>
-    <string name="ai_summary_share_failed">分享失败</string>
-    <string name="ai_summary_no_content">没有内容可分享</string>
-    <string name="ai_summary_generating_image">生成分享图片中…</string>
-    <string name="ai_summary_image_failed">生成图片失败</string>
-    <string name="ai_summary_image_error">图片生成错误：%s</string>
-
-    <!-- 分析任务状态 -->
+    <string name="setting_use_webdav">使用 WebDAV</string><!-- AI Summary 相关字符串 -->
+    <string name="ai_summary_title">AI 财务分析</string><!-- 分析任务状态 -->
     <string name="analysis_status_pending">待处理</string>
     <string name="analysis_status_processing">分析中</string>
     <string name="analysis_status_completed">已完成</string>
@@ -980,8 +758,6 @@
     <string name="period_this_week">本周</string>
 
     <!-- 周期选择 -->
-    <string name="period_selector_title">选择分析周期</string>
-    <string name="period_today">今天</string>
     <string name="period_last_week">最近一周</string>
     <string name="period_last_30_days">最近30天</string>
     <string name="period_this_month">这个月</string>
@@ -1016,29 +792,22 @@
 
     <!-- 替换预览对话框补全 -->
     <string name="replace_preview_title">替换预览</string>
-    <string name="select_all">全选</string>
     <string name="btn_confirm_replace">确认替换</string>
     <string name="item_count_format">共 %1$d 项</string>
 
     <!-- 浮窗动作显示名称 & 通用字符串 -->
-    <string name="seconds">秒</string>
     <string name="never">从不</string>
     <string name="setting_not_set">未设置</string>
     <string name="setting_timeout_seconds">%d 秒</string>
     <string name="float_action_edit">编辑账单</string>
-    <string name="float_action_save">保存</string>
     <string name="float_action_dismiss">关闭</string>
     <string name="float_action_auto_record">自动记录</string>
-    <string name="float_action_minimize">最小化</string>
-    <string name="float_action_settings">设置</string>
     <string name="setting_ocr_show_animation">显示OCR识别动画</string>
     <string name="setting_ocr_show_animation_summary">进行OCR识别时显示覆盖层动画</string>
 
     <!-- 资产与账单相关补全 -->
-    <string name="save_bill_success">账单保存成功</string>
     <string name="expend_reimbursement">支出报销</string>
     <string name="income_reimbursement">收入报销</string>
-    <string name="setting_current_selection">当前选择：%s</string>
     <string name="setting_auto_asset_mapping_disabled">必须先启用资产管理功能</string>
 
     <!-- 备份恢复过程提示 -->
@@ -1082,6 +851,11 @@
     <string name="setting_book_app_summary">目标记账应用包名</string>
     <string name="setting_category_book_config">账本配置</string>
     <string name="setting_category_display">显示设置</string>
+    <string name="setting_category_popup_interaction">弹窗交互</string>
+    <string name="setting_category_bill_display">账单显示</string>
+    <string name="setting_category_category_asset">分类与资产</string>
+    <string name="setting_category_backup_sync">备份与同步</string>
+    <string name="setting_category_about">关于</string>
     <string name="setting_local_backup_path">本地备份路径</string>
     <string name="setting_local_backup_path_summary">本地备份存储路径</string>
 
@@ -1097,19 +871,8 @@
     <!-- 删除二次确认设置 -->
     <string name="setting_confirm_delete_bill">删除前二次确认</string>
     <string name="setting_confirm_delete_bill_summary">删除账单时弹出确认提示</string>
-
-    <string name="app_version_x">应用版本（%1$s）</string>
-    <string name="check_app_update">检查应用更新</string>
-    <string name="check_rule_update">检查规则更新</string>
-
     <string name="status_working">工作中</string>
     <string name="status_inactive">未激活</string>
-    <string name="status_need_permission">缺少权限</string>
-
-    <string name="app_version_colon">App：%1$s</string>
-    <string name="rule_version_colon">规则：%1$s</string>
-    <string name="rule_update_colon">更新：%1$s</string>
-
     <string name="whitelist_info">此白名单仅对通知与 OCR 数据生效，可直接过滤不希望获取数据的应用；手动发起的 OCR 不受此白名单影响。</string>
 
     <!-- 日志相关 -->
@@ -1121,10 +884,34 @@
 
     <!-- 同步状态消息 -->
     <string name="sync_starting">开始同步...</string>
-    <string name="sync_progress">正在同步 %1$d / %2$d 条账单</string>
     <string name="sync_completed">同步完成！已同步 %1$d 条账单</string>
     <string name="sync_no_bills">没有需要同步的账单</string>
-    <string name="sync_failed">同步失败：%1$s</string>
-
     <string name="repeat_toast_action_dont_merge">不去重</string>
+
+    <!-- ============================================ -->
+    <!-- 设置页面相关字符串（方便review） -->
+    <!-- ============================================ -->
+
+    <!-- 新的4大分类 -->
+    <string name="setting_title_core_recording">核心记账</string>
+    <string name="setting_desc_core_recording">自动记录 · 通知 · 弹窗交互</string>
+
+    <string name="setting_title_data_display">数据与显示</string>
+    <string name="setting_desc_data_display">账单显示 · 分类 · 资产 · 账本</string>
+
+    <string name="setting_title_smart_features">智能功能</string>
+    <string name="setting_desc_smart_features">AI 助手 · 高级功能</string>
+
+    <string name="setting_title_system">系统</string>
+    <string name="setting_desc_system">外观 · 备份 · 更新 · 关于</string>
+
+    <!-- Pro激活相关 -->
+    <string name="pro_rule_update_plan">规则更新计划</string>
+    <string name="pro_activate_click_to_enter">点击此处输入激活码</string>
+    <string name="pro_activate_dialog_title">输入激活码</string>
+    <string name="pro_activate_success">激活成功！</string>
+    <string name="pro_activate_failed">激活失败：%s</string>
+    <string name="pro_activate_code_format_error">激活码格式无效</string>
+    <string name="pro_activate_info_failed">获取激活信息失败：%s</string>
+    <string name="pro_activate_info_format">激活次数：%1$s\n激活时间：%2$s</string>
 </resources>
