@@ -948,7 +948,7 @@
     <string name="pro_activate_info_format">激活次数：%1$s\n激活时间：%2$s</string>
 
     <!-- 关于应用相关 -->
-    <string name="setting_open_source_code">开源地址</string>
+    <string name="setting_open_source_code">源代码</string>
     <string name="setting_open_source_code_summary">在GitHub上查看源代码</string>
     <string name="setting_official_website">官网</string>
     <string name="setting_official_website_summary">访问应用官方网站</string>
