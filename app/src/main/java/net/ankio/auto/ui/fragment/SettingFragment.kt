@@ -16,6 +16,7 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import kotlinx.coroutines.Dispatchers
@@ -147,47 +148,41 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
     }
 
     /**
-     * 加载激活信息 - 串行化流程，避免嵌套协程与多重状态对象
+     * 加载激活信息 - 简化流程，减少不必要的线程切换
      */
     private fun loadActivateInfo() {
-        // 单一入口：内部负责开启协程与线程切换
         launch {
             // 无 token：直接提示输入激活码
             if (PrefManager.token.isEmpty()) {
-                withContext(Dispatchers.Main) {
-                    applyActivationState(false, getString(R.string.pro_activate_click_to_enter))
-                }
+                applyActivationState(false, getString(R.string.pro_activate_click_to_enter))
                 return@launch
             }
 
-            // 有 token：先显示 Loading
-            withContext(Dispatchers.Main) {
-                applyActivationState(false, getString(R.string.loading))
-            }
+            // 显示加载状态
+            applyActivationState(false, getString(R.string.loading))
 
             // 拉取信息（IO 线程）
             val info = withContext(Dispatchers.IO) { ActivateAPI.info() }
-            if (info.isEmpty()) return@launch
 
-            val errorMsg = info["error"]
-            if (errorMsg != null) {
-                Logger.e("激活信息接口返回错误: $errorMsg")
-                withContext(Dispatchers.Main) {
+            // 处理结果：错误或成功
+            when {
+                info.isEmpty() -> return@launch
+                info.containsKey("error") -> {
+                    Logger.e("激活信息接口返回错误: ${info["error"]}")
                     applyActivationState(
                         false,
-                        getString(R.string.pro_activate_info_failed, errorMsg)
+                        getString(R.string.pro_activate_info_failed, info["error"] ?: "")
                     )
                 }
-                return@launch
-            }
 
-            val count = info["count"] ?: "0"
-            val time = info["time"] ?: getString(R.string.unknown)
-            withContext(Dispatchers.Main) {
-                applyActivationState(
-                    true,
-                    getString(R.string.pro_activate_info_format, count, time)
-                )
+                else -> {
+                    val count = info["count"] ?: "0"
+                    val time = info["time"] ?: getString(R.string.unknown)
+                    applyActivationState(
+                        true,
+                        getString(R.string.pro_activate_info_format, count, time)
+                    )
+                }
             }
         }
     }
@@ -196,19 +191,9 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
      * 应用激活状态到 UI - 极简且直接
      */
     private fun applyActivationState(isActivated: Boolean, displayText: String) {
-        updateProCardState(isActivated)
+        binding.proCardContent.setBackgroundColor(if (isActivated) Color.TRANSPARENT else DynamicColors.PrimaryContainer)
         binding.proActivateInfo.text = displayText
     }
 
-    // 移除文件缓存读取：避免多路径与状态分叉
-
-    /**
-     * 更新高级版卡片状态
-     * @param isActivated 是否激活
-     */
-    private fun updateProCardState(isActivated: Boolean) {
-        // 背景色已在XML中设置为SurfaceVariant，无需动态修改
-        // 保持方法签名以兼容现有调用
-    }
 }
 
