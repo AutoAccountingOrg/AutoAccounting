@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 系统设置：外观设置、更新设置、高级功能 -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 外观设置 -->
+    <PreferenceCategory android:title="@string/setting_category_appearance">
+        <!-- 语言 -->
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="SYSTEM"
+            android:icon="@drawable/setting2_icon_language"
+            android:key="language"
+            android:summary="%s"
+            android:title="@string/settings_language" />
+
+        <!-- 主题 -->
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:disableDependentsState="true"
+            android:icon="@drawable/setting2_icon_system_theme"
+            android:key="followSystemAccent"
+            android:summary="@string/settings_system_theme_color"
+            android:title="@string/settings_system_theme_color" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="DEFAULT"
+            android:dependency="followSystemAccent"
+            android:entries="@array/color_texts"
+            android:entryValues="@array/color_values"
+            android:icon="@drawable/setting2_icon_theme"
+            android:key="themeColor"
+            android:summary="%s"
+            android:title="@string/settings_theme_color" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="-1"
+            android:entries="@array/theme_texts"
+            android:entryValues="@array/theme_values"
+            android:icon="@drawable/setting2_icon_dark_theme"
+            android:key="darkTheme"
+            android:summary="%s"
+            android:title="@string/dark_theme" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:icon="@drawable/setting2_icon_dark_true_theme"
+            android:key="blackDarkTheme"
+            android:summary="@string/settings_pure_black_dark_theme_summary"
+            android:title="@string/settings_pure_black_dark_theme" />
+    </PreferenceCategory>
+
+    <!-- 更新设置 -->
+    <PreferenceCategory android:title="@string/setting_category_update">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting2_icon_update"
+            android:key="autoCheckAppUpdate"
+            android:summary="@string/setting_auto_check_app_update_summary"
+            android:title="@string/setting_auto_check_app_update" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting2_icon_rule"
+            android:key="autoCheckRuleUpdate"
+            android:summary="@string/setting_auto_check_rule_update_summary"
+            android:title="@string/setting_auto_check_rule_update" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="stable"
+            android:entries="@array/update_channel_texts"
+            android:entryValues="@array/update_channel_values"
+            android:icon="@drawable/setting2_icon_update_channel"
+            android:key="appChannel"
+            android:summary="%s"
+            android:title="@string/setting_app_channel" />
+    </PreferenceCategory>
+
+    <!-- 高级功能 -->
+    <PreferenceCategory android:title="@string/setting_category_advanced_features_settings">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting2_icon_debug"
+            android:key="debugMode"
+            android:summary="@string/setting_debug_mode_summary"
+            android:title="@string/setting_debug_mode" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting2_icon_anonymous"
+            android:key="sendErrorReport"
+            android:summary="@string/setting_send_error_report_summary"
+            android:title="@string/setting_send_error_report" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/icon_delete"
+            android:key="clearDatabase"
+            android:summary="@string/clear_db_desc"
+            android:title="@string/setting_clear_database" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
+

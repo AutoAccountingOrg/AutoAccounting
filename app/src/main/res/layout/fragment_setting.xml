@@ -121,45 +121,65 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 核心记账 -->
+            <!-- 记账设置 -->
             <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_core_recording"
+                android:id="@+id/setting_recording"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:settingDesc="@string/setting_desc_core_recording"
+                app:settingDesc="@string/setting_desc_recording"
                 app:settingIcon="@drawable/ic_receipt_long"
-                app:settingTitle="@string/setting_title_core_recording" />
+                app:settingTitle="@string/setting_title_recording" />
 
-            <!-- 数据与显示 -->
+            <!-- 交互设置 -->
             <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_data_display"
+                android:id="@+id/setting_interaction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:settingDesc="@string/setting_desc_data_display"
-                app:settingIcon="@drawable/ic_statistic"
-                app:settingTitle="@string/setting_title_data_display" />
+                app:settingDesc="@string/setting_desc_interaction"
+                app:settingIcon="@drawable/ic_notifications"
+                app:settingTitle="@string/setting_title_interaction" />
 
-            <!-- 智能功能 -->
+            <!-- AI助理 -->
             <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_smart_features"
+                android:id="@+id/setting_ai_assistant"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:settingDesc="@string/setting_desc_smart_features"
+                app:settingDesc="@string/setting_desc_ai_assistant"
                 app:settingIcon="@drawable/ic_ai"
-                app:settingTitle="@string/setting_title_smart_features" />
+                app:settingTitle="@string/setting_title_ai_assistant" />
 
-            <!-- 系统 -->
+            <!-- 数据管理 -->
+            <net.ankio.auto.ui.components.SettingItemView
+                android:id="@+id/setting_data_management"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:settingDesc="@string/setting_desc_data_management"
+                app:settingIcon="@drawable/setting2_icon_backup"
+                app:settingTitle="@string/setting_title_data_management" />
+
+            <!-- 系统设置 -->
             <net.ankio.auto.ui.components.SettingItemView
                 android:id="@+id/setting_system"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:settingDesc="@string/setting_desc_system"
-                app:settingIcon="@drawable/ic_theme"
+                app:settingIcon="@drawable/setting2_icon_update"
                 app:settingTitle="@string/setting_title_system" />
+
+            <!-- 关于应用 -->
+            <net.ankio.auto.ui.components.SettingItemView
+                android:id="@+id/setting_about"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:settingDesc="@string/setting_desc_about"
+                app:settingIcon="@drawable/ic_info"
+                app:settingTitle="@string/setting_title_about" />
 
         </LinearLayout>
 
