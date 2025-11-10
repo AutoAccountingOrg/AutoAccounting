@@ -156,6 +156,33 @@ object SettingUtils {
     suspend fun setAiSummaryPrompt(value: String) =
         setString(Setting.AI_SUMMARY_PROMPT, value)
 
+    /** AI账单识别提示词 */
+    suspend fun aiBillRecognitionPrompt(): String =
+        getString(Setting.AI_BILL_RECOGNITION_PROMPT, DefaultData.AI_BILL_RECOGNITION_PROMPT)
+
+    /** 设置：AI账单识别提示词 */
+    suspend fun setAiBillRecognitionPrompt(value: String) =
+        setString(Setting.AI_BILL_RECOGNITION_PROMPT, value)
+
+    /** AI资产映射提示词 */
+    suspend fun aiAssetMappingPrompt(): String =
+        getString(Setting.AI_ASSET_MAPPING_PROMPT, DefaultData.AI_ASSET_MAPPING_PROMPT)
+
+    /** 设置：AI资产映射提示词 */
+    suspend fun setAiAssetMappingPrompt(value: String) =
+        setString(Setting.AI_ASSET_MAPPING_PROMPT, value)
+
+    /** AI分类识别提示词 */
+    suspend fun aiCategoryRecognitionPrompt(): String =
+        getString(
+            Setting.AI_CATEGORY_RECOGNITION_PROMPT,
+            DefaultData.AI_CATEGORY_RECOGNITION_PROMPT
+        )
+
+    /** 设置：AI分类识别提示词 */
+    suspend fun setAiCategoryRecognitionPrompt(value: String) =
+        setString(Setting.AI_CATEGORY_RECOGNITION_PROMPT, value)
+
     // —— AI 接入参数 ——
 
     /** 后端统一 API Key */

@@ -19,46 +19,27 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.db.Db
 import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.SettingUtils
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 class AssetTool {
-    private val prompt = """
-# Role
-You select asset names strictly from Asset Data.
 
-# Inputs
-Fields (may be empty): asset1, asset2
-
-# Asset Data
-- A comma-separated list of valid asset names.
-- You MUST choose exactly from this list. Do not invent, translate, or combine names.
-
-# Output (strict JSON only)
-- Return ONLY a JSON object with exactly two keys:
-  {"asset1":"<name-or-empty>", "asset2":"<name-or-empty>"}
-- If a clue has no match, set its value to an empty string: "".
-- No extra fields, no explanations, no markdown, no text outside JSON.
-
-# Matching rules (apply in order, independently for each clue)
-1) Exact equality (case-sensitive)
-2) Case-insensitive equality
-3) Substring/contains match; prefer the candidate with the longest overlap
-4) If multiple candidates tie, prefer the longer candidate name
-5) If still uncertain, use ""
-
-# Example Input
-{"asset1":"中国银行储蓄卡","asset2":"支付宝"}
-
-# Example Output
-{"asset1":"中国银行","asset2":"支付宝"}
-
-# Example Output (asset2 not found)
-{"asset1":"中国银行","asset2":""}
-""".trimIndent()
+    /**
+     * 获取资产映射提示词
+     * 优先使用用户自定义的提示词，如果为空则使用默认值
+     */
+    private suspend fun getPrompt(): String {
+        val customPrompt = SettingUtils.aiAssetMappingPrompt()
+        return customPrompt.ifBlank {
+            DefaultData.AI_ASSET_MAPPING_PROMPT
+        }
+    }
 
     suspend fun execute(asset1: String, asset2: String): JsonObject? {
+        val prompt = getPrompt()
         // 记录输入参数，便于问题复现与排查
         ServerLog.d("资产匹配请求：asset1=$asset1, asset2=$asset2")
         val data = Gson().toJson(

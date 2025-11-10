@@ -23,6 +23,10 @@ object Setting {
     const val AI_ASSET_MAPPING: String = "ai_asset_mapping"              // 使用AI进行资产映射
     const val AI_MONTHLY_SUMMARY: String = "ai_monthly_summary"          // 使用AI进行账单总结（月度）
     const val AI_SUMMARY_PROMPT: String = "ai_summary_prompt"            // 自定义AI总结Prompt
+    const val AI_BILL_RECOGNITION_PROMPT: String = "ai_bill_recognition_prompt" // 自定义AI账单识别Prompt
+    const val AI_ASSET_MAPPING_PROMPT: String = "ai_asset_mapping_prompt" // 自定义AI资产映射Prompt
+    const val AI_CATEGORY_RECOGNITION_PROMPT: String =
+        "ai_category_recognition_prompt" // 自定义AI分类识别Prompt
     const val API_PROVIDER = "api_provider"                                     // API提供商
     const val API_KEY = "api_key"                                     // API密钥
     const val API_URI: String = "api_uri"                                  // API地址

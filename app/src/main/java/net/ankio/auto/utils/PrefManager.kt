@@ -135,6 +135,27 @@ object PrefManager {
         get() = getString(Setting.AI_SUMMARY_PROMPT, DefaultData.AI_SUMMARY_PROMPT)
         set(value) = putString(Setting.AI_SUMMARY_PROMPT, value)
 
+    /** AI账单识别提示词 - 用户自定义的账单识别提示词 */
+    var aiBillRecognitionPrompt: String
+        get() = getString(
+            Setting.AI_BILL_RECOGNITION_PROMPT,
+            DefaultData.AI_BILL_RECOGNITION_PROMPT
+        )
+        set(value) = putString(Setting.AI_BILL_RECOGNITION_PROMPT, value)
+
+    /** AI资产映射提示词 - 用户自定义的资产映射提示词 */
+    var aiAssetMappingPrompt: String
+        get() = getString(Setting.AI_ASSET_MAPPING_PROMPT, DefaultData.AI_ASSET_MAPPING_PROMPT)
+        set(value) = putString(Setting.AI_ASSET_MAPPING_PROMPT, value)
+
+    /** AI分类识别提示词 - 用户自定义的分类识别提示词 */
+    var aiCategoryRecognitionPrompt: String
+        get() = getString(
+            Setting.AI_CATEGORY_RECOGNITION_PROMPT,
+            DefaultData.AI_CATEGORY_RECOGNITION_PROMPT
+        )
+        set(value) = putString(Setting.AI_CATEGORY_RECOGNITION_PROMPT, value)
+
 
     // ======== 自动记账设置 ========
 

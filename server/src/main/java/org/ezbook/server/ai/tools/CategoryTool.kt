@@ -16,47 +16,27 @@
 package org.ezbook.server.ai.tools
 
 import org.ezbook.server.ai.AiManager
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.db.Db
 import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.SettingUtils
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 class CategoryTool {
-    private val prompt = """
-# Role
-You select exactly one category name from Category Data.
 
-# Inputs
-Fields: ruleName, shopName, shopItem
-
-# Category Data
-- A comma-separated list of valid category names.
-- You MUST choose one exactly from this list. Do not invent, translate, or combine names.
-- Exception: if uncertain after matching, output 其他.
-
-# Output
-- Raw text, single line: the chosen category name only.
-- No quotes, no JSON, no explanations, no comments, no extra whitespace.
-- If uncertain, output 其他.
-
-# Matching rules (apply in order)
-1) Exact equality (case-sensitive): compare against shopItem, then shopName, then ruleName.
-2) Case-insensitive equality.
-3) Substring/contains match. Prefer the candidate with the longest overlap.
-4) If still uncertain, output 其他.
-
-# Tie-breakers
-- Prefer shopItem over shopName over ruleName.
-- Prefer longer and more specific matches.
-- Except the fallback 其他, never output a name that is not in Category Data.
-
-# Example Input
-{"shopName": "钱塘江超市", "shopItem": "上好佳薯片", "ruleName": "支付宝红包"}
-
-# Example Output
-购物
-""".trimIndent()
+    /**
+     * 获取分类识别提示词
+     * 优先使用用户自定义的提示词，如果为空则使用默认值
+     */
+    private suspend fun getPrompt(): String {
+        val customPrompt = SettingUtils.aiCategoryRecognitionPrompt()
+        return customPrompt.ifBlank {
+            DefaultData.AI_CATEGORY_RECOGNITION_PROMPT
+        }
+    }
 
     suspend fun execute(data: String): String? {
+        val prompt = getPrompt()
         // 记录输入摘要，避免日志过长
         ServerLog.d("分类匹配请求：data=${data.take(120)}")
 

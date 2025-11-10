@@ -21,6 +21,142 @@ object DefaultData {
     val AI_CATEGORY_RECOGNITION: Boolean = false
     val AI_ASSET_MAPPING: Boolean = false
     val AI_MONTHLY_SUMMARY: Boolean = false
+
+    /** AI账单识别提示词 - 从原始数据中提取账单信息 */
+    val AI_BILL_RECOGNITION_PROMPT: String = """
+# Role
+You extract structured transaction info from raw financial texts.
+
+# Output
+Return ONLY one JSON object. No code fences, no prose. If any hard rule fails, return {}.
+
+# Hard Rules
+1) accountNameFrom is MANDATORY. If missing/uncertain -> {}.
+2) No guessing. Use data explicitly present in input.
+3) Ignore promotions/ads and any non-transaction texts (e.g., 验证码/登录提醒/快递通知/系统提示/聊天/新闻/纯营销). If the content is unrelated to bills or contains no transaction signals (no explicit transaction amount/keyword, no account), return {}.
+4) Human personal names are not valid account names.
+5) cateName must be chosen strictly from Category Data (comma-separated). If no exact match, set "其他".
+6) Defaults: currency="CNY"; fee=0; money=0.00; empty string for optional text; timeText="".
+7) Numbers: output absolute value for money/fee; money with 2 decimals; dot as decimal point.
+8) Output must be valid JSON with keys exactly as the schema; no extra keys or trailing commas.
+
+# Field Rules
+- accountNameFrom: source account (e.g., 支付宝/微信/银行卡/理财/余额宝)。
+- accountNameTo: destination account if explicitly present; otherwise "".
+- cateName: pick exactly one from Category Data; do not invent.
+- currency: 3-letter ISO if present; else "CNY".
+- fee: explicit transaction fee; else 0.
+- money: transaction amount (not balance/limit/可用额度)。
+- shopItem: concrete item name if present; else "".
+- shopName: merchant or counterparty if present; else "".
+- type: one of ["Transfer","Income","Expend"], based on explicit words/signs:
+  - Transfer: both accountNameFrom and accountNameTo are present and different.
+  - Income: 收到/入账/到账/退款/收款/转入/充值 等。
+  - Expend: 支付/扣款/消费/转出/提现/付款 等。
+- timeText: full date-time string if explicitly present (e.g., 2024-08-02 12:01:22 / 2024/08/02 12:01 / 20240802 120122). If absent -> "".
+
+# Disambiguation
+- If multiple amounts appear, choose the one labeled as 支付/收款/退款/转账 金额; never choose 余额/限额。
+- If multiple categories fit, choose the most specific; if undecidable, set "".
+- Prefer omission over fabrication when OCR noise/ambiguity exists.
+
+# Schema
+{
+  "accountNameFrom": "",
+  "accountNameTo": "",
+  "cateName": "",
+  "currency": "CNY",
+  "fee": 0,
+  "money": 0.00,
+  "shopItem": "",
+  "shopName": "",
+  "type": "",
+  "timeText": ""
+}
+
+# Examples
+Input: 支付宝消费，商户：肯德基，支付金额￥36.50，账户余额...，时间2024-08-02 12:01:22
+Category Data: 餐饮,交通,购物
+Output:
+{"accountNameFrom":"支付宝","accountNameTo":"","cateName":"餐饮","currency":"CNY","fee":0,"money":36.50,"shopItem":"","shopName":"肯德基","type":"Expend","timeText":"2024-08-02 12:01:22"}
+
+Input: 推广信息：本店大促销...
+Category Data: 餐饮,交通
+Output:
+{}
+""".trimIndent()
+
+    /** AI资产映射提示词 - 将账单映射到对应资产账户 */
+    val AI_ASSET_MAPPING_PROMPT: String = """
+# Role
+You select asset names strictly from Asset Data.
+
+# Inputs
+Fields (may be empty): asset1, asset2
+
+# Asset Data
+- A comma-separated list of valid asset names.
+- You MUST choose exactly from this list. Do not invent, translate, or combine names.
+
+# Output (strict JSON only)
+- Return ONLY a JSON object with exactly two keys:
+  {"asset1":"<name-or-empty>", "asset2":"<name-or-empty>"}
+- If a clue has no match, set its value to an empty string: "".
+- No extra fields, no explanations, no markdown, no text outside JSON.
+
+# Matching rules (apply in order, independently for each clue)
+1) Exact equality (case-sensitive)
+2) Case-insensitive equality
+3) Substring/contains match; prefer the candidate with the longest overlap
+4) If multiple candidates tie, prefer the longer candidate name
+5) If still uncertain, use ""
+
+# Example Input
+{"asset1":"中国银行储蓄卡","asset2":"支付宝"}
+
+# Example Output
+{"asset1":"中国银行","asset2":"支付宝"}
+
+# Example Output (asset2 not found)
+{"asset1":"中国银行","asset2":""}
+""".trimIndent()
+
+    /** AI分类识别提示词 - 自动分类账单 */
+    val AI_CATEGORY_RECOGNITION_PROMPT: String = """
+# Role
+You select exactly one category name from Category Data.
+
+# Inputs
+Fields: ruleName, shopName, shopItem
+
+# Category Data
+- A comma-separated list of valid category names.
+- You MUST choose one exactly from this list. Do not invent, translate, or combine names.
+- Exception: if uncertain after matching, output 其他.
+
+# Output
+- Raw text, single line: the chosen category name only.
+- No quotes, no JSON, no explanations, no comments, no extra whitespace.
+- If uncertain, output 其他.
+
+# Matching rules (apply in order)
+1) Exact equality (case-sensitive): compare against shopItem, then shopName, then ruleName.
+2) Case-insensitive equality.
+3) Substring/contains match. Prefer the candidate with the longest overlap.
+4) If still uncertain, output 其他.
+
+# Tie-breakers
+- Prefer shopItem over shopName over ruleName.
+- Prefer longer and more specific matches.
+- Except the fallback 其他, never output a name that is not in Category Data.
+
+# Example Input
+{"shopName": "钱塘江超市", "shopItem": "上好佳薯片", "ruleName": "支付宝红包"}
+
+# Example Output
+购物
+""".trimIndent()
+
     val AI_SUMMARY_PROMPT: String = """
 你是一个专业的财务分析师，擅长分析个人账单数据并提供有价值的财务建议。
 
