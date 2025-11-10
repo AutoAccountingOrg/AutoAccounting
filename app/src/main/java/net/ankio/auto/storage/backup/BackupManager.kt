@@ -169,20 +169,36 @@ class BackupManager(private val context: Context) {
             Logger.e("WebDAV备份失败", e)
             BackupResult.Failure(
                 message = when {
-                    e.message?.contains("connect", ignoreCase = true) == true ->
+                    // 检查 HTTP 异常的状态码
+                    e is net.ankio.auto.http.RequestsUtils.HttpException -> {
+                        when (e.code) {
+                            401, 403 -> "WebDAV认证失败（HTTP ${e.code}），请检查用户名和密码"
+                            404 -> "WebDAV路径不存在（HTTP ${e.code}），请检查配置的路径"
+                            500, 502, 503, 504 -> "WebDAV服务器错误（HTTP ${e.code}），请稍后重试"
+                            else -> "WebDAV请求失败（HTTP ${e.code}）：${e.message}"
+                        }
+                    }
+                    // 网络连接错误
+                    e.message?.contains("connect", ignoreCase = true) == true ||
+                            e.message?.contains("timeout", ignoreCase = true) == true ||
+                            e.message?.contains("unreachable", ignoreCase = true) == true ->
                         "无法连接到WebDAV服务器，请检查网络连接和服务器地址"
 
+                    // 认证相关错误（兼容旧代码）
                     e.message?.contains("auth", ignoreCase = true) == true ||
                             e.message?.contains("401", ignoreCase = true) == true ||
                             e.message?.contains("403", ignoreCase = true) == true ->
                         "WebDAV认证失败，请检查用户名和密码"
 
+                    // 路径不存在
                     e.message?.contains("404", ignoreCase = true) == true ->
                         "WebDAV路径不存在，请检查配置的路径"
 
+                    // 数据打包错误
                     e.message?.contains("packData") == true ->
                         "数据打包失败：${e.message}"
 
+                    // 其他错误
                     else -> "WebDAV备份失败：${e.message ?: "未知错误"}"
                 },
                 throwable = e

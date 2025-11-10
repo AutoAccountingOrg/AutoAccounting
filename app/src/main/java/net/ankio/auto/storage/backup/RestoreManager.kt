@@ -141,24 +141,41 @@ class RestoreManager(private val context: Context) {
             }
             BackupResult.Failure(
                 message = when {
-                    e.message?.contains("connect", ignoreCase = true) == true ->
+                    // 检查 HTTP 异常的状态码
+                    e is net.ankio.auto.http.RequestsUtils.HttpException -> {
+                        when (e.code) {
+                            401, 403 -> "WebDAV认证失败（HTTP ${e.code}），请检查用户名和密码"
+                            404 -> "备份文件不存在（HTTP ${e.code}）：$filename"
+                            500, 502, 503, 504 -> "WebDAV服务器错误（HTTP ${e.code}），请稍后重试"
+                            else -> "WebDAV请求失败（HTTP ${e.code}）：${e.message}"
+                        }
+                    }
+                    // 网络连接错误
+                    e.message?.contains("connect", ignoreCase = true) == true ||
+                            e.message?.contains("timeout", ignoreCase = true) == true ||
+                            e.message?.contains("unreachable", ignoreCase = true) == true ->
                         "无法连接到WebDAV服务器，请检查网络连接"
 
+                    // 认证相关错误（兼容旧代码）
                     e.message?.contains("auth", ignoreCase = true) == true ||
                             e.message?.contains("401", ignoreCase = true) == true ||
                             e.message?.contains("403", ignoreCase = true) == true ->
                         "WebDAV认证失败，请检查用户名和密码"
 
+                    // 文件不存在
                     e.message?.contains("404", ignoreCase = true) == true ->
                         "备份文件不存在：$filename"
 
+                    // 解包错误
                     e.message?.contains("unpackData") == true ||
                             e.message?.contains("解包") == true ->
                         "备份文件损坏或格式不正确：${e.message}"
 
+                    // 下载错误
                     e.message?.contains("download") == true ->
                         "下载备份文件失败：${e.message}"
 
+                    // 其他错误
                     else -> "WebDAV恢复失败：${e.message ?: "未知错误"}"
                 },
                 throwable = e
