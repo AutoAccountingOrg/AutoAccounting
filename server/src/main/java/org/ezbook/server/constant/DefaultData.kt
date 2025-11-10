@@ -383,6 +383,7 @@ Fields: ruleName, shopName, shopItem
 
     // ======== OCR显示默认值 ========
     val OCR_SHOW_ANIMATION: Boolean = true
+    val OCR_FLIP_TRIGGER: Boolean = true                            // 翻转手机触发默认开启
 
     // ======== 更新完整默认值 ========
     val LAST_UPDATE_CHECK_TIME: Long = 0L

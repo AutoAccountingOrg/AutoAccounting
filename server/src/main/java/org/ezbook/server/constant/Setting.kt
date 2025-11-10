@@ -98,6 +98,7 @@ object Setting {
 
     // ======== OCR显示设置 ========
     const val OCR_SHOW_ANIMATION: String = "ocr_show_animation"      // OCR识别时显示动画
+    const val OCR_FLIP_TRIGGER: String = "ocr_flip_trigger"        // 翻转手机触发当前页面识别（非Xposed模式）
 
     // ======== 功能模块开关 ========
     const val SETTING_ASSET_MANAGER = "setting_asset_manager"       // 资产管理

@@ -423,6 +423,11 @@ object PrefManager {
         get() = getBoolean(Setting.OCR_SHOW_ANIMATION, DefaultData.OCR_SHOW_ANIMATION)
         set(value) = putBoolean(Setting.OCR_SHOW_ANIMATION, value)
 
+    /** 是否启用翻转手机触发当前页面识别（非Xposed模式） */
+    var ocrFlipTrigger: Boolean
+        get() = getBoolean(Setting.OCR_FLIP_TRIGGER, DefaultData.OCR_FLIP_TRIGGER)
+        set(value) = putBoolean(Setting.OCR_FLIP_TRIGGER, value)
+
     // ======== 功能模块开关 ========
 
     /** 资产管理功能开关 - 是否启用资产管理模块 */

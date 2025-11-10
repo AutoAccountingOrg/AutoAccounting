@@ -71,10 +71,13 @@ class OcrService : ICoreService() {
         ocrProcessor = OcrProcessor().debug(PrefManager.debugMode).attach(coreService)
             .log { string, type -> Logger.log(LogLevel.fromAndroidLevel(type), string) }
 
-        if (WorkMode.isOcr()) {
+        // 只在非Xposed模式下启用翻转检测，且需要配置项开启
+        if (!WorkMode.isXposed() && PrefManager.ocrFlipTrigger) {
             // 启动翻转检测
             if (!detector.start()) {
                 Logger.e("设备不支持重力/加速度传感器")
+            } else {
+                Logger.d("翻转检测已启动（非Xposed模式）")
             }
         }
 
