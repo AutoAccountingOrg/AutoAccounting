@@ -102,15 +102,27 @@ class RequestsUtils {
     /**
      * 统一执行请求并返回字符串响应体
      * - 成功: 返回 body（空则返回空字符串）
-     * - 失败: 抛出 error(body) 以携带服务端错误信息
+     * - 失败: 抛出包含 HTTP 状态码和错误信息的异常
      */
     private fun executeAndGetBody(request: Request): String {
         client.newCall(request).execute().use { resp ->
             val body = resp.body?.string().orEmpty()
-            if (!resp.isSuccessful) error(body)
+            if (!resp.isSuccessful) {
+                // 构建包含状态码的错误信息
+                val errorMsg = when {
+                    body.isNotEmpty() -> "HTTP ${resp.code}: $body"
+                    else -> "HTTP ${resp.code}: ${resp.message}"
+                }
+                throw HttpException(resp.code, errorMsg)
+            }
             return body
         }
     }
+
+    /**
+     * HTTP 异常类 - 携带状态码和错误信息
+     */
+    class HttpException(val code: Int, message: String) : Exception(message)
 
 
     suspend fun get(url: String, query: Map<String, String>? = null): Result<String> =
@@ -197,7 +209,8 @@ class RequestsUtils {
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                error("Download failed with code ${response.code}")
+                val errorMsg = "HTTP ${response.code}: ${response.message}"
+                throw HttpException(response.code, errorMsg)
             }
 
             response.body?.byteStream().use { inputStream ->
