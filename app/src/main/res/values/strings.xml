@@ -192,6 +192,48 @@
     <string name="restore_webdav">Downloading backup file</string>
     <string name="backup_webdav">Preparing to upload...</string>
     <string name="backup_pack">Packing data...</string>
+
+    <!-- Backup and Restore Error Messages -->
+    <string name="backup_error_select_path">Please select backup save path first</string>
+    <string name="backup_error_permission">Insufficient permissions, unable to save backup file</string>
+    <string name="backup_error_create_file">Unable to create backup file, please check storage space and permissions</string>
+    <string name="backup_error_write_file">Unable to write backup file, please check storage space</string>
+    <string name="backup_error_pack_data">Data packing failed: %s</string>
+    <string name="backup_error_unknown">Backup failed: %s</string>
+
+    <string name="restore_error_open_file">Unable to open backup file, please check file permissions</string>
+    <string name="restore_error_file_corrupted">Backup file is corrupted or format is incorrect: %s</string>
+    <string name="restore_error_read_file">Failed to read backup file, please check if file is complete</string>
+    <string name="restore_error_unknown">Restore failed: %s</string>
+
+    <string name="webdav_error_auth">WebDAV authentication failed (HTTP %d), please check username and password</string>
+    <string name="webdav_error_path_not_found">WebDAV path does not exist (HTTP %d), please check configured path</string>
+    <string name="webdav_error_server_error">WebDAV server error (HTTP %d), please try again later</string>
+    <string name="webdav_error_request_failed">WebDAV request failed (HTTP %d): %s</string>
+    <string name="webdav_error_connect">Unable to connect to WebDAV server, please check network connection and server address</string>
+    <string name="webdav_error_connect_restore">Unable to connect to WebDAV server, please check network connection</string>
+    <string name="webdav_error_auth_simple">WebDAV authentication failed, please check username and password</string>
+    <string name="webdav_error_backup_failed">WebDAV backup failed: %s</string>
+    <string name="webdav_error_restore_failed">WebDAV restore failed: %s</string>
+    <string name="webdav_error_list_failed">Failed to get backup list (HTTP %d): %s</string>
+    <string name="webdav_error_list_failed_simple">Failed to get backup list: %s</string>
+    <string name="webdav_error_file_not_found">Backup file does not exist (HTTP %d): %s</string>
+    <string name="webdav_error_download_failed">Failed to download backup file: %s</string>
+
+    <string name="export_error_permission">Unable to create export file, please check storage permissions</string>
+    <string name="export_error_storage_full">Storage space insufficient, unable to export file</string>
+    <string name="export_error_unknown">Export failed: %s</string>
+
+    <string name="import_error_open_file">Unable to open CSV file, please check if file exists</string>
+    <string name="import_error_file_permission">Unable to open CSV file, please check file permissions</string>
+    <string name="import_error_format">CSV file format error: %s</string>
+    <string name="import_error_read_file">Failed to read CSV file, please check if file is complete</string>
+    <string name="import_error_unknown">Import failed: %s</string>
+    <string name="import_result_partial">Import completed: %1$d/%2$d successful, failed line numbers: %3$s</string>
+
+    <string name="template_error_permission">Unable to create template file, please check storage permissions</string>
+    <string name="template_error_storage_full">Storage space insufficient, unable to create template file</string>
+    <string name="template_error_unknown">Failed to create template: %s</string>
     <string name="backup_preparing">Preparing backup...</string>
     <string name="backup_database">Backing up database...</string>
     <string name="backup_preferences">Backing up preferences...</string>
@@ -838,6 +880,30 @@
     <string name="setting_category_recording_panel">Recording Panel</string>
     <string name="setting_category_prompt_management">Prompt Management</string>
     <string name="setting_category_import_export">Import/Export</string>
+    <string name="setting_import_bill">Import Bills</string>
+    <string name="setting_import_bill_summary">Import bill data from CSV file</string>
+    <string name="setting_import_bill_success">Successfully imported %1$d/%2$d bills</string>
+    <string name="setting_import_bill_failed">Failed to import bills</string>
+    <string name="setting_import_bill_empty">CSV file is empty or invalid format</string>
+    <string name="setting_export_bill">Export Bills</string>
+    <string name="setting_export_bill_summary">Export bill data to CSV file</string>
+    <string name="setting_export_bill_success">Successfully exported %d bills</string>
+    <string name="setting_export_bill_failed">Failed to export bills</string>
+    <string name="setting_export_bill_empty">No bills to export</string>
+    <string name="setting_get_import_template">Get Import Template</string>
+    <string name="setting_get_import_template_summary">Download CSV import template file</string>
+    <string name="setting_get_import_template_success">Template file generated</string>
+    <string name="setting_get_import_template_failed">Failed to generate template</string>
+    <string name="setting_export_select_books">Select Books (empty means all books)</string>
+    <string name="setting_export_all_books">All Books</string>
+    <string name="setting_export_select_time_range">Select Time Range</string>
+    <string name="setting_export_all_time">All Time</string>
+    <string name="setting_export_start_time">Tap to select start time</string>
+    <string name="setting_export_start_time_label">Start Time:</string>
+    <string name="setting_export_end_time">Tap to select end time</string>
+    <string name="setting_export_end_time_label">End Time:</string>
+    <string name="setting_import_select_book">Select Target Book</string>
+    <string name="setting_import_default_book">Default Book</string>
     <string name="setting_category_advanced_features_settings">Advanced Features</string>
     <string name="setting_category_app_info">App Info</string>
     <string name="setting_category_community">Community</string>

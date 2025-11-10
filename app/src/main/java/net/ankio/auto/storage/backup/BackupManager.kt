@@ -83,8 +83,8 @@ class BackupManager(private val context: Context) {
         // 1. 权限检查 - 快速失败
         if (!hasValidBackupPath()) {
             return@withIO BackupResult.Failure(
-                message = "请先选择备份保存路径",
-                throwable = PermissionException("请先选择备份保存路径")
+                message = context.getString(R.string.backup_error_select_path),
+                throwable = PermissionException(context.getString(R.string.backup_error_select_path))
             )
         }
 
@@ -112,7 +112,7 @@ class BackupManager(private val context: Context) {
             backupFile.delete()
             Logger.e("本地备份失败：权限不足", e)
             BackupResult.Failure(
-                message = e.message ?: "权限不足，无法保存备份文件",
+                message = e.message ?: context.getString(R.string.backup_error_permission),
                 throwable = e
             )
         } catch (e: Exception) {
@@ -121,10 +121,17 @@ class BackupManager(private val context: Context) {
             Logger.e("本地备份失败", e)
             BackupResult.Failure(
                 message = when {
-                    e.message?.contains("无法创建") == true -> "无法创建备份文件，请检查存储空间和权限"
-                    e.message?.contains("无法写入") == true -> "无法写入备份文件，请检查存储空间"
-                    e.message?.contains("packData") == true -> "数据打包失败：${e.message}"
-                    else -> "备份失败：${e.message ?: "未知错误"}"
+                    e.message?.contains("无法创建") == true -> context.getString(R.string.backup_error_create_file)
+                    e.message?.contains("无法写入") == true -> context.getString(R.string.backup_error_write_file)
+                    e.message?.contains("packData") == true -> context.getString(
+                        R.string.backup_error_pack_data,
+                        e.message ?: ""
+                    )
+
+                    else -> context.getString(
+                        R.string.backup_error_unknown,
+                        e.message ?: context.getString(R.string.unknown_error)
+                    )
                 },
                 throwable = e
             )
@@ -172,34 +179,45 @@ class BackupManager(private val context: Context) {
                     // 检查 HTTP 异常的状态码
                     e is net.ankio.auto.http.RequestsUtils.HttpException -> {
                         when (e.code) {
-                            401, 403 -> "WebDAV认证失败（HTTP ${e.code}），请检查用户名和密码"
-                            404 -> "WebDAV路径不存在（HTTP ${e.code}），请检查配置的路径"
-                            500, 502, 503, 504 -> "WebDAV服务器错误（HTTP ${e.code}），请稍后重试"
-                            else -> "WebDAV请求失败（HTTP ${e.code}）：${e.message}"
+                            401, 403 -> context.getString(R.string.webdav_error_auth, e.code)
+                            404 -> context.getString(R.string.webdav_error_path_not_found, e.code)
+                            500, 502, 503, 504 -> context.getString(
+                                R.string.webdav_error_server_error,
+                                e.code
+                            )
+
+                            else -> context.getString(
+                                R.string.webdav_error_request_failed,
+                                e.code,
+                                e.message ?: ""
+                            )
                         }
                     }
                     // 网络连接错误
                     e.message?.contains("connect", ignoreCase = true) == true ||
                             e.message?.contains("timeout", ignoreCase = true) == true ||
                             e.message?.contains("unreachable", ignoreCase = true) == true ->
-                        "无法连接到WebDAV服务器，请检查网络连接和服务器地址"
-
+                        context.getString(R.string.webdav_error_connect)
+                    
                     // 认证相关错误（兼容旧代码）
                     e.message?.contains("auth", ignoreCase = true) == true ||
                             e.message?.contains("401", ignoreCase = true) == true ||
                             e.message?.contains("403", ignoreCase = true) == true ->
-                        "WebDAV认证失败，请检查用户名和密码"
-
+                        context.getString(R.string.webdav_error_auth_simple)
+                    
                     // 路径不存在
                     e.message?.contains("404", ignoreCase = true) == true ->
-                        "WebDAV路径不存在，请检查配置的路径"
-
+                        context.getString(R.string.webdav_error_path_not_found, 404)
+                    
                     // 数据打包错误
                     e.message?.contains("packData") == true ->
-                        "数据打包失败：${e.message}"
-
+                        context.getString(R.string.backup_error_pack_data, e.message ?: "")
+                    
                     // 其他错误
-                    else -> "WebDAV备份失败：${e.message ?: "未知错误"}"
+                    else -> context.getString(
+                        R.string.webdav_error_backup_failed,
+                        e.message ?: context.getString(R.string.unknown_error)
+                    )
                 },
                 throwable = e
             )
@@ -248,14 +266,14 @@ class BackupManager(private val context: Context) {
             documentUri,
             "application/${BackupFileManager.SUFFIX}",
             filename
-        ) ?: throw RuntimeException("无法创建备份文件")
+        ) ?: throw RuntimeException(context.getString(R.string.backup_error_create_file))
 
         // 写入文件内容
         context.contentResolver.openOutputStream(newFileUri)?.use { outputStream ->
             FileInputStream(backupFile).use { inputStream ->
                 inputStream.copyTo(outputStream)
             }
-        } ?: throw RuntimeException("无法写入备份文件")
+        } ?: throw RuntimeException(context.getString(R.string.backup_error_write_file))
     }
 
     companion object {

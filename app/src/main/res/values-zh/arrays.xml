@@ -13,6 +13,4 @@
   ~   limitations under the License.
   -->
 
-<resources>
-    <string name="filter_type_ocr">Ocr</string>
-</resources>
+<resources></resources>

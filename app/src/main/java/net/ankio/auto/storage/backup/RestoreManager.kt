@@ -58,7 +58,7 @@ class RestoreManager(private val context: Context) {
             // 读取文件内容
             val inputStream = context.contentResolver.openInputStream(uri)
                 ?: return@withIO BackupResult.Failure(
-                    message = "无法打开备份文件，请检查文件是否存在",
+                    message = context.getString(R.string.restore_error_open_file),
                     throwable = null
                 )
 
@@ -79,16 +79,19 @@ class RestoreManager(private val context: Context) {
             BackupResult.Failure(
                 message = when {
                     e.message?.contains("无法打开") == true ->
-                        "无法打开备份文件，请检查文件权限"
+                        context.getString(R.string.restore_error_open_file)
 
                     e.message?.contains("unpackData") == true ||
                             e.message?.contains("解包") == true ->
-                        "备份文件损坏或格式不正确：${e.message}"
+                        context.getString(R.string.restore_error_file_corrupted, e.message ?: "")
 
                     e.message?.contains("readBytes") == true ->
-                        "读取备份文件失败，请检查文件是否完整"
+                        context.getString(R.string.restore_error_read_file)
 
-                    else -> "恢复失败：${e.message ?: "未知错误"}"
+                    else -> context.getString(
+                        R.string.restore_error_unknown,
+                        e.message ?: context.getString(R.string.unknown_error)
+                    )
                 },
                 throwable = e
             )
@@ -144,39 +147,55 @@ class RestoreManager(private val context: Context) {
                     // 检查 HTTP 异常的状态码
                     e is net.ankio.auto.http.RequestsUtils.HttpException -> {
                         when (e.code) {
-                            401, 403 -> "WebDAV认证失败（HTTP ${e.code}），请检查用户名和密码"
-                            404 -> "备份文件不存在（HTTP ${e.code}）：$filename"
-                            500, 502, 503, 504 -> "WebDAV服务器错误（HTTP ${e.code}），请稍后重试"
-                            else -> "WebDAV请求失败（HTTP ${e.code}）：${e.message}"
+                            401, 403 -> context.getString(R.string.webdav_error_auth, e.code)
+                            404 -> context.getString(
+                                R.string.webdav_error_file_not_found,
+                                e.code,
+                                filename
+                            )
+
+                            500, 502, 503, 504 -> context.getString(
+                                R.string.webdav_error_server_error,
+                                e.code
+                            )
+
+                            else -> context.getString(
+                                R.string.webdav_error_request_failed,
+                                e.code,
+                                e.message ?: ""
+                            )
                         }
                     }
                     // 网络连接错误
                     e.message?.contains("connect", ignoreCase = true) == true ||
                             e.message?.contains("timeout", ignoreCase = true) == true ||
                             e.message?.contains("unreachable", ignoreCase = true) == true ->
-                        "无法连接到WebDAV服务器，请检查网络连接"
-
+                        context.getString(R.string.webdav_error_connect_restore)
+                    
                     // 认证相关错误（兼容旧代码）
                     e.message?.contains("auth", ignoreCase = true) == true ||
                             e.message?.contains("401", ignoreCase = true) == true ||
                             e.message?.contains("403", ignoreCase = true) == true ->
-                        "WebDAV认证失败，请检查用户名和密码"
-
+                        context.getString(R.string.webdav_error_auth_simple)
+                    
                     // 文件不存在
                     e.message?.contains("404", ignoreCase = true) == true ->
-                        "备份文件不存在：$filename"
-
+                        context.getString(R.string.webdav_error_file_not_found, 404, filename)
+                    
                     // 解包错误
                     e.message?.contains("unpackData") == true ||
                             e.message?.contains("解包") == true ->
-                        "备份文件损坏或格式不正确：${e.message}"
-
+                        context.getString(R.string.restore_error_file_corrupted, e.message ?: "")
+                    
                     // 下载错误
                     e.message?.contains("download") == true ->
-                        "下载备份文件失败：${e.message}"
-
+                        context.getString(R.string.webdav_error_download_failed, e.message ?: "")
+                    
                     // 其他错误
-                    else -> "WebDAV恢复失败：${e.message ?: "未知错误"}"
+                    else -> context.getString(
+                        R.string.webdav_error_restore_failed,
+                        e.message ?: context.getString(R.string.unknown_error)
+                    )
                 },
                 throwable = e
             )
