@@ -12,7 +12,7 @@
     <!-- AI provider dropdown -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilAiProvider"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.FilledBox"
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +23,10 @@
             android:id="@+id/actAiProvider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:inputType="none"
             android:importantForAutofill="no" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -38,7 +41,7 @@
         <!-- AI token input -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilAiToken"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -77,7 +80,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilAiBaseUrl"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -103,7 +106,7 @@
         <!-- AI model: 可编辑 + 下拉选择（Exposed Dropdown） -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilAiModel"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -114,7 +117,10 @@
                 android:id="@+id/actAiModel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:inputType="text|textNoSuggestions"
                 android:completionThreshold="1"
                 tools:text="gpt-4o" />
@@ -139,7 +145,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTestAi"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
