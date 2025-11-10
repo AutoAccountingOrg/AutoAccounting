@@ -412,10 +412,10 @@ object PrefManager {
         get() = getString(Setting.FLOAT_LONG_CLICK, DefaultData.FLOAT_LONG_CLICK)
         set(value) = putString(Setting.FLOAT_LONG_CLICK, value)
 
-    /** 悬浮窗位置 - true靠右/false靠左 */
-    var floatGravityRight: Boolean
-        get() = getBoolean(Setting.FLOAT_GRAVITY_RIGHT, DefaultData.FLOAT_GRAVITY_RIGHT)
-        set(value) = putBoolean(Setting.FLOAT_GRAVITY_RIGHT, value)
+    /** 记账小面板显示位置 - left/right/top */
+    var floatGravityPosition: String
+        get() = getString(Setting.FLOAT_GRAVITY_POSITION, DefaultData.FLOAT_GRAVITY_POSITION)
+        set(value) = putString(Setting.FLOAT_GRAVITY_POSITION, value)
 
     // ======== OCR 显示设置 ========
     /** 是否在OCR识别期间显示动画悬浮窗 */

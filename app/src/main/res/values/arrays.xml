@@ -122,6 +122,19 @@
         <item>AUTO_ACCOUNT</item>
     </string-array>
 
+    <!-- Float badge position options -->
+    <string-array name="float_position_texts" translatable="false">
+        <item>@string/float_position_left</item>
+        <item>@string/float_position_right</item>
+        <item>@string/float_position_top</item>
+    </string-array>
+
+    <string-array name="float_position_values" translatable="false">
+        <item>left</item>
+        <item>right</item>
+        <item>top</item>
+    </string-array>
+
     <!-- Update channel options -->
     <string-array name="update_channel_texts" translatable="false">
         <item>@string/version_stable</item>

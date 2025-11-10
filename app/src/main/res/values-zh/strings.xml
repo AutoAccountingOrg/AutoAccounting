@@ -668,8 +668,8 @@
     <string name="setting_category_notification">通知</string>
     <string name="setting_category_remark">备注设置</string>
     <string name="setting_category_popup_style">圆角弹窗风格</string>
-    <string name="setting_category_float_badge">悬浮角标设置</string>
-    <string name="setting_category_float_events">悬浮角标事件设置</string>
+    <string name="setting_category_float_badge">记账小面板设置</string>
+    <string name="setting_category_float_events">记账小面板事件设置</string>
     <string name="setting_category_ocr">OCR</string>
     <string name="setting_category_asset_management">资产管理</string>
     <string name="setting_category_advanced_features">高级功能</string>
@@ -709,15 +709,18 @@
 
     <string name="setting_round_style">使用圆角弹窗风格</string>
     <string name="setting_round_style_summary">为弹窗启用圆角样式</string>
-    <string name="setting_float_badge_timeout">悬浮角标超时时间</string>
-    <string name="setting_float_badge_disabled">不显示悬浮角标</string>
+    <string name="setting_float_badge_timeout">记账小面板超时时间</string>
+    <string name="setting_float_badge_disabled">不显示记账小面板</string>
     <string name="setting_float_timeout_action">超时操作</string>
     <string name="setting_float_click">点击操作</string>
     <string name="setting_float_long_click">长按操作</string>
 
-    <!-- 浮窗左右位置与删除选项（新增补全） -->
-    <string name="setting_float_badge_right">在右侧显示</string>
-    <string name="setting_float_badge_right_summary">切换浮动徽章在左右侧的显示位置</string>
+    <!-- 记账小面板位置设置 -->
+    <string name="setting_float_badge_position">面板显示位置</string>
+    <string name="setting_float_badge_position_summary">选择记账小面板的显示位置</string>
+    <string name="float_position_left">左侧</string>
+    <string name="float_position_right">右侧</string>
+    <string name="float_position_top">顶部</string>
     <string name="setting_asset_manager">资产管理</string>
     <string name="setting_asset_manager_summary">启用资产管理功能</string>
     <string name="setting_currency_manager">多货币</string>

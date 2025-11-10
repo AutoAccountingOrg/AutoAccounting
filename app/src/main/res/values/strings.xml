@@ -784,11 +784,19 @@
     <string name="setting_float_click">Click Action</string>
     <string name="setting_float_long_click">Long Click Action</string>
     <string name="setting_float_badge_right">Show on right side</string>
-    <string name="setting_float_badge_right_summary">Toggle to switch floating badge between right and left</string><!-- Float action display names -->
+    <string name="setting_float_badge_right_summary">Toggle to switch floating badge between right and left</string>
+    <string name="setting_float_badge_position">Panel Display Position</string>
+    <string name="setting_float_badge_position_summary">Select the display position of the accounting panel</string>
+    <string name="float_position_left">Left</string>
+    <string name="float_position_right">Right</string>
+    <string name="float_position_top">Top</string>
+    <!-- Float action display names -->
     <string name="float_action_dismiss">Dismiss</string>
     <string name="float_action_auto_record">Auto Record</string>
     <string name="setting_ocr_show_animation">Show OCR animation</string>
     <string name="setting_ocr_show_animation_summary">Display an overlay animation while OCR is running</string>
+    <string name="setting_ocr_flip_trigger">Flip Phone to Trigger Current Page Recognition</string>
+    <string name="setting_ocr_flip_trigger_summary">Flip phone to trigger current page recognition (Non-Xposed mode)</string>
 
     <!-- Common strings -->
     <string name="clearing">Clearing...</string>

@@ -379,7 +379,7 @@ Fields: ruleName, shopName, shopItem
     val FLOAT_TIMEOUT_ACTION: String = "POP_EDIT_WINDOW"
     val FLOAT_CLICK: String = "POP_EDIT_WINDOW"
     val FLOAT_LONG_CLICK: String = "NO_ACCOUNT"
-    val FLOAT_GRAVITY_RIGHT: Boolean = true
+    val FLOAT_GRAVITY_POSITION: String = "right"                    // 记账小面板默认位置：右侧
 
     // ======== OCR显示默认值 ========
     val OCR_SHOW_ANIMATION: Boolean = true

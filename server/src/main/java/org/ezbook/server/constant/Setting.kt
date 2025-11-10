@@ -94,7 +94,8 @@ object Setting {
     const val FLOAT_TIMEOUT_ACTION = "setting_float_timeout_action" // 超时操作
     const val FLOAT_CLICK = "setting_float_click"                   // 点击事件
     const val FLOAT_LONG_CLICK = "setting_float_long_click"         // 长按事件
-    const val FLOAT_GRAVITY_RIGHT = "setting_float_gravity_right"   // 悬浮窗是否靠右显示（true=右，false=左）
+    const val FLOAT_GRAVITY_POSITION =
+        "setting_float_gravity_position"   // 记账小面板显示位置（left/right/top）
 
     // ======== OCR显示设置 ========
     const val OCR_SHOW_ANIMATION: String = "ocr_show_animation"      // OCR识别时显示动画
