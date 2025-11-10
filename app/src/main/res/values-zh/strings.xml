@@ -192,6 +192,49 @@
     <string name="restore_webdav">下载备份文件</string>
     <string name="backup_webdav">准备上传...</string>
     <string name="backup_pack">打包数据...</string>
+
+    <!-- Backup and Restore Error Messages -->
+    <string name="backup_error_select_path">请先选择备份保存路径</string>
+    <string name="backup_error_permission">权限不足，无法保存备份文件</string>
+    <string name="backup_error_create_file">无法创建备份文件，请检查存储空间和权限</string>
+    <string name="backup_error_write_file">无法写入备份文件，请检查存储空间</string>
+    <string name="backup_error_pack_data">数据打包失败：%s</string>
+    <string name="backup_error_unknown">备份失败：%s</string>
+
+    <string name="restore_error_open_file">无法打开备份文件，请检查文件是否存在</string>
+    <string name="restore_error_file_corrupted">备份文件损坏或格式不正确：%s</string>
+    <string name="restore_error_read_file">读取备份文件失败，请检查文件是否完整</string>
+    <string name="restore_error_unknown">恢复失败：%s</string>
+
+    <string name="webdav_error_auth">WebDAV认证失败（HTTP %d），请检查用户名和密码</string>
+    <string name="webdav_error_path_not_found">WebDAV路径不存在（HTTP %d），请检查配置的路径</string>
+    <string name="webdav_error_server_error">WebDAV服务器错误（HTTP %d），请稍后重试</string>
+    <string name="webdav_error_request_failed">WebDAV请求失败（HTTP %d）：%s</string>
+    <string name="webdav_error_connect">无法连接到WebDAV服务器，请检查网络连接和服务器地址</string>
+    <string name="webdav_error_connect_restore">无法连接到WebDAV服务器，请检查网络连接</string>
+    <string name="webdav_error_auth_simple">WebDAV认证失败，请检查用户名和密码</string>
+    <string name="webdav_error_backup_failed">WebDAV备份失败：%s</string>
+    <string name="webdav_error_restore_failed">WebDAV恢复失败：%s</string>
+    <string name="webdav_error_list_failed">获取备份列表失败（HTTP %d）：%s</string>
+    <string name="webdav_error_list_failed_simple">获取备份列表失败：%s</string>
+    <string name="webdav_error_file_not_found">备份文件不存在（HTTP %d）：%s</string>
+    <string name="webdav_error_download_failed">下载备份文件失败：%s</string>
+
+    <string name="export_error_permission">无法创建导出文件，请检查存储权限</string>
+    <string name="export_error_storage_full">存储空间不足，无法导出文件</string>
+    <string name="export_error_unknown">导出失败：%s</string>
+
+    <string name="import_error_open_file">无法打开CSV文件，请检查文件是否存在</string>
+    <string name="import_error_file_permission">无法打开CSV文件，请检查文件权限</string>
+    <string name="import_error_format">CSV文件格式错误：%s</string>
+    <string name="import_error_read_file">读取CSV文件失败，请检查文件是否完整</string>
+    <string name="import_error_unknown">导入失败：%s</string>
+    <string name="import_result_partial">导入完成：成功 %1$d/%2$d，失败行号：%3$s</string>
+
+    <string name="template_error_permission">无法创建模板文件，请检查存储权限</string>
+    <string name="template_error_storage_full">存储空间不足，无法创建模板文件</string>
+    <string name="template_error_unknown">创建模板失败：%s</string>
+
     <string name="setting_bill_remark">备注格式</string>
     <string name="setting_bill_remark_desc">支持使用以下中文变量：【商家名称】、【项目名称】、【货币类型】、【金额】、【分类】、【账本】、【来源】、【原始资产】、【渠道】</string>
     <string name="setting_float_time">倒计时持续时间（秒）</string>
@@ -661,6 +704,30 @@
     <string name="setting_category_recording_panel">记账面板</string>
     <string name="setting_category_prompt_management">提示词管理</string>
     <string name="setting_category_import_export">导入导出</string>
+    <string name="setting_import_bill">导入账单</string>
+    <string name="setting_import_bill_summary">从CSV文件导入账单数据</string>
+    <string name="setting_import_bill_success">成功导入 %1$d/%2$d 条账单</string>
+    <string name="setting_import_bill_failed">导入账单失败</string>
+    <string name="setting_import_bill_empty">CSV文件为空或格式不正确</string>
+    <string name="setting_export_bill">导出账单</string>
+    <string name="setting_export_bill_summary">将账单数据导出为CSV文件</string>
+    <string name="setting_export_bill_success">成功导出 %d 条账单</string>
+    <string name="setting_export_bill_failed">导出账单失败</string>
+    <string name="setting_export_bill_empty">没有可导出的账单数据</string>
+    <string name="setting_get_import_template">获取导入模板</string>
+    <string name="setting_get_import_template_summary">下载CSV导入模板文件</string>
+    <string name="setting_get_import_template_success">模板文件已生成</string>
+    <string name="setting_get_import_template_failed">生成模板失败</string>
+    <string name="setting_export_select_books">选择账本（不选表示所有账本）</string>
+    <string name="setting_export_all_books">所有账本</string>
+    <string name="setting_export_select_time_range">选择时间范围</string>
+    <string name="setting_export_all_time">所有时间</string>
+    <string name="setting_export_start_time">点击选择开始时间</string>
+    <string name="setting_export_start_time_label">开始时间：</string>
+    <string name="setting_export_end_time">点击选择结束时间</string>
+    <string name="setting_export_end_time_label">结束时间：</string>
+    <string name="setting_import_select_book">选择目标账本</string>
+    <string name="setting_import_default_book">默认账本</string>
     <string name="setting_category_advanced_features_settings">高级功能</string>
     <string name="setting_category_app_info">应用信息</string>
     <string name="setting_category_community">交流社区</string>
