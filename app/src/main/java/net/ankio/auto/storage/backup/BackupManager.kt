@@ -66,19 +66,24 @@ class BackupManager(private val context: Context) {
      * 设计原则：
      * 1. 快速失败 - 权限检查在最前面
      * 2. 清晰流程 - 检查权限 → 打包 → 保存，一目了然
-     * 3. 统一异常 - 所有问题都抛出明确的异常
+     * 3. 统一结果 - 返回 Result，不抛出异常，错误信息清晰
+     *
+     * @return BackupResult.Success 包含备份文件名，Failure 包含详细错误信息
      */
-    suspend fun createLocalBackup() = withIO {
+    suspend fun createLocalBackup(): BackupResult<String> = withIO {
         // 1. 权限检查 - 快速失败
         if (!hasValidBackupPath()) {
-            throw PermissionException("请先选择备份保存路径")
+            return@withIO BackupResult.Failure(
+                message = "请先选择备份保存路径",
+                throwable = PermissionException("请先选择备份保存路径")
+            )
         }
 
         // 2. 数据打包
         val filename = generateBackupFilename()
         val backupFile = File(context.cacheDir, filename)
 
-        try {
+        return@withIO try {
             Logger.i("开始本地备份")
 
             // 打包数据
@@ -90,21 +95,39 @@ class BackupManager(private val context: Context) {
             // 清理临时文件
             backupFile.delete()
 
-            Logger.i("本地备份完成")
-            ToastUtils.info(R.string.backup_success)
+            Logger.i("本地备份完成: $filename")
+            BackupResult.Success(filename)
 
+        } catch (e: PermissionException) {
+            // 权限错误
+            backupFile.delete()
+            Logger.e("本地备份失败：权限不足", e)
+            BackupResult.Failure(
+                message = e.message ?: "权限不足，无法保存备份文件",
+                throwable = e
+            )
         } catch (e: Exception) {
-            // 清理临时文件
+            // 其他错误
             backupFile.delete()
             Logger.e("本地备份失败", e)
-            throw e
+            BackupResult.Failure(
+                message = when {
+                    e.message?.contains("无法创建") == true -> "无法创建备份文件，请检查存储空间和权限"
+                    e.message?.contains("无法写入") == true -> "无法写入备份文件，请检查存储空间"
+                    e.message?.contains("packData") == true -> "数据打包失败：${e.message}"
+                    else -> "备份失败：${e.message ?: "未知错误"}"
+                },
+                throwable = e
+            )
         }
     }
 
     /**
      * WebDAV备份 - 使用Context而不是Activity
+     *
+     * @return BackupResult.Success 包含备份文件名，Failure 包含详细错误信息
      */
-    suspend fun createWebDAVBackup() = withIO {
+    suspend fun createWebDAVBackup(): BackupResult<String> = withIO {
         val filename = generateBackupFilename()
         val backupFile = File(this@BackupManager.context.cacheDir, filename)
         var loading: LoadingUtils? = null
@@ -112,7 +135,7 @@ class BackupManager(private val context: Context) {
             loading = runCatching { LoadingUtils(context) }.getOrNull()
         }
 
-        try {
+        return@withIO try {
             Logger.i("开始WebDAV备份")
             
             // 显示打包进度
@@ -130,11 +153,31 @@ class BackupManager(private val context: Context) {
 
             webDAVManager.upload(backupFile, filename).getOrThrow()
 
-            Logger.i("WebDAV备份完成")
+            Logger.i("WebDAV备份完成: $filename")
+            BackupResult.Success(filename)
 
         } catch (e: Exception) {
             Logger.e("WebDAV备份失败", e)
-            ToastUtils.error(e.message ?: "")
+            BackupResult.Failure(
+                message = when {
+                    e.message?.contains("connect", ignoreCase = true) == true ->
+                        "无法连接到WebDAV服务器，请检查网络连接和服务器地址"
+
+                    e.message?.contains("auth", ignoreCase = true) == true ||
+                            e.message?.contains("401", ignoreCase = true) == true ||
+                            e.message?.contains("403", ignoreCase = true) == true ->
+                        "WebDAV认证失败，请检查用户名和密码"
+
+                    e.message?.contains("404", ignoreCase = true) == true ->
+                        "WebDAV路径不存在，请检查配置的路径"
+
+                    e.message?.contains("packData") == true ->
+                        "数据打包失败：${e.message}"
+
+                    else -> "WebDAV备份失败：${e.message ?: "未知错误"}"
+                },
+                throwable = e
+            )
         } finally {
             // 清理资源
             backupFile.delete()
@@ -231,18 +274,26 @@ class BackupManager(private val context: Context) {
                 try {
                     val context = autoApp
 
-                    if (PrefManager.useWebdav) {
+                    val result = if (PrefManager.useWebdav) {
                         BackupManager(context).createWebDAVBackup()
                     } else {
                         BackupManager(context).createLocalBackup()
                     }
 
-                    // 更新最后备份时间
-                    PrefManager.lastBackupTime = System.currentTimeMillis()
-                    Logger.i("自动备份完成")
+                    when (result) {
+                        is BackupResult.Success -> {
+                            // 更新最后备份时间
+                            PrefManager.lastBackupTime = System.currentTimeMillis()
+                            Logger.i("自动备份完成: ${result.data}")
+                        }
+
+                        is BackupResult.Failure -> {
+                            Logger.e("自动备份失败: ${result.message}", result.throwable)
+                        }
+                    }
 
                 } catch (e: Exception) {
-                    Logger.e("自动备份失败", e)
+                    Logger.e("自动备份异常", e)
                 }
             }
         }

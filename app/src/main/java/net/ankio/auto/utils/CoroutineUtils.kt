@@ -59,8 +59,8 @@ object CoroutineUtils {
      *
      * @param block 需要在主线程执行的代码块
      */
-    suspend inline fun withMain(crossinline block: suspend () -> Unit) {
-        withContext(Dispatchers.Main) { block() }
+    suspend inline fun <T> withMain(crossinline block: suspend () -> T): T {
+        return withContext(Dispatchers.Main) { block() }
     }
 
     /**
