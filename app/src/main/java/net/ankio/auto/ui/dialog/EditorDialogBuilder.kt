@@ -52,6 +52,9 @@ class EditorDialogBuilder internal constructor(
 ) : BottomSheetDialogBuilder(context) {
 
     private var inputTypeInt: Int = InputType.TYPE_CLASS_TEXT
+    private var isMultiLine: Boolean = false
+    private var minLines: Int = 1
+    private var maxLines: Int = Int.MAX_VALUE
 
     private lateinit var editText: TextInputEditText
 
@@ -68,6 +71,23 @@ class EditorDialogBuilder internal constructor(
             editText.inputType = adjustInputTypeForDebug(inputType)
         }
     }
+
+    /**
+     * 设置多行输入模式
+     * @param multiLine 是否为多行模式，默认为 true
+     * @param minLines 最小行数，默认为 8
+     * @param maxLines 最大行数，默认为 Int.MAX_VALUE（无限制）
+     * @return 当前构建器实例，支持链式调用
+     */
+    fun setMultiLine(multiLine: Boolean = true, minLines: Int = 8, maxLines: Int = Int.MAX_VALUE) =
+        apply {
+            this.isMultiLine = multiLine
+            this.minLines = minLines
+            this.maxLines = maxLines
+            if (::editText.isInitialized) {
+                applyMultiLineSettings()
+            }
+        }
 
     override fun setTitle(title: String): EditorDialogBuilder {
         super.setTitle(title)
@@ -111,9 +131,32 @@ class EditorDialogBuilder internal constructor(
         // 调试模式下，如果为密码输入类型，则切换为明文输入类型；否则按原样设置
         editText.inputType = adjustInputTypeForDebug(inputTypeInt)
 
+        // 应用多行设置
+        applyMultiLineSettings()
+
         // 将视图设置到对话框
         addCustomView(inputLayout)
         return this
+    }
+
+    /**
+     * 应用多行设置到 EditText
+     */
+    private fun applyMultiLineSettings() {
+        if (isMultiLine) {
+            // 设置多行输入类型
+            val multiLineInputType = (editText.inputType and InputType.TYPE_MASK_CLASS) or
+                    InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    (editText.inputType and InputType.TYPE_MASK_VARIATION)
+            editText.inputType = adjustInputTypeForDebug(multiLineInputType)
+
+            // 设置行数
+            editText.minLines = minLines
+            editText.maxLines = maxLines
+
+            // 设置垂直对齐方式，让光标从顶部开始
+            editText.gravity = android.view.Gravity.TOP or android.view.Gravity.START
+        }
     }
 
     /**
