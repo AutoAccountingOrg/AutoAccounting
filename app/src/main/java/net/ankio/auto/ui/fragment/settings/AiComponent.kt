@@ -73,6 +73,7 @@ class AiComponent(
             createKeyUri = info["createKeyUri"].orEmpty()
             if (apiUri.isNotEmpty()) binding.etAiBaseUrl.setText(apiUri)
             if (apiModel.isNotEmpty()) binding.actAiModel.setText(apiModel, false)
+            binding.etAiToken.setText("")
         }
     }
 
@@ -238,25 +239,18 @@ class AiComponent(
     /** 恢复页面时同步后端状态到 UI - Linus式异常安全 */
     override fun onComponentResume() {
         super.onComponentResume()
-        val loading = LoadingUtils(context)
         launch {
-            try {
-                loading.show()
-                // 1) 载入 Provider 列表
-                providerList = AiAPI.getProviders()
-                binding.actAiProvider.setSimpleItems(providerList.toTypedArray())
-                loadProvider(PrefManager.apiProvider)
-                // 2) 使用 PrefManager 将配置填充到页面
-                binding.actAiProvider.setText(PrefManager.apiProvider, false)
-                binding.etAiToken.setText(PrefManager.apiKey)
-                binding.etAiBaseUrl.setText(PrefManager.apiUri)
-                binding.actAiModel.setText(PrefManager.apiModel, false)
-
-                // 测试按钮始终可用，无需更新状态
-            } finally {
-                loading.close()
-            }
+            // 1) 载入 Provider 列表
+            providerList = AiAPI.getProviders()
+            binding.actAiProvider.setSimpleItems(providerList.toTypedArray())
+            loadProvider(PrefManager.apiProvider)
+            // 2) 使用 PrefManager 将配置填充到页面
+            binding.actAiProvider.setText(PrefManager.apiProvider, false)
+            binding.etAiToken.setText(PrefManager.apiKey)
+            binding.etAiBaseUrl.setText(PrefManager.apiUri)
+            binding.actAiModel.setText(PrefManager.apiModel, false)
         }
     }
+
 }
 
