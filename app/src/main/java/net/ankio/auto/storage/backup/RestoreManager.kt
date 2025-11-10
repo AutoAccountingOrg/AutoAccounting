@@ -34,7 +34,16 @@ import java.io.File
 class RestoreManager(private val context: Context) {
 
     private val fileManager = BackupFileManager(context)
-    private val webDAVManager = WebDAVManager()
+
+    /**
+     * WebDAV管理器 - 每次使用时创建新实例，确保读取最新配置
+     *
+     * 为什么不在构造函数中创建？
+     * - 配置可能在运行时改变（用户在设置页面修改）
+     * - 每次使用时创建新实例，自动读取最新的 PrefManager 配置
+     * - WebDAVManager 是无状态的，创建成本低
+     */
+    private fun getWebDAVManager(): WebDAVManager = WebDAVManager()
 
     /**
      * 从本地文件恢复
@@ -105,11 +114,11 @@ class RestoreManager(private val context: Context) {
         val targetFile = File(context.cacheDir, "auto_backup.${BackupFileManager.SUFFIX}")
 
         return@withIO try {
-            // 下载文件
+            // 下载文件（使用最新配置）
             withMain {
                 loadingUtils?.setText(R.string.restore_webdav)
             }
-            webDAVManager.download(filename, targetFile).onSuccess {
+            getWebDAVManager().download(filename, targetFile).onSuccess {
                 withMain {
                     loadingUtils?.setText(R.string.restore_loading)
                 }

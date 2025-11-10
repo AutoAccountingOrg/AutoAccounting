@@ -51,7 +51,16 @@ import java.io.FileInputStream
 class BackupManager(private val context: Context) {
 
     private val fileManager = BackupFileManager(context)
-    private val webDAVManager = WebDAVManager()
+
+    /**
+     * WebDAV管理器 - 每次使用时创建新实例，确保读取最新配置
+     *
+     * 为什么不在构造函数中创建？
+     * - 配置可能在运行时改变（用户在设置页面修改）
+     * - 每次使用时创建新实例，自动读取最新的 PrefManager 配置
+     * - WebDAVManager 是无状态的，创建成本低
+     */
+    private fun getWebDAVManager(): WebDAVManager = WebDAVManager()
 
     /**
      * 生成备份文件名 - 包含版本和时间戳
@@ -146,12 +155,12 @@ class BackupManager(private val context: Context) {
             // 打包数据
             fileManager.packData(backupFile.absolutePath)
 
-            // 上传到WebDAV
+            // 上传到WebDAV（使用最新配置）
             withMain {
                 loading?.setText(R.string.backup_webdav)
             }
 
-            webDAVManager.upload(backupFile, filename).getOrThrow()
+            getWebDAVManager().upload(backupFile, filename).getOrThrow()
 
             Logger.i("WebDAV备份完成: $filename")
             BackupResult.Success(filename)
