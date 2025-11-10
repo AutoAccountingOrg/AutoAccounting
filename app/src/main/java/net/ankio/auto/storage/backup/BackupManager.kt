@@ -16,6 +16,7 @@
 package net.ankio.auto.storage.backup
 
 import android.content.Context
+import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import net.ankio.auto.App
@@ -103,6 +104,9 @@ class BackupManager(private val context: Context) {
 
             // 清理临时文件
             backupFile.delete()
+
+            // 清理旧备份，保持用户配置的文件数量
+            cleanupLocalBackups()
 
             Logger.i("本地备份完成: $filename")
             BackupResult.Success(filename)
@@ -274,6 +278,74 @@ class BackupManager(private val context: Context) {
                 inputStream.copyTo(outputStream)
             }
         } ?: throw RuntimeException(context.getString(R.string.backup_error_write_file))
+    }
+
+    /**
+     * 清理本地旧备份，只保留用户配置数量的文件
+     */
+    private suspend fun cleanupLocalBackups() = withIO {
+        try {
+            val keepCount = PrefManager.backupKeepCount
+            val uri = PrefManager.localBackupPath.toUri()
+            val documentUri = DocumentsContract.buildDocumentUriUsingTree(
+                uri,
+                DocumentsContract.getTreeDocumentId(uri)
+            )
+
+            // 列出所有备份文件
+            val backupFiles = mutableListOf<Pair<String, Uri>>()
+            val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
+                uri,
+                DocumentsContract.getTreeDocumentId(uri)
+            )
+
+            context.contentResolver.query(
+                childrenUri,
+                arrayOf(
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID
+                ),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                val nameIndex =
+                    cursor.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                val idIndex =
+                    cursor.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+
+                while (cursor.moveToNext()) {
+                    val name = cursor.getString(nameIndex)
+                    if (name.endsWith("." + BackupFileManager.SUFFIX)) {
+                        val docId = cursor.getString(idIndex)
+                        val fileUri = DocumentsContract.buildDocumentUriUsingTree(uri, docId)
+                        backupFiles.add(Pair(name, fileUri))
+                    }
+                }
+            }
+
+            // 按文件名排序（文件名包含时间戳，降序排列）
+            backupFiles.sortByDescending { it.first }
+
+            // 删除超出保留数量的旧文件
+            if (backupFiles.size > keepCount) {
+                val filesToDelete = backupFiles.drop(keepCount)
+                Logger.d("清理本地备份: 保留${keepCount}个，删除${filesToDelete.size}个旧文件")
+                var deletedCount = 0
+                filesToDelete.forEach { (name, fileUri) ->
+                    try {
+                        if (DocumentsContract.deleteDocument(context.contentResolver, fileUri)) {
+                            deletedCount++
+                        }
+                    } catch (e: Exception) {
+                        Logger.w("删除本地备份文件失败: $name - ${e.message}")
+                    }
+                }
+                Logger.d("清理完成: 成功删除${deletedCount}个文件")
+            }
+        } catch (e: Exception) {
+            Logger.w("清理本地备份失败: ${e.message}")
+        }
     }
 
     companion object {

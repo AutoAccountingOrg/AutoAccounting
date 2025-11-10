@@ -260,6 +260,11 @@ object PrefManager {
         get() = getString(Setting.LOCAL_BACKUP_PATH, DefaultData.LOCAL_BACKUP_PATH)
         set(value) = putString(Setting.LOCAL_BACKUP_PATH, value)
 
+    /** 备份保留数量 - 本地和WebDAV备份都保留的文件数量 */
+    var backupKeepCount: Int
+        get() = getInt(Setting.BACKUP_KEEP_COUNT, DefaultData.BACKUP_KEEP_COUNT)
+        set(value) = putInt(Setting.BACKUP_KEEP_COUNT, value)
+
     // ======== 同步哈希值 ========
 
     /** 资产数据同步哈希值 - 用于检测数据变更 */

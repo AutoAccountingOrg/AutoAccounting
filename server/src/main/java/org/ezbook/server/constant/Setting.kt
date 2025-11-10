@@ -59,6 +59,7 @@ object Setting {
     const val WEBDAV_PASSWORD = "setting_webdav_password"           // WebDAV密码
     const val WEBDAV_PATH = "setting_webdav_path"                   // WebDAV路径
     const val LOCAL_BACKUP_PATH = "setting_local_backup_path"       // 本地备份路径
+    const val BACKUP_KEEP_COUNT = "setting_backup_keep_count"       // 备份保留数量
 
     // 同步哈希值
     const val HASH_ASSET = "setting_hash_asset"                     // 资产哈希

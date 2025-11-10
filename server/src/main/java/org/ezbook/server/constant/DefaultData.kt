@@ -175,6 +175,7 @@ object DefaultData {
     val SEND_ERROR_REPORT = true
 
     val LOCAL_BACKUP_PATH = ""
+    val BACKUP_KEEP_COUNT = 10  // 默认保留10个备份文件
 
     val SHOW_RULE_NAME = true
 
