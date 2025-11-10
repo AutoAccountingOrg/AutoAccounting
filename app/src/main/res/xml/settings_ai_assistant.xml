@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?><!-- AI助理设置：AI配置、提示词管理、AI功能 -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- AI配置 -->
+    <PreferenceCategory android:title="@string/setting_ai">
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_ai"
+            android:key="aiConfig"
+            android:summary="@string/setting_ai_config_summary"
+            android:title="@string/setting_ai_config" />
+    </PreferenceCategory>
+
+    <!-- 提示词管理 -->
+    <PreferenceCategory android:title="@string/setting_category_prompt_management">
+        <androidx.preference.Preference
+            android:defaultValue=""
+            android:icon="@drawable/icon_edit"
+            android:key="aiBillRecognitionPrompt"
+            android:summary="@string/setting_ai_bill_recognition_prompt_summary"
+            android:title="@string/setting_ai_bill_recognition_prompt" />
+
+        <androidx.preference.Preference
+            android:defaultValue=""
+            android:icon="@drawable/icon_edit"
+            android:key="aiAssetMappingPrompt"
+            android:summary="@string/setting_ai_asset_mapping_prompt_summary"
+            android:title="@string/setting_ai_asset_mapping_prompt" />
+
+        <androidx.preference.Preference
+            android:defaultValue=""
+            android:icon="@drawable/icon_edit"
+            android:key="aiCategoryRecognitionPrompt"
+            android:summary="@string/setting_ai_category_recognition_prompt_summary"
+            android:title="@string/setting_ai_category_recognition_prompt" />
+
+        <androidx.preference.Preference
+            android:defaultValue=""
+            android:icon="@drawable/icon_edit"
+            android:key="aiSummaryPrompt"
+            android:summary="@string/setting_ai_summary_prompt_summary"
+            android:title="@string/setting_ai_summary_prompt" />
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
+

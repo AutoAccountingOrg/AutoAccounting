@@ -304,7 +304,7 @@
     <string name="rule_testing">测试规则...</string>
     <string name="loading">加载中...</string>
     <string name="setting_bill_one_api_uri">API 地址</string>
-    <string name="setting_bill_auto_record">自动记录账单时显示通知</string>
+    <string name="setting_bill_auto_record">自动记录账单时显示提醒</string>
     <string name="setting_clear_database">清除数据库</string>
     <string name="clear_db_desc">不可逆操作，仅在卸载自动记账时使用。</string>
     <string name="clear_db_msg">您确定要清除数据库吗？请确保在清除数据库前进行备份。</string>
@@ -702,8 +702,8 @@
     <string name="setting_app_channel">更新渠道</string><!-- 更新类型选项 --><!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">自动去重</string>
     <string name="setting_auto_group_summary">自动检测并合并重复账单</string>
-    <string name="setting_bill_auto_record_summary">自动记录账单时显示通知</string>
-    <string name="setting_load_success_summary">成功加载时显示通知</string>
+    <string name="setting_bill_auto_record_summary">自动记录账单时显示提醒</string>
+    <string name="setting_load_success_summary">成功加载时显示提醒（只在Xposed模式）</string>
     <string name="setting_default_book">默认账本</string>
     <string name="setting_default_book_summary">新账单的默认账本</string>
 
