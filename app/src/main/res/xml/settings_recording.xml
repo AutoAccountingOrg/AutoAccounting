@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 记账设置：记账应用、记录方式、账单识别、账单管理、分类管理、资产管理、账本配置 -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 记账应用 -->
+    <PreferenceCategory android:title="@string/setting_category_book_app">
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_open_in_new"
+            android:key="bookApp"
+            android:summary="@string/setting_book_app_summary"
+            android:title="@string/setting_book_app" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_sync"
+            android:key="manualSync"
+            android:summary="@string/setting_manual_sync_summary"
+            android:title="@string/setting_manual_sync" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_sync"
+            android:key="delayedSyncThreshold"
+            android:summary="%s"
+            android:title="@string/setting_delayed_sync_threshold" />
+    </PreferenceCategory>
+
+    <!-- 记录方式 -->
+    <PreferenceCategory android:title="@string/setting_category_recording_mode">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting_icon_auto"
+            android:key="autoRecordBill"
+            android:summary="@string/setting_auto_record_bill_summary"
+            android:title="@string/setting_auto_record_bill" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_landscape_dnd"
+            android:key="landscapeDnd"
+            android:summary="@string/setting_landscape_dnd_summary"
+            android:title="@string/setting_landscape_dnd" />
+    </PreferenceCategory>
+
+    <!-- 账单识别 -->
+    <PreferenceCategory android:title="@string/setting_category_bill_recognition">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_repeat"
+            android:key="autoGroup"
+            android:summary="@string/setting_auto_group_summary"
+            android:title="@string/setting_auto_group" />
+
+        <!-- 自动识别转账账单功能待实现 -->
+        <!-- <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_swap_horiz"
+            android:key="autoTransferRecognition"
+            android:summary="@string/setting_auto_transfer_recognition_summary"
+            android:title="@string/setting_auto_transfer_recognition" /> -->
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_ai"
+            android:key="aiBillRecognition"
+            android:summary="@string/setting_ai_bill_recognition_summary"
+            android:title="@string/setting_ai_bill_recognition" />
+    </PreferenceCategory>
+
+    <!-- 账单管理 -->
+    <PreferenceCategory android:title="@string/setting_category_bill_management">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting2_icon_rule"
+            android:key="showRuleName"
+            android:summary="@string/setting_bill_show_rule_summary"
+            android:title="@string/setting_bill_show_rule" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_fee"
+            android:key="featureFee"
+            android:summary="@string/setting_fee_summary"
+            android:title="@string/setting_fee" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_label"
+            android:key="featureTag"
+            android:summary="@string/setting_tag_summary"
+            android:title="@string/setting_tag" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_open_in_new"
+            android:key="remarkFormat"
+            android:summary="@string/setting_bill_remark_desc"
+            android:title="@string/setting_bill_remark" />
+    </PreferenceCategory>
+
+    <!-- 分类管理 -->
+    <PreferenceCategory android:title="@string/setting_category_category_management">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_category"
+            android:key="autoCreateCategory"
+            android:summary="@string/setting_auto_create_category_summary"
+            android:title="@string/setting_auto_create_category" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting2_icon_category"
+            android:key="aiCategoryRecognition"
+            android:summary="@string/setting_ai_category_recognition_summary"
+            android:title="@string/setting_ai_category_recognition" />
+    </PreferenceCategory>
+
+    <!-- 资产管理 -->
+    <PreferenceCategory android:title="@string/setting_category_asset_management">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_account_balance_wallet"
+            android:key="featureAssetManage"
+            android:summary="@string/setting_asset_manager_summary"
+            android:title="@string/setting_asset_manager" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/float_money"
+            android:key="featureMultiCurrency"
+            android:summary="@string/setting_currency_manager_summary"
+            android:title="@string/setting_currency_manager" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_reimbursement"
+            android:key="featureReimbursement"
+            android:summary="@string/setting_reimbursement_summary"
+            android:title="@string/setting_reimbursement" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_debt"
+            android:key="featureDebt"
+            android:summary="@string/setting_debt_summary"
+            android:title="@string/setting_debt" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_ai_map"
+            android:key="autoAssetMapping"
+            android:summary="@string/setting_auto_asset_mapping_summary"
+            android:title="@string/setting_auto_asset_mapping" />
+
+        <!-- 记住资产映射功能待实现 -->
+        <!-- <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_ai_map"
+            android:key="rememberAssetMapping"
+            android:summary="@string/setting_remember_asset_mapping_summary"
+            android:title="@string/setting_remember_asset_mapping" /> -->
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_ai_map"
+            android:key="aiAssetMapping"
+            android:summary="@string/setting_ai_asset_mapping_summary"
+            android:title="@string/setting_ai_asset_mapping" />
+    </PreferenceCategory>
+
+    <!-- 账本配置 -->
+    <PreferenceCategory android:title="@string/setting_category_book_config">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_book"
+            android:key="featureMultiBook"
+            android:summary="@string/setting_book_manager_summary"
+            android:title="@string/setting_book_manager" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_book"
+            android:key="defaultBook"
+            android:summary="@string/setting_default_book_summary"
+            android:title="@string/setting_default_book" />
+
+        <!-- 记账应用已在"记账应用"分类中，这里不再重复 -->
+    </PreferenceCategory>
+
+</PreferenceScreen>
+

@@ -805,6 +805,9 @@
     <string name="btn_bill_statistics">统计</string>
     <string name="setting_manual_sync">手动同步账单</string>
     <string name="setting_manual_sync_summary">开启后保存的账单不会自动同步至目标App</string>
+    <string name="setting_delayed_sync_threshold">延迟同步阈值</string>
+    <string name="setting_delayed_sync_threshold_summary">未同步账单达到 %d 条时自动同步</string>
+    <string name="setting_delayed_sync_threshold_realtime">实时同步（立即同步）</string>
 
     <!-- 统计页面 -->
     <string name="stat_title">统计</string>

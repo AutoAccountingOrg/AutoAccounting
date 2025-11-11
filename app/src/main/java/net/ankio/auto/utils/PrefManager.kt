@@ -79,6 +79,11 @@ object PrefManager {
 
     // ======== AI 设置 ========
 
+    /** AI功能可用性总开关 - 控制AI功能是否可用 */
+    var featureAiAvailable: Boolean
+        get() = getBoolean(Setting.FEATURE_AI_AVAILABLE, DefaultData.FEATURE_AI_AVAILABLE)
+        set(value) = putBoolean(Setting.FEATURE_AI_AVAILABLE, value)
+
     /**
      * 旧版 Provider 名称（兼容用）
      */
@@ -245,6 +250,11 @@ object PrefManager {
     var manualSync: Boolean
         get() = getBoolean(Setting.MANUAL_SYNC, DefaultData.MANUAL_SYNC)
         set(value) = putBoolean(Setting.MANUAL_SYNC, value)
+
+    /** 延迟同步阈值 - 未同步账单达到此数量时自动同步（0表示实时同步） */
+    var delayedSyncThreshold: Int
+        get() = getInt(Setting.DELAYED_SYNC_THRESHOLD, DefaultData.DELAYED_SYNC_THRESHOLD)
+        set(value) = putInt(Setting.DELAYED_SYNC_THRESHOLD, value)
 
     /** 最后备份时间 - Unix 时间戳 */
     var lastBackupTime: Long

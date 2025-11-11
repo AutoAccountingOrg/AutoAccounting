@@ -17,6 +17,7 @@ package org.ezbook.server.constant
 
 object Setting {
     // ======== AI设置 ========
+    const val FEATURE_AI_AVAILABLE: String = "feature_ai_available"      // AI功能可用性总开关
 
     const val AI_BILL_RECOGNITION: String = "ai_bill_recognition"        // 使用AI识别账单
     const val AI_CATEGORY_RECOGNITION: String = "ai_category_recognition" // 使用AI识别分类
@@ -53,6 +54,8 @@ object Setting {
     const val SYNC_TYPE = "setting_sync_type"                        // 同步类型
     const val LAST_SYNC_TIME: String = "last_sync_time"                   // 最后同步时间
     const val MANUAL_SYNC: String = "setting_manual_sync"                 // 手动同步模式（开启后保存不自动同步）
+    const val DELAYED_SYNC_THRESHOLD: String =
+        "setting_delayed_sync_threshold" // 延迟同步阈值（未同步账单达到此数量时自动同步，0表示实时同步）
     const val AUTO_BACKUP = "auto_backup"                           // 自动备份
     const val LAST_BACKUP_TIME: String = "last_backup_time"         // 最后备份时间
 

@@ -294,6 +294,7 @@ Fields: ruleName, shopName, shopItem
     val LAST_BACKUP_TIME = 0L
     val AUTO_BACKUP = false
     val MANUAL_SYNC = false
+    val DELAYED_SYNC_THRESHOLD: Int = 0                                  // 延迟同步阈值默认0（实时同步）
     val USE_WEBDAV = false
     val WEBDAV_HOST = "https://dav.jianguoyun.com/dav/"
     val WEBDAV_USER = ""
@@ -344,6 +345,7 @@ Fields: ruleName, shopName, shopItem
     val DONATE_TIME: String = ""
 
     // ======== AI 完整默认值 ========
+    val FEATURE_AI_AVAILABLE: Boolean = false                           // AI功能可用性默认关闭（需要配置API后启用）
     val API_KEY: String = ""
     val API_PROVIDER: String = "DeepSeek"
     val API_URI: String = ""
