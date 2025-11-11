@@ -197,8 +197,8 @@ class BillService(
             // 记录资产映射摘要
             ServerLog.d("资产映射完成：from=${billInfo.accountNameFrom}, to=${billInfo.accountNameTo}")
 
-            // 🔒 关键区间：账单入库+去重查询必须串行执行
-            // 防止并发竞态：7个请求同时insert，导致去重查询时数据不一致
+            // 🔒 关键区间：账单入库+去重+分类+保存+拉起悬浮窗全流程串行执行
+            // 防止并发竞态：确保账单处理的完整生命周期严格按序执行，避免悬浮窗乱序
             val parent = deduplicationMutex.withLock {
                 // 如果不是来自应用数据，则保存到数据库
                 if (!analysisParams.fromAppData) {
@@ -210,52 +210,57 @@ class BillService(
                 // 对账单类型进行检查，这里如果没有开启资产管理，是没有转账类型的
 
                 // 自动去重处理（来自App的数据跳过去重）
-                if (analysisParams.fromAppData) {
+                val parentBill = if (analysisParams.fromAppData) {
                     ServerLog.d("来自App的数据，跳过去重处理")
                     null
                 } else {
                     // 直接调用去重逻辑，不需要任务队列
                     BillManager.groupBillInfo(billInfo)
                 }
+
+                // 确定最终要分类和保存的账单
+                val finalBill = if (parentBill != null) {
+                    ServerLog.d("自动去重找到父账单：parentId=${parentBill.id}")
+                    // 父账单设置特殊规则名称
+                    parentBill.ruleName = formatParentBillRuleName()
+                    ServerLog.d("使用父账单作为最终账单，准备重新分类")
+                    parentBill
+                } else {
+                    ServerLog.d("自动去重未找到父账单，使用当前账单")
+                    billInfo
+                }
+
+                // 统一分类处理（只此一处）
+                categorize(finalBill)
+                ServerLog.d("分类完成后的账单：$finalBill")
+
+                // 生成账单备注（在分类之后，因为备注可能依赖分类信息）
+                finalBill.remark = BillManager.getRemark(finalBill, context)
+                ServerLog.d("备注生成完成：remark=${finalBill.remark}")
+
+                // 保存最终账单（包含分类、备注等完整信息）
+                db.billInfoDao().update(finalBill)
+
+                // 如果有父账单，需要额外更新子账单状态
+                if (parentBill != null) {
+                    // 确保子账单的groupId正确指向父账单（防御性编程，避免被覆盖）
+                    billInfo.groupId = parentBill.id
+                    billInfo.state = BillState.Edited
+                    db.billInfoDao().update(billInfo)
+                    ServerLog.d("子账单状态更新为已编辑：billId=${billInfo.id}, groupId=${billInfo.groupId}")
+                } else {
+                    // 无父账单，更新当前账单状态为等待编辑
+                    billInfo.state = BillState.Wait2Edit
+                }
+                // 记录账单最终状态
+                ServerLog.d("账单状态更新：state=${billInfo.state}")
+
+                // 拉起悬浮窗（仅外部数据）
+                if (!analysisParams.fromAppData) startAutoPanel(billInfo, parentBill)
+
+                // 返回父账单供后续使用
+                parentBill
             }
-
-            // 确定最终要分类和保存的账单
-            val finalBill = if (parent != null) {
-                ServerLog.d("自动去重找到父账单：parentId=${parent.id}")
-                // 父账单设置特殊规则名称
-                parent.ruleName = formatParentBillRuleName()
-                ServerLog.d("使用父账单作为最终账单，准备重新分类")
-                parent
-            } else {
-                ServerLog.d("自动去重未找到父账单，使用当前账单")
-                billInfo
-            }
-
-            // 统一分类处理（只此一处）
-            categorize(finalBill)
-            ServerLog.d("分类完成后的账单：$finalBill")
-
-            // 生成账单备注（在分类之后，因为备注可能依赖分类信息）
-            finalBill.remark = BillManager.getRemark(finalBill, context)
-            ServerLog.d("备注生成完成：remark=${finalBill.remark}")
-
-            // 保存最终账单（包含分类、备注等完整信息）
-            db.billInfoDao().update(finalBill)
-
-            // 如果有父账单，需要额外更新子账单状态
-            if (parent != null) {
-                // 确保子账单的groupId正确指向父账单（防御性编程，避免被覆盖）
-                billInfo.groupId = parent.id
-                billInfo.state = BillState.Edited
-                db.billInfoDao().update(billInfo)
-                ServerLog.d("子账单状态更新为已编辑：billId=${billInfo.id}, groupId=${billInfo.groupId}")
-            } else {
-                // 无父账单，更新当前账单状态为等待编辑
-                billInfo.state = BillState.Wait2Edit
-            }
-            // 记录账单最终状态
-            ServerLog.d("账单状态更新：state=${billInfo.state}")
-
 
             // 7) 统计耗时
             val cost = System.currentTimeMillis() - start
@@ -270,9 +275,6 @@ class BillService(
                 // 记录原始数据与规则的关联情况
                 ServerLog.d("原始数据归档更新：id=${it.id}, match=${it.match}, rule=${it.rule}")
             }
-
-            // 9) 拉起悬浮窗（仅外部数据）
-            if (!analysisParams.fromAppData) startAutoPanel(billInfo, parent)
             ServerLog.d("==============账单分析结束===============")
             // 10) 返回
             ResultModel.ok(BillResultModel(billInfo, parent))
@@ -523,7 +525,7 @@ class BillService(
          *
          * 解决方案：用锁保护"入库+去重查询"这个关键区间
          */
-        private val deduplicationMutex = kotlinx.coroutines.sync.Mutex()
+        private val deduplicationMutex = Mutex()
 
         /**
          * 悬浮窗启动全局队列：确保多次触发时严格按序执行，避免并发拉起
