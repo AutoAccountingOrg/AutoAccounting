@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Google设置页面风格：简洁、扁平、内容优先 -->
+<?xml version="1.0" encoding="utf-8"?><!-- Material3 设置项卡片：简洁、清晰、易用 -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,55 +7,61 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:minHeight="72dp">
 
-    <LinearLayout
+    <!-- 使用 ConstraintLayout 替代嵌套 LinearLayout，消除不必要的布局层级 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="@dimen/cardPadding2">
+        android:padding="@dimen/cardPadding2"
+        android:minHeight="72dp">
 
-        <!-- 图标 - Google风格：直接显示，无背景容器 -->
+        <!-- 图标：增大尺寸提升视觉权重，使用主题色 -->
         <ImageView
             android:id="@+id/setting_icon"
-            android:layout_width="@dimen/image_size_small"
-            android:layout_height="@dimen/image_size_small"
-            android:layout_marginEnd="@dimen/padding"
+            android:layout_width="@dimen/image_size"
+            android:layout_height="@dimen/image_size"
+            android:contentDescription="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:tint="?attr/colorPrimary"
             tools:src="@drawable/ic_receipt_long" />
 
-        <!-- 文字内容区域 -->
-        <LinearLayout
+        <!-- 标题：使用 MaterialTextView，确保文本完整显示 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/setting_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_marginStart="@dimen/padding"
+            android:layout_marginEnd="@dimen/padding"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/setting_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="核心记账设置" />
 
-            <TextView
-                android:id="@+id/setting_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:maxLines="1"
-                android:ellipsize="end"
-                tools:text="核心记账设置" />
+        <!-- 描述：移除 alpha，使用 Material3 语义颜色，提升可读性 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/setting_desc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="@dimen/padding"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/setting_icon"
+            app:layout_constraintTop_toBottomOf="@id/setting_title"
+            tools:text="自动记账 · 通知设置 · 弹窗交互" />
 
-            <TextView
-                android:id="@+id/setting_desc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="14sp"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:alpha="0.6"
-                tools:text="自动记账 · 通知设置 · 弹窗交互" />
-        </LinearLayout>
-
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
