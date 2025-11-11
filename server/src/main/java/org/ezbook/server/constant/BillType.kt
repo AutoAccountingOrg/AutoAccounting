@@ -30,7 +30,24 @@ enum class BillType {
     IncomeRefund, //收入（退款）
 
     Transfer//转账
-    ,
+    ;
 
-
+    /**
+     * 获取交易类型的中文描述
+     * @return 交易类型的中文文本
+     */
+    override fun toString(): String {
+        return when (this) {
+            Expend -> "支出"
+            ExpendReimbursement -> "支出（报销）"
+            ExpendLending -> "支出（借出）"
+            ExpendRepayment -> "支出（还款）"
+            Income -> "收入"
+            IncomeLending -> "收入（借入）"
+            IncomeRepayment -> "收入（收款）"
+            IncomeReimbursement -> "收入（报销）"
+            IncomeRefund -> "收入（退款）"
+            Transfer -> "转账"
+        }
+    }
 }
