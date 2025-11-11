@@ -39,6 +39,13 @@ interface BillInfoDao {
         type: BillType
     ): List<BillInfoModel>
 
+    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time >= :startTime AND time <= :endTime AND groupId = -1 ORDER BY time ASC")
+    suspend fun queryNoType(
+        money: Double,
+        startTime: Long,
+        endTime: Long,
+    ): List<BillInfoModel>
+
     @Query("SELECT * FROM BillInfoModel WHERE id = :id")
     suspend fun queryId(id: Long): BillInfoModel?
 

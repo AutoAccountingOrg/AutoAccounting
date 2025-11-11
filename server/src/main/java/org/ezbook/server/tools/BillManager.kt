@@ -51,6 +51,7 @@ object BillManager {
             ServerLog.d("账单处理：识别到转账账单，parentId=${transferBill.id}, currentId=${current.id}")
             TransferRecognizer.process(current, transferBill)
             current = transferBill
+            return current
         }
 
         // 检查重复账单
