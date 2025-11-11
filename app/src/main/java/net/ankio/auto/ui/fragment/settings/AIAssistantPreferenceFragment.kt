@@ -23,6 +23,7 @@ import net.ankio.auto.ui.api.BasePreferenceFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.utils.PrefManager
+import rikka.material.preference.MaterialSwitchPreference
 
 /**
  * AI助理设置页面
@@ -91,6 +92,13 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
         findPreference<Preference>("aiBillRecognitionPrompt")?.updateAiBillRecognitionPromptSummary()
         findPreference<Preference>("aiAssetMappingPrompt")?.updateAiAssetMappingPromptSummary()
         findPreference<Preference>("aiCategoryRecognitionPrompt")?.updateAiCategoryRecognitionPromptSummary()
+        if (!PrefManager.featureAiAvailable) {
+            findPreference<MaterialSwitchPreference>("aiSummaryPrompt")?.isEnabled = false
+            findPreference<MaterialSwitchPreference>("aiBillRecognitionPrompt")?.isEnabled = false
+            findPreference<MaterialSwitchPreference>("aiAssetMappingPrompt")?.isEnabled = false
+            findPreference<MaterialSwitchPreference>("aiCategoryRecognitionPrompt")?.isEnabled =
+                false
+        }
     }
 
     /**

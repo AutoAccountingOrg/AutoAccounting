@@ -19,10 +19,12 @@ import android.text.InputType
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import net.ankio.auto.R
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.ui.api.BasePreferenceFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.utils.PrefManager
+import rikka.material.preference.MaterialSwitchPreference
 
 /**
  * 交互设置页面
@@ -79,6 +81,10 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
         }
         findPreference<rikka.preference.SimpleMenuPreference>("toastPosition")?.let {
             updateToastPositionSummary(it)
+        }
+
+        if (!WorkMode.isOcr()) {
+            findPreference<MaterialSwitchPreference>("ocrFlipTrigger")?.isEnabled = false
         }
     }
 
