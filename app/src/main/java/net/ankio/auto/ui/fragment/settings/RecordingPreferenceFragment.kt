@@ -15,6 +15,8 @@
 
 package net.ankio.auto.ui.fragment.settings
 
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
@@ -67,6 +69,16 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
         // 延迟同步阈值设置
         findPreference<Preference>("delayedSyncThreshold")?.setOnPreferenceClickListener {
             showDelayedSyncThresholdDialog()
+            true
+        }
+
+        // 监听手动同步开关变化，实时更新延迟同步设置的可用性
+        findPreference<MaterialSwitchPreference>("manualSync")?.setOnPreferenceChangeListener { _, newValue ->
+            // 使用回调参数中的新值，并在DataStore更新后延迟更新UI
+            val isManualSyncEnabled = newValue as Boolean
+            Handler(Looper.getMainLooper()).post {
+                updateDelayedSyncDependency(isManualSyncEnabled)
+            }
             true
         }
 
@@ -155,15 +167,16 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
     }
 
     /**
-     * 更新延迟同步设置的依赖关系
-     * 当手动同步开启时，禁用延迟同步设置（互斥）
+     * 更新延迟同步设置的依赖关系和摘要
+     * 手动同步开启时，禁用延迟同步设置
+     * @param isManualSyncEnabled 手动同步是否开启（可选，不提供则从PrefManager读取）
      */
-    private fun updateDelayedSyncDependency() {
+    private fun updateDelayedSyncDependency(isManualSyncEnabled: Boolean? = null) {
         findPreference<Preference>("delayedSyncThreshold")?.apply {
-            val isManualSyncEnabled = PrefManager.manualSync
-            isEnabled = !isManualSyncEnabled
+            // 手动同步开启时，禁用延迟同步设置
+            val manualSync = isManualSyncEnabled ?: PrefManager.manualSync
+            isEnabled = !manualSync
 
-            // 更新摘要显示
             val threshold = PrefManager.delayedSyncThreshold
             summary = if (threshold == 0) {
                 getString(R.string.setting_delayed_sync_threshold_realtime)
