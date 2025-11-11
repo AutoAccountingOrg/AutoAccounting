@@ -181,9 +181,25 @@ object BillTool {
         App.launchIO {
             try {
                 BillAPI.put(bill)
-                // 若未开启手动同步，则保存后立即同步；否则跳过
+                // 若未开启手动同步，则根据延迟同步阈值决定同步策略
                 if (!PrefManager.manualSync && !bill.isChild()) {
-                    syncBill(bill)
+                    val threshold = PrefManager.delayedSyncThreshold
+                    if (threshold == 0) {
+                        // 阈值为0表示实时同步，立即同步当前账单
+                        syncBill(bill)
+                    } else {
+                        // 阈值大于0，检查未同步账单数量
+                        val unsyncedBills = BillAPI.sync()
+                        val unsyncedCount = unsyncedBills.size
+                        Logger.d("未同步账单数量: $unsyncedCount, 阈值: $threshold")
+
+                        // 如果未同步账单数量达到阈值，触发批量同步
+                        if (unsyncedCount >= threshold) {
+                            Logger.d("未同步账单达到阈值，触发批量同步")
+                            syncBills()
+                        }
+                        // 否则延迟同步，不立即同步
+                    }
                 }
                 Logger.d("账单保存成功: ${bill.id}")
 
