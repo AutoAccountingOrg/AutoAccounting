@@ -20,8 +20,8 @@
         <!-- 图标：增大尺寸提升视觉权重，使用主题色 -->
         <ImageView
             android:id="@+id/setting_icon"
-            android:layout_width="@dimen/image_size"
-            android:layout_height="@dimen/image_size"
+            android:layout_width="@dimen/image_size_small"
+            android:layout_height="@dimen/image_size_small"
             android:contentDescription="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

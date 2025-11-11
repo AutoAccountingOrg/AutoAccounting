@@ -49,74 +49,101 @@
             android:orientation="vertical"
             android:padding="@dimen/padding">
 
-            <!-- 高级版信息卡片 -->
+            <!-- 高级版信息卡片：Material You 渐变背景 + Tonal 分层 -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/pro_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/padding"
                 app:cardCornerRadius="@dimen/radius"
+                app:cardElevation="0dp"
+                app:strokeColor="?attr/colorOutlineVariant"
                 app:strokeWidth="0dp">
 
-                <!-- 渐变背景层：BreathingGradientView 本身就是 FrameLayout，无需额外包裹 -->
+                <!-- 渐变背景层：BreathingGradientView 控制动态渐变 -->
                 <net.ankio.auto.ui.components.BreathingGradientView
                     android:id="@+id/pro_gradient_background"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <!-- 内容区域：简化布局，仅保留图标、标题和激活信息 -->
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <!-- 内容区域：激活状态由代码控制背景色 -->
+                    <LinearLayout
                         android:id="@+id/pro_card_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="?colorPrimaryContainer"
-                        android:padding="24dp">
+                        android:minHeight="96dp"
+                        android:orientation="vertical"
+                        android:padding="@dimen/cardPadding2">
 
-                        <!-- 图标 -->
-                        <ImageView
-                            android:id="@+id/pro_icon"
-                            android:layout_width="@dimen/image_size"
-                            android:layout_height="@dimen/image_size"
-                            android:src="@drawable/ic_verified"
-                            app:tint="?attr/colorPrimary"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintBottom_toBottomOf="parent" />
-
-                        <!-- 标题 -->
-                        <TextView
-                            android:id="@+id/pro_title"
-                            android:layout_width="0dp"
+                        <!-- 头部：图标 + 文本区块 -->
+                        <LinearLayout
+                            android:id="@+id/pro_card_header"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:text="@string/pro_rule_update_plan"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.01"
-                            app:layout_constraintStart_toEndOf="@id/pro_icon"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintBottom_toTopOf="@id/pro_activate_info" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                        <!-- 激活信息文本 -->
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/pro_activate_info"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginTop="8dp"
-                            android:text=""
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="13sp"
-                            android:lineSpacingExtra="2dp"
-                            android:alpha="0.9"
-                            app:layout_constraintStart_toEndOf="@id/pro_icon"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/pro_title"
-                            app:layout_constraintBottom_toBottomOf="parent" />
+                            <!-- 图标容器：Tonal 背景突出主视觉 -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/pro_icon_container"
+                                android:layout_width="@dimen/image_size_large"
+                                android:layout_height="@dimen/image_size_large"
+                                android:clickable="false"
+                                android:focusable="false"
+                                app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                                app:cardCornerRadius="@dimen/radius_small"
+                                app:cardElevation="0dp"
+                                app:cardPreventCornerOverlap="true"
+                                app:strokeWidth="0dp">
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                                <!-- 主图标：动态控制 Tint 以贴合主题 -->
+                                <com.google.android.material.imageview.ShapeableImageView
+                                    android:id="@+id/pro_icon"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@null"
+                                    android:padding="@dimen/mini_padding"
+                                    android:src="@drawable/ic_verified"
+                                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
+                                    app:tint="?attr/colorOnSecondaryContainer" />
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- 文本容器：标题 + 芯片 + 描述 -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/padding"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <!-- 标题：Material3 标题样式 -->
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/pro_title"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/pro_rule_update_plan"
+                                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                    android:textColor="?attr/colorOnPrimaryContainer"
+                                    android:textStyle="bold" />
+
+                                <!-- 激活信息文本：展示激活状态说明 -->
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/pro_activate_info"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:text=""
+                                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                                    android:textColor="?attr/colorOnPrimaryContainer" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- 底部留白：保证卡片呼吸感 -->
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="4dp" />
+                    </LinearLayout>
                 </net.ankio.auto.ui.components.BreathingGradientView>
 
             </com.google.android.material.card.MaterialCardView>
