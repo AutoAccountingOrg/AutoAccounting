@@ -1,0 +1,67 @@
+[
+  {
+    "name": "微信公众号交通银行微银行-支出",
+    "timestamp": "2025-11-10 12:12:35.760",
+    "app": "com.tencent.mm",
+    "type": "DATA",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "mMap": {
+        "description": "账号：*9412\n账户名称：交通银行账户\n交易时间：2025-11-10 12:12\n交易类型：网络支付消费\n交易金额：3895.55元",
+        "source": "交通银行微银行",
+        "title": "账户变动提醒",
+        "cachedPayTools": "",
+        "cachedPayMoney": "",
+        "cachedPayShop": "",
+        "t": 1762747955758
+      }
+    }
+  },
+  {
+    "name": "微信公众号招商银行信用卡-还款",
+    "timestamp": "2025-11-10 12:12:35.806",
+    "app": "com.tencent.mm",
+    "type": "DATA",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "mMap": {
+        "description": "账户类型:个人消费卡账户\n还款时间:11月10日 12:12:34\n还款金额:人民币3895.55元\n还款结果:账单已还清",
+        "source": "招商银行信用卡",
+        "title": "还款提醒",
+        "cachedPayTools": "",
+        "cachedPayMoney": "",
+        "cachedPayShop": "",
+        "t": 1762747955792
+      }
+    }
+  },
+  {
+    "name": "云闪付App通知-支出",
+    "timestamp": "2025-11-10 12:12:36.067",
+    "app": "com.unionpay",
+    "type": "NOTICE",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "title": "支付助手：付款成功",
+      "text": "您尾号为9412的银行卡于10日12时12分消费3895.55元",
+      "t": 1762747956065
+    }
+  },
+  {
+    "name": "云闪付App通知-收入",
+    "timestamp": "2025-11-10 12:12:36.067",
+    "app": "com.unionpay",
+    "type": "NOTICE",
+    "fromAppData": false,
+    "forceAI": false,
+    "data": {
+      "title": "支付助手：退款受理",
+      "text": "您尾号为6048的银行卡于10日12时12分退款3895.55元",
+      "t": 1762747956065
+    }
+  }
+]
+

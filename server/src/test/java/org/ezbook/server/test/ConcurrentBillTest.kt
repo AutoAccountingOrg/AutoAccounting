@@ -40,6 +40,10 @@ object ConcurrentBillTest {
     private const val TEST_DATA_MEITUAN = "test_data_meituan.json"
     private const val TEST_DATA_DIDI = "test_data_didi.json"
 
+    private const val TEST_DATA_TRANSFER = "test_data_transfer.json"
+
+    private const val TEST_DATA_TRANSFER2 = "test_data_transfer2.json"
+
     private val gson = Gson()
 
     /**
@@ -239,8 +243,39 @@ object ConcurrentBillTest {
     }
 
     /**
-     * 测试场景2：滴滴订单低并发（2个数据源）
+     * 测试场景2：testTransfer（2个数据源）
      */
+    suspend fun testTransfer() {
+        println()
+        println("=".repeat(80))
+        println("测试场景3：还款测试（3个数据源）")
+        println("=".repeat(80))
+        println()
+
+        val testData = loadTestData(TEST_DATA_TRANSFER)
+        println("加载测试数据: ${testData.size}条")
+        testData.forEachIndexed { index, item ->
+            println("  ${index + 1}. ${item.name} (${item.timestamp})")
+        }
+        println()
+
+        println("开始并发测试...")
+        val results = mutableListOf<TestResult>()
+
+        val totalTime = measureTimeMillis {
+            coroutineScope {
+                testData.map { item ->
+                    async(Dispatchers.IO) {
+                        println("[${Thread.currentThread().name}] 发送请求: ${item.name}")
+                        sendAnalysisRequest(item)
+                    }
+                }.awaitAll().also { results.addAll(it) }
+            }
+        }
+
+        printResults(results, totalTime)
+    }
+
     suspend fun testDidiLowConcurrency() {
         println()
         println("=".repeat(80))
@@ -270,97 +305,6 @@ object ConcurrentBillTest {
         }
 
         printResults(results, totalTime)
-    }
-
-    /**
-     * 测试场景3：压力测试（混合多个订单）
-     */
-    suspend fun testStressTest() {
-        println()
-        println("=".repeat(80))
-        println("测试场景3：压力测试（混合多订单并发）")
-        println("=".repeat(80))
-        println()
-
-        val meituanData = loadTestData(TEST_DATA_MEITUAN)
-        val didiData = loadTestData(TEST_DATA_DIDI)
-        val allData = meituanData + didiData
-
-        println("加载测试数据: ${allData.size}条")
-        println("  - 美团订单: ${meituanData.size}条")
-        println("  - 滴滴订单: ${didiData.size}条")
-        println()
-
-        println("开始压力测试...")
-        val results = mutableListOf<TestResult>()
-
-        val totalTime = measureTimeMillis {
-            coroutineScope {
-                allData.map { item ->
-                    async(Dispatchers.IO) {
-                        println("[${Thread.currentThread().name}] 发送请求: ${item.name}")
-                        sendAnalysisRequest(item)
-                    }
-                }.awaitAll().also { results.addAll(it) }
-            }
-        }
-
-        printResults(results, totalTime)
-    }
-
-    /**
-     * 测试场景4：顺序执行对比测试
-     */
-    suspend fun testSequentialVsConcurrent() {
-        println()
-        println("=".repeat(80))
-        println("测试场景4：顺序 vs 并发性能对比")
-        println("=".repeat(80))
-        println()
-
-        val testData = loadTestData(TEST_DATA_MEITUAN)
-
-        // 顺序执行
-        println("开始顺序执行测试...")
-        val sequentialResults = mutableListOf<TestResult>()
-        val sequentialTime = measureTimeMillis {
-            testData.forEach { item ->
-                println("[顺序] 发送请求: ${item.name}")
-                sequentialResults.add(sendAnalysisRequest(item))
-            }
-        }
-
-        println()
-        println("顺序执行完成:")
-        println("  总耗时: ${sequentialTime}ms")
-        println("  成功: ${sequentialResults.count { it.success }}/${sequentialResults.size}")
-        println("  平均耗时: ${sequentialTime / testData.size}ms/条")
-        println()
-
-        // 并发执行
-        println("开始并发执行测试...")
-        val concurrentResults = mutableListOf<TestResult>()
-        val concurrentTime = measureTimeMillis {
-            coroutineScope {
-                testData.map { item ->
-                    async(Dispatchers.IO) {
-                        println("[并发] 发送请求: ${item.name}")
-                        sendAnalysisRequest(item)
-                    }
-                }.awaitAll().also { concurrentResults.addAll(it) }
-            }
-        }
-
-        println()
-        println("并发执行完成:")
-        println("  总耗时: ${concurrentTime}ms")
-        println("  成功: ${concurrentResults.count { it.success }}/${concurrentResults.size}")
-        println("  平均耗时: ${concurrentTime / testData.size}ms/条")
-        println()
-
-        val improvement = ((sequentialTime - concurrentTime) * 100.0 / sequentialTime)
-        println("性能提升: %.2f%%".format(improvement))
-        println("加速比: %.2fx".format(sequentialTime.toDouble() / concurrentTime))
     }
 
     /**
@@ -534,7 +478,7 @@ suspend fun main() {
 
     try {
         // 只运行美团订单去重测试
-        ConcurrentBillTest.testMeituanDeduplication()
+        ConcurrentBillTest.testTransfer()
 
         println()
         println("╔" + "═".repeat(78) + "╗")
