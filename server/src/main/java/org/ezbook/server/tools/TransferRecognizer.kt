@@ -84,6 +84,7 @@ object TransferRecognizer {
      * 支持场景：
      * 1. Income + Expend → Transfer（账户间转账）
      * 2. Expend + Transfer → Transfer（信用卡还款等）
+     * 3. Transfer + Transfer → Transfer（多个转账通知合并）
      *
      * @param currentBill 当前账单
      * @param transferBill 转账账单（父账单）
@@ -94,144 +95,24 @@ object TransferRecognizer {
     ) {
         ServerLog.d("转账处理：合并 parentId=${transferBill.id}(${transferBill.type}), currentId=${currentBill.id}(${currentBill.type})")
 
-        // 保存原始类型用于场景判断（在转换为Transfer之前）
-        val originalTransferType = transferBill.type
-        val originalCurrentType = currentBill.type
-
         // 转换为转账类型
         transferBill.type = BillType.Transfer
 
-        // 根据账单类型组合，选择不同的合并策略
-        when {
-            // 场景1: Income + Expend（传统转账）
-            (originalCurrentType == BillType.Income && originalTransferType == BillType.Expend) ||
-                    (originalCurrentType == BillType.Expend && originalTransferType == BillType.Income) -> {
-                val incomeBill =
-                    if (originalCurrentType == BillType.Income) currentBill else transferBill
-                val expendBill =
-                    if (originalCurrentType == BillType.Expend) currentBill else transferBill
-                mergeTransferAccountInfo(incomeBill, expendBill, transferBill)
-            }
-
-            // 场景2: Expend + Transfer（信用卡还款等）
-            originalCurrentType == BillType.Expend && originalTransferType == BillType.Transfer -> {
-                mergeRepaymentAccountInfo(currentBill, transferBill)
-            }
-
-            originalTransferType == BillType.Expend && originalCurrentType == BillType.Transfer -> {
-                mergeRepaymentAccountInfo(transferBill, currentBill)
-            }
-
-            // 场景3: Transfer + Transfer（多个转账通知）
-            originalCurrentType == BillType.Transfer && originalTransferType == BillType.Transfer -> {
-                mergeTransferToTransfer(currentBill, transferBill)
-            }
-
-            else -> {
-                ServerLog.w("转账处理：未知的账单类型组合 current=${originalCurrentType}, parent=${originalTransferType}")
-            }
-        }
+        // 使用 BillMerger 统一合并账户信息（支持已知资产优先、名字长度优先等规则）
+        BillMerger.mergeAccountInfo(currentBill, transferBill)
 
         // 合并商户和商品信息
         BillMerger.mergeShopInfo(currentBill, transferBill)
 
         // 设置去重关系并清空分类
         currentBill.groupId = transferBill.id
+        currentBill.cateName = ""
+        transferBill.cateName = ""
 
         // 更新数据库
         BillMerger.saveBillGroup(currentBill, transferBill)
 
         ServerLog.d("转账处理：合并完成，父账单类型=${transferBill.type}")
-    }
-
-    /**
-     * 合并转账账户信息（Income + Expend 场景）
-     *
-     * 规则：
-     * - 转出账户：优先使用支出账单的 accountNameFrom
-     * - 转入账户：优先使用收入账单的 accountNameFrom 或 accountNameTo
-     */
-    private fun mergeTransferAccountInfo(
-        incomeBill: BillInfoModel,
-        expendBill: BillInfoModel,
-        transferBill: BillInfoModel
-    ) {
-        // 转出账户：从支出账单获取
-        transferBill.accountNameFrom = when {
-            expendBill.accountNameFrom.isNotEmpty() -> expendBill.accountNameFrom
-            incomeBill.accountNameFrom.isNotEmpty() -> incomeBill.accountNameFrom
-            else -> ""
-        }
-
-        // 转入账户：从收入账单获取
-        transferBill.accountNameTo = when {
-            incomeBill.accountNameFrom.isNotEmpty() -> incomeBill.accountNameFrom
-            incomeBill.accountNameTo.isNotEmpty() -> incomeBill.accountNameTo
-            expendBill.accountNameTo.isNotEmpty() -> expendBill.accountNameTo
-            else -> ""
-        }
-    }
-
-    /**
-     * 合并还款账户信息（Expend + Transfer 场景）
-     *
-     * 信用卡还款场景：
-     * - expendBill: 借记卡支出（转出账户）
-     * - transferBill: 信用卡还款（转入账户）
-     *
-     * 规则：
-     * - 转出账户：优先保留transferBill已有的accountNameFrom，如果为空则使用expendBill的
-     * - 转入账户：优先使用transferBill的accountNameTo，如果为空则使用其他可用信息
-     */
-    private fun mergeRepaymentAccountInfo(
-        expendBill: BillInfoModel,
-        transferBill: BillInfoModel
-    ) {
-        // 转出账户：优先保留transferBill已有的accountNameFrom（避免被后续合并覆盖）
-        // 只有当transferBill的accountNameFrom为空时，才使用expendBill的
-        if (transferBill.accountNameFrom.isEmpty() && expendBill.accountNameFrom.isNotEmpty()) {
-            transferBill.accountNameFrom = expendBill.accountNameFrom
-        }
-
-        // 转入账户：优先使用transferBill的accountNameTo（信用卡账户）
-        // 如果为空，则尝试从其他字段获取
-        if (transferBill.accountNameTo.isEmpty()) {
-            transferBill.accountNameTo = when {
-                transferBill.accountNameFrom.isNotEmpty() -> transferBill.accountNameFrom
-                expendBill.accountNameTo.isNotEmpty() -> expendBill.accountNameTo
-                else -> ""
-            }
-        }
-    }
-
-    /**
-     * 合并两个转账账单（Transfer + Transfer 场景）
-     *
-     * 多个转账通知场景：
-     * - 两个账单都是转账类型
-     * - 合并它们的账户信息
-     *
-     * 规则：
-     * - 优先使用非空的账户信息
-     * - 尽可能保留更完整的账户信息
-     */
-    private fun mergeTransferToTransfer(
-        bill1: BillInfoModel,
-        bill2: BillInfoModel
-    ) {
-        // 转出账户：优先使用非空的
-        bill2.accountNameFrom = when {
-            bill1.accountNameFrom.isNotEmpty() -> bill1.accountNameFrom
-            bill2.accountNameFrom.isNotEmpty() -> bill2.accountNameFrom
-            else -> ""
-        }
-
-        // 转入账户：优先使用非空的
-        bill2.accountNameTo = when {
-            bill1.accountNameTo.isNotEmpty() -> bill1.accountNameTo
-            bill2.accountNameTo.isNotEmpty() -> bill2.accountNameTo
-            else -> ""
-        }
     }
 }
 
