@@ -93,10 +93,10 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
         findPreference<Preference>("aiAssetMappingPrompt")?.updateAiAssetMappingPromptSummary()
         findPreference<Preference>("aiCategoryRecognitionPrompt")?.updateAiCategoryRecognitionPromptSummary()
         if (!PrefManager.featureAiAvailable) {
-            findPreference<MaterialSwitchPreference>("aiSummaryPrompt")?.isEnabled = false
-            findPreference<MaterialSwitchPreference>("aiBillRecognitionPrompt")?.isEnabled = false
-            findPreference<MaterialSwitchPreference>("aiAssetMappingPrompt")?.isEnabled = false
-            findPreference<MaterialSwitchPreference>("aiCategoryRecognitionPrompt")?.isEnabled =
+            findPreference<Preference>("aiSummaryPrompt")?.isEnabled = false
+            findPreference<Preference>("aiBillRecognitionPrompt")?.isEnabled = false
+            findPreference<Preference>("aiAssetMappingPrompt")?.isEnabled = false
+            findPreference<Preference>("aiCategoryRecognitionPrompt")?.isEnabled =
                 false
         }
     }
