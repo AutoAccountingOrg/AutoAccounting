@@ -76,11 +76,13 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
      */
     private fun setupNavigationClickListeners() {
         val navigationMap = mapOf(
-            // 新的4大分类
-            binding.settingCoreRecording to R.id.coreRecordingPreferenceFragment,
-            binding.settingDataDisplay to R.id.dataDisplayPreferenceFragment,
-            binding.settingSmartFeatures to R.id.smartFeaturesPreferenceFragment,
-            binding.settingSystem to R.id.systemSettingsPreferenceFragment
+            // 新的6大分类（外观设置已合并到系统设置）
+            binding.settingRecording to R.id.action_settingFragment_to_recordingPreferenceFragment,
+            binding.settingInteraction to R.id.action_settingFragment_to_interactionPreferenceFragment,
+            binding.settingAiAssistant to R.id.action_settingFragment_to_aiAssistantPreferenceFragment,
+            binding.settingDataManagement to R.id.action_settingFragment_to_dataManagementPreferenceFragment,
+            binding.settingSystem to R.id.action_settingFragment_to_systemPreferenceFragment,
+            binding.settingAbout to R.id.action_settingFragment_to_aboutPreferenceFragment
         )
 
         navigationMap.forEach { (view, actionId) ->

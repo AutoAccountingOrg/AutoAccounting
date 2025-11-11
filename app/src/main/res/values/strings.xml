@@ -333,10 +333,6 @@
     <string name="server_error_connection_message">Unable to connect to local server (127.0.0.1:52045). Please restart device.</string>
     <string name="server_error_btn_ok">I Know</string>
     <string name="setting_load_success">Show notification after successfully loading auto accounting</string><!-- 旧的分类（保留用于兼容） -->
-    <string name="setting_title_bill">Bill settings</string>
-    <string name="setting_title_popup">Popup settings</string>
-    <string name="setting_title_features">Accounting feature configuration</string>
-    <string name="setting_title_ai">AI Assistant</string>
     <string name="setting_title_ai_config">AI Configuration</string>
     <string name="setting_ai_config">AI Configuration</string>
     <string name="setting_ai_config_summary">Configure AI model and API settings</string>
@@ -346,7 +342,6 @@
     <string name="ai_test_success_message">AI connection successful! The model is working properly.</string>
     <string name="ai_test_failed_message">AI connection failed: %s</string>
     <string name="ai_test_no_config">Please configure provider, model and API key first</string>
-    <string name="setting_title_backup">Backup and sync</string>
     <string name="setting_backup_to_local">Backup to local</string>
     <string name="setting_backup_to_local_summary">Export data to local file</string>
     <string name="setting_restore_from_local">Restore from local</string>
@@ -361,7 +356,6 @@
     <string name="setting_restore_from_webdav">Restore from WebDAV</string>
     <string name="setting_restore_from_webdav_summary">Download and restore the latest backup from WebDAV server</string>
     <string name="unknown">Unknown</string>
-    <string name="setting_title_others">Others</string>
     <string name="title_category_rule">Auto category rules</string>
     <string name="title_sms_edit">Edit data filter conditions</string>
     <string name="add_filter">Filter keywords</string>
@@ -986,8 +980,6 @@
     <string name="setting_title_ai_assistant">AI Assistant</string>
     <string name="setting_desc_ai_assistant">AI Configuration · Prompt Management · AI Features</string>
 
-    <string name="setting_title_appearance">Appearance Settings</string>
-    <string name="setting_desc_appearance">Language · Theme</string>
 
     <string name="setting_title_data_management">Data Management</string>
     <string name="setting_desc_data_management">Auto Backup · Local Backup · WebDAV Backup</string>

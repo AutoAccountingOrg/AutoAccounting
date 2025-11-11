@@ -127,77 +127,74 @@
         android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting">
 
+        <!-- 新的7大分类 -->
         <action
-            android:id="@+id/action_settingFragment_to_billPreferenceFragment"
-            app:destination="@id/billPreferenceFragment" />
+            android:id="@+id/action_settingFragment_to_recordingPreferenceFragment"
+            app:destination="@id/recordingPreferenceFragment" />
         <action
-            android:id="@+id/action_settingFragment_to_popupPreferenceFragment"
-            app:destination="@id/popupPreferenceFragment" />
+            android:id="@+id/action_settingFragment_to_interactionPreferenceFragment"
+            app:destination="@id/interactionPreferenceFragment" />
         <action
-            android:id="@+id/action_settingFragment_to_featuresPreferenceFragment"
-            app:destination="@id/featuresPreferenceFragment" />
+            android:id="@+id/action_settingFragment_to_aiAssistantPreferenceFragment"
+            app:destination="@id/aiAssistantPreferenceFragment" />
         <action
-            android:id="@+id/action_settingFragment_to_aiPreferenceFragment"
-            app:destination="@id/aiPreferenceFragment" />
+            android:id="@+id/action_settingFragment_to_dataManagementPreferenceFragment"
+            app:destination="@id/dataManagementPreferenceFragment" />
         <action
-            android:id="@+id/action_settingFragment_to_appearancePreferenceFragment"
-            app:destination="@id/appearancePreferenceFragment" />
+            android:id="@+id/action_settingFragment_to_systemPreferenceFragment"
+            app:destination="@id/systemPreferenceFragment" />
         <action
-            android:id="@+id/action_settingFragment_to_backupPreferenceFragment"
-            app:destination="@id/backupPreferenceFragment" />
-        <action
-            android:id="@+id/action_settingFragment_to_othersPreferenceFragment"
-            app:destination="@id/othersPreferenceFragment" />
+            android:id="@+id/action_settingFragment_to_aboutPreferenceFragment"
+            app:destination="@id/aboutPreferenceFragment" />
     </fragment>
 
     <!-- 设置页面 Fragment 定义 -->
+    <!-- 新的7大分类Fragment -->
     <fragment
-        android:id="@+id/billPreferenceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.BillPreferenceFragment"
-        android:label="@string/setting_title_bill" />
-
-    <fragment
-        android:id="@+id/popupPreferenceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.PopupPreferenceFragment"
-        android:label="@string/setting_title_popup" />
-
-    <fragment
-        android:id="@+id/featuresPreferenceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.FeaturesPreferenceFragment"
-        android:label="@string/setting_title_features" />
-
-    <fragment
-        android:id="@+id/aiPreferenceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.AiPreferenceFragment"
-        android:label="@string/setting_title_ai">
+        android:id="@+id/recordingPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.RecordingPreferenceFragment"
+        android:label="@string/setting_title_recording">
 
         <action
-            android:id="@+id/action_aiPreferenceFragment_to_aiConfigFragment"
+            android:id="@+id/action_recordingPreferenceFragment_to_remarkFormatFragment"
+            app:destination="@id/remarkFormatFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/interactionPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.InteractionPreferenceFragment"
+        android:label="@string/setting_title_interaction" />
+
+    <fragment
+        android:id="@+id/aiAssistantPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.AIAssistantPreferenceFragment"
+        android:label="@string/setting_title_ai_assistant">
+
+        <action
+            android:id="@+id/action_aiAssistantPreferenceFragment_to_aiConfigFragment"
             app:destination="@id/aiConfigFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/dataManagementPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.DataManagementPreferenceFragment"
+        android:label="@string/setting_title_data_management" />
+
+    <fragment
+        android:id="@+id/systemPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.SystemPreferenceFragment"
+        android:label="@string/setting_title_system" />
+
+    <fragment
+        android:id="@+id/aboutPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.AboutPreferenceFragment"
+        android:label="@string/setting_title_about" />
 
     <fragment
         android:id="@+id/aiConfigFragment"
         android:name="net.ankio.auto.ui.fragment.settings.AiConfigFragment"
         android:label="@string/setting_title_ai_config"
         tools:layout="@layout/fragment_ai_config" />
-
-    <fragment
-        android:id="@+id/appearancePreferenceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.AppearancePreferenceFragment"
-        android:label="@string/setting_title_appearance" />
-
-
-    <fragment
-        android:id="@+id/backupPreferenceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.BackupPreferenceFragment"
-        android:label="@string/setting_title_backup" />
-
-    <fragment
-        android:id="@+id/othersPreferenceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.OthersPreferenceFragment"
-        android:label="@string/setting_title_others" />
-
 
     <fragment
         android:id="@+id/remarkFormatFragment"

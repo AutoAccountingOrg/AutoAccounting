@@ -318,10 +318,6 @@
     <string name="server_error_connection_message">无法连接到本地服务器（127.0.0.1:52045），请重启设备。</string>
     <string name="server_error_btn_ok">我知道了</string>
     <string name="setting_load_success">成功加载自动记账后显示通知</string>
-    <string name="setting_title_bill">账单设置</string>
-    <string name="setting_title_popup">弹窗设置</string>
-    <string name="setting_title_features">记账功能配置</string>
-    <string name="setting_title_ai">AI 助手</string>
     <string name="setting_title_ai_config">AI 配置</string>
     <string name="setting_ai_config">AI 配置</string>
     <string name="setting_ai_config_summary">配置 AI 模型和 API 设置</string>
@@ -331,7 +327,6 @@
     <string name="ai_test_success_message">AI 连接成功！模型工作正常。</string>
     <string name="ai_test_failed_message">AI 连接失败：%s</string>
     <string name="ai_test_no_config">请先配置服务商、模型和 API 密钥</string>
-    <string name="setting_title_backup">备份和同步</string>
     <string name="setting_backup_to_local">备份到本地</string>
     <string name="setting_backup_to_local_summary">导出数据到本地文件</string>
     <string name="setting_restore_from_local">从本地恢复</string>
@@ -346,7 +341,6 @@
     <string name="setting_restore_from_webdav">从 WebDAV 恢复</string>
     <string name="setting_restore_from_webdav_summary">从 WebDAV 服务器下载并恢复最新备份</string>
     <string name="unknown">未知</string>
-    <string name="setting_title_others">其他</string>
     <string name="title_category_rule">自动分类规则</string>
     <string name="title_sms_edit">编辑数据过滤条件</string>
     <string name="add_filter">过滤关键词</string>
@@ -975,8 +969,6 @@
     <string name="setting_title_ai_assistant">AI助理</string>
     <string name="setting_desc_ai_assistant">AI配置 · 提示词管理 · AI功能</string>
 
-    <string name="setting_title_appearance">外观设置</string>
-    <string name="setting_desc_appearance">语言 · 主题</string>
 
     <string name="setting_title_data_management">数据管理</string>
     <string name="setting_desc_data_management">自动备份 · 本地备份 · WebDAV备份</string>

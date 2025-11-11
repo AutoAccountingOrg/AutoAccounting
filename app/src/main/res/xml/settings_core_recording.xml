@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!-- 核心记账设置：自动记账与通知、弹窗交互 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- 自动记账与通知 -->
     <PreferenceCategory android:title="@string/setting_category_auto_record">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
@@ -8,6 +9,7 @@
             android:key="autoRecordBill"
             android:summary="@string/setting_auto_record_bill_summary"
             android:title="@string/setting_auto_record_bill" />
+
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_sync"
@@ -21,19 +23,7 @@
             android:key="autoGroup"
             android:summary="@string/setting_auto_group_summary"
             android:title="@string/setting_auto_group" />
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_category"
-            android:key="autoCreateCategory"
-            android:summary="@string/setting_auto_create_category_summary"
-            android:title="@string/setting_auto_create_category" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/setting_icon_ai_map"
-            android:key="autoAssetMapping"
-            android:summary="@string/setting_auto_asset_mapping_summary"
-            android:title="@string/setting_auto_asset_mapping" />
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
             android:icon="@drawable/icon_delete"
@@ -42,6 +32,7 @@
             android:title="@string/setting_confirm_delete_bill" />
     </PreferenceCategory>
 
+    <!-- 通知设置 -->
     <PreferenceCategory android:title="@string/setting_category_notification">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
@@ -72,49 +63,68 @@
             android:title="@string/setting_landscape_dnd" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/setting_category_display">
+    <!-- 弹窗交互 -->
+    <PreferenceCategory android:title="@string/setting_category_popup_interaction">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
-            android:icon="@drawable/setting2_icon_rule"
-            android:key="showRuleName"
-            android:summary="@string/setting_bill_show_rule_summary"
-            android:title="@string/setting_bill_show_rule" />
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_palette"
-            android:key="isExpenseRed"
-            android:summary="@string/settings_expense_red_color_summary"
-            android:title="@string/settings_expense_red_color" />
+            android:icon="@drawable/setting2_icon_round_theme"
+            android:key="roundStyle"
+            android:summary="@string/setting_round_style_summary"
+            android:title="@string/setting_round_style" />
+
+        <androidx.preference.Preference
+            android:defaultValue="0"
+            android:icon="@drawable/setting_icon_timeout"
+            android:key="floatTimeoutOff"
+            android:summary="%s"
+            android:title="@string/setting_float_badge_timeout" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="dismiss"
+            android:entries="@array/float_click_texts"
+            android:entryValues="@array/float_click_values"
+            android:icon="@drawable/setting_icon_timeout"
+            android:key="floatTimeoutAction"
+            android:summary="%s"
+            android:title="@string/setting_float_timeout_action" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="right"
+            android:entries="@array/float_position_texts"
+            android:entryValues="@array/float_position_values"
+            android:icon="@drawable/setting_icon_click"
+            android:key="floatGravityPosition"
+            android:summary="%s"
+            android:title="@string/setting_float_badge_position" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="edit"
+            android:entries="@array/float_click_texts"
+            android:entryValues="@array/float_click_values"
+            android:icon="@drawable/setting_icon_click"
+            android:key="floatClick"
+            android:summary="%s"
+            android:title="@string/setting_float_click" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="dismiss"
+            android:entries="@array/float_click_texts"
+            android:entryValues="@array/float_click_values"
+            android:icon="@drawable/setting_icon_long_click"
+            android:key="floatLongClick"
+            android:summary="%s"
+            android:title="@string/setting_float_long_click" />
+    </PreferenceCategory>
+
+    <!-- OCR设置 -->
+    <PreferenceCategory android:title="@string/setting_category_ocr">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
-            android:icon="@drawable/ic_trending_up"
-            android:key="isIncomeUp"
-            android:summary="@string/settings_income_up_arrow_summary"
-            android:title="@string/settings_income_up_arrow" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/setting_category_remark">
-        <androidx.preference.Preference
-            android:icon="@drawable/ic_open_in_new"
-            android:key="remarkFormat"
-            android:summary="@string/setting_bill_remark_desc"
-            android:title="@string/setting_bill_remark" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/setting_category_book_config">
-        <androidx.preference.Preference
-            android:icon="@drawable/ic_book"
-            android:key="defaultBook"
-            android:summary="@string/setting_default_book_summary"
-            android:title="@string/setting_default_book" />
-
-        <androidx.preference.Preference
-            android:icon="@drawable/ic_open_in_new"
-            android:key="bookApp"
-            android:summary="@string/setting_book_app_summary"
-            android:title="@string/setting_book_app" />
-
-
+            android:icon="@drawable/ic_ocr"
+            android:key="ocrShowAnimation"
+            android:summary="@string/setting_ocr_show_animation_summary"
+            android:title="@string/setting_ocr_show_animation" />
     </PreferenceCategory>
 
 </PreferenceScreen>
+
