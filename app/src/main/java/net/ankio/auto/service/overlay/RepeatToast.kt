@@ -26,6 +26,7 @@ import android.view.WindowManager
 import android.widget.TextView
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.toThemeCtx
 
 /**
@@ -107,7 +108,7 @@ class RepeatToast(
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            gravity = ToastUtils.position() or Gravity.CENTER_HORIZONTAL
             y = 200
             // 不设置动画，保持简单稳定
         }
