@@ -161,23 +161,18 @@ object BillMerger {
     /**
      * 设置账单分组关系并清空分类
      */
-    fun setupBillGroup(currentBill: BillInfoModel, parentBill: BillInfoModel) {
-        // 设置去重关系
-        currentBill.groupId = parentBill.id
-
-        // 清空父账单的分类信息，标记需要重新分类
-        parentBill.cateName = ""
-        parentBill.bookName = ""
-    }
 
     /**
      * 保存账单分组到数据库
      */
     suspend fun saveBillGroup(currentBill: BillInfoModel, parentBill: BillInfoModel) {
+        ServerLog.d("保存账单分组：parent=${parentBill.id}, child=${currentBill.id}, groupId=${currentBill.groupId}")
+        ServerLog.d("父账单合并后数据：accountFrom=${parentBill.accountNameFrom}, accountTo=${parentBill.accountNameTo}, shop=${parentBill.shopName}")
         Db.get().billInfoDao().run {
             update(parentBill)
             update(currentBill)
         }
+        ServerLog.d("账单分组保存完成")
     }
 
     /**

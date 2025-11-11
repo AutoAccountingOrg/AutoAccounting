@@ -31,7 +31,7 @@ interface BillInfoDao {
     @Insert
     suspend fun insert(billInfo: BillInfoModel): Long
 
-    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time >= :startTime AND time <= :endTime AND groupId = -1 AND type=:type")
+    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time >= :startTime AND time <= :endTime AND groupId = -1 AND type=:type ORDER BY time ASC")
     suspend fun query(
         money: Double,
         startTime: Long,

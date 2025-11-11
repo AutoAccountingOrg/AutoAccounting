@@ -130,14 +130,12 @@ object DuplicateDetector {
         // 合并账单基础数据（不含分类）
         BillMerger.mergeBillData(currentBill, parentBill)
 
-        // 清空父账单的分类信息，标记需要重新分类
-        parentBill.cateName = ""
-        parentBill.bookName = ""
-
         // 更新数据库
         BillMerger.saveBillGroup(currentBill, parentBill)
 
-        ServerLog.d("去重：合并完成，父账单已清空分类等待重新处理")
+
+
+        ServerLog.d("去重：合并完成，父账单 $parentBill , 子账单 $currentBill")
     }
 }
 

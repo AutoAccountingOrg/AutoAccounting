@@ -146,6 +146,8 @@ object Setting {
     // -------- 更新设置 --------
     const val AUTO_CHECK_APP_UPDATE = "setting_check_app_update"   // 应用更新
     const val AUTO_CHECK_RULE_UPDATE = "setting_check_rule_update" // 规则更新
+    const val CHECK_APP_UPDATE = AUTO_CHECK_APP_UPDATE             // 应用更新（别名，向后兼容）
+    const val CHECK_RULE_UPDATE = AUTO_CHECK_RULE_UPDATE           // 规则更新（别名，向后兼容）
     const val UPDATE_CHANNEL = "setting_update_channel"            // 更新渠道
 
     // -------- 高级功能 --------

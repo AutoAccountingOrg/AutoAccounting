@@ -44,7 +44,7 @@ object BillManager {
     suspend fun groupBillInfo(billInfoModel: BillInfoModel): BillInfoModel? {
         ServerLog.d("账单处理：开始，bill=${billInfoModel.id}, money=${billInfoModel.money}, type=${billInfoModel.type}")
 
-        var current = billInfoModel.copy()
+        var current = billInfoModel
         // 优先检查转账识别
         val transferBill = TransferRecognizer.recognize(current)
         if (transferBill != null) {
@@ -56,7 +56,7 @@ object BillManager {
         // 检查重复账单
         val duplicateBill = DuplicateDetector.detect(current)
         if (duplicateBill != null) {
-            ServerLog.d("账单处理：识别到重复账单，parentId=${duplicateBill.id}, currentId=${billInfoModel.id}")
+            ServerLog.d("账单处理：识别到重复账单，parentId=${duplicateBill.id}, currentId=${current.id}")
             return duplicateBill
         }
 

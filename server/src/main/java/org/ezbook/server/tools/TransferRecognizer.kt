@@ -102,7 +102,7 @@ object TransferRecognizer {
         BillMerger.mergeShopInfo(currentBill, transferBill)
 
         // 设置去重关系并清空分类
-        BillMerger.setupBillGroup(currentBill, transferBill)
+        currentBill.groupId = transferBill.id
 
         // 更新数据库
         BillMerger.saveBillGroup(currentBill, transferBill)

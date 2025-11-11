@@ -226,6 +226,18 @@ object SettingUtils {
     /** 自动去重（BillManager 用） */
     suspend fun autoGroup(): Boolean = getBoolean(Setting.AUTO_GROUP, DefaultData.AUTO_GROUP)
 
+    /** 自动去重时间阈值（秒） */
+    suspend fun autoGroupTimeThreshold(): Int =
+        getInt(Setting.AUTO_GROUP_TIME_THRESHOLD, DefaultData.AUTO_GROUP_TIME_THRESHOLD)
+
+    /** 自动识别转账账单 */
+    suspend fun autoTransferRecognition(): Boolean =
+        getBoolean(Setting.AUTO_TRANSFER_RECOGNITION, DefaultData.AUTO_TRANSFER_RECOGNITION)
+
+    /** 转账账单合并时间阈值（秒） */
+    suspend fun autoTransferTimeThreshold(): Int =
+        getInt(Setting.AUTO_TRANSFER_TIME_THRESHOLD, DefaultData.AUTO_TRANSFER_TIME_THRESHOLD)
+
     /** 功能：资产管理（AssetsMap 用） */
     suspend fun featureAssetManager(): Boolean =
         getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)

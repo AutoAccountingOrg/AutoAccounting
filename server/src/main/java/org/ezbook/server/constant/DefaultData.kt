@@ -321,8 +321,9 @@ Fields: ruleName, shopName, shopItem
     const val IGNORE_ASSET: Boolean = false                         // 忽略资产默认关闭
     const val PROACTIVELY_MODEL: Boolean = true                     // 主动模式默认开启
     const val SHOW_AUTO_BILL_TIP: Boolean = true                   // 自动记账提示默认开启
+    val SETTING_REMIND_BOOK: Boolean = false                        // 记账提醒默认关闭
     const val WECHAT_PACKAGE: String = "com.tencent.mm"            // 微信包名
-    
+
     // 数据过滤关键字（逗号分隔存储）
     val DATA_FILTER = listOf(
         "银行", "信用卡", "借记卡", "公积金",

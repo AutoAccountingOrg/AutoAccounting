@@ -243,9 +243,11 @@ class BillService(
 
             // 如果有父账单，需要额外更新子账单状态
             if (parent != null) {
+                // 确保子账单的groupId正确指向父账单（防御性编程，避免被覆盖）
+                billInfo.groupId = parent.id
                 billInfo.state = BillState.Edited
                 db.billInfoDao().update(billInfo)
-                ServerLog.d("子账单状态更新为已编辑：billId=${billInfo.id}")
+                ServerLog.d("子账单状态更新为已编辑：billId=${billInfo.id}, groupId=${billInfo.groupId}")
             } else {
                 // 无父账单，更新当前账单状态为等待编辑
                 billInfo.state = BillState.Wait2Edit
