@@ -15,8 +15,6 @@
 
 package net.ankio.auto.ui.fragment.settings
 
-import android.os.Handler
-import android.os.Looper
 import android.text.InputType
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
@@ -72,13 +70,23 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
             true
         }
 
+        // 自动去重时间阈值设置
+        findPreference<Preference>("autoGroupTimeThreshold")?.setOnPreferenceClickListener {
+            showAutoGroupTimeThresholdDialog()
+            true
+        }
+
+        // 转账合并时间阈值设置
+        findPreference<Preference>("autoTransferTimeThreshold")?.setOnPreferenceClickListener {
+            showAutoTransferTimeThresholdDialog()
+            true
+        }
+
         // 监听手动同步开关变化，实时更新延迟同步设置的可用性
         findPreference<MaterialSwitchPreference>("manualSync")?.setOnPreferenceChangeListener { _, newValue ->
             // 使用回调参数中的新值，并在DataStore更新后延迟更新UI
             val isManualSyncEnabled = newValue as Boolean
-            Handler(Looper.getMainLooper()).post {
-                updateDelayedSyncDependency(isManualSyncEnabled)
-            }
+            updateDelayedSyncDependency(isManualSyncEnabled)
             true
         }
 
@@ -88,12 +96,14 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
         // 设置依赖关系
         updateAssetMappingDependency()
         updateDelayedSyncDependency()
+        updateBillRecognitionSummaries()
     }
 
     override fun onResume() {
         super.onResume()
         updatePreferenceSummaries()
         updateDelayedSyncDependency()
+        updateBillRecognitionSummaries()
     }
 
     /**
@@ -145,8 +155,8 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
     }
 
     /**
-     * 更新自动资产映射的依赖关系
-     * 当资产管理功能关闭时，禁用自动资产映射
+     * 更新记住资产映射的依赖关系
+     * 当资产管理功能关闭时，禁用记住资产映射
      */
     private fun updateAssetMappingDependency() {
         findPreference<MaterialSwitchPreference>("autoAssetMapping")?.apply {
@@ -206,12 +216,69 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
     }
 
     /**
+     * 显示自动去重时间阈值设置对话框
+     */
+    private fun showAutoGroupTimeThresholdDialog() {
+        BaseSheetDialog.create<EditorDialogBuilder>(requireContext())
+            .setInputType(InputType.TYPE_CLASS_NUMBER)
+            .setTitleInt(R.string.setting_auto_group_time_threshold)
+            .setMessage(PrefManager.autoGroupTimeThreshold.toString())
+            .setEditorPositiveButton(R.string.sure_msg) { result ->
+                val threshold = result.toIntOrNull()
+                if (threshold != null && threshold > 0) {
+                    PrefManager.autoGroupTimeThreshold = threshold
+                    updateBillRecognitionSummaries()
+                }
+            }
+            .setNegativeButton(R.string.cancel_msg, null)
+            .show()
+    }
+
+    /**
+     * 显示转账合并时间阈值设置对话框
+     */
+    private fun showAutoTransferTimeThresholdDialog() {
+        BaseSheetDialog.create<EditorDialogBuilder>(requireContext())
+            .setInputType(InputType.TYPE_CLASS_NUMBER)
+            .setTitleInt(R.string.setting_auto_transfer_time_threshold)
+            .setMessage(PrefManager.autoTransferTimeThreshold.toString())
+            .setEditorPositiveButton(R.string.sure_msg) { result ->
+                val threshold = result.toIntOrNull()
+                if (threshold != null && threshold > 0) {
+                    PrefManager.autoTransferTimeThreshold = threshold
+                    updateBillRecognitionSummaries()
+                }
+            }
+            .setNegativeButton(R.string.cancel_msg, null)
+            .show()
+    }
+
+    /**
+     * 更新账单识别相关设置的摘要显示
+     */
+    private fun updateBillRecognitionSummaries() {
+        // 自动去重时间阈值
+        findPreference<Preference>("autoGroupTimeThreshold")?.apply {
+            val threshold = PrefManager.autoGroupTimeThreshold
+            summary = getString(R.string.setting_auto_group_time_threshold_summary, threshold)
+        }
+
+        // 转账合并时间阈值
+        findPreference<Preference>("autoTransferTimeThreshold")?.apply {
+            val threshold = PrefManager.autoTransferTimeThreshold
+            summary = getString(R.string.setting_auto_transfer_time_threshold_summary, threshold)
+        }
+    }
+
+    /**
      * 记账设置数据存储类
      */
     class RecordingDataStore : PreferenceDataStore() {
         override fun getInt(key: String?, defValue: Int): Int {
             return when (key) {
                 "delayedSyncThreshold" -> PrefManager.delayedSyncThreshold
+                "autoGroupTimeThreshold" -> PrefManager.autoGroupTimeThreshold
+                "autoTransferTimeThreshold" -> PrefManager.autoTransferTimeThreshold
                 else -> defValue
             }
         }
@@ -219,6 +286,8 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
         override fun putInt(key: String?, value: Int) {
             when (key) {
                 "delayedSyncThreshold" -> PrefManager.delayedSyncThreshold = value
+                "autoGroupTimeThreshold" -> PrefManager.autoGroupTimeThreshold = value
+                "autoTransferTimeThreshold" -> PrefManager.autoTransferTimeThreshold = value
             }
         }
 
@@ -231,6 +300,7 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
                 "landscapeDnd" -> PrefManager.landscapeDnd
                 // 账单识别
                 "autoGroup" -> PrefManager.autoGroup
+                "autoTransferRecognition" -> PrefManager.autoTransferRecognition
                 "aiBillRecognition" -> PrefManager.aiBillRecognition
                 // 账单管理
                 "showRuleName" -> PrefManager.showRuleName
@@ -267,6 +337,7 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
                 "landscapeDnd" -> PrefManager.landscapeDnd = value
                 // 账单识别
                 "autoGroup" -> PrefManager.autoGroup = value
+                "autoTransferRecognition" -> PrefManager.autoTransferRecognition = value
                 "aiBillRecognition" -> PrefManager.aiBillRecognition = value
                 // 账单管理
                 "showRuleName" -> PrefManager.showRuleName = value

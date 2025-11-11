@@ -35,13 +35,16 @@ object Setting {
 
     // ======== 自动记账设置 ========
     const val AUTO_RECORD_BILL: String = "auto_record_bill"         // 自动记录账单（全局开关）
-    const val AUTO_ASSET_MAPPING: String = "auto_asset_mapping"     // 自动资产映射（非AI版本）
+    const val AUTO_ASSET_MAPPING: String = "auto_asset_mapping"     // 记住资产映射（非AI版本）
     const val HOOK_AUTO_SERVER: String = "hook_auto_server"          // 自动记账服务
     const val BOOK_APP_ID = "setting_book_app_id"                    // 记账软件ID
     const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"             // 自动记账提示
     const val SETTING_REMIND_BOOK: String = "setting_remind_book"    // 记账提醒
     const val AUTO_CREATE_CATEGORY = "setting_auto_create_category"  // 自动创建分类
     const val AUTO_GROUP = "setting_auto_group"                      // 自动去重（去重）
+    const val AUTO_TRANSFER_RECOGNITION = "setting_auto_transfer_recognition" // 自动识别转账账单
+    const val AUTO_GROUP_TIME_THRESHOLD = "setting_auto_group_time_threshold" // 自动去重时间阈值（秒）
+    const val AUTO_TRANSFER_TIME_THRESHOLD = "setting_auto_transfer_time_threshold" // 转账账单合并时间阈值（秒）
     const val LISTENER_APP_LIST = "setting_listener_app_list"        // 监听应用列表
     const val PROACTIVELY_MODEL: String = "proactively_model"             // 主动模式
     const val DATA_FILTER: String = "setting_data_filter"                 // 数据关键词过滤，逗号分隔

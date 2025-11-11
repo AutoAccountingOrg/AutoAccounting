@@ -761,6 +761,12 @@
     <!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">Automatic deduplication</string>
     <string name="setting_auto_group_summary">Automatically detect and merge duplicate bills</string>
+    <string name="setting_auto_group_time_threshold">Deduplication Time Threshold</string>
+    <string name="setting_auto_group_time_threshold_summary">Similar bills within %d seconds will be deduplicated</string>
+    <string name="setting_auto_transfer_recognition">Auto Transfer Recognition</string>
+    <string name="setting_auto_transfer_recognition_summary">Identify income and expense bills with the same amount within a short time as transfer bills</string>
+    <string name="setting_auto_transfer_time_threshold">Transfer Merge Time Threshold</string>
+    <string name="setting_auto_transfer_time_threshold_summary">Income and expense bills with the same amount within %d seconds will be identified as transfer</string>
     <string name="setting_bill_auto_record_summary">Show notification when auto recording bills</string>
     <string name="setting_load_success_summary">Show notification when loading successfully</string>
     <string name="setting_default_book">Default Book</string>
@@ -768,8 +774,8 @@
 
     <!-- 新增的账单设置字符串 -->
     <string name="setting_auto_create_category_summary">Automatically create categories when unknown categories are encountered</string>
-    <string name="setting_auto_asset_mapping">Auto Asset Mapping</string>
-    <string name="setting_auto_asset_mapping_summary">Automatically map bills to corresponding asset accounts</string>
+    <string name="setting_auto_asset_mapping">Remember Asset Mapping</string>
+    <string name="setting_auto_asset_mapping_summary">Automatically create asset mapping rules and remember the asset selected for this bill</string>
     <string name="setting_category_book_config">Book Configuration</string>
     <string name="setting_book_app">Accounting App</string>
     <string name="setting_book_app_summary">Target accounting application package name</string>

@@ -329,7 +329,10 @@ Fields: ruleName, shopName, shopItem
     val UI_THEME_COLOR: String = "MATERIAL_DEFAULT"
     val USE_ROUND_STYLE = true
 
-    val AUTO_GROUP = true
+    val AUTO_GROUP = false // 自动去重默认关闭
+    val AUTO_TRANSFER_RECOGNITION = false // 自动识别转账账单默认关闭
+    val AUTO_GROUP_TIME_THRESHOLD = 180 // 自动去重时间阈值（秒），默认60秒
+    val AUTO_TRANSFER_TIME_THRESHOLD = 120 // 转账账单合并时间阈值（秒），默认300秒（5分钟）
     val SHOW_SUCCESS_POPUP = true
     val AUTO_CREATE_CATEGORY = false
 
@@ -353,7 +356,7 @@ Fields: ruleName, shopName, shopItem
 
     // ======== 自动记账完整默认值 ========
     val AUTO_RECORD_BILL: Boolean = false        // 自动记录账单默认开启
-    val AUTO_ASSET_MAPPING: Boolean = false     // 自动资产映射默认关闭
+    val AUTO_ASSET_MAPPING: Boolean = false     // 记住资产映射默认关闭
     val HOOK_AUTO_SERVER: Boolean = false
     val SETTING_TAG: Boolean = false
 

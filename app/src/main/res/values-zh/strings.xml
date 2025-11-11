@@ -702,6 +702,12 @@
     <string name="setting_app_channel">更新渠道</string><!-- 更新类型选项 --><!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">自动去重</string>
     <string name="setting_auto_group_summary">自动识别重复账单并进行去重</string>
+    <string name="setting_auto_group_time_threshold">去重时间阈值</string>
+    <string name="setting_auto_group_time_threshold_summary">前后 %d 秒内的相似账单会被去重</string>
+    <string name="setting_auto_transfer_recognition">自动识别转账账单</string>
+    <string name="setting_auto_transfer_recognition_summary">将短时间内发生的相同金额的收入和支出账单识别为转账账单</string>
+    <string name="setting_auto_transfer_time_threshold">转账合并时间阈值</string>
+    <string name="setting_auto_transfer_time_threshold_summary">前后 %d 秒内的相同金额收入和支出账单会被识别为转账</string>
     <string name="setting_bill_auto_record_summary">自动记录账单时显示提醒</string>
     <string name="setting_load_success_summary">成功加载时显示提醒（只在Xposed模式）</string>
     <string name="setting_default_book">默认账本</string>
@@ -907,8 +913,8 @@
     <string name="perm_required_not_complete">某些必需权限仍然缺失。请在继续之前授予它们。</string>
 
     <!-- 设置相关补充 -->
-    <string name="setting_auto_asset_mapping">自动映射资产</string>
-    <string name="setting_auto_asset_mapping_summary">自动识别账单并映射到对应资产</string>
+    <string name="setting_auto_asset_mapping">记住资产映射</string>
+    <string name="setting_auto_asset_mapping_summary">自动创建资产映射规则，记住本次账单选择的资产</string>
     <string name="setting_auto_create_category_summary">自动创建分类规则记住上次识别账单的分类</string>
     <string name="setting_auto_record_bill">全自动记账</string>
     <string name="setting_auto_record_bill_summary">无需弹窗二次确认</string>

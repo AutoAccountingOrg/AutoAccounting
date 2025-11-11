@@ -169,7 +169,7 @@ object PrefManager {
         get() = getBoolean(Setting.AUTO_RECORD_BILL, DefaultData.AUTO_RECORD_BILL)
         set(value) = putBoolean(Setting.AUTO_RECORD_BILL, value)
 
-    /** 自动资产映射开关 - 自动将账单映射到对应资产账户（非AI版本） */
+    /** 记住资产映射开关 - 自动创建资产映射规则，记住本次账单选择的资产（非AI版本） */
     var autoAssetMapping: Boolean
         get() = getBoolean(Setting.AUTO_ASSET_MAPPING, DefaultData.AUTO_ASSET_MAPPING)
         set(value) = putBoolean(Setting.AUTO_ASSET_MAPPING, value)
@@ -199,6 +199,24 @@ object PrefManager {
     var autoGroup: Boolean
         get() = getBoolean(Setting.AUTO_GROUP, DefaultData.AUTO_GROUP)
         set(value) = putBoolean(Setting.AUTO_GROUP, value)
+
+    /** 自动识别转账账单开关 - 将短时间内发生的收入和支出账单识别为转账账单 */
+    var autoTransferRecognition: Boolean
+        get() = getBoolean(Setting.AUTO_TRANSFER_RECOGNITION, DefaultData.AUTO_TRANSFER_RECOGNITION)
+        set(value) = putBoolean(Setting.AUTO_TRANSFER_RECOGNITION, value)
+
+    /** 自动去重时间阈值 - 前后时间阈值（秒），在此时间范围内的相似账单会被去重 */
+    var autoGroupTimeThreshold: Int
+        get() = getInt(Setting.AUTO_GROUP_TIME_THRESHOLD, DefaultData.AUTO_GROUP_TIME_THRESHOLD)
+        set(value) = putInt(Setting.AUTO_GROUP_TIME_THRESHOLD, value)
+
+    /** 转账账单合并时间阈值 - 前后时间阈值（秒），在此时间范围内的收入和支出账单会被识别为转账 */
+    var autoTransferTimeThreshold: Int
+        get() = getInt(
+            Setting.AUTO_TRANSFER_TIME_THRESHOLD,
+            DefaultData.AUTO_TRANSFER_TIME_THRESHOLD
+        )
+        set(value) = putInt(Setting.AUTO_TRANSFER_TIME_THRESHOLD, value)
 
     /** 监听应用白名单 - 允许自动记账的应用包名列表（CSV 格式存储） */
     var appWhiteList: MutableList<String>
