@@ -29,9 +29,8 @@ import kotlin.math.sin
 
 /**
  * 平衡对比度的流动呼吸背景：
- * - 用 3 段径向渐变（轻度亮 → 容器色 → 轻度暗），
- * - 统一使用 PrimaryContainer 作为基础色，只改变亮度，确保色相一致，
- * - 亮部混合白色 20%，暗部混合黑色 10%，
+ * - 用 4 段径向渐变（轻度亮 → 容器色 → 容器色 → 轻度暗），
+ * - 混合比例 25%，消除过亮/过暗，
  * - 圆心沿圆周运动，周期 5s，
  * - 无需外部属性，开箱即用。
  */
@@ -41,8 +40,7 @@ class BreathingGradientView @JvmOverloads constructor(
 
     private val cycleDuration = 5000L    // 5s 一圈
     private val orbitRadiusFactor = 0.25f    // 轨迹半径 = 25% 宽/高
-    private val lightBlendFactor = 0.20f    // 亮部混合白色比例 20%
-    private val darkBlendFactor = 0.10f    // 暗部混合黑色比例 10%
+    private val blendFactor = 0.25f    // 混合白/黑比例 25%
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val matrix = Matrix()
@@ -85,17 +83,18 @@ class BreathingGradientView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        // 统一使用 PrimaryContainer 作为基础色，只改变亮度
-        val baseColor = DynamicColors.PrimaryContainer
-        // 轻度亮/暗（统一基础色，确保色相一致）
-        val light = ColorUtils.blendARGB(baseColor, Color.WHITE, lightBlendFactor)
-        val dark = ColorUtils.blendARGB(baseColor, Color.BLACK, darkBlendFactor)
+        // 取容器色
+        val theme1 = DynamicColors.PrimaryContainer
+        val theme2 = DynamicColors.SecondaryContainer
+        // 轻度亮/暗
+        val light = ColorUtils.blendARGB(theme1, Color.WHITE, blendFactor)
+        val dark = ColorUtils.blendARGB(theme2, Color.BLACK, blendFactor)
 
-        // 三段径向渐变：light → baseColor → dark（简化，消除色相跳跃）
+        // 四段径向渐变：light → theme1 → theme2 → dark
         shader = RadialGradient(
             w / 2f, h / 2f, max(w, h) * 0.75f,
-            intArrayOf(light, baseColor, dark),
-            floatArrayOf(0f, 0.5f, 1f),
+            intArrayOf(light, theme1, theme2, dark),
+            floatArrayOf(0f, 0.3f, 0.7f, 1f),
             Shader.TileMode.CLAMP
         )
         paint.shader = shader
