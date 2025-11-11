@@ -701,7 +701,7 @@
     <string name="setting_auto_check_rule_update_summary">自动检查记账规则更新</string>
     <string name="setting_app_channel">更新渠道</string><!-- 更新类型选项 --><!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">自动去重</string>
-    <string name="setting_auto_group_summary">自动检测并合并重复账单</string>
+    <string name="setting_auto_group_summary">自动识别重复账单并进行去重</string>
     <string name="setting_bill_auto_record_summary">自动记录账单时显示提醒</string>
     <string name="setting_load_success_summary">成功加载时显示提醒（只在Xposed模式）</string>
     <string name="setting_default_book">默认账本</string>
@@ -721,19 +721,23 @@
     <string name="float_position_left">左侧</string>
     <string name="float_position_right">右侧</string>
     <string name="float_position_top">顶部</string>
+    <string name="toast_position_top">顶部</string>
+    <string name="toast_position_center">中间</string>
+    <string name="toast_position_bottom">底部</string>
+    <string name="setting_toast_position">提醒位置</string>
     <string name="setting_asset_manager">资产管理</string>
     <string name="setting_asset_manager_summary">启用资产管理功能</string>
-    <string name="setting_currency_manager">多货币</string>
+    <string name="setting_currency_manager">多币种支持</string>
     <string name="setting_currency_manager_summary">启用多货币支持</string>
-    <string name="setting_reimbursement">报销</string>
+    <string name="setting_reimbursement">报销管理</string>
     <string name="setting_reimbursement_summary">启用报销跟踪</string>
     <string name="setting_debt">债务管理</string>
     <string name="setting_debt_summary">启用债务和贷款跟踪</string>
-    <string name="setting_book_manager">多账本</string>
+    <string name="setting_book_manager">使用多账本</string>
     <string name="setting_book_manager_summary">启用多账本管理</string>
-    <string name="setting_fee">交易手续费</string>
+    <string name="setting_fee">手续费/优惠管理</string>
     <string name="setting_fee_summary">启用交易手续费跟踪</string>
-    <string name="setting_tag">标签</string>
+    <string name="setting_tag">标签管理</string>
     <string name="setting_tag_summary">启用账单标签</string>
     <string name="setting_auto_backup">自动备份</string>
     <string name="setting_auto_backup_summary">自动本地备份数据</string>
@@ -753,12 +757,12 @@
     <string name="setting_debug_mode_summary">启用调试日志和功能</string>
     <string name="setting_send_error_report">错误报告</string>
     <string name="setting_send_error_report_summary">自动发送崩溃报告</string>
-    <string name="setting_landscape_dnd_summary">在横屏模式下禁用自动记录</string><!-- AI Features -->
-    <string name="setting_ai_bill_recognition">自动使用AI进行账单识别</string>
+    <string name="setting_landscape_dnd_summary">当设备处于横屏状态时不会弹窗干扰</string><!-- AI Features -->
+    <string name="setting_ai_bill_recognition">使用AI识别账单</string>
     <string name="setting_ai_bill_recognition_summary">从原始数据自动提取账单信息</string>
-    <string name="setting_ai_category_recognition">AI 分类识别</string>
+    <string name="setting_ai_category_recognition">使用AI进行分类识别</string>
     <string name="setting_ai_category_recognition_summary">自动为账单分配适当的分类</string>
-    <string name="setting_ai_asset_mapping">AI 资产映射</string>
+    <string name="setting_ai_asset_mapping">使用AI进行资产映射</string>
     <string name="setting_ai_asset_mapping_summary">自动将账单映射到相应的资产账户</string>
     <string name="setting_ai_monthly_summary">AI 月度摘要</string>
     <string name="setting_ai_monthly_summary_summary">生成月度财务分析和摘要报告</string>
@@ -799,8 +803,8 @@
     <string name="btn_ai_analysis">AI</string>
     <string name="btn_bill_sync">同步</string>
     <string name="btn_bill_statistics">统计</string>
-    <string name="setting_manual_sync">手动同步模式</string>
-    <string name="setting_manual_sync_summary">开启后，保存账单将不会自动同步</string>
+    <string name="setting_manual_sync">手动同步账单</string>
+    <string name="setting_manual_sync_summary">开启后保存的账单不会自动同步至目标App</string>
 
     <!-- 统计页面 -->
     <string name="stat_title">统计</string>
@@ -900,13 +904,13 @@
     <string name="perm_required_not_complete">某些必需权限仍然缺失。请在继续之前授予它们。</string>
 
     <!-- 设置相关补充 -->
-    <string name="setting_auto_asset_mapping">自动资产映射</string>
-    <string name="setting_auto_asset_mapping_summary">自动将账单映射到相应的资产账户</string>
-    <string name="setting_auto_create_category_summary">遇到未知分类时自动创建分类</string>
-    <string name="setting_auto_record_bill">自动记录账单</string>
-    <string name="setting_auto_record_bill_summary">自动记录所有账单</string>
+    <string name="setting_auto_asset_mapping">自动映射资产</string>
+    <string name="setting_auto_asset_mapping_summary">自动识别账单并映射到对应资产</string>
+    <string name="setting_auto_create_category_summary">自动创建分类规则记住上次识别账单的分类</string>
+    <string name="setting_auto_record_bill">全自动记账</string>
+    <string name="setting_auto_record_bill_summary">无需弹窗二次确认</string>
     <string name="setting_bill_show_rule_summary">编辑账单时显示匹配规则的名称</string>
-    <string name="setting_book_app">记账应用</string>
+    <string name="setting_book_app">记账软件</string>
     <string name="setting_book_app_summary">目标记账应用包名</string>
     <string name="setting_category_book_config">账本配置</string>
     <string name="setting_category_display">显示设置</string>

@@ -790,6 +790,10 @@
     <string name="float_position_left">Left</string>
     <string name="float_position_right">Right</string>
     <string name="float_position_top">Top</string>
+    <string name="toast_position_top">Top</string>
+    <string name="toast_position_center">Center</string>
+    <string name="toast_position_bottom">Bottom</string>
+    <string name="setting_toast_position">Toast Position</string>
     <!-- Float action display names -->
     <string name="float_action_dismiss">Dismiss</string>
     <string name="float_action_auto_record">Auto Record</string>

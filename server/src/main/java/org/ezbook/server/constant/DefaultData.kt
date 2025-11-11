@@ -381,6 +381,9 @@ Fields: ruleName, shopName, shopItem
     val FLOAT_LONG_CLICK: String = "NO_ACCOUNT"
     val FLOAT_GRAVITY_POSITION: String = "right"                    // 记账小面板默认位置：右侧
 
+    // ======== 提醒位置默认值 ========
+    val TOAST_POSITION: String = "bottom"                           // 提醒默认位置：底部
+
     // ======== OCR显示默认值 ========
     val OCR_SHOW_ANIMATION: Boolean = true
     val OCR_FLIP_TRIGGER: Boolean = true                            // 翻转手机触发默认开启

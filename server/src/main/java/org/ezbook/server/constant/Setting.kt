@@ -97,6 +97,9 @@ object Setting {
     const val FLOAT_GRAVITY_POSITION =
         "setting_float_gravity_position"   // 记账小面板显示位置（left/right/top）
 
+    // ======== 提醒位置设置 ========
+    const val TOAST_POSITION = "setting_toast_position"             // 提醒位置（top/center/bottom）
+
     // ======== OCR显示设置 ========
     const val OCR_SHOW_ANIMATION: String = "ocr_show_animation"      // OCR识别时显示动画
     const val OCR_FLIP_TRIGGER: String = "ocr_flip_trigger"        // 翻转手机触发当前页面识别（非Xposed模式）

@@ -24,6 +24,7 @@ import com.hjq.toast.Toaster
 import com.hjq.toast.style.CustomToastStyle
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.ThemeUtils
 
 
@@ -52,10 +53,20 @@ object ToastUtils {
         warn(autoApp.getString(int))
     }
 
+
+    fun position(): Int {
+        return when (PrefManager.toastPosition) {
+            "top" -> Gravity.TOP
+            "center" -> Gravity.CENTER
+            "bottom" -> Gravity.BOTTOM
+            else -> Gravity.BOTTOM
+        }
+    }
+
     fun info(msg: String) {
         Toaster.show(ToastParams().apply {
             text = msg
-            style = CustomToastStyleAnkio(R.layout.toast_info, Gravity.BOTTOM)
+            style = CustomToastStyleAnkio(R.layout.toast_info, position())
 
         })
     }
@@ -63,7 +74,7 @@ object ToastUtils {
     fun warn(msg: String) {
         Toaster.show(ToastParams().apply {
             text = msg
-            style = CustomToastStyleAnkio(R.layout.toast_warn, Gravity.BOTTOM)
+            style = CustomToastStyleAnkio(R.layout.toast_warn, position())
             
         })
     }
@@ -71,7 +82,7 @@ object ToastUtils {
     fun error(msg: String) {
         Toaster.show(ToastParams().apply {
             text = msg
-            style = CustomToastStyleAnkio(R.layout.toast_error, Gravity.BOTTOM)
+            style = CustomToastStyleAnkio(R.layout.toast_error, position())
 
         })
     }

@@ -417,6 +417,11 @@ object PrefManager {
         get() = getString(Setting.FLOAT_GRAVITY_POSITION, DefaultData.FLOAT_GRAVITY_POSITION)
         set(value) = putString(Setting.FLOAT_GRAVITY_POSITION, value)
 
+    /** 提醒位置 - top/center/bottom */
+    var toastPosition: String
+        get() = getString(Setting.TOAST_POSITION, DefaultData.TOAST_POSITION)
+        set(value) = putString(Setting.TOAST_POSITION, value)
+
     // ======== OCR 显示设置 ========
     /** 是否在OCR识别期间显示动画悬浮窗 */
     var ocrShowAnimation: Boolean

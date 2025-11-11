@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 交互设置：提醒设置、OCR识别、弹窗风格、记账面板 -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 提醒设置 -->
+    <PreferenceCategory android:title="@string/setting_category_notification_settings">
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="bottom"
+            android:entries="@array/toast_position_texts"
+            android:entryValues="@array/toast_position_values"
+            android:icon="@drawable/ic_notifications"
+            android:key="toastPosition"
+            android:summary="%s"
+            android:title="@string/setting_toast_position" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_notifications"
+            android:key="showSuccessPopup"
+            android:summary="@string/setting_bill_auto_record_summary"
+            android:title="@string/setting_bill_auto_record" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_notifications"
+            android:key="loadSuccess"
+            android:summary="@string/setting_load_success_summary"
+            android:title="@string/setting_load_success" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_notifications"
+            android:key="showDuplicatedPopup"
+            android:summary="@string/setting_duplicated_summary"
+            android:title="@string/setting_duplicated" />
+    </PreferenceCategory>
+
+    <!-- OCR识别 -->
+    <PreferenceCategory android:title="@string/setting_category_ocr">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_ocr"
+            android:key="ocrFlipTrigger"
+            android:summary="@string/setting_ocr_flip_trigger_summary"
+            android:title="@string/setting_ocr_flip_trigger" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_ocr"
+            android:key="ocrShowAnimation"
+            android:summary="@string/setting_ocr_show_animation_summary"
+            android:title="@string/setting_ocr_show_animation" />
+    </PreferenceCategory>
+
+    <!-- 弹窗风格 -->
+    <PreferenceCategory android:title="@string/setting_category_popup_style_settings">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting2_icon_round_theme"
+            android:key="roundStyle"
+            android:summary="@string/setting_round_style_summary"
+            android:title="@string/setting_round_style" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_palette"
+            android:key="isExpenseRed"
+            android:summary="@string/settings_expense_red_color_summary"
+            android:title="@string/settings_expense_red_color" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_trending_up"
+            android:key="isIncomeUp"
+            android:summary="@string/settings_income_up_arrow_summary"
+            android:title="@string/settings_income_up_arrow" />
+    </PreferenceCategory>
+
+    <!-- 记账小面板 -->
+    <PreferenceCategory android:title="@string/setting_category_float_badge">
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="right"
+            android:entries="@array/float_position_texts"
+            android:entryValues="@array/float_position_values"
+            android:icon="@drawable/setting_icon_click"
+            android:key="floatGravityPosition"
+            android:summary="%s"
+            android:title="@string/setting_float_badge_position" />
+
+        <androidx.preference.Preference
+            android:defaultValue="0"
+            android:icon="@drawable/setting_icon_timeout"
+            android:key="floatTimeoutOff"
+            android:summary="%s"
+            android:title="@string/setting_float_badge_timeout" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="dismiss"
+            android:entries="@array/float_click_texts"
+            android:entryValues="@array/float_click_values"
+            android:icon="@drawable/setting_icon_timeout"
+            android:key="floatTimeoutAction"
+            android:summary="%s"
+            android:title="@string/setting_float_timeout_action" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="edit"
+            android:entries="@array/float_click_texts"
+            android:entryValues="@array/float_click_values"
+            android:icon="@drawable/setting_icon_click"
+            android:key="floatClick"
+            android:summary="%s"
+            android:title="@string/setting_float_click" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="dismiss"
+            android:entries="@array/float_click_texts"
+            android:entryValues="@array/float_click_values"
+            android:icon="@drawable/setting_icon_long_click"
+            android:key="floatLongClick"
+            android:summary="%s"
+            android:title="@string/setting_float_long_click" />
+    </PreferenceCategory>
+
+    <!-- 记账面板 -->
+    <PreferenceCategory android:title="@string/setting_category_recording_panel">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/icon_delete"
+            android:key="confirmDeleteBill"
+            android:summary="@string/setting_confirm_delete_bill_summary"
+            android:title="@string/setting_confirm_delete_bill" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
+

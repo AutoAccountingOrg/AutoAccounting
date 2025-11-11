@@ -63,6 +63,14 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 "top" -> getString(R.string.float_position_top)
                 else -> getString(R.string.float_position_right)
             }
+        // 更新提醒位置设置的摘要显示
+        findPreference<rikka.preference.SimpleMenuPreference>("toastPosition")?.summary =
+            when (PrefManager.toastPosition) {
+                "top" -> getString(R.string.toast_position_top)
+                "center" -> getString(R.string.toast_position_center)
+                "bottom" -> getString(R.string.toast_position_bottom)
+                else -> getString(R.string.toast_position_bottom)
+            }
     }
 
     /**
@@ -147,6 +155,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 "floatClick" -> PrefManager.floatClick
                 "floatLongClick" -> PrefManager.floatLongClick
                 "floatGravityPosition" -> PrefManager.floatGravityPosition
+                "toastPosition" -> PrefManager.toastPosition
                 else -> defValue
             }
         }
@@ -157,6 +166,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 "floatClick" -> PrefManager.floatClick = value ?: "edit"
                 "floatLongClick" -> PrefManager.floatLongClick = value ?: "dismiss"
                 "floatGravityPosition" -> PrefManager.floatGravityPosition = value ?: "right"
+                "toastPosition" -> PrefManager.toastPosition = value ?: "bottom"
             }
         }
     }
