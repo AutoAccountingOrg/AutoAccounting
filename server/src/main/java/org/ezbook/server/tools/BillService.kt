@@ -46,6 +46,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -531,10 +532,12 @@ class BillService(
         private val floatingIntentScope =
             CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
+        private var lastStart = 0L
         init {
             // 在主线程上顺序消费队列，保证顺序与 UI 线程安全
             floatingIntentScope.launch {
                 for (intent in floatingIntentChannel) {
+
                     // 调起悬浮窗（调试用日志）
                     ServerLog.d("拉起自动记账悬浮窗口：$intent")
                     runCatchingExceptCancel {
@@ -542,9 +545,10 @@ class BillService(
                     }.onFailure { throwable ->
                         ServerLog.e("自动记账悬浮窗拉起失败：$throwable", throwable)
                     }
-                    // 节流：避免频繁启动Activity（如一笔消费产生多个通知时）
-                    // 延迟1s确保用户体验流畅，不会出现窗口闪烁
-                    kotlinx.coroutines.delay(1000)
+                    if (System.currentTimeMillis() - lastStart <= 300) {
+                        delay(300)
+                    }
+                    lastStart = System.currentTimeMillis()
                 }
             }
         }
