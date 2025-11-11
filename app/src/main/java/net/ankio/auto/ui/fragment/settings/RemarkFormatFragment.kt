@@ -45,6 +45,7 @@ class RemarkFormatFragment : BaseFragment<FragmentRemarkFormatBinding>() {
 
     /** 支持的占位符集合（与服务端替换逻辑保持一致） */
     private val placeholders = listOf(
+        // 基础信息
         "【商户名称】",
         "【商品名称】",
         "【金额】",
@@ -52,7 +53,16 @@ class RemarkFormatFragment : BaseFragment<FragmentRemarkFormatBinding>() {
         "【账本】",
         "【来源】",
         "【原始资产】",
-        "【渠道】"
+        "【目标资产】",
+        "【渠道】",
+        // 扩展信息
+        "【规则名称】",
+        "【AI】",
+        "【货币类型】",
+        "【手续费】",
+        "【标签】",
+        "【交易类型】",
+        "【时间】"
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -19,13 +19,14 @@ import android.content.Context
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 object BillManager {
 
     // 常量定义，缩短时间窗口，避免大量非重复账单
     private const val TIME_WINDOW_MILLIS = 3 * 60 * 1000L
-    private const val OTHER_CATEGORY_1 = "其他"
-    private const val OTHER_CATEGORY_2 = "其它"
 
     /**
      * 生成账单简要信息，便于日志定位
@@ -312,6 +313,7 @@ object BillManager {
 
         // 先按模板替换占位符
         val raw = settingBillRemark
+            // 基础信息
             .replace("【商户名称】", shopName)
             .replace("【商品名称】", shopItem)
             .replace("【金额】", billInfoModel.money.toString())
@@ -319,8 +321,16 @@ object BillManager {
             .replace("【账本】", billInfoModel.bookName)
             .replace("【来源】", getAppName(billInfoModel.app, context))
             .replace("【原始资产】", billInfoModel.accountNameFrom)
+            .replace("【目标资产】", billInfoModel.accountNameTo)
             .replace("【渠道】", billInfoModel.channel)
+            // 扩展信息
+            .replace("【规则名称】", billInfoModel.ruleName)
             .replace("【AI】", getAIProvider(billInfoModel))
+            .replace("【货币类型】", billInfoModel.currency)
+            .replace("【手续费】", billInfoModel.fee.toString())
+            .replace("【标签】", billInfoModel.tags)
+            .replace("【交易类型】", billInfoModel.type.toString())
+            .replace("【时间】", formatTime(billInfoModel.time))
         return raw
     }
 
@@ -349,6 +359,22 @@ object BillManager {
         return if (ruleName.endsWith(" 生成")) {
             ruleName.substringBeforeLast(" 生成")
         } else {
+            ""
+        }
+    }
+
+    /**
+     * 格式化时间为字符串
+     * @param timeMillis 时间戳（毫秒）
+     * @return 格式化后的时间字符串（yyyy-MM-dd HH:mm:ss）
+     */
+    private fun formatTime(timeMillis: Long): String {
+        return try {
+            val date = Date(timeMillis)
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            sdf.format(date)
+        } catch (e: Exception) {
+            ServerLog.e("格式化时间失败：${e.message}", e)
             ""
         }
     }

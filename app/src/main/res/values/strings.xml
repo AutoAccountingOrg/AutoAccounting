@@ -233,7 +233,7 @@
     <string name="restore_clearing_cache">Clearing cache...</string>
     <string name="restore_restarting">Restarting app...</string>
     <string name="setting_bill_remark">Remark format</string>
-    <string name="setting_bill_remark_desc">Supports using the following Chinese variables: 【Merchant name】, 【Item name】, 【Currency type】, 【Amount】, 【Category】, 【Book】, 【Source】, 【Original asset】, 【Channel】</string>
+    <string name="setting_bill_remark_desc">Supports using the following Chinese variables:\nBasic: 【Merchant name】, 【Item name】, 【Amount】, 【Category】, 【Book】, 【Source】, 【Original asset】, 【Target asset】, 【Channel】\nExtended: 【Rule name】, 【AI】, 【Currency type】, 【Fee】, 【Tags】, 【Transaction type】, 【Time】</string>
     <string name="setting_float_time">Countdown duration (seconds)</string>
     <string name="setting_category">Category</string>
     <string name="setting_auto_create_category">Remember category</string>
