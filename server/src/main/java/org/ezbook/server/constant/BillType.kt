@@ -36,7 +36,7 @@ enum class BillType {
      * 获取交易类型的中文描述
      * @return 交易类型的中文文本
      */
-    override fun toString(): String {
+    fun toChineseString(): String {
         return when (this) {
             Expend -> "支出"
             ExpendReimbursement -> "支出（报销）"

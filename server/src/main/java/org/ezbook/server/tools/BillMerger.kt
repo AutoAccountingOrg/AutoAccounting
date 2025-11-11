@@ -213,7 +213,7 @@ object BillMerger {
             .replace("【货币类型】", billInfoModel.currency)
             .replace("【手续费】", billInfoModel.fee.toString())
             .replace("【标签】", billInfoModel.tags)
-            .replace("【交易类型】", billInfoModel.type.toString())
+            .replace("【交易类型】", billInfoModel.type.toChineseString())
             .replace("【时间】", formatTime(billInfoModel.time))
     }
 
