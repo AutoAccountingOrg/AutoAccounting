@@ -50,27 +50,36 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
             }
             updateSummary()
         }
+
+        // 浮窗位置设置 - 添加变化监听器，同步更新摘要
+        findPreference<rikka.preference.SimpleMenuPreference>("floatGravityPosition")?.apply {
+            updateFloatGravitySummary(this)
+            setOnPreferenceChangeListener { _, newValue ->
+                updateFloatGravitySummary(this, newValue as? String)
+                true
+            }
+        }
+
+        // 提醒位置设置 - 添加变化监听器，同步更新摘要
+        findPreference<rikka.preference.SimpleMenuPreference>("toastPosition")?.apply {
+            updateToastPositionSummary(this)
+            setOnPreferenceChangeListener { _, newValue ->
+                updateToastPositionSummary(this, newValue as? String)
+                true
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
         findPreference<Preference>("floatTimeoutOff")?.updateSummary()
         // 更新位置设置的摘要显示
-        findPreference<rikka.preference.SimpleMenuPreference>("floatGravityPosition")?.summary =
-            when (PrefManager.floatGravityPosition) {
-                "left" -> getString(R.string.float_position_left)
-                "right" -> getString(R.string.float_position_right)
-                "top" -> getString(R.string.float_position_top)
-                else -> getString(R.string.float_position_right)
-            }
-        // 更新提醒位置设置的摘要显示
-        findPreference<rikka.preference.SimpleMenuPreference>("toastPosition")?.summary =
-            when (PrefManager.toastPosition) {
-                "top" -> getString(R.string.toast_position_top)
-                "center" -> getString(R.string.toast_position_center)
-                "bottom" -> getString(R.string.toast_position_bottom)
-                else -> getString(R.string.toast_position_bottom)
-            }
+        findPreference<rikka.preference.SimpleMenuPreference>("floatGravityPosition")?.let {
+            updateFloatGravitySummary(it)
+        }
+        findPreference<rikka.preference.SimpleMenuPreference>("toastPosition")?.let {
+            updateToastPositionSummary(it)
+        }
     }
 
     /**
@@ -101,6 +110,42 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
             getString(R.string.setting_timeout_seconds, timeoutValue)
         } else {
             getString(R.string.setting_float_badge_disabled)
+        }
+    }
+
+    /**
+     * 更新浮窗位置设置的摘要
+     * @param preference 偏好设置项
+     * @param position 位置值，如果为null则从PrefManager读取
+     */
+    private fun updateFloatGravitySummary(
+        preference: rikka.preference.SimpleMenuPreference,
+        position: String? = null
+    ) {
+        val currentPosition = position ?: PrefManager.floatGravityPosition
+        preference.summary = when (currentPosition) {
+            "left" -> getString(R.string.float_position_left)
+            "right" -> getString(R.string.float_position_right)
+            "top" -> getString(R.string.float_position_top)
+            else -> getString(R.string.float_position_right)
+        }
+    }
+
+    /**
+     * 更新提醒位置设置的摘要
+     * @param preference 偏好设置项
+     * @param position 位置值，如果为null则从PrefManager读取
+     */
+    private fun updateToastPositionSummary(
+        preference: rikka.preference.SimpleMenuPreference,
+        position: String? = null
+    ) {
+        val currentPosition = position ?: PrefManager.toastPosition
+        preference.summary = when (currentPosition) {
+            "top" -> getString(R.string.toast_position_top)
+            "center" -> getString(R.string.toast_position_center)
+            "bottom" -> getString(R.string.toast_position_bottom)
+            else -> getString(R.string.toast_position_bottom)
         }
     }
 
