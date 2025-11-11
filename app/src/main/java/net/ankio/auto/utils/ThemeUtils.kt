@@ -16,29 +16,72 @@
 package net.ankio.auto.utils
 
 import android.content.Context
-import android.graphics.Color
+import android.content.res.Configuration
 import androidx.annotation.StyleRes
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.DynamicColors
-import com.google.android.material.color.MaterialColors
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
-import net.ankio.auto.storage.Logger
-
-
 import rikka.core.util.ResourceUtils
 
 object ThemeUtils {
 
+
+    /**
+     * 判断当前配置是否应该启用夜间主题。
+     *
+     * 处理策略：
+     * 1. 用户强制浅色：忽略系统配置，直接返回 false；
+     * 2. 用户强制夜间：忽略系统配置，直接返回 true；
+     * 3. 跟随系统或自动：回落到当前配置的夜间标记；
+     *
+     * @param config 资源配置对象，用于读取当前的 UI_MODE 标记
+     * @return true 表示夜间主题应该生效；false 则使用浅色主题
+     */
+    private fun isNightModeEnabled(config: Configuration): Boolean {
+        return when (PrefManager.darkTheme) {
+            AppCompatDelegate.MODE_NIGHT_NO -> false
+            AppCompatDelegate.MODE_NIGHT_YES -> true
+            else -> ResourceUtils.isNightMode(config)
+        }
+    }
+
+    /**
+     * 根据用户的夜间主题设定，统一调整上下文的 UI_MODE。
+     *
+     * 目的非常直接：保证在“禁用深色主题”时，无论系统处于何种模式，
+     * 颜色解析始终走浅色资源；同理，强制深色也会完整套用夜间色板。
+     *
+     * @param context 原始上下文，可能携带系统的夜间配置
+     * @return 调整后的上下文，颜色解析结果与用户设定保持一致
+     */
+    private fun wrapContextWithResolvedUiMode(context: Context): Context {
+        val currentConfig = context.resources.configuration
+        val shouldUseNight = isNightModeEnabled(currentConfig)
+        val desiredNightFlag = if (shouldUseNight)
+            Configuration.UI_MODE_NIGHT_YES
+        else
+            Configuration.UI_MODE_NIGHT_NO
+        val currentNightFlag = currentConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        if (currentNightFlag == desiredNightFlag) {
+            return context
+        }
+        val override = Configuration(currentConfig).apply {
+            uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or desiredNightFlag
+        }
+        return context.createConfigurationContext(override)
+    }
+
     @StyleRes
     fun getNightThemeStyleRes(context: Context): Int {
-        return if (PrefManager.blackDarkTheme && ResourceUtils.isNightMode(context.resources.configuration))
+        return if (PrefManager.blackDarkTheme && isNightModeEnabled(context.resources.configuration))
             R.style.ThemeOverlay_Black else R.style.ThemeOverlay
     }
 
 
-    val isDark =
-        PrefManager.blackDarkTheme && ResourceUtils.isNightMode(autoApp.resources.configuration)
+    val isDark: Boolean
+        get() = PrefManager.blackDarkTheme && isNightModeEnabled(autoApp.resources.configuration)
     val isSystemAccent
         get() = DynamicColors.isDynamicColorAvailable() && PrefManager.followSystemAccent
 
@@ -70,12 +113,14 @@ object ThemeUtils {
         @StyleRes get() = colorThemeMap[colorTheme] ?: R.style.ThemeOverlay_MaterialDefault
 
     fun themedCtx(context: Context): Context {
+        val resolvedContext = wrapContextWithResolvedUiMode(context)
         return if (isSystemAccent) {
             // 跟随系统：启用动态色，并应用基础 AppTheme，确保完整的 MD3 token 存在
-            ContextThemeWrapper(DynamicColors.wrapContextIfAvailable(context), R.style.AppTheme)
+            val dynamicWrapped = DynamicColors.wrapContextIfAvailable(resolvedContext)
+            ContextThemeWrapper(dynamicWrapped, R.style.AppTheme)
         } else {
             // 自定义主题：先套用基础 AppTheme，提供完整的 MD3 token，再叠加自定义配色 Overlay
-            val base = ContextThemeWrapper(context, R.style.AppTheme)
+            val base = ContextThemeWrapper(resolvedContext, R.style.AppTheme)
             ContextThemeWrapper(base, colorThemeStyleRes)
         }
 
