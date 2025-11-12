@@ -31,19 +31,19 @@
     <!-- 交流社区 -->
     <PreferenceCategory android:title="@string/setting_category_community">
         <androidx.preference.Preference
-            android:icon="@drawable/ic_chat_bubble"
+            android:icon="@drawable/ic_support"
             android:key="forum"
             android:summary="@string/setting_forum_url"
             android:title="@string/setting_forum" />
 
         <androidx.preference.Preference
-            android:icon="@drawable/ic_chat_bubble"
+            android:icon="@drawable/ic_sms"
             android:key="qqGroup"
             android:summary="@string/setting_qq_group_url"
             android:title="@string/setting_qq_group" />
 
         <androidx.preference.Preference
-            android:icon="@drawable/ic_chat_bubble"
+            android:icon="@drawable/ic_network"
             android:key="telegram"
             android:summary="@string/setting_telegram_url"
             android:title="@string/setting_telegram" />
@@ -70,19 +70,19 @@
             android:title="@string/setting_author_contact" />
 
         <androidx.preference.Preference
-            android:icon="@drawable/ic_chat_bubble"
+            android:icon="@drawable/ic_apps"
             android:key="authorCoolapk"
             android:summary="@string/setting_author_coolapk_url"
             android:title="@string/setting_author_coolapk" />
 
         <androidx.preference.Preference
-            android:icon="@drawable/ic_chat_bubble"
+            android:icon="@drawable/ic_notifications"
             android:key="authorWechat"
             android:summary="@string/setting_author_wechat_name"
             android:title="@string/setting_author_wechat" />
 
         <androidx.preference.Preference
-            android:icon="@drawable/ic_chat_bubble"
+            android:icon="@drawable/play_arrow"
             android:key="authorBilibili"
             android:summary="@string/setting_author_bilibili_url"
             android:title="@string/setting_author_bilibili" />
