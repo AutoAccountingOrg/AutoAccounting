@@ -4,6 +4,7 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.hardware.SensorManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.VibrationEffect
@@ -22,16 +23,18 @@ import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.FlipDetector
 import net.ankio.auto.service.ocr.OcrViews
 import net.ankio.auto.service.overlay.SaveProgressView
-import net.ankio.shell.Shell
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.PrefManager
 import net.ankio.ocr.OcrProcessor
+import net.ankio.shell.Shell
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.intent.IntentType
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
+import kotlin.math.max
 
 /**
  * OCR服务类，用于实现屏幕文字识别功能
@@ -288,19 +291,35 @@ class OcrService : ICoreService() {
             return null
         }
 
-        val text = runCatching { ocrProcessor.startProcess(bitmap) }.getOrElse {
+        val croppedBitmap = cropScreenshotTop(bitmap).also { cropped ->
+            if (cropped !== bitmap) {
+                bitmap.recycle()
+            }
+        }
+
+        val text = runCatching { ocrProcessor.startProcess(croppedBitmap) }.getOrElse {
             Logger.e("OCR 识别失败: ${it.message}")
             outFile.delete()
-            bitmap.recycle()
+            croppedBitmap.recycle()
             return null
         }
 
-        bitmap.recycle()
+        croppedBitmap.recycle()
         outFile.delete()
         return text.ifBlank { null }
     }
 
-
+    /**
+     * 裁剪截图顶部区域，移除系统导航栏与状态栏。
+     * @param source 原始截图
+     * @return 去掉顶部导航栏后的位图
+     */
+    private fun cropScreenshotTop(source: Bitmap): Bitmap {
+        val cropHeight =  DisplayUtils.getStatusBarHeight(coreService)
+        if (cropHeight <= 0) return source
+        if (source.height <= cropHeight) return source
+        return Bitmap.createBitmap(source, 0, cropHeight, source.width, source.height - cropHeight)
+    }
     /**
      * 将识别文本交给 JS 引擎做规则识别。
      * 成功：静默（不打扰用户）。
@@ -390,6 +409,11 @@ class OcrService : ICoreService() {
         override fun startPermissionActivity(context: Context) {
 
         }
+
+        /**
+         * 无法获取状态栏高度时的默认裁剪高度 (dp)。
+         */
+        private const val DEFAULT_TOP_CROP_DP = 56
 
     }
 }
