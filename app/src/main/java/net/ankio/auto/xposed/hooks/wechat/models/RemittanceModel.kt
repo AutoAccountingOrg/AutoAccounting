@@ -26,28 +26,8 @@ class RemittanceModel {
             type = "class",
             name = this::class.java.name,
             nameRule = "com.tencent.mm.plugin.remittance.model.\\w+",
+
             methods = arrayListOf(
-                ClazzMethod(
-                    name = "constructor",
-                    parameters = arrayListOf(
-                        // int v, String s, String s1, int v1, String s2
-                        ClazzField(
-                            type = "int"
-                        ),
-                        ClazzField(
-                            type = "java.lang.String"
-                        ),
-                        ClazzField(
-                            type = "java.lang.String"
-                        ),
-                        ClazzField(
-                            type = "int"
-                        ),
-                        ClazzField(
-                            type = "java.lang.String"
-                        ),
-                    )
-                ),
 
                 ClazzMethod(
                     name = "onGYNetEnd",
@@ -62,6 +42,11 @@ class RemittanceModel {
                         ClazzField(
                             type = "org.json.JSONObject"
                         ),
+                    ),
+                    strings = listOf(
+                        "pay_time",
+                        "trans_status_name",
+                        "is_payer"
                     )
 
                 )
