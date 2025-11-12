@@ -183,8 +183,10 @@ class AiComponent(
                         apiKey = token
                         this.apiUri = apiUri
                         apiModel = model
+                        featureAiAvailable = true
                     }
                 } else {
+                    PrefManager.featureAiAvailable = false
                     val errMsg = result.exceptionOrNull()?.message ?: "Empty response"
                     showTestResult(
                         false,
