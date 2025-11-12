@@ -79,11 +79,21 @@ object TransferRecognizer {
                     billInfoModel.money, startTime, endTime, BillType.Expend
                 )
             )
+            candidates.addAll(
+                Db.get().billInfoDao().query(
+                    billInfoModel.money, startTime, endTime, BillType.Transfer
+                )
+            )
         }
         if (billInfoModel.type == BillType.Expend) {
             candidates.addAll(
                 Db.get().billInfoDao().query(
                     billInfoModel.money, startTime, endTime, BillType.Income
+                )
+            )
+            candidates.addAll(
+                Db.get().billInfoDao().query(
+                    billInfoModel.money, startTime, endTime, BillType.Transfer
                 )
             )
         }
