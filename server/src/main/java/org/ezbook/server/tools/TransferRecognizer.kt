@@ -66,10 +66,34 @@ object TransferRecognizer {
 
         ServerLog.d("转账识别：查询 id=${billInfoModel.id}, 金额=${billInfoModel.money}, 类型=${billInfoModel.type}, 时间窗口=${timeThresholdSeconds}秒")
 
-        // 查找候选账单：相反类型 + Transfer类型
-        val candidates = Db.get().billInfoDao().queryNoType(
-            billInfoModel.money, startTime, endTime
-        )
+        /**
+         *      * 1. Income + Expend → Transfer（账户间转账）
+         *      * 2. Expend + Transfer → Transfer（信用卡还款等）
+         *      * 3. Transfer + Transfer → Transfer（多个转账通知合并）
+         */
+        val candidates = mutableListOf<BillInfoModel>()
+
+        if (billInfoModel.type == BillType.Income) {
+            candidates.addAll(
+                Db.get().billInfoDao().query(
+                    billInfoModel.money, startTime, endTime, BillType.Expend
+                )
+            )
+        }
+        if (billInfoModel.type == BillType.Expend) {
+            candidates.addAll(
+                Db.get().billInfoDao().query(
+                    billInfoModel.money, startTime, endTime, BillType.Income
+                )
+            )
+        }
+        if (billInfoModel.type == BillType.Transfer) {
+            candidates.addAll(
+                Db.get().billInfoDao().queryNoType(
+                    billInfoModel.money, startTime, endTime
+                )
+            )
+        }
 
         // 找到匹配的转账账单（金额相同、类型匹配、未被去重）
         return candidates.find { candidate ->
