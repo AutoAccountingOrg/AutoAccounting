@@ -315,7 +315,7 @@ class OcrService : ICoreService() {
      * @return 去掉顶部导航栏后的位图
      */
     private fun cropScreenshotTop(source: Bitmap): Bitmap {
-        val cropHeight =  DisplayUtils.getStatusBarHeight(coreService)
+        val cropHeight = DisplayUtils.getStatusBarHeight(coreService)
         if (cropHeight <= 0) return source
         if (source.height <= cropHeight) return source
         return Bitmap.createBitmap(source, 0, cropHeight, source.width, source.height - cropHeight)
