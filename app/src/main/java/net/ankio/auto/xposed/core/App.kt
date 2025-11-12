@@ -110,19 +110,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 callback(application)
             }
 
-            Hooker.after(
-                manifest.applicationName,           // 目标类：所有 Application 的基类
-                "attachBaseContext",              // 目标方法名
-                Context::class.java
-            ) { param ->
-                // 确保回调只执行一次
-                if (runOnce) return@after
-                runOnce = true
 
-                val application = param.thisObject as Application
-                Logger.d("Hook Application 成功: ${manifest.applicationName} -> ${application.javaClass.name}")
-                callback(application)
-            }
 
         } catch (e: Exception) {
             Logger.i("Hook Application 失败: ${manifest.applicationName}, 错误: ${e.message}")
