@@ -64,6 +64,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         manifest: HookerManifest,
         callback: (Application?) -> Unit
     ) {
+        Logger.d("start hook app context")
         when {
             // 系统进程无需 Application 实例
             manifest.packageName == "android" -> {
@@ -125,8 +126,11 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         if (pkg == null || processName == null) return null
         XposedModule.get().forEach {
             val process = it.processName.ifEmpty { it.packageName }
-            if (it.packageName == pkg && process == processName) {
-                return it
+            if (it.packageName == pkg) {
+                if (process == processName) return it
+                else {
+                    Logger.d("Process name not pair: excepted ${process}, but provide ${processName}")
+                }
             }
         }
         return null
