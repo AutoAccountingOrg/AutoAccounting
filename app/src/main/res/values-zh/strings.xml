@@ -868,7 +868,7 @@
     <string name="float_action_auto_record">自动记录</string>
     <string name="setting_ocr_show_animation">显示OCR识别动画</string>
     <string name="setting_ocr_show_animation_summary">进行OCR识别时显示覆盖层动画</string>
-    <string name="setting_ocr_flip_trigger">翻转手机触发当前页面识别<</string>
+    <string name="setting_ocr_flip_trigger">翻转手机触发当前页面识别</string>
     <string name="setting_ocr_flip_trigger_summary">需要配置应用白名单避免误触</string>
 
     <!-- 资产与账单相关补全 -->
