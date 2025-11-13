@@ -20,6 +20,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
+import net.ankio.auto.service.CoreService
 import net.ankio.auto.ui.api.BasePreferenceFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
@@ -67,6 +68,19 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
             updateToastPositionSummary(this)
             setOnPreferenceChangeListener { _, newValue ->
                 updateToastPositionSummary(this, newValue as? String)
+                true
+            }
+        }
+
+        // OCR 翻转触发开关变化时重启服务，使配置即时生效
+        findPreference<MaterialSwitchPreference>("ocrFlipTrigger")?.apply {
+            setOnPreferenceChangeListener { _, newValue ->
+                val enabled = (newValue as? Boolean) ?: return@setOnPreferenceChangeListener true
+                // 先写入以避免重启与持久化的竞态
+                PrefManager.ocrFlipTrigger = enabled
+                if (WorkMode.isOcrOrLSPatch()) {
+                    CoreService.restart(requireActivity())
+                }
                 true
             }
         }
