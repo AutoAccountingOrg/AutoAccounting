@@ -97,7 +97,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
             updateToastPositionSummary(it)
         }
 
-        if (!WorkMode.isOcr()) {
+        if (WorkMode.isXposed()) {
             findPreference<MaterialSwitchPreference>("ocrFlipTrigger")?.isEnabled = false
         }
     }
