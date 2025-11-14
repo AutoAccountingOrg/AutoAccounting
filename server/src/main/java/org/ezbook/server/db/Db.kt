@@ -88,6 +88,40 @@ object Db {
     }
 
     /**
+     * 清理历史遗留的备份临时文件
+     * - 删除 filesDir 下的 autoAccount_backup_*.db
+     * - 删除 databases 目录中的临时文件 db_backup.db
+     *
+     * 仅清理特定命名的临时文件，不影响正式数据库文件。
+     */
+    suspend fun cleanupResidualBackups(context: Context) {
+        runCatchingExceptCancel {
+            // 1) 清理 filesDir 下历史遗留的 autoAccount_backup_*.db
+            context.filesDir.listFiles()?.forEach { file ->
+                val name = file.name
+                if (file.isFile &&
+                    name.startsWith("autoAccount_backup_") &&
+                    name.endsWith(".db")
+                ) {
+                    if (file.delete()) {
+                        ServerLog.d("已清理历史备份临时文件：${file.absolutePath}")
+                    }
+                }
+            }
+
+            // 2) 清理导入阶段临时文件 db_backup.db（位于 databases 目录）
+            val stagingFile = context.getDatabasePath("db_backup.db")
+            if (stagingFile.exists()) {
+                if (stagingFile.delete()) {
+                    ServerLog.d("已清理导入阶段临时文件：${stagingFile.absolutePath}")
+                }
+            }
+        }.onFailure { e ->
+            ServerLog.e("清理历史备份临时文件失败：${e.message}", e)
+        }
+    }
+
+    /**
      * 检查数据库是否可用
      * 在执行关键操作前可以先检查数据库状态
      */

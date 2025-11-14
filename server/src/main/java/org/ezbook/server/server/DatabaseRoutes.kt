@@ -45,9 +45,14 @@ fun Route.databaseRoutes(context: Context) {
          * @return 数据库备份文件
          */
         get("/export") {
+            Db.cleanupResidualBackups(context)
             runCatchingExceptCancel {
                 val file = Db.copy(context)
+                // 发送导出文件
                 call.respondFile(file.parentFile!!, file.name)
+                // 发送完成后清理临时文件，避免残留在缓存目录
+                runCatching { file.delete() }
+
             }.onFailure {
                 ServerLog.e("数据库导出失败：${it.message}", it)
                 call.respond(ResultModel.error(500, "Database export failed: ${it.message}"))
