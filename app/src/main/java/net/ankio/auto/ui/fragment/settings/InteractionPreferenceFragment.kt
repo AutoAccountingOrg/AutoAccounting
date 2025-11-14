@@ -78,7 +78,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 val enabled = (newValue as? Boolean) ?: return@setOnPreferenceChangeListener true
                 // 先写入以避免重启与持久化的竞态
                 PrefManager.ocrFlipTrigger = enabled
-                if (WorkMode.isOcrOrLSPatch()) {
+                if (WorkMode.isOcr()) {
                     CoreService.restart(requireActivity())
                 }
                 true
@@ -97,7 +97,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
             updateToastPositionSummary(it)
         }
 
-        if (WorkMode.isXposed()) {
+        if (!WorkMode.isOcr()) {
             findPreference<MaterialSwitchPreference>("ocrFlipTrigger")?.isEnabled = false
         }
     }
