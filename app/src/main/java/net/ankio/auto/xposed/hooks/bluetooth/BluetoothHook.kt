@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,34 +13,21 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.sms
+package net.ankio.auto.xposed.hooks.bluetooth
 
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.hooks.common.CommonHooker
-import net.ankio.auto.xposed.hooks.sms.hooks.SmsIntentHooker
 import net.ankio.dex.model.Clazz
 
-class SmsHooker : HookerManifest() {
-    override val packageName: String
-        get() = "com.android.phone"
-    override val appName: String
-        get() = "短信"
-
-    override val systemApp: Boolean
-        get() = true
+class BluetoothHook() : HookerManifest() {
+    override val packageName: String = "com.android.bluetooth"
+    override val appName: String = "shell"
 
     override fun hookLoadPackage() {
-        if (!BuildConfig.DEBUG && !CommonHooker.runServerInAndroid()) CommonHooker.init()
+        if (CommonHooker.runServerInAndroid()) CommonHooker.init()
     }
 
-    override var partHookers: MutableList<PartHooker>
-        get() = mutableListOf(
-            SmsIntentHooker()
-        )
-        set(value) {}
-    override var rules: MutableList<Clazz>
-        get() = mutableListOf()
-        set(value) {}
+    override var partHookers: MutableList<PartHooker> = mutableListOf()
+    override var rules: MutableList<Clazz> = mutableListOf()
 }

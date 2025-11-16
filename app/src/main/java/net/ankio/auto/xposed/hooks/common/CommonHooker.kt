@@ -19,10 +19,19 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.Server
+import java.io.File
 import java.net.ServerSocket
 
 object CommonHooker {
-
+    fun runServerInAndroid(): Boolean {
+        val file = File("/sdcard/Download/Bluetooth/auto_server")
+        if (file.exists()) {
+            Logger.d("server file exist...")
+        } else {
+            Logger.d("server file not exist...")
+        }
+        return file.exists()
+    }
     /**
      * 检查端口是否被占用。
      * 占用则返回 true；未占用则返回 false。

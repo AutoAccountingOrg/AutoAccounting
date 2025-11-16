@@ -123,11 +123,11 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 查找目标应用的Hook清单
      */
     private fun findTargetApp(pkg: String?, processName: String?): HookerManifest? {
-        if (pkg == null || processName == null) return null
+        if (pkg == null) return null
         XposedModule.get().forEach {
             val process = it.processName.ifEmpty { it.packageName }
             if (it.packageName == pkg) {
-                if (process == processName) return it
+                if (processName == null || process == processName) return it
                 else {
                     Logger.d("Process name not pair: excepted ${process}, but provide ${processName}")
                 }
