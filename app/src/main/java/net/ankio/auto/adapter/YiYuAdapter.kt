@@ -163,10 +163,10 @@ class YiYuAdapter : IAppAdapter {
             BillType.Expend -> 0
             BillType.Income -> 1
             BillType.Transfer -> 2
-            BillType.ExpendReimbursement, BillType.IncomeReimbursement -> 3
+            BillType.ExpendReimbursement -> 3
             // 其他类型按收支大类回退
             BillType.ExpendLending, BillType.ExpendRepayment -> 0
-            BillType.IncomeLending, BillType.IncomeRepayment, BillType.IncomeRefund -> 1
+            BillType.IncomeLending, BillType.IncomeRepayment, BillType.IncomeRefund, BillType.IncomeReimbursement -> 1
         }
     }
 
