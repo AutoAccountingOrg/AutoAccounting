@@ -66,25 +66,29 @@ class YiYuAdapter : IAppAdapter {
         // 规范示例：yyjz://addbill?type=0&money=12&category=早餐&remark=豆浆油条
         // 主要参数映射：
         // - type: 0支出/1收入/2转账/3报销
+        // - money: 金额（必填，正数，小数点不超过2位）
         // - book: 账本名（可选）
-        // - category: 分类名（收支必填、转账不填）
-        // - money: 金额（必填）
-        // - discount: 优惠金额（仅支出，暂不支持，留空）
-        // - asset1/asset2: 账户（转账必填；收支可选）
-        // - fee: 转账手续费（转账可选）
+        // - category: 分类名（收支：传，转账：不传）。优先传 “父/子” 形式
+        // - discount: 优惠金额（仅支出，正数）
+        // - asset1/asset2: 账户（转账必填；收支可选，使用 asset1）
+        // - fee: 转账手续费（仅转账，正数；当内部 fee<0 时取绝对值）
         // - remark: 备注（可选）
         // - datetime: yyyy-MM-dd[ HH:mm[:ss]]（可选，这里统一传 yyyy-MM-dd HH:mm:ss）
         // - tags: 标签（多个用英文逗号分隔，可选）
 
         // 1) 基础与必填参数
         val type = toYiYuType(billInfoModel.type)
-        val money = billInfoModel.money.toString()
+
 
         // 2) 可选参数
         val (parent, child) = billInfoModel.categoryPair()
-        val category = if (child.isNotEmpty()) child else parent
+        // 文档优先推荐 “父/子”，如果没有子类则只传父类
+        val category = when {
+            parent.isNotEmpty() && child.isNotEmpty() -> "$parent/$child"
+            else -> parent
+        }
         val book = billInfoModel.bookName.trim()
-        val remark = billInfoModel.remark.trim()
+
         val tags = billInfoModel.tags.trim(',', ' ').trim()
 
         val isTransfer = type == 2
@@ -104,14 +108,19 @@ class YiYuAdapter : IAppAdapter {
 
         // 必填
         addParam("type", type.toString())
-        addParam("money", money)
+        addParam("money", billInfoModel.money.toString())
 
         // 收支传分类；转账不传分类
         if (!isTransfer) addParam("category", category)
 
+        // 支出优惠映射为 discount（正数）
+        if (!isTransfer && type == 0 && fee > 0) {
+            addParam("discount", fee.toString())
+        }
+
         // 账本、备注、标签
         addParam("book", book)
-        addParam("remark", remark)
+        addParam("remark", billInfoModel.remark)
         addParam("tags", tags)
 
         // 时间
@@ -121,7 +130,8 @@ class YiYuAdapter : IAppAdapter {
         if (isTransfer) {
             addParam("asset1", asset1)
             addParam("asset2", asset2)
-            if (fee > 0) addParam("fee", fee.toString())
+            // 转账手续费：仅当内部 fee < 0 视为手续费，传正数
+            if (fee < 0) addParam("fee", (-fee).toString())
         } else {
             // 收/支可选账户（若存在则带上）
             addParam("asset1", asset1)
@@ -168,6 +178,7 @@ class YiYuAdapter : IAppAdapter {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(date)
     }
+
 
     override fun syncWaitBills(billAction: BillAction, bookName: String) {
 
