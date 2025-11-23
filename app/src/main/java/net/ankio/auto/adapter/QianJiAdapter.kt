@@ -53,36 +53,6 @@ class QianJiAdapter : IAppAdapter {
         get() = "钱迹"
 
 
-    /**
-     * 检查指定账户是否为信用卡类型
-     * @param accountName 账户名称
-     * @return 是否为信用卡账户
-     */
-    private fun isCreditAccount(accountName: String): Boolean = runBlocking {
-        if (accountName.isEmpty()) return@runBlocking false
-
-        // 首先通过名称进行简单判断
-        val nameBasedCheck = accountName.contains("信用", ignoreCase = true) ||
-                accountName.contains("credit", ignoreCase = true) ||
-                accountName.contains("花呗", ignoreCase = true) ||
-                accountName.contains("白条", ignoreCase = true)
-
-        if (nameBasedCheck) return@runBlocking true
-
-        // 如果启用了资产管理，则查询资产类型
-        if (PrefManager.featureAssetManage) {
-            try {
-                val asset = AssetsAPI.getByName(accountName)
-                return@runBlocking asset?.type == AssetsType.CREDIT
-            } catch (e: Exception) {
-                // 查询失败时回退到名称判断
-                return@runBlocking false
-            }
-        }
-
-        false
-    }
-
     override fun features(): List<BookFeatures> {
         return if (WorkMode.isXposedOrLSPatch()) {
             listOf(
@@ -200,7 +170,9 @@ class QianJiAdapter : IAppAdapter {
                 uriBuilder.append("&fee=").append(-billInfoModel.fee)
                 billInfoModel.money -= billInfoModel.fee
             } else {
+                billInfoModel.money += billInfoModel.fee
                 uriBuilder.append("&discount=").append(billInfoModel.fee)
+                uriBuilder.append("&coupon=").append(billInfoModel.fee)
             }
 
 
@@ -263,7 +235,7 @@ class QianJiAdapter : IAppAdapter {
             BillType.Income -> 1
             BillType.Transfer -> {
                 // 根据目标账户类型判断是否为信用卡还款
-                if (isCreditAccount(billInfoModel.accountNameTo)) {
+                if (AppAdapterManager.isCreditAccount(billInfoModel.accountNameTo)) {
                     3 // 信用卡还款
                 } else {
                     2 // 普通转账

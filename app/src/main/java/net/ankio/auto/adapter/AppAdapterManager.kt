@@ -15,10 +15,13 @@
 
 package net.ankio.auto.adapter
 
+import kotlinx.coroutines.runBlocking
 import net.ankio.auto.App
 import net.ankio.auto.constant.WorkMode
+import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -66,5 +69,13 @@ object AppAdapterManager {
             BillAPI.put(billInfoModel)
         }
 
+    }
+
+    fun isCreditAccount(accountName: String): Boolean {
+        runBlocking {
+            val asset = AssetsAPI.getByName(accountName)
+            return@runBlocking asset?.type == AssetsType.CREDIT
+        }
+        return false
     }
 }
