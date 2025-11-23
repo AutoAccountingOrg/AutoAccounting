@@ -171,7 +171,7 @@ class QianJiAdapter : IAppAdapter {
                 billInfoModel.money -= billInfoModel.fee
             } else {
                 billInfoModel.money += billInfoModel.fee
-                uriBuilder.append("&discount=").append(billInfoModel.fee)
+                // uriBuilder.append("&discount=").append(billInfoModel.fee)
                 uriBuilder.append("&coupon=").append(billInfoModel.fee)
             }
 
