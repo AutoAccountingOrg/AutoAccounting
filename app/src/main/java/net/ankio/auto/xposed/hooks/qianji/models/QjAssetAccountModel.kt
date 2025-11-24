@@ -92,9 +92,15 @@ class QjAssetAccountModel {
 
     fun getId(): Long = XposedHelpers.callMethod(assetObj, "getId") as Long
 
-
-    fun getLoanInfo(): LoanInfoModel =
-        LoanInfoModel.fromObject(XposedHelpers.callMethod(assetObj, "getLoanInfo"))
+    /**
+     * 获取借贷信息
+     * 钱迹中非债务类资产可能未初始化借贷信息，底层会返回 null。
+     * 为避免崩溃，当返回为 null 时创建一个默认的 LoanInfo。
+     */
+    fun getLoanInfo(): LoanInfoModel {
+        val obj = XposedHelpers.callMethod(assetObj, "getLoanInfo")
+        return if (obj != null) LoanInfoModel.fromObject(obj) else LoanInfoModel.newInstance()
+    }
 
     fun getMoney(): Double = XposedHelpers.callMethod(assetObj, "getMoney") as Double
 
