@@ -119,7 +119,7 @@ class AutoHooker : PartHooker() {
             Boolean::class.javaPrimitiveType!!
         ) {
             val billModel = QjBillModel.fromObject(it.args[0])
-            /* //传入的是负值表示优惠
+            //传入的是负值表示优惠
              val discount = uri.getQueryParameter("discount")?.toDoubleOrNull()
              if (discount != null && discount > 0 && (billModel.isSpend() || billModel.isTransfer())) {
                  //只有支出或者还款的账户才需要记录优惠
@@ -135,7 +135,7 @@ class AutoHooker : PartHooker() {
              // 给Extra填充汇率等信息
 
 
-             BillDbHelper.newInstance().saveOrUpdateBill(billModel)*/
+            BillDbHelper.newInstance().saveOrUpdateBill(billModel)
             XposedBridge.log("保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}")
 
 
