@@ -83,10 +83,7 @@ class YiYuAdapter : IAppAdapter {
         // 2) 可选参数
         val (parent, child) = billInfoModel.categoryPair()
         // 文档优先推荐 “父/子”，如果没有子类则只传父类
-        val category = when {
-            parent.isNotEmpty() && child.isNotEmpty() -> "$parent/$child"
-            else -> parent
-        }
+        val category = child.ifEmpty { parent }
         val book = billInfoModel.bookName.trim()
 
         val tags = billInfoModel.tags.trim(',', ' ').trim()
