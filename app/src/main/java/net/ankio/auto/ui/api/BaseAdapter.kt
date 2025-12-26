@@ -180,6 +180,25 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
     }
 
     /**
+     * 交换两个位置的数据项（用于拖拽排序）
+     * 直接操作列表并使用 notifyItemMoved，避免 DiffUtil 重算带来的动画问题
+     *
+     * @param fromPosition 起始位置
+     * @param toPosition 目标位置
+     * @return 是否交换成功
+     */
+    fun swapItems(fromPosition: Int, toPosition: Int): Boolean {
+        if (fromPosition !in items.indices || toPosition !in items.indices) {
+            Logger.w("交换数据项失败: 位置超出范围 from=$fromPosition to=$toPosition size=${items.size}")
+            return false
+        }
+        val item = items.removeAt(fromPosition)
+        items.add(toPosition, item)
+        notifyItemMoved(fromPosition, toPosition)
+        return true
+    }
+
+    /**
      * 创建 ViewHolder
      *
      * 通过反射自动创建 ViewBinding 实例，并调用子类的初始化方法

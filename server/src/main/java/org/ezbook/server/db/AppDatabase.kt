@@ -64,7 +64,7 @@ import org.ezbook.server.db.model.TagModel
         TagModel::class,
         AnalysisTaskModel::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -373,5 +373,12 @@ val MIGRATION_14_15 = object : Migration(14, 15) {
             )
             """.trimIndent()
         )
+    }
+}
+
+val MIGRATION_15_16 = object : Migration(15, 16) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 为 AssetsMapModel 添加 sort 字段，用于支持拖拽排序
+        database.execSQL("ALTER TABLE AssetsMapModel ADD COLUMN sort INTEGER NOT NULL DEFAULT 0")
     }
 }

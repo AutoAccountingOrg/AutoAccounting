@@ -133,4 +133,31 @@ object AssetsMapAPI {
         }
     }
 
+    /**
+     * 批量更新资产映射的排序值
+     * @param items 包含name和sort的映射列表
+     * @return 是否成功
+     */
+    suspend fun updateSort(items: List<SortItem>): Boolean = withContext(Dispatchers.IO) {
+
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.post<Boolean>("assets/map/sort", Gson().toJson(items)).getOrThrow()
+            resp.data ?: false
+        }.getOrElse {
+            Logger.e("updateSort error: ${it.message}", it)
+            false
+        }
+    }
+
+    /**
+     * 排序项数据类
+     * @param name 资产映射名称
+     * @param sort 新的排序值
+     */
+    data class SortItem(
+        val name: String,
+        val sort: Int
+    )
+
 }

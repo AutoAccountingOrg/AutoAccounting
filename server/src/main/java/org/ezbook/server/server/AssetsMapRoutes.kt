@@ -15,8 +15,11 @@
 
 package org.ezbook.server.server
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.ktor.application.call
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
@@ -123,8 +126,43 @@ fun Route.assetsMapRoutes() {
             reapplyAssetMappingToHistoryData()
             call.respond(ResultModel.ok(true))
         }
+
+        /**
+         * POST /assets/map/sort - 批量更新资产映射排序
+         * 接收包含name和sort的列表，批量更新排序值
+         *
+         * @param body 包含排序信息的JSON数组
+         * @return ResultModel 操作结果
+         */
+        post("/sort") {
+            // 手动解析JSON避免泛型擦除导致的类型转换问题
+            val json = call.receiveText()
+            val type = object : TypeToken<List<SortItem>>() {}.type
+            val sortList: List<SortItem> = Gson().fromJson(json, type)
+            val dao = Db.get().assetsMapDao()
+
+            // 批量更新每个项的排序值
+            sortList.forEach { item ->
+                dao.query(item.name)?.let { model ->
+                    model.sort = item.sort
+                    dao.update(model)
+                }
+            }
+
+            call.respond(ResultModel.ok(true))
+        }
     }
 }
+
+/**
+ * 排序项数据类
+ * @param name 资产映射名称（唯一标识）
+ * @param sort 新的排序值
+ */
+private data class SortItem(
+    val name: String = "",
+    val sort: Int = 0
+)
 
 /**
  * 删除请求体

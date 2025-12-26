@@ -45,7 +45,13 @@ class AssetsMapModel {
      */
     var mapName: String = "" // 映射账户名
 
+    /**
+     * 排序优先级，值越小优先级越高
+     * 用于控制规则匹配顺序，更具体的规则应排在前面
+     */
+    var sort: Int = 0
+
     override fun toString(): String {
-        return "AssetsMapModel(id=$id, regex=$regex, name='$name', mapName='$mapName')"
+        return "AssetsMapModel(id=$id, regex=$regex, name='$name', mapName='$mapName', sort=$sort)"
     }
 }

@@ -71,6 +71,7 @@ object Db {
                 .addMigrations(MIGRATION_12_13)
                 .addMigrations(MIGRATION_13_14)
                 .addMigrations(MIGRATION_14_15)
+                .addMigrations(MIGRATION_15_16)
                 .build()
         }
     }

@@ -26,6 +26,17 @@
     android:orientation="horizontal"
     android:padding="@dimen/padding">
 
+    <!-- 拖拽手柄图标 -->
+    <ImageView
+        android:id="@+id/drag_handle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/drag_to_sort"
+        android:src="@drawable/icon_drag_handle"
+        app:tint="?android:attr/textColorSecondary" />
+
     <!-- 左侧内容区域，包含文本和标签 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"

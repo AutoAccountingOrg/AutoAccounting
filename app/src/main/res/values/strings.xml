@@ -173,6 +173,7 @@
     <string name="reapply_confirm_message">Are you sure you want to reapply asset mapping to the last 3 months of historical data? This operation cannot be undone.</string>
     <string name="reapply_started">Asset mapping reapplication started</string>
     <string name="reapply_success">Asset mapping reapplication completed successfully</string>
+    <string name="drag_to_sort">Drag to sort</string>
     <string name="delete_title">Delete confirmation</string>
     <string name="delete_message">Are you sure you want to delete %s?</string>
 

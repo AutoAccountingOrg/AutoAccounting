@@ -16,12 +16,10 @@
 package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentMapBinding
@@ -34,7 +32,6 @@ import net.ankio.auto.ui.dialog.AssetsMapDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.utils.adapterBottom
 import org.ezbook.server.db.model.AssetsMapModel
 
 /**
@@ -44,12 +41,22 @@ import org.ezbook.server.db.model.AssetsMapModel
  * - 显示所有资产映射列表
  * - 添加新的资产映射
  * - 编辑资产映射
+ * - 拖拽调整映射规则顺序
  * - 重新应用资产映射到历史数据
  * - 分页加载更多数据
  *
  * 继承自BasePageFragment提供分页功能
  */
 class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() {
+
+    /** 资产映射适配器 */
+    private lateinit var assetsMapAdapter: AssetsMapAdapter
+
+    /** 拖拽排序助手 */
+    private lateinit var itemTouchHelper: ItemTouchHelper
+
+    /** 标记是否发生了排序变化 */
+    private var sortChanged = false
 
     /**
      * 加载资产映射数据
@@ -64,9 +71,11 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
      * @return AssetsMapAdapter实例
      */
     override fun onCreateAdapter(): RecyclerView.Adapter<*> {
-        return AssetsMapAdapter()
+        assetsMapAdapter = AssetsMapAdapter()
             .setOnEditClick { item, position -> handleEditAssetsMap(item, position) }
             .setOnDeleteClick { item -> handleDeleteAssetsMap(item) }
+
+        return assetsMapAdapter
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,6 +83,9 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
 
         // 设置RecyclerView布局管理器
         statusPage.contentView?.layoutManager = WrapContentLinearLayoutManager(context)
+
+        // 初始化拖拽排序
+        setupDragSort()
 
         // 设置返回按钮点击事件
         binding.topAppBar.setNavigationOnClickListener {
@@ -101,6 +113,79 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
 
                 else -> false
             }
+        }
+    }
+
+    /**
+     * 初始化拖拽排序功能
+     */
+    private fun setupDragSort() {
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            0
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                val fromPosition = viewHolder.bindingAdapterPosition
+                val toPosition = target.bindingAdapterPosition
+                if (fromPosition != RecyclerView.NO_POSITION && toPosition != RecyclerView.NO_POSITION) {
+                    assetsMapAdapter.swapItems(fromPosition, toPosition)
+                    sortChanged = true
+                    return true
+                }
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                // 不支持滑动删除
+            }
+
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+                // 拖拽时提升视图层级
+                if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                    viewHolder?.itemView?.alpha = 0.9f
+                    viewHolder?.itemView?.elevation = 8f
+                }
+            }
+
+            override fun clearView(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ) {
+                super.clearView(recyclerView, viewHolder)
+                // 恢复视图状态
+                viewHolder.itemView.alpha = 1.0f
+                viewHolder.itemView.elevation = 0f
+                // 拖拽结束后保存排序
+                if (sortChanged) {
+                    saveSortOrder()
+                    sortChanged = false
+                }
+            }
+
+            override fun isLongPressDragEnabled(): Boolean = false
+        }
+
+        itemTouchHelper = ItemTouchHelper(callback)
+        statusPage.contentView?.let { itemTouchHelper.attachToRecyclerView(it) }
+        assetsMapAdapter.itemTouchHelper = itemTouchHelper
+    }
+
+    /**
+     * 保存排序到服务器
+     */
+    private fun saveSortOrder() {
+        val items = assetsMapAdapter.getItems()
+        val sortItems = items.mapIndexed { index, model ->
+            AssetsMapAPI.SortItem(model.name, index)
+        }
+
+        launch {
+            AssetsMapAPI.updateSort(sortItems)
         }
     }
 

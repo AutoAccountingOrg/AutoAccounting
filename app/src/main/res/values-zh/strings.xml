@@ -173,6 +173,7 @@
     <string name="reapply_confirm_message">您确定要将资产映射重新应用到最近 3 个月的历史数据吗？此操作无法撤销。</string>
     <string name="reapply_started">资产映射重新应用已开始</string>
     <string name="reapply_success">资产映射重新应用成功完成</string>
+    <string name="drag_to_sort">拖拽排序</string>
     <string name="delete_title">删除确认</string>
     <string name="delete_message">您确定要删除 %s 吗？</string>
 
