@@ -324,7 +324,7 @@ Fields: ruleName, shopName, shopItem
     val SETTING_REMIND_BOOK: Boolean = false                        // 记账提醒默认关闭
     const val WECHAT_PACKAGE: String = "com.tencent.mm"            // 微信包名
 
-    // 数据过滤关键字（逗号分隔存储）
+    // 数据过滤关键字 - 白名单（逗号分隔存储）
     val DATA_FILTER = listOf(
         "银行", "信用卡", "借记卡", "公积金",
         "元", "￥", "¥", "人民币",
@@ -335,6 +335,9 @@ Fields: ruleName, shopName, shopItem
         "账户", "余额",
         "交易", "动账", "账单",
     ).joinToString(",")
+
+    // 数据过滤关键字 - 黑名单（逗号分隔存储），匹配白名单后排除
+    const val DATA_FILTER_BLACKLIST = ""
 
     // 监听应用白名单（逗号分隔存储）
     val APP_FILTER = listOf(

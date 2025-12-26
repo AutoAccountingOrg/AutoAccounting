@@ -18,9 +18,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragment.CategoryEditFragment">
+    tools:context=".ui.fragment.DataFilterFragment">
 
-    <!-- Edge-to-Edge：沉浸式顶栏，随内容滚动抬升显示阴影 -->
+    <!-- 顶栏 -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
@@ -40,7 +40,7 @@
             app:title="@string/title_sms_edit" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- 作为滚动目标视图，配合 AppBarLayout 的 liftOnScroll 生效 -->
+    <!-- 内容区域 -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/content_view"
         android:layout_width="match_parent"
@@ -55,27 +55,53 @@
             android:orientation="vertical"
             android:padding="@dimen/padding">
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroup"
+            <!-- 白名单输入区 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/whitelistLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/data_filter_whitelist_hint">
 
-                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/whitelistEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:minLines="5"
+                    android:maxLines="10" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            </com.google.android.material.chip.ChipGroup>
-            <!-- 原有添加按钮改为悬浮按钮放置于页面右下角，因此移除此处按钮 -->
+            <!-- 黑名单输入区 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/blacklistLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding"
+                android:hint="@string/data_filter_blacklist_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/blacklistEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:maxLines="10" />
+            </com.google.android.material.textfield.TextInputLayout>
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- 悬浮添加按钮：右下角，复用全局图标与边距定义 -->
+    <!-- 保存按钮 -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addChip"
+        android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/padding_side"
-        android:importantForAccessibility="no"
-        app:srcCompat="@drawable/float_add" />
+        android:contentDescription="@string/btn_save"
+        app:srcCompat="@drawable/ic_save" />
 
 </net.ankio.auto.ui.components.AdaptiveCoordinatorLayout>

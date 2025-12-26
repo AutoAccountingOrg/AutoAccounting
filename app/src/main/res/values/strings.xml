@@ -359,6 +359,8 @@
     <string name="title_category_rule">Auto category rules</string>
     <string name="title_sms_edit">Edit data filter conditions</string>
     <string name="add_filter">Filter keywords</string>
+    <string name="data_filter_whitelist_hint">Whitelist (one keyword per line, pass if any matches)</string>
+    <string name="data_filter_blacklist_hint">Blacklist (one keyword per line, exclude if any matches)</string>
     <string name="picker_year">Year</string>
     <string name="picker_month">Month</string>
     <string name="picker_day">Day</string>

@@ -490,11 +490,23 @@ object PrefManager {
         get() = getBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)
         set(value) = putBoolean(Setting.PROACTIVELY_MODEL, value)
 
-    /** 数据过滤关键字 - 用于筛选交易信息的关键词列表（CSV 格式存储） */
-    var dataFilter: MutableList<String>
+    /** 数据过滤关键字（白名单） - 匹配任一关键词才进入分析流程（每行一个关键词） */
+    var dataFilter: String
         get() = getString(Setting.DATA_FILTER, DefaultData.DATA_FILTER)
-            .split(",").filter { it.isNotEmpty() }.toMutableList()
-        set(value) = putString(Setting.DATA_FILTER, value.joinToString(","))
+            .replace(",", "\n")
+        set(value) = putString(
+            Setting.DATA_FILTER, value.lines()
+            .map { it.trim() }.filter { it.isNotEmpty() }.joinToString(",")
+        )
+
+    /** 数据过滤关键字（黑名单） - 匹配白名单后，再排除包含这些关键词的数据（每行一个关键词） */
+    var dataFilterBlacklist: String
+        get() = getString(Setting.DATA_FILTER_BLACKLIST, DefaultData.DATA_FILTER_BLACKLIST)
+            .replace(",", "\n")
+        set(value) = putString(
+            Setting.DATA_FILTER_BLACKLIST, value.lines()
+            .map { it.trim() }.filter { it.isNotEmpty() }.joinToString(",")
+        )
 
     // -------- 权限设置 --------
     /** 短信过滤规则 - 用于过滤短信内容的正则表达式或关键词 */

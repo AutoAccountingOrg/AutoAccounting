@@ -41,9 +41,20 @@ object AnalysisUtils {
 
             mD5HashTable.put(data)
 
-            val filter =
-                DataUtils.configString(Setting.DATA_FILTER, DefaultData.DATA_FILTER).split(",")
-            if (filter.all { !data.contains(it) }) {
+            // 白名单过滤：数据必须包含至少一个白名单关键词
+            val whitelist = DataUtils.configString(Setting.DATA_FILTER, DefaultData.DATA_FILTER)
+                .split(",").filter { it.isNotEmpty() }
+            if (whitelist.all { !data.contains(it) }) {
+                return@withIO
+            }
+
+            // 黑名单过滤：数据不能包含任何黑名单关键词
+            val blacklist = DataUtils.configString(
+                Setting.DATA_FILTER_BLACKLIST,
+                DefaultData.DATA_FILTER_BLACKLIST
+            )
+                .split(",").filter { it.isNotEmpty() }
+            if (blacklist.any { data.contains(it) }) {
                 return@withIO
             }
 

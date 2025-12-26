@@ -344,6 +344,8 @@
     <string name="title_category_rule">自动分类规则</string>
     <string name="title_sms_edit">编辑数据过滤条件</string>
     <string name="add_filter">过滤关键词</string>
+    <string name="data_filter_whitelist_hint">白名单（每行一个关键词，匹配任一则通过）</string>
+    <string name="data_filter_blacklist_hint">黑名单（每行一个关键词，匹配任一则排除）</string>
     <string name="picker_year">年</string>
     <string name="picker_month">月</string>
     <string name="picker_day">日</string>

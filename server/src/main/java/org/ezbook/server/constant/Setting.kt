@@ -164,7 +164,8 @@ object Setting {
     const val SETTING_REMIND_BOOK: String = "setting_remind_book"   // 记账提醒
     const val LISTENER_APP_LIST = "setting_listener_app_list"       // 监听应用列表
     const val PROACTIVELY_MODEL: String = "proactively_model"       // 主动模式
-    const val DATA_FILTER: String = "setting_data_filter"           // 数据关键词过滤，逗号分隔
+    const val DATA_FILTER: String = "setting_data_filter"           // 数据关键词过滤（白名单），逗号分隔
+    const val DATA_FILTER_BLACKLIST: String = "setting_data_filter_blacklist" // 数据关键词过滤（黑名单），逗号分隔
 
     // -------- 权限设置 --------
     const val SMS_FILTER: String = "sms_filter"                     // 短信过滤
