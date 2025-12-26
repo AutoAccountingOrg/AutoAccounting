@@ -32,7 +32,7 @@ class SmsHooker : HookerManifest() {
         get() = true
 
     override fun hookLoadPackage() {
-        if (!BuildConfig.DEBUG && !CommonHooker.runServerInAndroid()) CommonHooker.init()
+        if (!BuildConfig.DEBUG) CommonHooker.init()
     }
 
     override var partHookers: MutableList<PartHooker>

@@ -25,7 +25,7 @@ class BluetoothHook() : HookerManifest() {
     override val appName: String = "shell"
 
     override fun hookLoadPackage() {
-        if (CommonHooker.runServerInAndroid()) CommonHooker.init()
+        CommonHooker.init()
     }
 
     override var partHookers: MutableList<PartHooker> = mutableListOf()
