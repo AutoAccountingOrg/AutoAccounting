@@ -18,7 +18,6 @@ package net.ankio.auto.xposed.hooks.alipay
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.hooks.alipay.hooks.MessageBoxHooker
-import net.ankio.auto.xposed.hooks.alipay.hooks.RedPackageHooker
 import net.ankio.auto.xposed.hooks.alipay.hooks.SecurityHooker
 import net.ankio.auto.xposed.hooks.alipay.hooks.WebViewHooker
 import net.ankio.dex.model.Clazz
@@ -34,7 +33,7 @@ class AliPayHooker : HookerManifest() {
     override var applicationName: String = "com.alipay.mobile.quinox.LauncherApplication"
     override var partHookers: MutableList<PartHooker> = mutableListOf(
         MessageBoxHooker(),//支付消息盒子
-        RedPackageHooker(),//支付宝红包
+        //    RedPackageHooker(),//支付宝红包
         WebViewHooker(),//支付宝webview
         SecurityHooker()//支付宝安全
     )
