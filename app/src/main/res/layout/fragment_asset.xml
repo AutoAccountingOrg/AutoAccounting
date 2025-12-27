@@ -22,9 +22,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
+        android:fitsSystemWindows="true"
         app:liftOnScroll="true"
-        app:liftOnScrollTargetViewId="@id/content_view"
-        android:fitsSystemWindows="true">
+        app:liftOnScrollTargetViewId="@id/content_view">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
@@ -35,18 +35,11 @@
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
             app:title="@string/title_assets" />
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabMode="scrollable"
-            app:tabGravity="center" />
-
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- ViewPager2用于显示不同类型的资产 -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/view_pager"
+    <!-- 使用StatusPage包裹RecyclerView，统一空状态、加载状态处理 -->
+    <net.ankio.auto.ui.components.StatusPage
+        android:id="@+id/status_page"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
