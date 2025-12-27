@@ -16,10 +16,7 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.annotation.SuppressLint
-import android.view.MotionEvent
 import android.view.View
-import androidx.recyclerview.widget.ItemTouchHelper
 import net.ankio.auto.databinding.AdapterMapBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
@@ -29,7 +26,8 @@ import org.ezbook.server.db.model.AssetsMapModel
 /**
  * 资产映射适配器
  *
- * 负责展示资产映射列表项，支持拖拽排序功能
+ * 负责展示资产映射列表项
+ * 支持：点击编辑、长按拖拽排序、左滑删除
  */
 class AssetsMapAdapter : BaseAdapter<AdapterMapBinding, AssetsMapModel>() {
 
@@ -38,9 +36,6 @@ class AssetsMapAdapter : BaseAdapter<AdapterMapBinding, AssetsMapModel>() {
 
     /** 删除事件处理器 */
     private var onDeleteClick: ((AssetsMapModel) -> Unit)? = null
-
-    /** ItemTouchHelper引用，用于触发拖拽 */
-    var itemTouchHelper: ItemTouchHelper? = null
 
     /**
      * 设置编辑点击事件处理器
@@ -60,7 +55,6 @@ class AssetsMapAdapter : BaseAdapter<AdapterMapBinding, AssetsMapModel>() {
         this.onDeleteClick = handler
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterMapBinding, AssetsMapModel>) {
         val binding = holder.binding
 
@@ -72,23 +66,14 @@ class AssetsMapAdapter : BaseAdapter<AdapterMapBinding, AssetsMapModel>() {
                 onEditClick?.invoke(item, position)
             }
         }
+    }
 
-        // 长按删除事件
-        binding.item.setOnLongClickListener {
-            val item = holder.item
-            if (item != null) {
-                onDeleteClick?.invoke(item)
-            }
-            true
-        }
-
-        // 拖拽手柄触摸事件 - 触发拖拽排序
-        binding.dragHandle.setOnTouchListener { _, event ->
-            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                itemTouchHelper?.startDrag(holder)
-            }
-            false
-        }
+    /**
+     * 触发删除事件（供外部调用，如滑动删除）
+     * @param item 要删除的项目
+     */
+    fun triggerDelete(item: AssetsMapModel) {
+        onDeleteClick?.invoke(item)
     }
 
     override fun onBindViewHolder(

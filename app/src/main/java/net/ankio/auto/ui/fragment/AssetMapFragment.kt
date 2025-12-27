@@ -117,12 +117,12 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
     }
 
     /**
-     * 初始化拖拽排序功能
+     * 初始化拖拽排序和滑动删除功能
      */
     private fun setupDragSort() {
         val callback = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            0
+            ItemTouchHelper.LEFT  // 支持左滑删除
         ) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -140,7 +140,14 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                // 不支持滑动删除
+                // 左滑删除
+                val position = viewHolder.bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val item = assetsMapAdapter.getItems()[position]
+                    // 先恢复item位置，等用户确认后再真正删除
+                    assetsMapAdapter.notifyItemChanged(position)
+                    assetsMapAdapter.triggerDelete(item)
+                }
             }
 
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
@@ -167,12 +174,11 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
                 }
             }
 
-            override fun isLongPressDragEnabled(): Boolean = false
+            override fun isLongPressDragEnabled(): Boolean = true
         }
 
         itemTouchHelper = ItemTouchHelper(callback)
         statusPage.contentView?.let { itemTouchHelper.attachToRecyclerView(it) }
-        assetsMapAdapter.itemTouchHelper = itemTouchHelper
     }
 
     /**
