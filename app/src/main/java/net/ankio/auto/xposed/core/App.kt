@@ -98,37 +98,19 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         try {
 
 
-            if (manifest.systemApp) {
-                Hooker.after(
-                    Application::class.java,
-                    "onCreate"
-                ) { param ->
-                    if (hookedApplication) return@after
-                    hookedApplication = true
+            Hooker.after(
+                Instrumentation::class.java,
+                "callApplicationOnCreate",
+                Application::class.java
+            ) { param ->
+                // 确保回调只执行一次
+                if (hookedApplication) return@after
+                hookedApplication = true
 
-                    val app = param.thisObject as? Application ?: return@after
-
-                    Logger.d("Application.onCreate captured -> ${app.javaClass.name}")
-
-                    callback(app)
-                }
-            } else {
-                Hooker.after(
-                    Instrumentation::class.java,
-                    "callApplicationOnCreate",
-                    Application::class.java
-                ) { param ->
-                    // 确保回调只执行一次
-                    if (hookedApplication) return@after
-                    hookedApplication = true
-
-                    val application = param.args[0] as Application
-                    Logger.d("Hook Application 成功: ${manifest.applicationName} -> ${application.javaClass.name}")
-                    callback(application)
-                }
+                val application = param.args[0] as Application
+                Logger.d("Hook Application 成功: ${manifest.applicationName} -> ${application.javaClass.name}")
+                callback(application)
             }
-
-
 
 
 

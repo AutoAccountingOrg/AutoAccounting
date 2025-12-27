@@ -30,10 +30,14 @@ import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.BillService
 import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SettingUtils
+import kotlin.coroutines.cancellation.CancellationException
 
 fun Application.module(context: Context) {
     install(StatusPages) {
         exception<Throwable> { cause ->
+            // CancellationException 是协程正常的取消信号（如客户端断开连接），
+            // 重新抛出让 Ktor 正常处理，不记录为错误
+            if (cause is CancellationException) throw cause
             call.respond(
                 HttpStatusCode.OK,
                 ResultModel.error(500, cause.message ?: "")

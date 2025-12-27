@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.bluetooth
 
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.hooks.common.CommonHooker
@@ -22,10 +23,10 @@ import net.ankio.dex.model.Clazz
 
 class BluetoothHook() : HookerManifest() {
     override val packageName: String = "com.android.bluetooth"
-    override val appName: String = "shell"
+    override val appName: String = "蓝牙"
 
     override fun hookLoadPackage() {
-        CommonHooker.init()
+        if (!BuildConfig.DEBUG) CommonHooker.init()
     }
 
     override var partHookers: MutableList<PartHooker> = mutableListOf()
