@@ -105,12 +105,11 @@ class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>()
     ) {
         val binding = holder.binding
 
-        // 设置资产图标和名称
-        binding.iconViewAsset.apply {
-            imageView().setAssetIcon(data)
-            setText(data.name)
-            setTint(false)
-        }
+        // 设置资产图标
+        binding.ivAssetIcon.setAssetIcon(data)
+
+        // 设置资产名称
+        binding.tvAssetName.text = data.name
 
         // 显示类型标签
         binding.tvTypeLabel.text = typeNameMapper?.invoke(data.type) ?: data.type.name

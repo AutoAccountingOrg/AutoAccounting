@@ -14,62 +14,83 @@
   -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="16dp"
     android:background="?android:attr/selectableItemBackground"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="14dp"
     android:minHeight="72dp">
 
-    <!-- 使用 IconView 组件显示资产图标和名称 -->
-    <net.ankio.auto.ui.components.IconView
-        android:id="@+id/icon_view_asset"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <!-- 资产图标 -->
+    <ImageView
+        android:id="@+id/iv_asset_icon"
+        android:layout_width="@dimen/image_size"
+        android:layout_height="@dimen/image_size"
+        android:importantForAccessibility="no"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tv_type_label"
-        app:iconSize="40dp"
-        app:textSize="16sp"
-        app:maxLines="2"
-        app:textColor="?colorOnBackground"
-        app:iconTintEnabled="false" />
+        tools:src="@drawable/default_asset" />
 
-    <!-- 类型标签（普通/信用/借款人/债权人） -->
+    <!-- 资产名称 -->
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_type_label"
+        android:id="@+id/tv_asset_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="?attr/colorOnSurface"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:text="招商银行储蓄卡"
+        app:layout_constraintStart_toEndOf="@+id/iv_asset_icon"
+        app:layout_constraintTop_toTopOf="@+id/iv_asset_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ll_labels"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <!-- 标签容器（类型 + 货币） -->
+    <LinearLayout
+        android:id="@+id/ll_labels"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="4dp"
-        android:textSize="11sp"
-        android:textColor="?attr/colorPrimary"
-        android:background="@drawable/currency_label_background"
-        android:backgroundTint="?attr/colorPrimaryContainer"
-        android:maxLines="1"
-        tools:text="普通"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/tv_currency_label" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toEndOf="@+id/iv_asset_icon"
+        app:layout_constraintTop_toBottomOf="@+id/tv_asset_name"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_asset_icon">
 
-    <!-- 币种标签 -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_currency_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="4dp"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="4dp"
-        android:textSize="11sp"
-        android:textColor="?attr/colorOnSecondaryContainer"
-        android:background="@drawable/currency_label_background"
-        android:maxLines="1"
-        tools:text="CNY"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_type_label"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        <!-- 类型标签 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_type_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:textSize="11sp"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:background="@drawable/currency_label_background"
+            android:backgroundTint="?attr/colorPrimaryContainer"
+            android:maxLines="1"
+            tools:text="普通资产" />
+
+        <!-- 货币标签 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_currency_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:textSize="11sp"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            android:background="@drawable/currency_label_background"
+            android:backgroundTint="?attr/colorSecondaryContainer"
+            android:maxLines="1"
+            tools:text="CNY" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
