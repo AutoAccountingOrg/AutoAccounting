@@ -28,16 +28,17 @@ import org.ezbook.server.db.model.AssetsModel
  * 资产选择器适配器
  * 提供资产列表的显示和交互功能
  *
- * 设计原则（遵循Linus好品味）：
- * 1. 简洁构造：无参数构造函数
- * 2. 链式配置：通过链式调用设置监听器
- * 3. 消除包装：直接使用父类方法
+ * 设计原则：
+ * 1. 扁平列表：无分组头，类型直接显示在item上
+ * 2. 信息丰富：显示图标、名称、类型、货币
+ * 3. 简洁实现：无复杂状态管理
  */
 class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>() {
 
     private var onItemClick: ((AssetsModel, View) -> Unit)? = null
     private var onItemLongClick: ((AssetsModel, View) -> Unit)? = null
     private var showCurrency: Boolean = PrefManager.featureMultiCurrency
+    private var typeNameMapper: ((org.ezbook.server.constant.AssetsType) -> String)? = null
 
     /**
      * 设置点击监听器
@@ -58,6 +59,13 @@ class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>()
      */
     fun setShowCurrency(show: Boolean) = apply {
         this.showCurrency = show
+    }
+
+    /**
+     * 设置类型名称映射函数
+     */
+    fun setTypeNameMapper(mapper: (org.ezbook.server.constant.AssetsType) -> String) = apply {
+        this.typeNameMapper = mapper
     }
 
     /**
@@ -84,7 +92,7 @@ class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>()
 
     /**
      * 绑定数据到视图
-     * 使用 IconView 组件设置资产图标和名称，使用标签风格显示货币信息
+     * 显示资产图标、名称、类型、货币
      *
      * @param holder 视图持有者
      * @param data 资产数据模型
@@ -96,19 +104,19 @@ class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>()
         position: Int
     ) {
         val binding = holder.binding
-        // 使用 IconView 组件设置资产图标和名称
+
+        // 设置资产图标和名称
         binding.iconViewAsset.apply {
-            // 设置资产图标
             imageView().setAssetIcon(data)
-            // 设置显示文本（名称 + 类型信息）
             setText(data.name)
-            // 禁用图标着色，保持原始颜色
             setTint(false)
         }
 
-        // 根据外部传参决定是否展示货币
+        // 显示类型标签
+        binding.tvTypeLabel.text = typeNameMapper?.invoke(data.type) ?: data.type.name
+
+        // 显示货币标签
         binding.tvCurrencyLabel.isVisible = showCurrency
-        // 设置货币标签
         binding.tvCurrencyLabel.text = data.currency.name
     }
 

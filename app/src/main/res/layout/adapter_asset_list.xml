@@ -29,32 +29,47 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tv_currency_label"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintEnd_toStartOf="@+id/tv_type_label"
         app:iconSize="40dp"
         app:textSize="16sp"
         app:maxLines="2"
         app:textColor="?colorOnBackground"
         app:iconTintEnabled="false" />
 
-    <!-- 币种标签 - 类似于 label 风格 -->
+    <!-- 类型标签（普通/信用/借款人/债权人） -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_type_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:textSize="11sp"
+        android:textColor="?attr/colorPrimary"
+        android:background="@drawable/currency_label_background"
+        android:backgroundTint="?attr/colorPrimaryContainer"
+        android:maxLines="1"
+        tools:text="普通"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tv_currency_label" />
+
+    <!-- 币种标签 -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tv_currency_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="6dp"
-        android:textSize="12sp"
-        android:textStyle="bold"
+        android:layout_marginTop="4dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:textSize="11sp"
         android:textColor="?attr/colorOnSecondaryContainer"
         android:background="@drawable/currency_label_background"
         android:maxLines="1"
-        android:ellipsize="end"
         tools:text="CNY"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/icon_view_asset" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_type_label"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

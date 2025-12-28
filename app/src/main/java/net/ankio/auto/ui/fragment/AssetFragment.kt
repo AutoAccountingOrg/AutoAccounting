@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentAssetBinding
 import net.ankio.auto.http.api.AssetsAPI
-import net.ankio.auto.ui.adapter.AssetGroupAdapter
+import net.ankio.auto.ui.adapter.AssetSelectorAdapter
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
@@ -36,33 +36,20 @@ import org.ezbook.server.db.model.AssetsModel
 /**
  * 资产管理Fragment
  *
- * 使用可折叠分组列表显示所有资产，按类型分组：
- * - 普通资产（储蓄卡、借记卡等）
- * - 信用资产（信用卡、花呗等）
- * - 借款人（开启债务功能时显示）
- * - 债权人（开启债务功能时显示）
+ * 显示所有资产的扁平列表，每个item显示：
+ * - 资产图标和名称
+ * - 类型标签（普通/信用/借款人/债权人）
+ * - 货币标签（CNY/USD等）
  *
- * 设计原则（遵循Linus好品味）：
- * 1. 简化数据结构：单一RecyclerView + 分组适配器，消除Tab/ViewPager复杂度
- * 2. 清晰的职责分离：适配器负责渲染，Fragment负责数据加载和交互
- * 3. 消除特殊情况：折叠状态由适配器统一管理
+ * 设计原则：
+ * 1. 扁平列表：无分组头，类型直接显示在item上
+ * 2. 简单排序：按类型分组，组内按sort排序
+ * 3. 无复杂性：无折叠、无状态管理
  */
 class AssetFragment : BaseFragment<FragmentAssetBinding>() {
 
-    /** 分组适配器 */
-    private lateinit var adapter: AssetGroupAdapter
-
-    /** 资产类型顺序，根据功能开关动态构建 */
-    private val assetTypeOrder: List<AssetsType> by lazy {
-        buildList {
-            add(AssetsType.NORMAL)
-            add(AssetsType.CREDIT)
-            if (PrefManager.featureDebt) {
-                add(AssetsType.BORROWER)
-                add(AssetsType.CREDITOR)
-            }
-        }
-    }
+    /** 资产适配器 */
+    private lateinit var adapter: AssetSelectorAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -103,22 +90,16 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
      */
     private fun setupRecyclerView() {
         val recyclerView = binding.statusPage.contentView!!
-
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 
-        adapter = AssetGroupAdapter()
-            .setOnItemClickListener { asset ->
-                // 点击资产：跳转编辑
+        adapter = AssetSelectorAdapter()
+            .setTypeNameMapper(::getTypeName)
+            .setOnItemClickListener { asset, _ ->
                 navigateToAssetEdit(asset.id)
             }
             .setOnItemLongClickListener { asset, view ->
-                // 长按资产：显示操作菜单
                 showAssetActionMenu(asset, view)
-            }
-            .setOnHeaderClickListener { type ->
-                // 点击分组头：切换展开/折叠
-                adapter.toggleGroup(type, assetTypeOrder, ::getTypeName)
             }
 
         recyclerView.adapter = adapter
@@ -137,7 +118,12 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
                 if (assets.isEmpty()) {
                     binding.statusPage.showEmpty()
                 } else {
-                    adapter.updateAssets(assets, assetTypeOrder, ::getTypeName)
+                    // 按类型排序，组内按sort排序
+                    val sorted = assets.sortedWith(
+                        compareBy<AssetsModel> { it.type.ordinal }
+                            .thenBy { it.sort }
+                    )
+                    adapter.replaceItems(sorted)
                     binding.statusPage.showContent()
                 }
             } catch (e: Exception) {
