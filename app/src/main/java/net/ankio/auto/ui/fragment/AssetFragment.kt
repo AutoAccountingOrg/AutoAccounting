@@ -313,7 +313,6 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
                     AssetsAPI.save(asset)
                 }
             } catch (e: Exception) {
-                ToastUtils.error(getString(R.string.sort_update_failed))
                 // 更新失败，重新加载数据恢复原状
                 loadData()
             }

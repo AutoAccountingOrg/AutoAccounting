@@ -61,7 +61,6 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
     /** 图标适配器和数据 */
     private lateinit var iconAdapter: AssetSelectorAdapter
     private var allIcons = listOf<AssetsModel>()
-    private var filteredIcons = listOf<AssetsModel>()
     private var selectedIcon: AssetsModel? = null
 
     /** AutoCompleteTextView适配器和数据 */
@@ -167,8 +166,6 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
         assetTypeAutoComplete.setOnItemClickListener { _, _, position, _ ->
             if (position < assetTypesList.size) {
                 currentAsset.type = assetTypesList[position]
-                // 当资产类型改变时，更新图标列表
-                updateIconsByAssetType()
             }
         }
     }
@@ -241,11 +238,15 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
      */
     private suspend fun loadIconData() {
         allIcons = AssetsUtils.list(requireContext())
-
         Logger.d("icons: " + allIcons.size.toString())
 
-        // 初始化时根据当前资产类型过滤图标
-        updateIconsByAssetType()
+        // 显示所有图标，不进行类型过滤
+        iconAdapter.updateItems(allIcons)
+
+        // 设置默认选中第一个图标
+        if (allIcons.isNotEmpty() && selectedIcon == null) {
+            onIconSelected(allIcons.first())
+        }
     }
 
     /**
@@ -280,9 +281,6 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
                         false
                     )
                 }
-
-                // 根据加载的资产类型更新图标列表
-                updateIconsByAssetType()
 
                 // 设置选中的图标
                 asset.icon?.let { iconUrl ->
@@ -323,24 +321,6 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
         binding.assetNameInputLayout.editText?.setText(icon.name)
     }
 
-    /**
-     * 根据资产类型更新图标列表
-     */
-    private fun updateIconsByAssetType() {
-        // 直接根据资产类型过滤图标
-        filteredIcons = allIcons.filter { it.type == currentAsset.type }
-        iconAdapter.updateItems(filteredIcons)
-
-        // 如果当前选中的图标不在过滤后的列表中，选择第一个可用图标
-        if (selectedIcon != null && !filteredIcons.contains(selectedIcon)) {
-            selectedIcon = null
-        }
-
-        // 设置默认选中第一个图标
-        if (filteredIcons.isNotEmpty() && selectedIcon == null) {
-            onIconSelected(filteredIcons.first())
-        }
-    }
 
     /**
      * 执行搜索（带防抖）
@@ -349,16 +329,16 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
         searchJob?.cancel()
 
         if (query.isEmpty()) {
-            // 搜索为空时，显示根据资产类型过滤的图标
-            iconAdapter.updateItems(filteredIcons)
+            // 搜索为空时，显示所有图标
+            iconAdapter.updateItems(allIcons)
             return
         }
 
         searchJob = launch {
             delay(300) // 防抖延迟
 
-            // 在已过滤的图标中进行搜索
-            val searchResults = filteredIcons.filter { icon ->
+            // 在所有图标中进行搜索
+            val searchResults = allIcons.filter { icon ->
                 icon.name.contains(query, ignoreCase = true)
             }
 
