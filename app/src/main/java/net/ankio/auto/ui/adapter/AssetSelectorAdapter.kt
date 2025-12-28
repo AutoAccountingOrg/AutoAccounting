@@ -37,6 +37,7 @@ class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>()
 
     private var onItemClick: ((AssetsModel, View) -> Unit)? = null
     private var onItemLongClick: ((AssetsModel, View) -> Unit)? = null
+    private var onDeleteClick: ((AssetsModel) -> Unit)? = null
     private var showCurrency: Boolean = PrefManager.featureMultiCurrency
     private var typeNameMapper: ((org.ezbook.server.constant.AssetsType) -> String)? = null
 
@@ -52,6 +53,13 @@ class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>()
      */
     fun setOnItemLongClickListener(listener: (AssetsModel, View) -> Unit) = apply {
         this.onItemLongClick = listener
+    }
+
+    /**
+     * 设置删除监听器（用于滑动删除）
+     */
+    fun setOnDeleteClickListener(listener: (AssetsModel) -> Unit) = apply {
+        this.onDeleteClick = listener
     }
 
     /**
@@ -135,5 +143,10 @@ class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>()
         return oldItem == newItem
     }
 
-
+    /**
+     * 触发删除事件（供外部调用，如滑动删除）
+     */
+    fun triggerDelete(asset: AssetsModel) {
+        onDeleteClick?.invoke(asset)
+    }
 }
