@@ -38,6 +38,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.AppDataModel
@@ -306,7 +307,7 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
 
                 // 启用调试（仅开发环境）
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-                    WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+                    WebView.setWebContentsDebuggingEnabled(true)
                 }
             }
 
@@ -319,6 +320,46 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
             // 加载HTML
             loadUrl(WEBVIEW_URL)
         }
+    }
+
+    /** 注入 Material You 动态颜色到 WebView */
+    private fun injectMaterialYouColors() {
+        // 将颜色值转换为 CSS 十六进制格式
+        val colorToHex = { color: Int ->
+            String.format("#%06X", 0xFFFFFF and color)
+        }
+
+        val js = """
+            (function() {
+                const root = document.documentElement;
+                root.style.setProperty('--md-sys-color-primary', '${colorToHex(DynamicColors.Primary)}');
+                root.style.setProperty('--md-sys-color-on-primary', '${colorToHex(DynamicColors.OnPrimary)}');
+                root.style.setProperty('--md-sys-color-primary-container', '${
+            colorToHex(
+                DynamicColors.PrimaryContainer
+            )
+        }');
+                root.style.setProperty('--md-sys-color-on-primary-container', '${
+            colorToHex(
+                DynamicColors.OnPrimaryContainer
+            )
+        }');
+                root.style.setProperty('--md-sys-color-surface', '${colorToHex(DynamicColors.Surface)}');
+                root.style.setProperty('--md-sys-color-on-surface', '${colorToHex(DynamicColors.OnSurface)}');
+                root.style.setProperty('--md-sys-color-surface-variant', '${colorToHex(DynamicColors.SurfaceVariant)}');
+                root.style.setProperty('--md-sys-color-on-surface-variant', '${
+            colorToHex(
+                DynamicColors.OnSurfaceVariant
+            )
+        }');
+                root.style.setProperty('--md-sys-color-outline', '${colorToHex(DynamicColors.Outline)}');
+                root.style.setProperty('--md-sys-color-outline-variant', '${colorToHex(DynamicColors.OutlineVariant)}');
+                root.style.setProperty('--md-sys-color-background', '${colorToHex(DynamicColors.SurfaceContainer)}');
+            })();
+        """.trimIndent()
+
+        binding.webView.evaluateJavascript(js, null)
+        Logger.d("[WebView] Material You 颜色已注入")
     }
 
     /** 创建WebViewClient - 处理页面加载和错误 */
@@ -335,6 +376,8 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
             Logger.d("[WebView] 页面加载完成: $url")
+            // 注入 Material You 颜色变量
+            injectMaterialYouColors()
             // 页面加载完成后初始化数据
             callJsFunction("webviewCallback.setData(${ruleData.struct})")
         }

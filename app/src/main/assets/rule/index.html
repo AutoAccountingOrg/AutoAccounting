@@ -84,7 +84,7 @@
 
         <!-- 支出账户 -->
         <div class="form-group account1-area">
-            <label class="account1-label">支出（转出）账户</label>
+            <label class="account1-label">支出账户</label>
             <input type="text" name="accountNameFrom" id="accountNameFrom"
                    placeholder="使用$1、$2或直接填写">
         </div>
@@ -144,6 +144,12 @@
     </form>
 </div>
 
+<!-- 占位符选择器（浮动弹窗） -->
+<div id="placeholderPicker" class="placeholder-picker" style="display: none;">
+    <div class="placeholder-picker-header">选择占位符</div>
+    <div id="placeholderList" class="placeholder-list"></div>
+</div>
+
 <script src="jquery-1.11.2.min.js"></script>
 <script src="regex_1.js"></script>
 <script src="regex_2.js"></script>
@@ -159,10 +165,12 @@
     // 缓存常用选择器
     const $form = $('#ruleForm');
     const $ruleType = $('#type');
-    const $regex = $('#regex');
-    const $testData = $('#testData');
     const $resultCount = $('#result_count2');
     const $resultContent = $('#result_content2');
+    
+    // 全局变量：存储当前正则匹配结果
+    let globalMatches = null;
+    let currentFocusedInput = null;
 
     /**
      * WebView 回调对象
@@ -183,7 +191,6 @@
 
             // 更新账户显示和正则匹配
             updateAccountDisplay();
-            updateRegexResult();
         }
     };
 
@@ -204,9 +211,7 @@
      */
     function updateAccountDisplay() {
         const type = $ruleType.val();
-        const $account1Area = $('.account1-area');
         const $account2Area = $('.account2-area');
-        const $feeArea = $('.fee-area');
         const $account1Label = $('.account1-label');
         const $account2Label = $('.account2-label');
 
@@ -239,20 +244,23 @@
      * 更新正则匹配结果
      */
     function updateRegexResult() {
-        const regex = $regex.val();
-        const testData = $testData.val();
+        const regex = t.regexEditor.getValue();
+        const testData = t.strEditor.getValue();
 
         if (!regex || !testData) {
             $resultCount.text('0');
             $resultContent.empty();
+            globalMatches = null; // 清空全局匹配结果
             return;
         }
 
         try {
             const pattern = new RegExp(regex);
             const matches = pattern.exec(testData);
-            console.log(regex,testData,matches, pattern.test(testData));
             if (matches && pattern.test(testData)) {
+                // 保存到全局变量
+                globalMatches = matches;
+                
                 // 构建分组结果
                 const items = [];
                 for (let i = 1; i < matches.length; i++) {
@@ -262,32 +270,112 @@
                 $resultCount.text(matches.length - 1);
                 $resultContent.html(items.join(''));
             } else {
+                globalMatches = null;
                 $resultCount.text('0');
                 $resultContent.html('<div class="result-item">未匹配</div>');
             }
         } catch (e) {
+            globalMatches = null;
             $resultCount.text('0');
             $resultContent.html(`<div class="result-item error">正则表达式错误: ${e.message}</div>`);
         }
     }
 
     /**
-     * 初始化事件监听
+     * 显示占位符选择器
      */
-    $(function () {
-        // 收支类型变化
-        $ruleType.on('change', updateAccountDisplay);
+    function showPlaceholderPicker($input) {
+        if (!globalMatches || globalMatches.length <= 1) {
+            return; // 没有分组结果，不显示
+        }
 
-        // 正则表达式和测试数据变化
-        $regex.on('input', updateRegexResult);
-        $testData.on('input', updateRegexResult);
-        // 正则快捷方式
-        $('.shortcut').on('click', function () {
-            $regex.val($regex.val() + $(this).data('reg'));
-           // t.setRegex(t.regexEditor.getValue() + $(this).data("reg"));
-            updateRegexResult();
+        currentFocusedInput = $input[0];
+        const $picker = $('#placeholderPicker');
+        const $list = $('#placeholderList');
+
+        // 构建选项列表
+        const items = [];
+        for (let i = 1; i < globalMatches.length; i++) {
+            const value = globalMatches[i] || '';
+            const displayValue = value.length > 20 ? value.substring(0, 20) + '...' : value;
+            items.push(`<div class="placeholder-item" data-placeholder="$${i}">
+                <strong>$${i}</strong>
+                <span class="placeholder-value">${displayValue}</span>
+            </div>`);
+        }
+
+        $list.html(items.join(''));
+
+        // 定位到输入框下方
+        const offset = $input.offset();
+        const inputHeight = $input.outerHeight();
+        $picker.css({
+            top: offset.top + inputHeight + 5,
+            left: offset.left,
+            display: 'block'
         });
+    }
 
+    /**
+     * 隐藏占位符选择器
+     */
+    function hidePlaceholderPicker() {
+        $('#placeholderPicker').hide();
+        currentFocusedInput = null;
+    }
+
+    /**
+     * 插入占位符到输入框
+     */
+    function insertPlaceholder(placeholder) {
+        if (!currentFocusedInput) return;
+
+        const input = currentFocusedInput;
+        const cursorPos = input.selectionStart || input.value.length;
+        const before = input.value.substring(0, cursorPos);
+        const after = input.value.substring(cursorPos);
+
+        // 插入占位符
+        input.value = before + placeholder + after;
+
+        // 恢复光标位置
+        const newPos = cursorPos + placeholder.length;
+        input.setSelectionRange(newPos, newPos);
+        input.focus();
+
+        // 触发 change 事件（如果有其他逻辑依赖）
+        $(input).trigger('input');
+
+        hidePlaceholderPicker();
+    }
+
+    // 监听可填充的输入框焦点事件
+    const fillableInputs = '#money, #shopName, #shopItem, #accountNameFrom, #accountNameTo, #fee, #currency, #time';
+    $(fillableInputs).on('focus', function () {
+        showPlaceholderPicker($(this));
+    });
+
+    // 点击选择器选项
+    $(document).on('click', '.placeholder-item', function () {
+        const placeholder = $(this).data('placeholder');
+        insertPlaceholder(placeholder);
+    });
+
+    // 点击外部区域隐藏选择器
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#placeholderPicker').length && !$(e.target).is(fillableInputs)) {
+            hidePlaceholderPicker();
+        }
+    });
+
+    // 收支类型变化
+    $ruleType.on('change', updateAccountDisplay);
+    // 正则快捷方式
+    $('.shortcut').on('click', function () {
+        t.setRegex(t.regexEditor.getValue() + $(this).data("reg"));
+    });
+    t.regexEditor.on("change", function (cm,change) {
+        updateRegexResult();
     });
 </script>
 </body>
