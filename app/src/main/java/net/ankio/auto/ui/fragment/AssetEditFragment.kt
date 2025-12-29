@@ -314,11 +314,18 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
 
     /**
      * 处理图标选择
+     *
+     * 只在新建资产且用户尚未输入名称时，使用图标名作为建议
+     * 编辑已有资产时，不会覆盖用户已设置的名称
      */
     private fun onIconSelected(icon: AssetsModel) {
         selectedIcon = icon
         binding.selectedIconImageView.setAssetIcon(icon)
-        binding.assetNameInputLayout.editText?.setText(icon.name)
+
+        // 只在新建资产且用户尚未输入名称时，使用图标名作为建议
+        if (assetId == 0L && binding.assetNameEditText.text.isNullOrEmpty()) {
+            binding.assetNameEditText.setText(icon.name)
+        }
     }
 
 
