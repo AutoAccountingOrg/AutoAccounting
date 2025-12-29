@@ -102,11 +102,9 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
 
         // 规则相关UI状态
         val hasRule = data.isMatched()
-        val isAiRule = data.isAiGeneratedRule()
 
         binding.ruleName.setText(if (hasRule) extractRuleName(data.rule) else "")
         binding.ruleName.visibility = if (hasRule) View.VISIBLE else View.INVISIBLE
-        binding.createRule.visibility = if (!hasRule || isAiRule) View.VISIBLE else View.GONE
         binding.uploadData.isVisible = true
         // 根据匹配状态设置按钮文案：有效匹配显示"反馈"，无效匹配显示"适配"
         binding.uploadData.setText(
