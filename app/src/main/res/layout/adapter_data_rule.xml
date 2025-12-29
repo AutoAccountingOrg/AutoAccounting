@@ -26,40 +26,50 @@
     app:cardCornerRadius="@dimen/radius"
     app:cardElevation="0dp">
 
-    <!-- 简单明了的LinearLayout - 有时最笨的方法就是最好的 -->
+    <!-- 使用最简单的垂直布局，避免复杂的visibility控制 -->
     <LinearLayout
-        android:padding="@dimen/one_padding"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/padding"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="@dimen/one_padding">
 
-        <!-- 第一行：图标、规则名、开关 -->
+        <!-- 第一行：规则类型标识 + 规则名称 + 启用开关 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription=""
-                app:srcCompat="@drawable/ic_cloud" />
+            <!-- 规则类型标签 - 轻量级TextView，不需要Chip的交互功能 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/ruleType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/currency_label_background"
+                android:backgroundTint="?attr/colorPrimaryContainer"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                android:textSize="11sp"
+                tools:text="云端" />
 
+            <!-- 规则名称 -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/ruleName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:maxLines="2"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                tools:text="Sample rule name for testing" />
+                android:maxLines="1"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textStyle="bold"
+                tools:text="微信支付规则" />
 
+            <!-- 启用开关 -->
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/enable"
                 android:layout_width="wrap_content"
@@ -68,7 +78,20 @@
 
         </LinearLayout>
 
-        <!-- 第二行：状态和操作按钮 -->
+        <!-- 第二行：规则描述 - 告诉用户这条规则是干什么的 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/ruleDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="自动识别微信支付消息，提取金额和商户信息并记账" />
+
+        <!-- 第三行：状态标签 + 操作按钮 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,33 +99,30 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <!-- 自动记账状态标签 - 可交互的Chip，用户可以切换 -->
             <com.google.android.material.chip.Chip
                 android:id="@+id/autoRecord"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="@string/auto_record" />
+                android:text="@string/auto_record_label" />
 
+            <!-- 弹性空间 -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
+            <!-- 操作按钮区域 - 统一的按钮容器，不再通过visibility hack -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/editRule"
+                android:id="@+id/actionButton"
                 style="?attr/materialIconButtonFilledTonalStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                app:icon="@drawable/icon_edit" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/deleteData"
-                style="?attr/materialIconButtonFilledStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/icon_delete" />
+                android:contentDescription="@string/action_button_desc"
+                app:icon="@drawable/icon_edit"
+                tools:text="编辑" />
 
         </LinearLayout>
 

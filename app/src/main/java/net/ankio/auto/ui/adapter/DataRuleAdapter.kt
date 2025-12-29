@@ -41,16 +41,15 @@ class DataRuleAdapter(
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding, RuleModel>) {
         val binding = holder.binding
 
-        // 编辑规则按钮 - 跳转到规则编辑页面
-        binding.editRule.setOnClickListener {
+        // 长按Card显示删除选项（仅用户规则可删除）
+        binding.groupCard.setOnLongClickListener {
             val item = holder.item!!
-            navigateToRuleEdit(it, item)
-        }
-
-        // 删除规则按钮 - 显示确认对话框
-        binding.deleteData.setOnClickListener {
-            val item = holder.item!!
-            showDeleteConfirmDialog(it, item)
+            if (item.creator != "system") {
+                showDeleteConfirmDialog(it, item)
+                true
+            } else {
+                false
+            }
         }
     }
 
@@ -105,32 +104,15 @@ class DataRuleAdapter(
         // 设置规则名称
         binding.ruleName.text = data.name
 
-        // 根据规则类型设置图标
-        binding.icon.visibility = View.VISIBLE
-        if (isSystemRule) {
-            // 系统规则使用云端图标
-            binding.icon.setImageResource(R.drawable.ic_cloud)
-            binding.icon.contentDescription = "云端规则"
-        } else {
-            // 用户规则使用本地图标（如果没有合适的图标，先用一个通用图标）
-            binding.icon.setImageResource(R.drawable.setting2_icon_from_local)
-            binding.icon.contentDescription = "本地规则"
-        }
+        // 设置规则类型标签 - 简单的TextView，清晰地告诉用户这是什么类型的规则
+        binding.ruleType.setText(if (isSystemRule) R.string.rule_type_cloud else R.string.rule_type_local)
 
-        // 操作按钮可见性：系统规则不允许编辑和删除
-        binding.editRule.visibility = if (isSystemRule) View.GONE else View.VISIBLE
-        binding.deleteData.visibility = if (isSystemRule) View.GONE else View.VISIBLE
+        // 设置规则描述 - 优先使用数据库中的description字段，否则智能生成
+        binding.ruleDescription.text = generateRuleDescription(data, isSystemRule)
 
-        // 临时移除监听器，设置状态后再恢复
-        // 这样避免在数据绑定时触发监听器回调
-        binding.enable.setOnCheckedChangeListener(null)
-        binding.autoRecord.setOnCheckedChangeListener(null)
-
-        // 设置开关状态（此时不会触发监听器）
+        // 设置启用开关
+        binding.enable.setOnCheckedChangeListener(null) // 先移除监听器避免触发
         binding.enable.isChecked = data.enabled
-        binding.autoRecord.isChecked = data.autoRecord
-
-        // 恢复监听器 - 重新设置原来的监听器逻辑
         binding.enable.setOnCheckedChangeListener { _, isChecked ->
             val item = holder.item!!
             item.enabled = isChecked
@@ -142,6 +124,9 @@ class DataRuleAdapter(
             }
         }
 
+        // 设置自动记账Chip - 使用更清晰的文字
+        binding.autoRecord.setOnCheckedChangeListener(null)
+        binding.autoRecord.isChecked = data.autoRecord
         binding.autoRecord.setOnCheckedChangeListener { _, isChecked ->
             val item = holder.item!!
             item.autoRecord = isChecked
@@ -150,6 +135,20 @@ class DataRuleAdapter(
                 val statusText =
                     if (isChecked) R.string.auto_record_enabled_successfully else R.string.auto_record_disabled_successfully
                 ToastUtils.info(statusText)
+            }
+        }
+
+        // 设置操作按钮 - 系统规则不提供操作，用户规则可编辑
+        if (isSystemRule) {
+            // 系统规则：不提供任何操作按钮
+            binding.actionButton.visibility = View.GONE
+        } else {
+            // 用户规则：显示"编辑"按钮
+            binding.actionButton.visibility = View.VISIBLE
+            binding.actionButton.text = "" // 只显示图标
+            binding.actionButton.setIconResource(R.drawable.icon_edit)
+            binding.actionButton.setOnClickListener {
+                navigateToRuleEdit(it, holder.item!!)
             }
         }
     }
@@ -162,5 +161,65 @@ class DataRuleAdapter(
         return oldItem == newItem
     }
 
+    /**
+     * 生成规则描述文本
+     * 根据规则类型和应用包名智能生成带有使用提示的描述
+     *
+     * @param rule 规则模型
+     * @param isSystemRule 是否为系统规则
+     * @return 描述文本
+     */
+    private fun generateRuleDescription(rule: RuleModel, isSystemRule: Boolean): String {
+        if (!isSystemRule) {
+            // 用户规则：显示简单说明
+            return fragment.getString(R.string.rule_desc_user_custom)
+        }
+
+        // 官方规则：根据应用和类型生成具体提示
+        val ruleType = rule.type.lowercase()
+        val appPackage = rule.app.lowercase()
+
+        return when {
+            // 微信相关规则 - 提示关注公众号
+            appPackage.contains("com.tencent.mm") && ruleType == "notice" -> {
+                fragment.getString(R.string.rule_desc_wechat_notice, rule.name)
+            }
+
+            // 支付宝规则 - 提示保持后台运行
+            appPackage.contains("com.eg.android.alipaygphone") -> {
+                when (ruleType) {
+                    "notice" -> fragment.getString(R.string.rule_desc_alipay_notice, rule.name)
+                    "app" -> fragment.getString(R.string.rule_desc_alipay_app, rule.name)
+                    else -> fragment.getString(R.string.rule_desc_alipay_general, rule.name)
+                }
+            }
+
+            // 短信规则 - 提示开通短信提醒
+            ruleType == "sms" -> {
+                fragment.getString(R.string.rule_desc_sms_hint, rule.name)
+            }
+
+            // 其他通知类规则 - 提示授权通知权限
+            ruleType == "notice" -> {
+                fragment.getString(R.string.rule_desc_other_notice, rule.name)
+            }
+
+            // 其他应用数据规则
+            ruleType == "app" -> {
+                fragment.getString(R.string.rule_desc_app_hint, rule.name)
+            }
+
+            // 默认描述
+            else -> {
+                val typeText = when (ruleType) {
+                    "notice" -> fragment.getString(R.string.rule_desc_type_notice)
+                    "app" -> fragment.getString(R.string.rule_desc_type_app)
+                    "sms" -> fragment.getString(R.string.rule_desc_type_sms)
+                    else -> fragment.getString(R.string.rule_desc_type_data)
+                }
+                fragment.getString(R.string.rule_desc_official_template, rule.name, typeText)
+            }
+        }
+    }
 
 }

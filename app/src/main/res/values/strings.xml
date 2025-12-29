@@ -281,6 +281,23 @@
     <string name="unzip_finish">Extraction complete</string>
     <string name="unzip">Extracting: %s</string>
     <string name="auto_record">Auto</string>
+    <string name="auto_record_label">Auto Record</string>
+    <string name="rule_type_cloud">Cloud</string>
+    <string name="rule_type_local">Local</string>
+    <string name="action_button_desc">Action button</string>
+    <string name="rule_desc_official_template">%1$s - Automatically recognize and record %2$s</string>
+    <string name="rule_desc_user_custom">Custom rule created by user</string>
+    <string name="rule_desc_type_notice">notification data</string>
+    <string name="rule_desc_type_app">app data</string>
+    <string name="rule_desc_type_sms">SMS data</string>
+    <string name="rule_desc_type_data">data</string>
+    <string name="rule_desc_wechat_notice">%1$s - Follow the official account to receive notifications</string>
+    <string name="rule_desc_alipay_notice">%1$s - Keep Alipay running in background to receive notifications</string>
+    <string name="rule_desc_alipay_app">%1$s - Keep Alipay running in background for data capture</string>
+    <string name="rule_desc_alipay_general">%1$s - Requires Alipay to run in background</string>
+    <string name="rule_desc_sms_hint">%1$s - Enable SMS notifications from your bank</string>
+    <string name="rule_desc_other_notice">%1$s - Grant notification access or set scope to Android System</string>
+    <string name="rule_desc_app_hint">%1$s - Automatically capture app data</string>
 
     <string name="item_search">Search...</string>
     <string name="item_purchase">Purchase</string>
