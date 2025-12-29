@@ -1,4 +1,4 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<net.ankio.auto.ui.components.AdaptiveCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -129,4 +129,4 @@
         android:importantForAccessibility="no"
         app:srcCompat="@drawable/menu_icon_share" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</net.ankio.auto.ui.components.AdaptiveCoordinatorLayout>
