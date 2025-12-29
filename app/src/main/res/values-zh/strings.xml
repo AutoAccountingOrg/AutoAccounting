@@ -936,6 +936,7 @@
     <string name="regexLabel">正则</string>
     <string name="btn_create_rule">规则</string>
     <string name="btn_upload_adapter">适配</string>
+    <string name="btn_upload_feedback">反馈</string>
     <string name="btn_test_rule">测试</string>
 
     <!-- 删除二次确认设置 -->

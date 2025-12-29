@@ -108,6 +108,10 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
         binding.ruleName.visibility = if (hasRule) View.VISIBLE else View.INVISIBLE
         binding.createRule.visibility = if (!hasRule || isAiRule) View.VISIBLE else View.GONE
         binding.uploadData.isVisible = true
+        // 根据匹配状态设置按钮文案：有效匹配显示"反馈"，无效匹配显示"适配"
+        binding.uploadData.setText(
+            if (data.hasValidMatch()) R.string.btn_upload_feedback else R.string.btn_upload_adapter
+        )
     }
 
 

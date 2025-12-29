@@ -915,6 +915,7 @@
     <string name="btn_bill_statistics">Stats</string>
     <string name="btn_create_rule">Rule</string>
     <string name="btn_upload_adapter">Adapter</string>
+    <string name="btn_upload_feedback">Feedback</string>
     <string name="btn_test_rule">Test</string>
     <string name="setting_manual_sync">Manual sync mode</string>
     <string name="setting_manual_sync_summary">When enabled, saving a bill will not trigger sync automatically</string>
