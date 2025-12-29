@@ -20,7 +20,6 @@ import android.view.View
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogDataEditorBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.utils.Desensitizer
 import net.ankio.auto.ui.utils.ToastUtils
 
 class DataEditorDialog internal constructor(
@@ -79,29 +78,6 @@ class DataEditorDialog internal constructor(
                 return@setOnClickListener
             }
             binding.etContent.setText(editorData.replace(keyword, replaceData))
-        }
-
-        binding.btnMaskAll.setOnClickListener {
-            val result = Desensitizer.maskAll(binding.etContent.text.toString())
-
-            // 如果没有需要替换的内容，直接提示
-            if (result.changes.isEmpty()) {
-                ToastUtils.info(R.string.no_replace)
-                return@setOnClickListener
-            }
-
-            // 使用新的替换预览对话框
-            create<ReplacePreviewDialog>(context)
-                .setDesensitizeResult(result)
-                .setOnConfirm { selectedItems ->
-                    // 根据用户选择的项目执行替换
-                    var currentText = binding.etContent.text.toString()
-                    selectedItems.forEach { item ->
-                        currentText = currentText.replace(item.from, item.to)
-                    }
-                    binding.etContent.setText(currentText)
-                }
-                .show()
         }
 
     }

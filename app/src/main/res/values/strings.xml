@@ -657,12 +657,12 @@
     <string name="rule_disable_failed">Failed to disable rule</string>
 
 
-    <string name="label_replace">Replace / Substitute</string>
+    <string name="data_editor">Data Desensitization</string>
+
     <string name="hint_raw">Find text</string>
     <string name="hint_target">Replace with</string>
 
     <string name="btn_replace">Replace</string>
-    <string name="btn_mask_all">Mask All</string>
     <string name="label_content">Content</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_confirm">Confirm</string>

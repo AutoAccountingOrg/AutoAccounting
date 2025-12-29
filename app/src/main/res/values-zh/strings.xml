@@ -593,12 +593,12 @@
     <string name="dark_theme_follow_system">@string/follow_system</string>
 
     <string name="settings_language">语言</string>
-    <string name="label_replace">替换/替代</string>
+    <string name="data_editor">数据脱敏</string>
+
     <string name="hint_raw">查找文本</string>
     <string name="hint_target">替换为</string>
 
     <string name="btn_replace">替换</string>
-    <string name="btn_mask_all">全部屏蔽</string>
     <string name="label_content">内容</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_confirm">确认</string>

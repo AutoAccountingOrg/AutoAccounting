@@ -634,11 +634,6 @@ object PrefManager {
         get() = getString(Setting.TOKEN, DefaultData.TOKEN)
         set(value) = putString(Setting.TOKEN, value)
 
-    /** GitHub 连通性标记 - 是否能正常访问 GitHub 服务 */
-    var githubConnectivity: Boolean
-        get() = getBoolean(Setting.GITHUB_CONNECTIVITY, DefaultData.GITHUB_CONNECTIVITY)
-        set(value) = putBoolean(Setting.GITHUB_CONNECTIVITY, value)
-
     // -------- 更新设置（其他） --------
     /** 最后检查更新时间 - Unix 时间戳 */
     var lastUpdateCheckTime: Long

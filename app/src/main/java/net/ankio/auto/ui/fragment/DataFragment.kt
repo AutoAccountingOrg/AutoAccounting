@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPluginDataBinding
 import net.ankio.auto.http.api.AppDataAPI
@@ -483,12 +484,17 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
         val title = "[Adaptation Request][$type]${item.app}"
 
         val (url, timeout) = Pastebin.add(result).getOrThrow()
+        val localRuleVersion = PrefManager.ruleVersion.ifEmpty { "未知" }
         val body = """
 <!------ 
  1. 请不要手动复制数据，下面的链接中已包含数据；
  2. 您可以新增信息，但是不要删除本页任何内容；
  3. 一般情况下，您直接划到底部点击submit即可。
  ------>
+## 自动记账版本
+${BuildConfig.VERSION_NAME}
+## 本地规则版本
+$localRuleVersion
 ## 数据链接
 [数据过期时间：${timeout}](${url})
 ## 其他信息
@@ -498,11 +504,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
 
                 """.trimIndent()
 
-        if (PrefManager.githubConnectivity) {
-            submitGithub(title, body)
-        } else {
-            submitCloud(title, body)
-        }
+        submitGithub(title, body)
     }
 
     /**
@@ -519,8 +521,10 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
  1. 请不要手动复制数据，下面的链接中已包含数据；
  2. 该功能是反馈规则识别错误的，请勿写其他无关内容；
  ------>
+## 自动记账版本
+${BuildConfig.VERSION_NAME}
 ## 规则
-${item.rule}
+${item.rule}${if (item.version.isNotEmpty()) " (规则版本: ${item.version})" else ""}
 ## 数据
 [数据过期时间：${timeout}](${url})
 ## 说明
@@ -529,11 +533,7 @@ $desc
                          
                                             """.trimIndent()
 
-        if (PrefManager.githubConnectivity) {
-            submitGithub(title, body)
-        } else {
-            submitCloud(title, body)
-        }
+        submitGithub(title, body)
     }
 
     /**
@@ -546,15 +546,4 @@ $desc
         )
     }
 
-    /**
-     * 通过云端API提交Issue
-     * 原 AppDataRepository.submitCloud 方法
-     */
-    private suspend fun submitCloud(title: String, body: String) {
-        val result = RuleAPI.submit(title, body)
-        val data = Gson().fromJson(result, JsonObject::class.java)
-        if (data.get("code").asInt != 200) {
-            throw RuntimeException(data.get("msg").asString)
-        }
-    }
 }

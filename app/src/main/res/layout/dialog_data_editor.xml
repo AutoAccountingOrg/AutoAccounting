@@ -16,7 +16,7 @@
             android:id="@+id/labelReplace"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_replace"
+            android:text="@string/data_editor"
             android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
         <!-- 2️⃣  Raw / Replace inputs in one row -->
@@ -54,30 +54,13 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-        <!-- 3️⃣  First button row: Replace | Mask All -->
-        <LinearLayout
+        <!-- 3️⃣  Replace button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReplace"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_height="@dimen/btn_height_small"
             android:layout_marginTop="@dimen/one_padding"
-            android:weightSum="2">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReplace"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/btn_height_small"
-                android:layout_weight="1"
-                android:text="@string/btn_replace" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMaskAll"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/btn_height_small"
-                android:layout_weight="1"
-                android:layout_marginStart="@dimen/one_padding"
-                android:text="@string/btn_mask_all" />
-        </LinearLayout>
+            android:text="@string/btn_replace" />
 
         <!-- 4️⃣  Content label -->
         <TextView
