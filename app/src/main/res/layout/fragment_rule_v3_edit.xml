@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ui.fragment.RuleEditJsFragment">
+    tools:context=".ui.fragment.RuleEditV3Fragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
@@ -47,34 +47,11 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:fitsSystemWindowsInsets="bottom">
 
-        <!-- 代码编辑器 -->
-        <io.github.rosemoe.sora.widget.CodeEditor
-            android:id="@+id/codeEditor"
+        <WebView
+            android:id="@+id/webView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <LinearLayout
-            android:id="@+id/main_bottom_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                android:scrollbars="none">
-
-                <io.github.rosemoe.sora.widget.SymbolInputView
-                    android:id="@+id/symbol_input"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </HorizontalScrollView>
-
-
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:layout_marginTop="0dp" />
     </LinearLayout>
 
     <!-- 操作按钮已移至右上角菜单 -->

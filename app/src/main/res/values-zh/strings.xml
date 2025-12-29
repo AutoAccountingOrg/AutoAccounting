@@ -1037,4 +1037,14 @@
     <string name="setting_author_wechat_summary">关注微信公众号</string>
     <string name="setting_author_bilibili">哔哩哔哩</string>
     <string name="setting_author_bilibili_summary">在B站关注作者</string>
+
+    <!-- 规则编辑器 -->
+    <string name="rule_parse_form_failed">解析表单数据失败</string>
+    <string name="rule_test_data_required">请先输入测试数据</string>
+    <string name="rule_ai_generating">AI 正在生成规则…</string>
+    <string name="rule_ai_generate_failed">AI生成失败</string>
+    <string name="rule_ai_generate_failed_with_reason">AI生成失败: %s</string>
+    <string name="rule_ai_generate_success">AI规则已生成</string>
+    <string name="rule_test_failed">测试规则失败</string>
+    <string name="rule_save_failed">保存规则失败</string>
 </resources>

@@ -200,7 +200,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
         val args = Bundle().apply {
             putString("data", Gson().toJson(item))
         }
-        findNavController().navigate(R.id.ruleEditFragment, args)
+        findNavController().navigate(R.id.RuleEditV3Fragment, args)
     }
 
     /**

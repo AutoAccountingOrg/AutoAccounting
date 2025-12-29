@@ -1061,4 +1061,14 @@
     <string name="setting_author_bilibili">Bilibili</string>
     <string name="setting_author_bilibili_summary">Follow author on Bilibili</string>
     <string name="setting_author_bilibili_url" translatable="false">https://space.bilibili.com/442001950</string>
+
+    <!-- Rule Editor -->
+    <string name="rule_parse_form_failed">Failed to parse form data</string>
+    <string name="rule_test_data_required">Please enter test data first</string>
+    <string name="rule_ai_generating">AI is generating rules…</string>
+    <string name="rule_ai_generate_failed">AI generation failed</string>
+    <string name="rule_ai_generate_failed_with_reason">AI generation failed: %s</string>
+    <string name="rule_ai_generate_success">AI rule generated successfully</string>
+    <string name="rule_test_failed">Rule test failed</string>
+    <string name="rule_save_failed">Failed to save rule</string>
 </resources>

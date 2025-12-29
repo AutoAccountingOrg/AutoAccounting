@@ -85,24 +85,20 @@
 
         <action
             android:id="@+id/action_ruleManageFragment_to_ruleEditFragment"
-            app:destination="@id/ruleEditFragment" />
+            app:destination="@id/RuleEditV3Fragment" />
         <action
             android:id="@+id/action_ruleManageFragment_to_categoryRuleEditFragment"
             app:destination="@id/categoryRuleEditFragment" />
 
     </fragment>
 
-    <fragment
-        android:id="@+id/ruleEditFragment"
-        android:name="net.ankio.auto.ui.fragment.RuleEditFragment"
-        android:label="@string/title_rule_edit"
-        tools:layout="@layout/fragment_rule_edit" />
+
 
     <fragment
-        android:id="@+id/ruleEditJsFragment"
-        android:name="net.ankio.auto.ui.fragment.RuleEditJsFragment"
+        android:id="@+id/RuleEditV3Fragment"
+        android:name="net.ankio.auto.ui.fragment.RuleEditV3Fragment"
         android:label="@string/title_rule_edit"
-        tools:layout="@layout/fragment_rule_js_edit" />
+        tools:layout="@layout/fragment_rule_v3_edit" />
 
 
     <fragment

@@ -62,7 +62,7 @@ class DataRuleAdapter(
             putString("rule", Gson().toJson(rule))
         }
         // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
-        view.findNavController().navigate(R.id.ruleEditFragment, bundle)
+        view.findNavController().navigate(R.id.RuleEditV3Fragment, bundle)
     }
 
     /**

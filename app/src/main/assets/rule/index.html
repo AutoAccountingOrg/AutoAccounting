@@ -1,0 +1,294 @@
+<!--
+  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>规则编辑</title>
+    <link href="rule.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <form id="ruleForm">
+        <!-- 规则类型标识（隐藏字段） -->
+        <input type="hidden" name="rule_type" id="rule_type" value="">
+        <input type="hidden" name="creator" id="creator" value="user">
+        <input type="hidden" name="systemRuleName" id="systemRuleName" value="">
+
+
+        <!-- 规则名称 -->
+        <div class="form-group">
+            <label>规则名称</label>
+            <input type="text" name="name" id="name" placeholder="规则名称" required>
+        </div>
+
+        <!-- APP包名/短信发件人号码 -->
+        <div class="form-group">
+            <label>APP包名</label>
+            <input type="text" name="app" id="app" placeholder="APP包名">
+        </div>
+
+        <!-- 正则表达式 -->
+        <div class="form-group">
+            <label>正则表达式</label>
+            <div class="regex-shortcuts">
+                <span class="shortcut" data-reg="(\d+(\.\d+)?)">浮点数</span>
+                <span class="shortcut" data-reg="(\d{4})">4位整数</span>
+                <span class="shortcut" data-reg="(((?!支付宝|微信).)*)">不包含『支付宝』『微信』</span>
+                <span class="shortcut" data-reg="(.*)">任意字符(分组)</span>
+                <span class="shortcut" data-reg=".*">任意字符(不分组)</span>
+            </div>
+            <textarea name="regex" id="regex" rows="3" placeholder="输入正则表达式"
+                      required></textarea>
+        </div>
+
+        <!-- 测试数据 -->
+        <div class="form-group">
+            <label>测试数据</label>
+            <textarea name="testData" id="testData" rows="8" placeholder="输入测试数据"
+                      readonly></textarea>
+        </div>
+
+        <!-- 分组结果 -->
+        <div class="form-group">
+            <h3 style="display: none">共找到 <var id="result_count">0</var> 处匹配结果</h3>
+            <pre id="result_content" style="display: none"></pre>
+            <h3>共找到 <var id="result_count2">0</var> 处分组结果</h3>
+            <pre id="result_content2"></pre>
+        </div>
+
+        <!-- 收支类型 -->
+        <div class="form-group">
+            <label>收支类型</label>
+            <select name="type" id="type">
+                <option value="Expend" selected>支出</option>
+                <option value="Income">收入</option>
+                <option value="Transfer">转账（信用还款）</option>
+            </select>
+        </div>
+
+        <!-- 支出账户 -->
+        <div class="form-group account1-area">
+            <label class="account1-label">支出（转出）账户</label>
+            <input type="text" name="accountNameFrom" id="accountNameFrom"
+                   placeholder="使用$1、$2或直接填写">
+        </div>
+
+        <!-- 转入账户 -->
+        <div class="form-group account2-area" style="display:none;">
+            <label class="account2-label">转入账户</label>
+            <input type="text" name="accountNameTo" id="accountNameTo"
+                   placeholder="使用$1、$2或直接填写">
+        </div>
+
+        <!-- 金额 -->
+        <div class="form-group">
+            <label>金额</label>
+            <input type="text" name="money" id="money" placeholder="使用$1、$2或直接填写" required>
+        </div>
+
+        <!-- 手续费 -->
+        <div class="form-group fee-area" style="display:none;">
+            <label>手续费</label>
+            <input type="text" name="fee" id="fee" placeholder="没有留空">
+        </div>
+
+        <!-- 商户名称 -->
+        <div class="form-group">
+            <label>商户名称</label>
+            <input type="text" name="shopName" id="shopName" placeholder="使用$1、$2或直接填写">
+        </div>
+
+        <!-- 商户备注 -->
+        <div class="form-group">
+            <label>商户备注</label>
+            <input type="text" name="shopItem" id="shopItem" placeholder="使用$1、$2或直接填写">
+        </div>
+
+        <div class="form-group">
+            <label>币种</label>
+            <input type="text" name="currency" id="currency" value="CNY"
+                   placeholder="使用$1、$2或直接填写">
+        </div>
+
+        <!-- 时间 -->
+        <div class="form-group">
+            <label>时间</label>
+            <input type="text" name="time" id="time" placeholder="没有留空">
+        </div>
+
+        <!-- 自动记账 -->
+        <div class="form-group">
+            <label>自动记录账单</label>
+            <select name="autoRecord" id="autoRecord">
+                <option value="false" selected>否</option>
+                <option value="true">是</option>
+            </select>
+        </div>
+
+    </form>
+</div>
+
+<script src="jquery-1.11.2.min.js"></script>
+<script src="regex_1.js"></script>
+<script src="regex_2.js"></script>
+<script>
+    var t = new RegexApp(
+        document.getElementById("regex"),
+        document.getElementById("testData"),
+        document.querySelectorAll(".regex-flag"),
+        document.getElementById("result_count"),
+        document.getElementById("result_content"))
+    ;
+
+    // 缓存常用选择器
+    const $form = $('#ruleForm');
+    const $ruleType = $('#type');
+    const $regex = $('#regex');
+    const $testData = $('#testData');
+    const $resultCount = $('#result_count2');
+    const $resultContent = $('#result_content2');
+
+    /**
+     * WebView 回调对象
+     */
+    window.webviewCallback = {
+        /**
+         * 设置表单数据
+         * @param formData
+         */
+        setData: function (formData) {
+
+            // 填充表单（jQuery 一行搞定）
+            $.each(formData, function (key, value) {
+                $form.find(`[name="${key}"]`).val(value || '');
+            });
+            t.strEditor.setValue(formData.testData);
+            t.regexEditor.setValue(formData.regex || '');
+
+            // 更新账户显示和正则匹配
+            updateAccountDisplay();
+            updateRegexResult();
+        }
+    };
+
+    /**
+     * 收集表单数据
+     * @returns {Object} 表单数据对象
+     */
+    function getFormData() {
+        const data = {};
+        $form.serializeArray().forEach(item => {
+            data[item.name] = item.value;
+        });
+        return data;
+    }
+
+    /**
+     * 更新账户显示
+     */
+    function updateAccountDisplay() {
+        const type = $ruleType.val();
+        const $account1Area = $('.account1-area');
+        const $account2Area = $('.account2-area');
+        const $feeArea = $('.fee-area');
+        const $account1Label = $('.account1-label');
+        const $account2Label = $('.account2-label');
+
+        // 默认隐藏账户2和手续费
+        $account2Area.hide();
+
+        // 根据类型更新标签和显示
+        const configs = {
+            'Expend': {label1: '支出账户'},  // 支出
+            'Income': {label1: '收入账户'},           // 收入
+            'Transfer': {                                  // 转账（信用还款）
+                label1: '转出账户',
+                label2: '转入账户',
+                showAccount2: true,
+
+            }
+        };
+
+        const config = configs[type] || configs['0'];
+        $account1Label.text(config.label1);
+
+        if (config.showAccount2) {
+            $account2Label.text(config.label2);
+            $account2Area.show();
+        }
+
+    }
+
+    /**
+     * 更新正则匹配结果
+     */
+    function updateRegexResult() {
+        const regex = $regex.val();
+        const testData = $testData.val();
+
+        if (!regex || !testData) {
+            $resultCount.text('0');
+            $resultContent.empty();
+            return;
+        }
+
+        try {
+            const pattern = new RegExp(regex);
+            const matches = pattern.exec(testData);
+            console.log(regex,testData,matches, pattern.test(testData));
+            if (matches && pattern.test(testData)) {
+                // 构建分组结果
+                const items = [];
+                for (let i = 1; i < matches.length; i++) {
+                    items.push(`<div class="result-item"><strong>【$${i}】</strong> ${matches[i] || ''}</div>`);
+                }
+
+                $resultCount.text(matches.length - 1);
+                $resultContent.html(items.join(''));
+            } else {
+                $resultCount.text('0');
+                $resultContent.html('<div class="result-item">未匹配</div>');
+            }
+        } catch (e) {
+            $resultCount.text('0');
+            $resultContent.html(`<div class="result-item error">正则表达式错误: ${e.message}</div>`);
+        }
+    }
+
+    /**
+     * 初始化事件监听
+     */
+    $(function () {
+        // 收支类型变化
+        $ruleType.on('change', updateAccountDisplay);
+
+        // 正则表达式和测试数据变化
+        $regex.on('input', updateRegexResult);
+        $testData.on('input', updateRegexResult);
+        // 正则快捷方式
+        $('.shortcut').on('click', function () {
+            $regex.val($regex.val() + $(this).data('reg'));
+           // t.setRegex(t.regexEditor.getValue() + $(this).data("reg"));
+            updateRegexResult();
+        });
+
+    });
+</script>
+</body>
+</html>
