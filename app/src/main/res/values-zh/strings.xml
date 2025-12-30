@@ -42,6 +42,10 @@
     <string name="if_condition_true">如果满足 </string>
     <string name="condition_result_book">。则账本为</string>
     <string name="condition_result_category">。分类为</string>
+    <string name="condition_result_remark">。备注为</string>
+    <string name="remark_input">输入备注</string>
+    <string name="remark_hint">备注内容</string>
+    <string name="remark_empty">无备注</string>
     <string name="and">且</string>
     <string name="or">或</string>
     <string name="type_money">金额</string>

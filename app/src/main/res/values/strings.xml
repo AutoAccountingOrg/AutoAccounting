@@ -41,6 +41,10 @@
     <string name="if_condition_true">If satisfied </string>
     <string name="condition_result_book">. Then book is</string>
     <string name="condition_result_category">. Category is</string>
+    <string name="condition_result_remark">. Remark is</string>
+    <string name="remark_input">Enter remark</string>
+    <string name="remark_hint">Remark content</string>
+    <string name="remark_empty">No remark</string>
     <string name="and">And</string>
     <string name="or">Or</string>
     <string name="type_money">Amount</string>
@@ -284,6 +288,9 @@
     <string name="auto_record_label">Auto Record</string>
     <string name="rule_type_cloud">Cloud</string>
     <string name="rule_type_local">Local</string>
+    <string name="data_type_app">Data</string>
+    <string name="data_type_notice">Notification</string>
+    <string name="data_type_ocr">OCR</string>
     <string name="action_button_desc">Action button</string>
     <string name="rule_desc_official_template">%1$s - Automatically recognize and record %2$s</string>
     <string name="rule_desc_user_custom">Custom rule created by user</string>
@@ -1060,13 +1067,10 @@
     <!-- Rule Editor -->
     <string name="rule_parse_form_failed">Failed to parse form data</string>
     <string name="rule_test_data_required">Please enter test data first</string>
-    <string name="rule_ai_generating">AI is generating rules…</string>
+    <string name="rule_ai_generating">AI is generating rule…</string>
     <string name="rule_ai_generate_failed">AI generation failed</string>
     <string name="rule_ai_generate_failed_with_reason">AI generation failed: %s</string>
-    <string name="rule_ai_generate_success">AI rule generated successfully</string>
+    <string name="rule_ai_generate_success">AI rule generated</string>
     <string name="rule_test_failed">Rule test failed</string>
     <string name="rule_save_failed">Failed to save rule</string>
-    <string name="data_type_app">Data</string>
-    <string name="data_type_notice">Notice</string>
-    <string name="data_type_ocr">OCR</string>
 </resources>

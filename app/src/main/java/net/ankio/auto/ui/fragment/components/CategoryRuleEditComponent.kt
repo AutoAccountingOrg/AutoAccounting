@@ -78,6 +78,9 @@ class CategoryRuleEditComponent(
     /** 选中的分类名称 */
     private var category: String = ""
 
+    /** 备注信息 */
+    private var remark: String = ""
+
     /**
      * 设置规则模型并重新渲染UI
      *
@@ -147,13 +150,15 @@ class CategoryRuleEditComponent(
         val categoryData = mutableMapOf<String, Any>(
             "book" to bookName,
             "category" to category,
-            "id" to remoteBookId
+            "id" to remoteBookId,
+            "remark" to remark
         )
         elementDataList.add(categoryData)
 
         // 生成完整的JavaScript规则
         val condition = conditionParts.joinToString("")
-        val js = "if($condition){ return { book:'$bookName',category:'$category'} }"
+        val js =
+            "if($condition){ return { book:'$bookName',category:'$category',remark:'$remark'} }"
 
         // 更新规则模型
         categoryRuleModel.js = js
@@ -258,6 +263,17 @@ class CategoryRuleEditComponent(
         ) { elem, textview ->
             if (readOnly) return@appendWaveTextview
             onClickCategory(elem)
+        }
+
+        // 添加备注输入框
+        flexboxLayout?.appendTextView(context.getString(R.string.condition_result_remark))
+        remark = lastElement.getOrDefault("remark", "").toString()
+        flexboxLayout?.appendWaveTextview(
+            text = if (remark.isEmpty()) context.getString(R.string.remark_empty) else remark,
+            data = lastElement
+        ) { elem, textview ->
+            if (readOnly) return@appendWaveTextview
+            onClickRemark(elem)
         }
     }
 
@@ -738,5 +754,36 @@ class CategoryRuleEditComponent(
                     .show(cancel = true)
             }
             .show(cancel = true)
+    }
+
+    /**
+     * 处理备注点击事件
+     */
+    private fun onClickRemark(element: FlowElement) {
+        val inputBinding = DialogRegexInputBinding.inflate(LayoutInflater.from(context))
+
+        // 隐藏匹配类型选择器
+        inputBinding.spinner.visibility = View.GONE
+
+        // 设置当前备注
+        inputBinding.content.setText(remark)
+        inputBinding.content.hint = context.getString(R.string.remark_hint)
+
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(context)
+            .setTitleInt(R.string.remark_input)
+            .addCustomView(inputBinding.root)
+            .setPositiveButton(R.string.sure_msg) { _, _ ->
+                remark = inputBinding.content.text.toString().trim()
+                element.remove().setAsWaveTextview(
+                    if (remark.isEmpty()) context.getString(R.string.remark_empty) else remark,
+                    element.connector
+                ) { elem, view ->
+                    if (readOnly) return@setAsWaveTextview
+                    onClickRemark(elem)
+                }
+                Logger.d("设置备注: $remark")
+            }
+            .setNegativeButton(R.string.cancel_msg, null)
+            .show(true)
     }
 }
