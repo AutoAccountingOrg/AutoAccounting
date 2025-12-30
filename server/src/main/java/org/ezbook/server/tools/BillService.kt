@@ -229,14 +229,18 @@ class BillService(
                     ServerLog.d("自动去重未找到父账单，使用当前账单")
                     billInfo
                 }
-
+                finalBill.remark = ""
                 // 统一分类处理（只此一处）
                 categorize(finalBill)
                 ServerLog.d("分类完成后的账单：$finalBill")
 
                 // 生成账单备注（在分类之后，因为备注可能依赖分类信息）
-                finalBill.remark = BillManager.getRemark(finalBill, context)
-                ServerLog.d("备注生成完成：remark=${finalBill.remark}")
+                if (finalBill.remark.isEmpty()) {
+                    finalBill.remark = BillManager.getRemark(finalBill, context)
+                    ServerLog.d("备注生成完成：remark=${finalBill.remark}")
+                }
+
+
 
                 // 保存最终账单（包含分类、备注等完整信息）
                 db.billInfoDao().update(finalBill)
@@ -476,8 +480,9 @@ class BillService(
         // 设置账本名称与分类（优先规则结果，否则默认值）
         bill.bookName = categoryJson.safeGetStringNonBlank("bookName", SettingUtils.bookName())
         bill.cateName = categoryJson.safeGetStringNonBlank("category", "其他")
+        bill.remark = categoryJson.safeGetStringNonBlank("remark", "")
         ServerLog.d("规则处理后的账单信息：$bill")
-        if (bill.needReCategory() && SettingUtils.aiCategoryRecognition()) {
+        if (!bill.hasValidCategory() && SettingUtils.aiCategoryRecognition()) {
             bill.cateName = CategoryTool().execute(
                 win.toString()
             ).takeUnless { it.isNullOrEmpty() } ?: "其他"
@@ -488,7 +493,6 @@ class BillService(
         CategoryProcessor().setCategoryMap(bill)
         // 记录分类映射摘要
         ServerLog.d("分类映射完成：book=${bill.bookName}, cate=${bill.cateName}")
-
     }
 
     /**

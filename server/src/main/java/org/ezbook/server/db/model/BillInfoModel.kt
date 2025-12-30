@@ -138,6 +138,11 @@ data class BillInfoModel(
         return (cateName.isEmpty() || cateName == "其他" || cateName == "其它") && !generateByAi()
     }
 
+
+    fun hasValidCategory(): Boolean {
+        return cateName.isNotEmpty() && cateName !== "其他" && cateName !== "其它"
+    }
+
     fun generateByAi(): Boolean {
         return ruleName.contains("生成")
     }
