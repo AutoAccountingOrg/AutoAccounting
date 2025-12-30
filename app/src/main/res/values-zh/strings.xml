@@ -38,6 +38,12 @@
     <string name="delete_msg">您确定要删除此数据吗？</string>
     <string name="cancel_msg">关闭</string>
     <string name="sure_msg">确认</string>
+    <string name="batch_delete">批量删除</string>
+    <string name="batch_delete_title">批量删除</string>
+    <string name="batch_delete_confirm">确认删除 %d 条规则？删除后无法恢复。</string>
+    <string name="select_all">全选</string>
+    <string name="cancel_select_all">取消全选</string>
+    <string name="add">添加</string>
     <string name="content_title">数据视图</string>
     <string name="if_condition_true">如果满足 </string>
     <string name="condition_result_book">。则账本为</string>

@@ -37,6 +37,12 @@
     <string name="delete_msg">Are you sure you want to delete this data?</string>
     <string name="cancel_msg">Close</string>
     <string name="sure_msg">Confirm</string>
+    <string name="batch_delete">Batch delete</string>
+    <string name="batch_delete_title">Batch delete</string>
+    <string name="batch_delete_confirm">Are you sure you want to delete %d rules? This action cannot be undone.</string>
+    <string name="select_all">Select all</string>
+    <string name="cancel_select_all">Deselect all</string>
+    <string name="add">Add</string>
     <string name="content_title">Data view</string>
     <string name="if_condition_true">If satisfied </string>
     <string name="condition_result_book">. Then book is</string>

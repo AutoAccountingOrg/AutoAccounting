@@ -21,6 +21,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentCategoryRulePageBinding
@@ -28,7 +30,9 @@ import net.ankio.auto.http.api.CategoryRuleAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.CategoryRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import org.ezbook.server.db.model.CategoryRuleModel
 
 /**
@@ -59,6 +63,11 @@ class CategoryRulePageFragment :
      * 标记是否发生了排序变化
      */
     private var sortChanged = false
+
+    /**
+     * 批量删除模式标志
+     */
+    private var isBatchDeleteMode = false
 
     /**
      * 加载数据的主要方法
@@ -92,6 +101,11 @@ class CategoryRulePageFragment :
                 findNavController().navigate(R.id.categoryRuleEditFragment, bundle)
             }
         )
+
+        // 设置选择状态变化监听
+        categoryRuleAdapter.onSelectionChanged = { count ->
+            updateBatchDeleteUI(count)
+        }
 
         // 设置拖拽排序
         setupItemTouchHelper(recyclerView)
@@ -209,6 +223,8 @@ class CategoryRulePageFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupAddButton()
+        setupBatchDeleteButton()
+        setupBatchToolbar()
     }
 
     /**
@@ -220,5 +236,149 @@ class CategoryRulePageFragment :
             // 使用目的地 ID 导航
             findNavController().navigate(R.id.categoryRuleEditFragment)
         }
+    }
+
+    /**
+     * 设置批量删除按钮功能
+     */
+    private fun setupBatchDeleteButton() {
+        binding.batchDeleteModeButton.setOnClickListener {
+            Logger.d("Enter batch delete mode")
+            enterBatchDeleteMode()
+        }
+    }
+
+    /**
+     * 设置批量操作工具栏
+     */
+    private fun setupBatchToolbar() {
+        // 取消按钮
+        binding.cancelBatchButton.setOnClickListener {
+            Logger.d("Exit batch delete mode")
+            exitBatchDeleteMode()
+        }
+
+        // 全选/取消全选按钮
+        binding.selectAllButton.setOnClickListener {
+            categoryRuleAdapter.toggleSelectAll()
+        }
+
+        // 批量删除按钮
+        binding.batchDeleteButton.setOnClickListener {
+            val selectedCount = categoryRuleAdapter.selectedIds.size
+            if (selectedCount > 0) {
+                showBatchDeleteConfirmDialog(selectedCount)
+            }
+        }
+    }
+
+    /**
+     * 进入批量删除模式
+     */
+    private fun enterBatchDeleteMode() {
+        isBatchDeleteMode = true
+        categoryRuleAdapter.isSelectionMode = true
+
+        // 显示批量操作工具栏，隐藏底部按钮
+        binding.batchToolbar.visibility = View.VISIBLE
+        binding.bottomButtonGroup.visibility = View.GONE
+
+        // 禁用拖拽排序
+        itemTouchHelper.attachToRecyclerView(null)
+
+        Logger.d("已进入批量删除模式")
+    }
+
+    /**
+     * 退出批量删除模式
+     */
+    private fun exitBatchDeleteMode() {
+        isBatchDeleteMode = false
+        categoryRuleAdapter.isSelectionMode = false
+
+        // 隐藏批量操作工具栏，显示底部按钮
+        binding.batchToolbar.visibility = View.GONE
+        binding.bottomButtonGroup.visibility = View.VISIBLE
+
+        // 恢复拖拽排序
+        val recyclerView = binding.statusPage.contentView!!
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+
+        Logger.d("已退出批量删除模式")
+    }
+
+    /**
+     * 更新批量删除UI
+     */
+    private fun updateBatchDeleteUI(selectedCount: Int) {
+        // 更新删除按钮文本和状态
+        binding.batchDeleteButton.text = getString(R.string.delete_data) + "($selectedCount)"
+        binding.batchDeleteButton.isEnabled = selectedCount > 0
+
+        // 更新全选按钮文本
+        val totalCount = categoryRuleAdapter.itemCount
+        binding.selectAllButton.text = if (selectedCount == totalCount) {
+            getString(R.string.cancel_select_all)
+        } else {
+            getString(R.string.select_all)
+        }
+    }
+
+    /**
+     * 显示批量删除确认对话框
+     */
+    private fun showBatchDeleteConfirmDialog(count: Int) {
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireActivity())
+            .setTitle(getString(R.string.batch_delete_title))
+            .setMessage(getString(R.string.batch_delete_confirm, count))
+            .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
+                performBatchDelete()
+            }
+            .setNegativeButton(getString(R.string.cancel_msg)) { _, _ -> }
+            .show()
+    }
+
+    /**
+     * 执行批量删除
+     */
+    private fun performBatchDelete() {
+        launch {
+            try {
+                val selectedIds = categoryRuleAdapter.selectedIds.toList()
+                Logger.d("开始批量删除分类规则，共 ${selectedIds.size} 条")
+
+                withContext(Dispatchers.IO) {
+                    // 并发删除所有选中的规则
+                    selectedIds.map { id ->
+                        async { CategoryRuleAPI.remove(id) }
+                    }.awaitAll()
+                }
+
+                // 本地移除已删除的项
+                categoryRuleAdapter.removeSelectedItems()
+
+                Logger.d("批量删除成功")
+
+                // 退出批量删除模式
+                exitBatchDeleteMode()
+
+                // 如果列表为空，显示空状态
+                if (getItemCount() == 0) {
+                    statusPage.showEmpty()
+                }
+            } catch (e: Exception) {
+                Logger.e("批量删除失败: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Fragment销毁时清理状态
+     */
+    override fun onDestroyView() {
+        if (isBatchDeleteMode) {
+            exitBatchDeleteMode()
+        }
+        super.onDestroyView()
     }
 }

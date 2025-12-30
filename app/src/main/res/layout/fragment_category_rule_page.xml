@@ -18,13 +18,83 @@
             android:layout_height="match_parent" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addButton"
+    <!-- 批量操作工具栏 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/batchToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:visibility="gone"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/padding"
+            android:paddingEnd="@dimen/padding">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancelBatchButton"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel_msg" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/selectAllButton"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select_all" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/batchDeleteButton"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="@string/delete_data" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 底部按钮组 -->
+    <LinearLayout
+        android:id="@+id/bottomButtonGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/padding_side"
-        android:importantForAccessibility="no"
-        app:srcCompat="@drawable/float_add" />
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/batchDeleteModeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/padding"
+            android:importantForAccessibility="no"
+            android:contentDescription="@string/batch_delete"
+            app:srcCompat="@drawable/icon_delete"
+            app:fabSize="normal" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:contentDescription="@string/add"
+            app:srcCompat="@drawable/float_add" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
