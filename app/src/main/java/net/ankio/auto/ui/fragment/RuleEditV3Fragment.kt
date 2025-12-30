@@ -575,7 +575,7 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
                             accountNameTo: accountNameTo,
                             fee: fee,
                             currency: currency,
-                            time: time,
+                            timeText: time,
                             channel: ""
                         };
                     }

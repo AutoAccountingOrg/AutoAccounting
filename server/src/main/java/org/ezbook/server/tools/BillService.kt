@@ -336,7 +336,8 @@ class BillService(
     ): BillInfoModel? {
         ServerLog.d("使用规则进行分析：$data")
         //为了避免部分用户的错误规则影响自动记账整体规则的可用性，拆分成2部分处理
-        for (creator in arrayOf("system", "user")) {
+        // 优先使用用户规则，随后使用系统规则兜底
+        for (creator in arrayOf("user", "system")) {
             analyzeWithCreator(app, data, dataType, creator)?.let { return it }
         }
         ServerLog.d("系统与用户规则均未解析出有效结果")
@@ -406,7 +407,20 @@ class BillService(
             }.getOrDefault(BillType.Expend)
 
             this.app = app
-            time = json.safeGetLong("time", System.currentTimeMillis())
+            time = json.safeGetLong("time", 0)
+            val timeText = json.safeGetString("timeText", "")
+            if (time == 0L) {
+                ServerLog.d("时间为0,解析失败，尝试从string解析")
+                if (timeText.isEmpty()) {
+                    ServerLog.d("时间string,解析失败，使用当前时间")
+                    time = System.currentTimeMillis()
+                } else {
+                    time = DateUtils.toEpochMillis(timeText)
+                }
+            }
+            //  DateUtils.toEpochMillis(timeText)
+
+
             money = json.safeGetDouble("money", 0.0)
             fee = json.safeGetDouble("fee", 0.0)
             shopName = json.safeGetString("shopName")
