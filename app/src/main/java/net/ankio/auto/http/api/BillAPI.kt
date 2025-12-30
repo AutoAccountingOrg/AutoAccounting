@@ -20,13 +20,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
-import org.ezbook.server.tools.runCatchingExceptCancel
-import org.ezbook.server.db.model.BillInfoModel
+import net.ankio.auto.ui.models.OrderGroup
 import org.ezbook.server.constant.BillState
-import org.ezbook.server.models.SummaryDto
-import org.ezbook.server.models.TrendDto
-import org.ezbook.server.models.CategoryItemDto
+import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.models.StatsResponse
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**
  * 账单API接口对象，提供与账单相关的所有网络请求操作
@@ -80,23 +78,18 @@ object BillAPI {
     }
 
     /**
-     * 获取账单列表
-     * @param page 页码
-     * @param pageSize 每页数量
+     * 获取按日期分组的账单列表（服务端分组）
+     * 加载整月数据，由服务端完成分组，避免分页+客户端分组的性能问题
      * @param type 账单类型列表
-     * @return 账单信息模型列表
+     * @param year 年份
+     * @param month 月份
+     * @return 按日期分组的账单列表
      */
-    /**
-     * 获取账单列表（按月份必填）。
-     * [year] 与 [month] 必须提供，否则服务器会返回 400。
-     */
-    suspend fun list(
-        page: Int,
-        pageSize: Int,
+    suspend fun listGrouped(
         type: MutableList<String>,
         year: Int,
         month: Int
-    ): List<BillInfoModel> =
+    ): List<OrderGroup> =
         withContext(Dispatchers.IO) {
             val typeName = listOf(
                 BillState.Edited.name,
@@ -106,14 +99,11 @@ object BillAPI {
             val syncType = if (type.isNotEmpty()) type.joinToString() else typeName
 
             return@withContext runCatchingExceptCancel {
-                val base = StringBuilder("bill/list?page=").append(page)
-                    .append("&limit=").append(pageSize)
-                    .append("&type=").append(syncType)
-                    .append("&year=").append(year).append("&month=").append(month)
-                val resp = LocalNetwork.get<List<BillInfoModel>>(base.toString()).getOrThrow()
+                val url = "bill/list-grouped?type=$syncType&year=$year&month=$month"
+                val resp = LocalNetwork.get<List<OrderGroup>>(url).getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
-                Logger.e("list error: ${it.message}", it)
+                Logger.e("listGrouped error: ${it.message}", it)
                 emptyList()
             }
         }

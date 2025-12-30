@@ -26,10 +26,12 @@ import io.ktor.routing.route
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.models.OrderGroupDto
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.ServerLog
-import org.ezbook.server.tools.SummaryService
 import org.ezbook.server.tools.StatisticsService
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * 账单管理路由配置
@@ -37,22 +39,17 @@ import org.ezbook.server.tools.StatisticsService
  */
 fun Route.billRoutes() {
     route("/bill") {
-        /**
-         * GET /bill/list - 获取账单列表
-         * 支持分页查询和状态筛选，自动清理过期数据
-         *
-         * @param page 页码，默认为1
-         * @param limit 每页条数，默认为10
-         * @param type 状态筛选，默认包含已编辑、已同步、待编辑状态
-         * @return ResultModel 包含账单列表数据
-         */
-        get("/list") {
-            // 清理无去重的账单和过期数据
-            // Db.get().billInfoDao().deleteNoGroup()
-            //   Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
 
-            val page = call.request.queryParameters["page"]?.toInt() ?: 1
-            val limit = call.request.queryParameters["limit"]?.toInt() ?: 10
+        /**
+         * GET /bill/list-grouped - 获取按日期分组的账单列表
+         * 服务端完成分组，避免客户端重复计算，提升性能
+         * 
+         * @param type 状态筛选，默认包含已编辑、已同步、待编辑状态
+         * @param year 年份，必填
+         * @param month 月份，必填
+         * @return ResultModel 包含按日期分组的账单数据
+         */
+        get("/list-grouped") {
             val defaultStates = listOf(
                 BillState.Edited.name,
                 BillState.Synced.name,
@@ -60,14 +57,13 @@ fun Route.billRoutes() {
             )
             val type = call.request.queryParameters["type"]?.split(", ") ?: defaultStates
 
-            val offset = (page - 1) * limit
-
-            // 月份为必填：缺少 year 或 month 返回 400
+            // 月份为必填
             val year = call.request.queryParameters["year"]?.toInt()
                 ?: return@get call.respond(ResultModel.error(400, "Year parameter is required"))
             val month = call.request.queryParameters["month"]?.toInt()
                 ?: return@get call.respond(ResultModel.error(400, "Month parameter is required"))
 
+            // 计算时间范围
             val calendar = java.util.Calendar.getInstance().apply {
                 set(year, month - 1, 1, 0, 0, 0)
                 set(java.util.Calendar.MILLISECOND, 0)
@@ -76,10 +72,20 @@ fun Route.billRoutes() {
             calendar.add(java.util.Calendar.MONTH, 1)
             val endTime = calendar.timeInMillis
 
-            ServerLog.d("获取账单列表（按月份）：year=$year, month=$month, page=$page, limit=$limit, type=$type")
-            val bills =
-                Db.get().billInfoDao().loadPageByTimeRange(limit, offset, type, startTime, endTime)
-            call.respond(ResultModel.ok(bills))
+            ServerLog.d("获取分组账单列表：year=$year, month=$month, type=$type")
+
+            // 获取整月数据（不分页）
+            val bills = Db.get().billInfoDao().getBillsByTimeRange(startTime, endTime)
+                .filter { it.groupId == -1L && type.contains(it.state.name) }
+                .sortedByDescending { it.time }
+
+            // 服务端按日期分组
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val groupedBills = bills
+                .groupBy { dateFormat.format(it.time) }
+                .map { (date, billList) -> OrderGroupDto(date, billList) }
+
+            call.respond(ResultModel.ok(groupedBills))
         }
 
         /**
