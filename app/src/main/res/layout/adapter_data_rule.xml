@@ -34,46 +34,81 @@
         android:orientation="vertical"
         android:padding="@dimen/one_padding">
 
-        <!-- 第一行：规则类型标识 + 规则名称 + 启用开关 -->
+        <!-- 第一行：左侧（标签组 + 规则名称） + 右侧（启用开关） -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- 规则类型标签 - 轻量级TextView，不需要Chip的交互功能 -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/ruleType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/currency_label_background"
-                android:backgroundTint="?attr/colorPrimaryContainer"
-                android:maxLines="1"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                android:textSize="11sp"
-                tools:text="云端" />
-
-            <!-- 规则名称 -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/ruleName"
+            <!-- 左侧内容：标签组 + 规则名称 -->
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textStyle="bold"
-                tools:text="微信支付规则" />
+                android:orientation="vertical"
+                android:paddingStart="4dp">
 
-            <!-- 启用开关 -->
+                <!-- 标签组 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <!-- 规则类型标签 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/ruleType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/currency_label_background"
+                        android:backgroundTint="?attr/colorPrimaryContainer"
+                        android:maxLines="1"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:textSize="11sp"
+                        tools:text="云端" />
+
+                    <!-- 数据类型标签 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/dataType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:background="@drawable/currency_label_background"
+                        android:backgroundTint="?attr/colorSecondaryContainer"
+                        android:maxLines="1"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp"
+                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:textSize="11sp"
+                        tools:text="数据" />
+
+                </LinearLayout>
+
+                <!-- 规则名称 -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/ruleName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textStyle="bold"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    tools:text="微信支付规则" />
+
+            </LinearLayout>
+
+            <!-- 右侧：启用开关（垂直居中） -->
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/enable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:checked="true" />
 
         </LinearLayout>
@@ -114,15 +149,33 @@
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <!-- 操作按钮区域 - 统一的按钮容器，不再通过visibility hack -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/actionButton"
-                style="?attr/materialIconButtonFilledTonalStyle"
+            <!-- 操作按钮区域 -->
+            <LinearLayout
+                android:id="@+id/actionButtons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/action_button_desc"
-                app:icon="@drawable/icon_edit"
-                tools:text="编辑" />
+                android:orientation="horizontal">
+
+                <!-- 编辑按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/editButton"
+                    style="?attr/materialIconButtonFilledTonalStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/icon_edit" />
+
+                <!-- 删除按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/deleteButton"
+                    style="?attr/materialIconButtonFilledTonalStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@string/delete_rule"
+                    app:icon="@drawable/icon_delete"
+                    app:iconTint="?attr/colorError" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

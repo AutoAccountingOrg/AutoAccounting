@@ -284,6 +284,9 @@
     <string name="auto_record_label">自动记录</string>
     <string name="rule_type_cloud">云端</string>
     <string name="rule_type_local">本地</string>
+    <string name="data_type_app">数据</string>
+    <string name="data_type_notice">通知</string>
+    <string name="data_type_ocr">OCR</string>
     <string name="action_button_desc">操作按钮</string>
     <string name="rule_desc_official_template">%1$s - 自动识别并记录%2$s</string>
     <string name="rule_desc_user_custom">用户自定义规则</string>
@@ -292,12 +295,10 @@
     <string name="rule_desc_type_sms">短信数据</string>
     <string name="rule_desc_type_data">数据</string>
     <string name="rule_desc_wechat_notice">%1$s - 需关注对应的公众号以接收通知</string>
-    <string name="rule_desc_alipay_notice">%1$s - 需保持支付宝后台运行以接收通知</string>
     <string name="rule_desc_alipay_app">%1$s - 需保持支付宝后台运行以抓取数据</string>
-    <string name="rule_desc_alipay_general">%1$s - 需保持支付宝后台运行</string>
     <string name="rule_desc_sms_hint">%1$s - 需开通银行短信提醒服务</string>
     <string name="rule_desc_other_notice">%1$s - 需授权通知权限或设置作用域为安卓系统</string>
-    <string name="rule_desc_app_hint">%1$s - 自动抓取应用数据</string>
+
     <string name="title_category_map">分类映射</string>
     <string name="add_category_map">添加分类映射：%s</string>
     <string name="delete_category_map">删除分类映射：%s</string>
