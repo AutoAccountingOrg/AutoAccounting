@@ -25,8 +25,11 @@ import org.ezbook.server.db.model.CategoryRuleModel
 
 @Dao
 interface CategoryRuleDao {
-    //根据条件查询
-    @Query("SELECT * FROM CategoryRuleModel  ORDER BY id DESC LIMIT :limit OFFSET :offset")
+    /**
+     * 根据条件查询分类规则
+     * 按 sort 升序排序（用户自定义顺序），sort 相同时按 id 降序排序（新规则在前）
+     */
+    @Query("SELECT * FROM CategoryRuleModel ORDER BY sort ASC, id DESC LIMIT :limit OFFSET :offset")
     suspend fun load(limit: Int, offset: Int): List<CategoryRuleModel>
 
 
@@ -50,12 +53,17 @@ interface CategoryRuleDao {
     @Query("DELETE FROM CategoryRuleModel WHERE id = :id")
     suspend fun delete(id: Long)
 
-    @Query("SELECT * FROM CategoryRuleModel")
+    /**
+     * 查询所有分类规则
+     * 按 sort 升序排序（用户自定义顺序），sort 相同时按 id 降序排序（新规则在前）
+     */
+    @Query("SELECT * FROM CategoryRuleModel ORDER BY sort ASC, id DESC")
     suspend fun loadAll(): List<CategoryRuleModel>
 
     /**
      * 按创建者筛选规则
+     * 按 sort 升序排序（用户自定义顺序），sort 相同时按 id 降序排序（新规则在前）
      */
-    @Query("SELECT * FROM CategoryRuleModel WHERE creator = :creator")
+    @Query("SELECT * FROM CategoryRuleModel WHERE creator = :creator ORDER BY sort ASC, id DESC")
     suspend fun loadByCreator(creator: String): List<CategoryRuleModel>
 }
