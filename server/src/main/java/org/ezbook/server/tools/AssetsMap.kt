@@ -156,8 +156,8 @@ class AssetsMap {
         useAi: Boolean = true
     ): String? {
         ServerLog.d("映射账户开始: account='$accountName' isAccountName2=$isAccountName2")
-        if (accountName.isBlank()) {
-            ServerLog.d("映射账户跳过: 账户名为空")
+        if (accountName.isBlank() || accountName.endsWith("支付")) {
+            ServerLog.d("映射账户跳过: 账户名为空或者过于宽泛")
             return null
         }
 
