@@ -51,25 +51,17 @@ object BillMerger {
      * 合并规则：
      * 1. AI产生的账单直接忽略（不参与合并）
      * 2. 同位置的资产优先选择在已知资产里面的
-     * 3. 选择名字长的资产
-     * 4. 非转账账单：如果 accountNameFrom 为空但 accountNameTo 有值，移到 accountNameFrom
+     * 3. 通用名称（如"银行卡"）不应覆盖具体名称（如"交通银行（工资）"）
+     * 4. 选择名字更长（更具体）的资产
+     * 5. 非转账账单：如果 accountNameFrom 为空但 accountNameTo 有值，移到 accountNameFrom
      */
     suspend fun mergeAccountInfo(source: BillInfoModel, target: BillInfoModel) {
-        // AI账单处理：来源是AI则忽略，目标是AI则用来源覆盖
-        if (source.generateByAi()) return
-        if (target.generateByAi()) {
-            target.accountNameFrom =
-                source.accountNameFrom.takeIf { it.isNotEmpty() } ?: target.accountNameFrom
-            target.accountNameTo =
-                source.accountNameTo.takeIf { it.isNotEmpty() } ?: target.accountNameTo
-            return
-        }
-
         val knownAssets = getKnownAssets()
-        val isTransfer = source.type == BillType.Transfer
+        // 检查父账单或子账单任一是转账类型
+        val isTransfer = source.type == BillType.Transfer || target.type == BillType.Transfer
 
-        // 合并转出账户
-        if (source.accountNameFrom.isNotEmpty() && (isTransfer || target.accountNameFrom.isEmpty())) {
+        // 合并转出账户：只要任一方有值就尝试选择更好的
+        if (source.accountNameFrom.isNotEmpty() || target.accountNameFrom.isNotEmpty()) {
             target.accountNameFrom = selectBetterAccount(
                 source.accountNameFrom,
                 target.accountNameFrom,
@@ -77,8 +69,8 @@ object BillMerger {
             )
         }
 
-        // 合并转入账户
-        if (source.accountNameTo.isNotEmpty() && target.accountNameTo.isEmpty()) {
+        // 合并转入账户：只要任一方有值就尝试选择更好的
+        if (source.accountNameTo.isNotEmpty() || target.accountNameTo.isNotEmpty()) {
             target.accountNameTo = selectBetterAccount(
                 source.accountNameTo,
                 target.accountNameTo,
@@ -108,25 +100,40 @@ object BillMerger {
     /**
      * 选择更好的资产名称
      *
-     * 优先级：已知资产 > 名字更长
+     * 核心规则：三层优先级
+     * 1. 在资产列表中的 > 不在列表的
+     * 2. 名字长的（更具体）> 名字短的（更模糊）
+     * 3. 原值（target）> 新值（source）
      */
     private fun selectBetterAccount(
-        account1: String,
-        account2: String,
+        source: String,
+        target: String,
         knownAssets: List<AssetsModel>
     ): String {
-        if (account1.isEmpty()) return account2
-        if (account2.isEmpty()) return account1
+        if (source.isEmpty()) return target
+        if (target.isEmpty()) return source
 
-        val account1Known = knownAssets.any { it.name == account1 }
-        val account2Known = knownAssets.any { it.name == account2 }
+        val sourceKnown = knownAssets.any { it.name == source }
+        val targetKnown = knownAssets.any { it.name == target }
 
-        return when {
-            account1Known && !account2Known -> account1
-            !account1Known && account2Known -> account2
-            account1.length >= account2.length -> account1
-            else -> account2
+        val decision = when {
+            // 第一层：资产列表优先
+            sourceKnown && !targetKnown -> source
+            !sourceKnown && targetKnown -> target
+            // 第二层：都在列表或都不在列表时，名字长的更具体
+            source.length != target.length -> if (source.length > target.length) source else target
+            // 第三层：长度相同时，保留原值
+            else -> target
         }
+
+        // 记录决策路径，方便现场取证
+        ServerLog.d(
+            "账户合并选择: src='$source'(known=$sourceKnown,len=${source.length}), " +
+                    "tgt='$target'(known=$targetKnown,len=${target.length}), " +
+                    "choose='$decision'"
+        )
+
+        return decision
     }
 
     /**

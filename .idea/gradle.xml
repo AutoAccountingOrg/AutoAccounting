@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/ocr" />
             <option value="$PROJECT_DIR$/server" />
             <option value="$PROJECT_DIR$/shell" />
+            <option value="$PROJECT_DIR$/test" />
           </set>
         </option>
       </GradleProjectSettings>

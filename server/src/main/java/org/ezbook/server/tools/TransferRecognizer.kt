@@ -129,6 +129,12 @@ object TransferRecognizer {
     ) {
         ServerLog.d("转账处理：合并 parentId=${transferBill.id}(${transferBill.type}), currentId=${currentBill.id}(${currentBill.type})")
 
+        // 合并前先规范化账户位置：
+        // Income 的 accountNameFrom 实际是转入账户，需要移到 accountNameTo
+        // Expend 的 accountNameFrom 实际是转出账户，保持不变
+        normalizeAccountPosition(currentBill)
+        normalizeAccountPosition(transferBill)
+
         // 转换为转账类型
         transferBill.type = BillType.Transfer
 
@@ -147,6 +153,22 @@ object TransferRecognizer {
         BillMerger.saveBillGroup(currentBill, transferBill)
 
         ServerLog.d("转账处理：合并完成，父账单类型=${transferBill.type}")
+    }
+
+    /**
+     * 规范化账户位置
+     *
+     * Income 账单的 accountNameFrom 实际是"收到钱的账户"，即转账的目标账户
+     * Expend 账单的 accountNameFrom 实际是"花钱的账户"，即转账的来源账户
+     *
+     * 为了正确合并，需要把 Income 的 accountNameFrom 移到 accountNameTo
+     */
+    private fun normalizeAccountPosition(bill: BillInfoModel) {
+        if (bill.type == BillType.Income && bill.accountNameTo.isEmpty() && bill.accountNameFrom.isNotEmpty()) {
+            ServerLog.d("规范化账户位置：Income 账单 ${bill.id}，将 accountNameFrom='${bill.accountNameFrom}' 移到 accountNameTo")
+            bill.accountNameTo = bill.accountNameFrom
+            bill.accountNameFrom = ""
+        }
     }
 }
 
