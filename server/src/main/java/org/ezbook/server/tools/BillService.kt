@@ -154,7 +154,7 @@ class BillService(
                 ServerLog.d("检测到重复触发分析(同一个数据)\n==============账单分析结束===============")
                 return@withContext ResultModel<BillResultModel>(400, "检测到重复触发分析", null)
             }
-            hash.put(key)
+            if (!analysisParams.fromAppData) hash.put(key)
             ServerLog.d("1. 分析初始化数据：$analysisParams")
             // 3) 如有需要，先持久化原始数据
             val appDataModel: AppDataModel? = if (!analysisParams.fromAppData) {
@@ -169,7 +169,7 @@ class BillService(
                 }
             } else null
 
-            // 4) 分析：保持“先规则，后AI”的顺序；当 forceAI=true 时仅跳过 AI 开关检查
+            // 4) 分析：保持“先规则，后AI”的顺序
             val start = System.currentTimeMillis()
             val billInfo: BillInfoModel =
                 analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
@@ -196,7 +196,11 @@ class BillService(
             AssetsMap().setAssetsMap(billInfo)
             // 记录资产映射摘要
             ServerLog.d("资产映射完成：from=${billInfo.accountNameFrom}, to=${billInfo.accountNameTo}")
-
+            // 先根据已有的信息进行分类
+            categorize(billInfo)
+            if (billInfo.remark.isEmpty()) {
+                billInfo.remark = BillManager.getRemark(billInfo, context)
+            }
             // 🔒 关键区间：账单入库+去重+分类+保存+拉起悬浮窗全流程串行执行
             // 防止并发竞态：确保账单处理的完整生命周期严格按序执行，避免悬浮窗乱序
             val parent = deduplicationMutex.withLock {
@@ -229,8 +233,7 @@ class BillService(
                     ServerLog.d("自动去重未找到父账单，使用当前账单")
                     billInfo
                 }
-                finalBill.remark = ""
-                // 统一分类处理（只此一处）
+                // 根据合并后的账单重新分类
                 categorize(finalBill)
                 ServerLog.d("分类完成后的账单：$finalBill")
 
@@ -458,6 +461,7 @@ class BillService(
      * @param bill 需要分类的账单信息
      */
     private suspend fun categorize(bill: BillInfoModel) {
+
         val win = JsonObject().apply {
             addProperty("type", bill.type.name)
             addProperty("money", bill.money)
