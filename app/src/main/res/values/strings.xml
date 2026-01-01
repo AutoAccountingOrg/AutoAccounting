@@ -676,6 +676,10 @@
     <string name="handling_fee">Handling fee %.2f</string>
     <string name="fee">Fee %.2f</string>
 
+    <!-- 账单列表标签 -->
+    <string name="bill_fee_label">Fee %s</string>
+    <string name="bill_discount_label">Discount %s</string>
+
     <!-- 规则信息组件相关字符串 -->
     <string name="disable_rule_title">Disable Rule</string>
     <string name="disable_rule_message">Are you sure you want to disable the rule \"%s\"?</string>

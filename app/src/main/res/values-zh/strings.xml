@@ -877,6 +877,10 @@
     <string name="handling_fee">手续费 %.2f</string>
     <string name="fee">费用 %.2f</string>
 
+    <!-- 账单列表标签 -->
+    <string name="bill_fee_label">手续费 %s</string>
+    <string name="bill_discount_label">优惠 %s</string>
+
     <!-- 规则禁用相关 -->
     <string name="disable_rule_title">禁用规则</string>
     <string name="disable_rule_message">确定要禁用规则"%s"吗？</string>

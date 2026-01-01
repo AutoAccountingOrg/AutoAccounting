@@ -15,7 +15,10 @@
 
 package net.ankio.auto.ui.adapter
 
+import android.content.res.ColorStateList
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintSet
+import com.google.android.material.color.MaterialColors
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.utils.PrefManager
@@ -82,8 +85,9 @@ class BillItemAdapter(
 
         val context = holder.context
         if (data.remark.isEmpty()) {
-            binding.remark.text = "无备注"
+            binding.remark.visibility = View.GONE
         } else {
+            binding.remark.visibility = View.VISIBLE
             binding.remark.text = data.remark
         }
 
@@ -102,20 +106,53 @@ class BillItemAdapter(
             }
         }
 
-        fun visibility(): Int {
-            return if (PrefManager.featureAssetManage
-            ) View.VISIBLE else View.GONE
+
+        binding.payTools1.visibility =
+            if (PrefManager.featureAssetManage) View.VISIBLE else View.GONE
+        binding.payTools2.visibility =
+            if (PrefManager.featureAssetManage) View.VISIBLE else View.GONE
+        binding.iconHeader.visibility =
+            if (PrefManager.featureAssetManage) View.VISIBLE else View.GONE
+
+        /**
+         * 根据账户信息是否展示，动态切换第三行的约束，避免“GONE 导致不右对齐/挤没/顶出”的特殊情况。
+         *
+         * 约束策略（只做一件事）：
+         * - 只显示 account1 时：payTools1 的 end 直接约束到 parent end，确保靠右。
+         * - 显示转账关系时：payTools1 的 end 约束到箭头（iconHeader），保持结构一致。
+         *
+         * 注意：RecyclerView 复用会保留旧约束，所以必须在每次 bind 时显式恢复/设置。
+         */
+        fun updateAccountLineConstraints(showArrowAndAccount2: Boolean) {
+            val layout =
+                binding.root.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.account_line)
+            val set = ConstraintSet()
+            set.clone(layout)
+
+            set.clear(R.id.payTools1, ConstraintSet.END)
+            if (showArrowAndAccount2) {
+                set.connect(
+                    R.id.payTools1,
+                    ConstraintSet.END,
+                    R.id.icon_header,
+                    ConstraintSet.START
+                )
+            } else {
+                set.connect(
+                    R.id.payTools1,
+                    ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.END
+                )
+            }
+
+            set.applyTo(layout)
         }
-
-        val visibility = visibility()
-
-        binding.payTools1.visibility = visibility
-        binding.payTools2.visibility = visibility
-        binding.iconHeader.visibility = visibility
 
         fun notShowAccount() {
             binding.payTools2.visibility = View.GONE
             binding.iconHeader.visibility = View.GONE
+            updateAccountLineConstraints(showArrowAndAccount2 = false)
         }
 
         when (data.type) {
@@ -140,12 +177,14 @@ class BillItemAdapter(
                 binding.category.setText(context.getString(R.string.expend_lending))
                 loadAssetIcon(binding.payTools1, data.accountNameFrom)
                 loadAssetIcon(binding.payTools2, data.accountNameTo)
+                updateAccountLineConstraints(showArrowAndAccount2 = true)
             }
 
             BillType.ExpendRepayment -> {
                 binding.category.setText(context.getString(R.string.expend_repayment_info))
                 loadAssetIcon(binding.payTools1, data.accountNameFrom)
                 loadAssetIcon(binding.payTools2, data.accountNameTo)
+                updateAccountLineConstraints(showArrowAndAccount2 = true)
             }
 
             BillType.Income -> {
@@ -157,12 +196,14 @@ class BillItemAdapter(
                 binding.category.setText(context.getString(R.string.income_lending))
                 loadAssetIcon(binding.payTools1, data.accountNameFrom)
                 loadAssetIcon(binding.payTools2, data.accountNameTo)
+                updateAccountLineConstraints(showArrowAndAccount2 = true)
             }
 
             BillType.IncomeRepayment -> {
                 binding.category.setText(context.getString(R.string.income_repayment_info))
                 loadAssetIcon(binding.payTools1, data.accountNameFrom)
                 loadAssetIcon(binding.payTools2, data.accountNameTo)
+                updateAccountLineConstraints(showArrowAndAccount2 = true)
             }
 
             BillType.IncomeReimbursement -> {
@@ -180,6 +221,7 @@ class BillItemAdapter(
                 binding.category.setText(context.getText(R.string.float_transfer))
                 loadAssetIcon(binding.payTools1, data.accountNameFrom)
                 loadAssetIcon(binding.payTools2, data.accountNameTo)
+                updateAccountLineConstraints(showArrowAndAccount2 = true)
             }
 
             BillType.IncomeRefund -> {
@@ -199,6 +241,45 @@ class BillItemAdapter(
         binding.date.text = DateUtils.stampToDate(data.time, "HH:mm:ss")
 
 
+        binding.bookName.text = data.bookName
+        val defaultBookName = context.getString(R.string.setting_default_book)
+        val shouldShowBook = data.bookName.isNotEmpty() && data.bookName != defaultBookName
+
+        // 手续费/优惠（仅设置文本和样式，visibility在后面统一控制）
+        val shouldShowFee = data.fee != 0.0
+        if (shouldShowFee) {
+            if (data.fee < 0) {
+                // 手续费：警告信息（红色）
+                val feeAmount = BillTool.formatAmount(kotlin.math.abs(data.fee))
+                binding.fee.text = context.getString(R.string.bill_fee_label, feeAmount)
+                val bgColor = MaterialColors.getColor(
+                    binding.fee,
+                    com.google.android.material.R.attr.colorErrorContainer
+                )
+                val textColor = MaterialColors.getColor(
+                    binding.fee,
+                    com.google.android.material.R.attr.colorOnErrorContainer
+                )
+                binding.fee.backgroundTintList = ColorStateList.valueOf(bgColor)
+                binding.fee.setTextColor(textColor)
+            } else {
+                // 优惠：正面信息（紫色/橙色系）
+                val discountAmount = BillTool.formatAmount(data.fee)
+                binding.fee.text = context.getString(R.string.bill_discount_label, discountAmount)
+                val bgColor = MaterialColors.getColor(
+                    binding.fee,
+                    com.google.android.material.R.attr.colorTertiaryContainer
+                )
+                val textColor = MaterialColors.getColor(
+                    binding.fee,
+                    com.google.android.material.R.attr.colorOnTertiaryContainer
+                )
+                binding.fee.backgroundTintList = ColorStateList.valueOf(bgColor)
+                binding.fee.setTextColor(textColor)
+            }
+        }
+
+
         when (data.state) {
             BillState.Synced -> {
                 binding.sync.setImageResource(R.drawable.ic_sync)
@@ -214,22 +295,16 @@ class BillItemAdapter(
         }
 
 
-
-
-
-
-        if (!showMore) {
-            binding.statusBar.visibility = View.GONE
+        binding.date.visibility = View.VISIBLE
+        binding.bookName.visibility = if (shouldShowBook) View.VISIBLE else View.GONE
+        binding.fee.visibility = if (shouldShowFee) View.VISIBLE else View.GONE
+        binding.autoRecord.visibility = if (data.auto) View.VISIBLE else View.GONE
+        binding.sync.visibility = View.VISIBLE
+        if (PrefManager.autoGroup) {
+            binding.moreBills.visibility = View.VISIBLE
         } else {
-            binding.statusBar.visibility = View.VISIBLE
-            if (PrefManager.autoGroup) {
-                binding.moreBills.visibility = View.VISIBLE
-            } else {
-                binding.moreBills.visibility = View.GONE
-            }
-            binding.autoRecord.visibility = if (data.auto) View.VISIBLE else View.GONE
+            binding.moreBills.visibility = View.GONE
         }
-
 
     }
 

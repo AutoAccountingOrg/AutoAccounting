@@ -7,135 +7,208 @@
     android:orientation="vertical"
     android:padding="@dimen/padding">
 
+    <!-- 第一行：分类 + 金额（最重要） -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/one_padding"
         android:gravity="center_vertical"
         android:orientation="horizontal">
-
 
         <net.ankio.auto.ui.components.IconView
             android:id="@+id/category"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/one_padding"
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/black"
+            android:textColor="?colorOnBackground"
+            android:textSize="16sp"
             app:iconSrc="@drawable/default_cate"
             app:iconTintEnabled="true"
             app:textColor="?colorPrimary"
-            tools:text="理财收xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx益" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/one_padding"
-            android:textColor="?colorSecondary"
-            android:textSize="15sp"
-            tools:text="11:00:22" />
+            tools:text="理财收益" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/money"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:textColor="@color/danger"
-            android:textSize="15sp"
+            android:textSize="18sp"
+            android:textStyle="bold"
             tools:text="- 4.0" />
-
 
     </LinearLayout>
 
-    <LinearLayout
+    <!-- 第二行：账户信息（优先级高于备注，用户更关心资金从哪里来/到哪里去） -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/account_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="5dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/remark"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textColor="?colorOnBackground"
-            android:textSize="14sp"
-            tools:text="@tools:sample/lorem/random" />
+        android:layout_marginTop="6dp">
 
         <net.ankio.auto.ui.components.IconView
             android:id="@+id/payTools1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textSize="13sp"
             app:iconTintEnabled="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/icon_header"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxLines="1"
             app:textColor="?colorOnBackground"
             tools:iconSrc="@drawable/default_asset"
-            tools:text="支付宝" />
+            tools:text="中国工商银行储蓄卡中国工商银行储蓄卡中国工商银行储蓄卡" />
 
         <ImageView
             android:id="@+id/icon_header"
-            android:layout_width="@dimen/image_size_small"
-            android:layout_height="@dimen/image_size_small"
-            android:layout_gravity="center_vertical"
-            android:layout_marginHorizontal="@dimen/one_padding"
-            android:contentDescription=""
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
             android:importantForAccessibility="no"
             android:scaleType="centerInside"
-            android:src="@drawable/icon_map_right" />
+            android:src="@drawable/icon_map_right"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/payTools2"
+            app:layout_constraintStart_toEndOf="@id/payTools1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?colorOnSurfaceVariant" />
 
         <net.ankio.auto.ui.components.IconView
             android:id="@+id/payTools2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textSize="13sp"
             app:iconTintEnabled="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/icon_header"
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxLines="1"
             app:textColor="?colorOnBackground"
             tools:iconSrc="@drawable/default_asset"
-            tools:text="支付宝" />
+            tools:text="中国工商银行储蓄卡中国工商银行储蓄卡中国工商银行储蓄卡" />
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/status_bar"
+    <!-- 第三行：备注（补充信息，保留两行但降低视觉权重，避免与资产抢焦点） -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/remark"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="13sp"
+        tools:text="@tools:sample/lorem/random" />
 
-        android:gravity="center_vertical">
+    <!-- 第四行：元数据区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/auto_record"
-            style="@style/Widget.Material3.Chip.Filter.Elevated"
+        <!-- 时间标签：最低调，中性信息 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:enabled="false"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/currency_label_background"
+            android:backgroundTint="?attr/colorSurfaceContainerHighest"
+            android:maxLines="1"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="11sp"
+            tools:text="11:00" />
+
+        <!-- 账本标签：次要信息，用青色/绿色系 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/book_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/currency_label_background"
+            android:backgroundTint="?attr/colorSecondaryContainer"
+            android:maxLines="1"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            android:textSize="11sp"
+            tools:text="默认账本" />
+
+        <!-- 手续费标签：警告信息（红色）/正面信息（紫色），代码中动态设置 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/fee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/currency_label_background"
+            android:backgroundTint="?attr/colorErrorContainer"
+            android:maxLines="1"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:textColor="?attr/colorOnErrorContainer"
+            android:textSize="11sp"
+            tools:text="手续费 ¥0.5" />
+
+        <!-- 自动记录标签：状态标签，最突出（主题色） -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/auto_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/currency_label_background"
+            android:backgroundTint="?attr/colorPrimaryContainer"
+            android:maxLines="1"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
             android:text="@string/auto_record"
-            app:ensureMinTouchTargetSize="true" />
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:textSize="11sp" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+        <!-- 同步图标 -->
         <ImageView
             android:id="@+id/sync"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="4dp"
+            android:contentDescription=""
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_sync"
             app:tint="?colorPrimary" />
 
-
+        <!-- 更多按钮 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/moreBills"
             style="?attr/materialIconButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:icon="@drawable/menu_item_more" />
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="-8dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            app:icon="@drawable/menu_item_more"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="20dp" />
+
     </LinearLayout>
+
 </LinearLayout>
