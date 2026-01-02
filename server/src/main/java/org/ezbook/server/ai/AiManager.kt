@@ -22,6 +22,7 @@ import org.ezbook.server.ai.providers.ChatGPTProvider
 import org.ezbook.server.ai.providers.DeepSeekProvider
 import org.ezbook.server.ai.providers.GeminiProvider
 import org.ezbook.server.ai.providers.KimiProvider
+import org.ezbook.server.ai.providers.MiMoProvider
 import org.ezbook.server.ai.providers.OpenRouterProvider
 import org.ezbook.server.ai.providers.QWenProvider
 import org.ezbook.server.ai.providers.SiliconFlowProvider
@@ -44,7 +45,8 @@ class AiManager {
         "智谱清言" to BigModelProvider(),
         "OpenRouter" to OpenRouterProvider(),
         "通义千问" to QWenProvider(),
-        "硅基流动" to SiliconFlowProvider()
+        "硅基流动" to SiliconFlowProvider(),
+        "小米MiMo" to MiMoProvider()
     )
 
     /**
