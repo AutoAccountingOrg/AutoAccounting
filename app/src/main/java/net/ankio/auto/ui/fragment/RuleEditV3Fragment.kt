@@ -400,10 +400,13 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
      * → 【a:1,b:2】
      */
     fun convert(data: String): String {
-        val gson = GsonBuilder().disableHtmlEscaping().create()
-        // 不假设类型，让 Gson 自动判断是对象还是数组
-        val json = gson.fromJson(data, com.google.gson.JsonElement::class.java)
-        return convertJsonElement(json)
+        val trimmed = data.trim()
+        return runCatching {
+            val gson = GsonBuilder().disableHtmlEscaping().create()
+            // 不假设类型，让 Gson 自动判断是对象还是数组
+            val json = gson.fromJson(trimmed, com.google.gson.JsonElement::class.java)
+            return convertJsonElement(json)
+        }.getOrElse { trimmed }
     }
 
     /**
