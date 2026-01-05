@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.databinding.DialogBottomSheetBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
@@ -55,8 +56,31 @@ class EditorDialogBuilder internal constructor(
     private var isMultiLine: Boolean = false
     private var minLines: Int = 1
     private var maxLines: Int = Int.MAX_VALUE
+    private var helperText: String? = null
 
     private lateinit var editText: TextInputEditText
+    private lateinit var inputLayout: TextInputLayout
+
+    /**
+     * 设置辅助提示文本（显示在输入框下方）
+     * @param text 提示文本
+     * @return 当前构建器实例，支持链式调用
+     */
+    fun setHint(text: String) = apply {
+        this.helperText = text
+        if (::inputLayout.isInitialized) {
+            inputLayout.helperText = text
+        }
+    }
+
+    /**
+     * 设置辅助提示文本（使用资源ID）
+     * @param textId 提示文本资源ID
+     * @return 当前构建器实例，支持链式调用
+     */
+    fun setHint(textId: Int) = apply {
+        setHint(ctx.getString(textId))
+    }
 
     /**
      * 设置输入类型
@@ -123,13 +147,16 @@ class EditorDialogBuilder internal constructor(
     override fun setMessage(message: String): EditorDialogBuilder {
         // 使用现有的布局资源 setting_item_input 来构建输入框
         val view = SettingItemInputBinding.inflate(LayoutInflater.from(ctx))
-        val inputLayout = view.inputLayout
+        inputLayout = view.inputLayout
         editText = view.input
 
         // 预填内容与输入类型
         editText.setText(message)
         // 调试模式下，如果为密码输入类型，则切换为明文输入类型；否则按原样设置
         editText.inputType = adjustInputTypeForDebug(inputTypeInt)
+
+        // 应用辅助提示（显示在输入框下方）
+        helperText?.let { inputLayout.helperText = it }
 
         // 应用多行设置
         applyMultiLineSettings()

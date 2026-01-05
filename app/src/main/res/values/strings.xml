@@ -670,7 +670,8 @@
 
     <string name="settings_language">Language</string><!-- 金额显示组件相关字符串 -->
     <string name="edit_amount">Edit Amount</string>
-    <string name="edit_fee">Edit Fee</string>
+    <string name="edit_fee">Edit Fee/Discount</string>
+    <string name="hint_fee">Negative for fee, positive for discount</string>
     <string name="no_discount">No discount</string>
     <string name="discounted">Discounted %.2f</string>
     <string name="handling_fee">Handling fee %.2f</string>

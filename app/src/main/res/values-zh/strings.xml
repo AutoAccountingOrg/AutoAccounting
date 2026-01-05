@@ -871,7 +871,8 @@
 
     <!-- 金额与手续费编辑相关 -->
     <string name="edit_amount">编辑金额</string>
-    <string name="edit_fee">编辑手续费</string>
+    <string name="edit_fee">编辑手续费/优惠</string>
+    <string name="hint_fee">负数为手续费，正数为优惠</string>
     <string name="no_discount">无折扣</string>
     <string name="discounted">已优惠 %.2f</string>
     <string name="handling_fee">手续费 %.2f</string>

@@ -173,7 +173,8 @@ class AmountDisplayComponent(
                             InputType.TYPE_NUMBER_FLAG_SIGNED
                 )
                 .setTitleInt(R.string.edit_fee)
-                .setMessage(billInfoModel.fee.toString())
+                .setHint(R.string.hint_fee)
+                .setMessage(if (billInfoModel.fee == 0.0) "" else billInfoModel.fee.toString())
                 .setEditorPositiveButton(R.string.sure_msg) { result ->
                     val newFee = result.toDoubleOrNull() ?: 0.0
                     if (newFee != billInfoModel.fee) {
