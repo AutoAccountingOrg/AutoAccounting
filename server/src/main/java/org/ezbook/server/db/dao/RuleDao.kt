@@ -27,7 +27,7 @@ interface RuleDao {
     @Query(
         """
     SELECT * FROM RuleModel 
-    WHERE app = :app 
+    WHERE (:app IS NULL OR app = :app )
     AND (:type IS NULL OR type = :type)
     AND (:searchTerm IS NULL OR name LIKE '%' || :searchTerm || '%')
     AND (:creator IS NULL OR :creator = '' OR creator = :creator)
@@ -39,7 +39,7 @@ interface RuleDao {
     suspend fun loadByAppAndFilters(
         limit: Int,
         offset: Int,
-        app: String,
+        app: String? = null,
         type: String? = null,
         searchTerm: String? = null,
         creator: String? = null

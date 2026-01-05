@@ -50,7 +50,7 @@ fun Route.ruleRoutes() {
             val limit = call.request.queryParameters["limit"]?.toInt() ?: 10
             val offset = (page - 1) * limit
 
-            val app = call.request.queryParameters["app"] ?: ""
+            val app = call.request.queryParameters["app"]?.takeIf { it.isNotEmpty() }
             val creator = call.request.queryParameters["creator"] ?: ""
             val type = call.request.queryParameters["type"]?.takeIf { it.isNotEmpty() }
             val search = call.request.queryParameters["search"]?.takeIf { it.isNotEmpty() }

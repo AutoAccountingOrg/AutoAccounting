@@ -112,50 +112,39 @@ class RuleInfoComponent(
      * @param ruleName 规则名称
      */
     private fun disableRule(ruleName: String) {
-        // 使用LifecycleOwner来启动协程
+        // 提取实际规则名（去除类型前缀）
+        val ruleData = ruleName
+            .removePrefix("通知·")
+            .removePrefix("数据·")
+            .removePrefix("OCR·")
+            .trim()
+
+        Logger.d("查找的规则：$ruleData")
+
         launch {
             try {
-                // 先查找规则 - 搜索所有匹配的规则
-                val rules = RuleManageAPI.list(
+                // 搜索匹配的规则
+                val rule = RuleManageAPI.list(
                     app = "",
                     type = "",
                     creator = "",
                     page = 1,
-                    limit = 100,
-                    search = ruleName
-                ).filter { it.name == ruleName && it.enabled }
+                    limit = 1,
+                    search = ruleData
+                ).firstOrNull()
 
-                if (rules.isEmpty()) {
+                if (rule == null) {
                     ToastUtils.error(R.string.rule_not_found)
                     return@launch
                 }
 
-                // 禁用所有匹配的规则
-                var disabledCount = 0
-                for (rule in rules) {
-                    try {
-                        val updatedRule = rule.apply { enabled = false }
-                        RuleManageAPI.put(updatedRule)
-                        disabledCount++
-                        Logger.d("禁用规则: ${rule.name} (ID: ${rule.id})")
-                    } catch (e: Exception) {
-                        Logger.e("禁用规则失败: ${rule.name}", e)
-                    }
-                }
+                // 禁用规则
+                rule.enabled = false
+                RuleManageAPI.put(rule)
+                Logger.d("禁用规则: ${rule.name} (ID: ${rule.id})")
 
-                if (disabledCount > 0) {
-                    ToastUtils.info(
-                        context.getString(
-                            R.string.rule_disabled_success,
-                            disabledCount
-                        )
-                    )
-                    // 隐藏关闭按钮，因为规则已被禁用
-                    binding.close.visibility = View.GONE
-                } else {
-                    ToastUtils.error(R.string.rule_disable_failed)
-                }
-
+                ToastUtils.info(R.string.rule_disabled_successfully)
+                binding.close.visibility = View.GONE
             } catch (e: Exception) {
                 Logger.e("禁用规则异常", e)
                 ToastUtils.error(R.string.rule_disable_failed)
