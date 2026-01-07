@@ -190,15 +190,32 @@ object DateUtils {
      */
     private fun parseDatePart(date: String): Triple<Int, Int, Int>? {
         if (date.isEmpty()) return null
-        // 纯数字日期（可能是 yyyyMMdd）
+        // 纯数字日期（可能是 yyyyMMdd 或 MMdd）
         if (date.matches(Regex("^\\d{8}$"))) {
             val y = date.substring(0, 4).toInt()
             val m = date.substring(4, 6).toInt()
             val d = date.substring(6, 8).toInt()
             return if (isValidDate(y, m, d)) Triple(y, m, d) else null
         }
+        if (date.matches(Regex("^\\d{4}$"))) {
+            // MMdd 格式，补充当前年份
+            val y = currentYear()
+            val m = date.substring(0, 2).toInt()
+            val d = date.substring(2, 4).toInt()
+            return if (isValidDate(y, m, d)) Triple(y, m, d) else null
+        }
 
         val tokens = date.split("-").filter { it.isNotBlank() }
+
+        // 只有月日（如 "01-05"），补充当前年份
+        if (tokens.size == 2) {
+            val a = tokens[0].toIntOrNull() ?: return null
+            val b = tokens[1].toIntOrNull() ?: return null
+            val (m, d) = resolveMonthDay(a, b)
+            val y = currentYear()
+            return if (isValidDate(y, m, d)) Triple(y, m, d) else null
+        }
+        
         if (tokens.size < 3) return null
 
         // 找出 4 位年份位置
@@ -260,6 +277,22 @@ object DateUtils {
      */
     private fun isLeapYear(year: Int): Boolean {
         return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+    }
+
+    /**
+     * 获取当前年份
+     */
+    private fun currentYear(): Int {
+        val now = System.currentTimeMillis()
+        val tz = TimeZone.getDefault()
+        val offset = tz.getOffset(now)
+        val localMillis = now + offset
+        // 从 epoch 毫秒反推年份（近似，足够日常使用）
+        val days = (localMillis / 86_400_000L).toInt() + 719468
+        val era = Math.floorDiv(days, 146097)
+        val doe = days - era * 146097
+        val yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+        return yoe + era * 400
     }
 
     /**

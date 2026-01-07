@@ -41,8 +41,10 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.RuleModel
+import org.ezbook.server.tools.DataConvert
 
 
 /**
@@ -95,7 +97,7 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
                 this.systemRuleName = "rule_${System.currentTimeMillis()}"
             }
 
-            val testData = convert(appData.data)
+            val testData = DataConvert.convert(appData.data)
 
             Logger.d("测试数据 $testData")
 
@@ -120,10 +122,6 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
     private fun setupToolbar() {
         binding.toolbar.apply {
             title = getString(R.string.title_rule_edit)
-            setNavigationOnClickListener {
-                // 点击返回按钮时保存
-                triggerSave()
-            }
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_run -> {
@@ -221,7 +219,7 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
 
                 ruleData.struct = Gson().toJson(formData)
                 ruleData.name = formData.get("name").asString
-
+                ruleData.js = getRuleJs(formData)
                 launch {
                     if (ruleData.id > 0) {
                         RuleManageAPI.update(ruleData)
@@ -306,7 +304,7 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
                 cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
 
                 // 启用调试（仅开发环境）
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                if (PrefManager.debugMode) {
                     WebView.setWebContentsDebuggingEnabled(true)
                 }
             }
@@ -384,105 +382,7 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
 
     }
 
-    /**
-     * 将 JSON 扁平化展开，使用【】表示嵌套
-     *
-     * 转换规则：
-     * - 对象嵌套: key:【subKey:value,...】
-     * - 数组: key:【item1,item2,...】
-     * - 基本类型: key:value
-     *
-     * 示例：
-     * {"user":{"name":"张三","age":20},"tags":["A","B"]}
-     * → user:【name:张三,age:20】,tags:【A,B】
-     *
-     * [{"a":1},{"b":2}]
-     * → 【a:1,b:2】
-     */
-    fun convert(data: String): String {
-        val trimmed = data.trim()
-        return runCatching {
-            val gson = GsonBuilder().disableHtmlEscaping().create()
-            // 不假设类型，让 Gson 自动判断是对象还是数组
-            val json = gson.fromJson(trimmed, com.google.gson.JsonElement::class.java)
-            return convertJsonElement(json)
-        }.getOrElse { trimmed }
-    }
 
-    /**
-     * 递归转换 JsonElement
-     * 使用数据结构驱动，避免字符串替换的陷阱
-     */
-    /**
-     * 递归转换 JsonElement
-     * 使用数据结构驱动，避免字符串替换的陷阱
-     *
-     * 增强特性：
-     * - 自动检测字符串中的 JSON 并递归解析
-     * - 处理"双重JSON"问题（JSON 字符串化后再嵌套）
-     */
-    private fun convertJsonElement(element: com.google.gson.JsonElement): String {
-        return when {
-            // 基本类型：字符串、数字、布尔
-            element.isJsonPrimitive -> {
-                val primitive = element.asJsonPrimitive
-                when {
-                    primitive.isString -> {
-                        val str = primitive.asString
-                        // 尝试解析字符串中的 JSON
-                        tryParseJsonString(str) ?: str
-                    }
-
-                    else -> primitive.toString()
-                }
-            }
-
-            // 对象：转换为 key:value,key:value
-            element.isJsonObject -> {
-                element.asJsonObject.entrySet().joinToString(",") { (key, value) ->
-                    val valueStr = when {
-                        value.isJsonPrimitive -> convertJsonElement(value)
-                        else -> "【${convertJsonElement(value)}】"
-                    }
-                    "$key:$valueStr"
-                }
-            }
-
-            // 数组：转换为 【item1,item2】
-            element.isJsonArray -> {
-                element.asJsonArray.joinToString(",") { item ->
-                    convertJsonElement(item)
-                }
-            }
-
-            // null
-            element.isJsonNull -> "null"
-
-            else -> element.toString()
-        }.replace("\\r\\n|\\r|\\n".toRegex(), "")
-    }
-
-    /**
-     * 尝试将字符串解析为 JSON
-     * 如果成功，返回转换后的格式；否则返回 null
-     */
-    private fun tryParseJsonString(str: String): String? {
-        // 快速判断：不像 JSON 就直接返回
-        val trimmed = str.trim()
-        if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
-            return null
-        }
-
-        return try {
-            val gson = GsonBuilder().disableHtmlEscaping().create()
-            val parsed = gson.fromJson(trimmed, com.google.gson.JsonElement::class.java)
-            // 递归转换解析出的 JSON
-            "【${convertJsonElement(parsed)}】"
-        } catch (e: Exception) {
-            // 不是有效的 JSON，返回 null
-            null
-        }
-    }
 
     /** 创建WebChromeClient - 处理标题变化和控制台日志 */
     private fun createWebChromeClient() = object : WebChromeClient() {

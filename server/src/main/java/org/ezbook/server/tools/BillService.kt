@@ -318,8 +318,14 @@ class BillService(
             ServerLog.d("${src}规则数据为空，跳过")
             return null
         }
-        val result = executeJs(js, data)
-        return parseBillInfo(result, app, dataType)?.also {
+        var result = executeJs(js, data)
+        var billInfo = parseBillInfo(result, app, dataType);
+        if (billInfo == null && creator == "user") {
+            result = executeJs(js, DataConvert.convert(data))
+            billInfo = parseBillInfo(result, app, dataType);
+        }
+
+        return billInfo?.also {
 
             ServerLog.d("${src}规则解析成功：type=${it.type}, money=${it.money}")
         }
@@ -422,7 +428,12 @@ class BillService(
                     ServerLog.d("时间string,解析失败，使用当前时间")
                     time = System.currentTimeMillis()
                 } else {
-                    time = DateUtils.toEpochMillis(timeText)
+                    runCatchingExceptCancel {
+                        time = DateUtils.toEpochMillis(timeText)
+                    }.onFailure {
+                        ServerLog.e(it)
+                        time = System.currentTimeMillis()
+                    }
                 }
             }
             //  DateUtils.toEpochMillis(timeText)
