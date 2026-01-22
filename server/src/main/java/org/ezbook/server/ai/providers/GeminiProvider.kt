@@ -63,7 +63,7 @@ class GeminiProvider : BaseAIProvider() {
     ): Result<String> =
         withContext(Dispatchers.IO) {
             val path = if (onChunk === null) "generateContent" else "streamGenerateContent?alt=sse"
-            val url = "${base()}/$model:$path"
+            val url = "${base()}/${getModel()}:$path"
             val requestBody = mapOf(
                 "contents" to listOf(
                     mapOf(
