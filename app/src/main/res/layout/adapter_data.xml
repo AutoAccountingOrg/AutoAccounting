@@ -27,7 +27,7 @@
             android:layout_marginBottom="@dimen/one_padding">
 
             <!-- 应用图标 -->
-            <com.google.android.material.imageview.ShapeableImageView
+            <io.github.xiaofeidev.round.RoundImageView
                 android:id="@+id/appIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -71,7 +71,7 @@
                 android:background="@drawable/currency_label_background"
                 android:backgroundTint="?attr/colorPrimaryContainer"
                 android:maxLines="1"
-                android:paddingHorizontal="8dp"
+                android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:textColor="?attr/colorOnPrimaryContainer"
                 tools:text="通知" />
