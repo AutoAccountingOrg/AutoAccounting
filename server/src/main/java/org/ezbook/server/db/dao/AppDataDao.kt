@@ -24,13 +24,18 @@ import org.ezbook.server.db.model.AppDataModel
 @Dao
 interface AppDataDao {
 
-    //根据条件查询
+    /**
+     * 根据条件查询应用数据
+     * @param app 应用包名，空字符串表示查询所有应用
+     * @param match 匹配状态，null 表示不筛选
+     * @param type 数据类型，null 表示不筛选
+     * @param search 搜索关键词，null 表示不搜索
+     */
     @Query(
-        "SELECT * FROM AppDataModel WHERE app = :app " +
+        "SELECT * FROM AppDataModel WHERE (:app = '' OR app = :app) " +
                 "AND (:match IS NULL OR `match` = :match) " +
-                "AND (:type IS NULL OR type = :type)" +
-                "AND (:type IS NULL OR type = :type)" +
-                "AND (:search IS NULL OR data LIKE '%' || :search || '%')" +
+                "AND (:type IS NULL OR type = :type) " +
+                "AND (:search IS NULL OR data LIKE '%' || :search || '%') " +
                 "ORDER BY id DESC LIMIT :limit OFFSET :offset"
     )
     suspend fun load(
@@ -39,7 +44,6 @@ interface AppDataDao {
         app: String,
         match: Boolean?,
         type: String?,
-
         search: String?
     ): List<AppDataModel>
 

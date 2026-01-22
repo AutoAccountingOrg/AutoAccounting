@@ -17,17 +17,13 @@ package net.ankio.auto.ui.fragment
 
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
-import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -43,9 +39,7 @@ import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
-import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.http.Pastebin
-import net.ankio.auto.http.license.RuleAPI
 import net.ankio.auto.ui.components.MaterialSearchView
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
@@ -61,9 +55,8 @@ import org.ezbook.server.db.model.AppDataModel
  * 插件数据管理Fragment
  *
  * 该Fragment负责展示和管理应用数据，包括：
- * - 左侧应用列表展示
- * - 数据筛选（通知数据、应用数据、匹配状态）
- * - 搜索功能切换
+ * - 顶部筛选（应用、数据类型、匹配状态）
+ * - 搜索功能
  * - 数据清理功能
  *
  * @author ankio
@@ -71,10 +64,10 @@ import org.ezbook.server.db.model.AppDataModel
 class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>(),
     Toolbar.OnMenuItemClickListener {
 
-    /** 当前选中的应用包名 */
+    /** 应用包名筛选（空字符串表示全部） */
     var app: String = ""
 
-    /** 数据类型筛选（NOTICE/DATA） */
+    /** 数据类型筛选（NOTICE/DATA/OCR，空字符串表示全部） */
     var type: String = ""
 
     /** 匹配状态：null=全部，true=已匹配，false=未匹配 */
@@ -84,17 +77,11 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     var searchData = ""
 
     /**
-     * 应用信息数据类 - 统一的数据结构，消除双重维护
-     * 按照Linus的"好品味"原则：一个数据结构解决一个问题
+     * 应用列表缓存
+     * 格式：Map<包名, 应用名>
+     * 按照Linus原则：最简单的数据结构解决问题
      */
-    data class AppInfo(
-        val packageName: String,
-        val name: String,
-        val icon: android.graphics.drawable.Drawable?
-    )
-
-    /** 应用列表 - 单一数据源，消除索引转换的特殊情况 */
-    private val appList = mutableListOf<AppInfo>()
+    private val appMap = linkedMapOf<String, String>()
 
     companion object {
         private const val GITHUB_ISSUE_URL =
@@ -262,99 +249,95 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
 
     /**
      * Fragment视图创建完成后的初始化
-     * 设置左侧数据、过滤器按钮和搜索功能
+     * 设置过滤器按钮和搜索功能
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpLeftData()
         setupFilterButtons()
         binding.toolbar.setOnMenuItemClickListener(this)
         setUpSearch()
     }
 
     /**
-     * 设置左侧应用列表数据
-     * 消除索引转换 - 直接使用数组索引，无特殊情况
-     */
-    private fun setUpLeftData() {
-        binding.leftList.setOnItemSelectedListener { menuItem ->
-            page = 1
-            // Linus式简化：无需索引转换，直接使用数组位置
-            val index = menuItem.id - 1
-            if (index in appList.indices) {
-                app = appList[index].packageName
-                Logger.d("Selected app: $app (${appList[index].name})")
-                reload()
-            } else {
-                Logger.w("Invalid app selection index: $index, list size: ${appList.size}")
-            }
-        }
-    }
-
-    /**
      * Fragment恢复时的处理
+     * 预加载应用列表（仅用于筛选器）
      */
     override fun onResume() {
         super.onResume()
-        refreshLeftData()
+        launch { loadAppList() }
     }
 
     /**
-     * 刷新左侧应用数据
-     * 简化的单一数据流 - 从API到UI，无重复数据结构
+     * 加载应用列表
+     * Linus式简化：纯数据加载，无UI耦合
+     * @return 是否加载成功
      */
-    private fun refreshLeftData() {
-        Logger.d("Refreshing left data for plugin data")
-        launch {
-            try {
-                // 1. 清空单一数据源
-                binding.leftList.clear()
-                appList.clear()
+    private suspend fun loadAppList(): Boolean {
+        return try {
+            appMap.clear()
+            val apiResult = AppDataAPI.apps()
+            Logger.d("Loaded ${apiResult.size()} apps for filter")
 
-                // 2. 获取应用数据
-                val apiResult = AppDataAPI.apps()
-                Logger.d("Fetched ${apiResult.size()} apps from plugin API")
-
-                // 3. 构建应用列表 - 单次遍历，无重复逻辑
-                var index = 1
-                for (packageName in apiResult.keySet()) {
-                    val appInfo = getAppInfoFromPackageName(packageName)
-                    if (appInfo == null) {
-                        Logger.w("Failed to get app info for package: $packageName")
-                        continue
-                    }
-
-                    // 创建统一的应用数据对象
-                    val app = AppInfo(packageName, appInfo.name, appInfo.icon)
-                    appList.add(app)
-
-                    // 添加到UI - 使用统一数据源
-                    binding.leftList.addMenuItem(
-                        RailMenuItem(index, app.icon!!, app.name)
-                    )
-
-                    Logger.d("Added app: ${app.name} ($packageName)")
-                    index++
+            // 单次遍历构建应用映射
+            for (packageName in apiResult.keySet()) {
+                val appInfo = getAppInfoFromPackageName(packageName)
+                if (appInfo != null) {
+                    appMap[packageName] = appInfo.name
                 }
-
-                // 4. 处理空状态 - 简化条件判断
-                if (appList.isEmpty() || !binding.leftList.performFirstItem()) {
-                    Logger.w("No apps available, showing empty state")
-                    statusPage.showEmpty()
-                }
-            } catch (e: Exception) {
-                Logger.e("Error refreshing left data", e)
-                statusPage.showError()
             }
+            true
+        } catch (e: Exception) {
+            Logger.e("Error loading app list", e)
+            false
         }
     }
 
     /**
-     * 设置过滤按钮：类型、匹配状态
+     * 设置过滤按钮：应用、类型、匹配状态
      */
     private fun setupFilterButtons() {
+        setupAppButton()
         setupTypeButton()
         setupMatchButton()
+    }
+
+    /**
+     * 配置"应用"筛选按钮：全部/具体应用
+     * Linus式简化：点击时动态加载应用列表，确保数据最新
+     * 显示应用名，但筛选使用包名
+     */
+    private fun setupAppButton() {
+        val allLabel = resources.getStringArray(R.array.rule_type_options)[0]
+        binding.appButton.text = allLabel
+
+        binding.appButton.setOnClickListener { anchorView ->
+            launch {
+                // 确保应用列表已加载
+                if (appMap.isEmpty()) {
+                    loadAppList()
+                }
+
+                // 动态构建筛选项：显示应用名，值为包名
+                val items = linkedMapOf<String, String>().apply {
+                    put(allLabel, "")  // 全部
+                    // appMap: 包名 → 应用名，需要反转为 应用名 → 包名
+                    appMap.forEach { (packageName, appName) ->
+                        put(appName, packageName)
+                    }
+                }
+
+                ListPopupUtilsGeneric.create<String>(requireContext())
+                    .setAnchor(anchorView)
+                    .setList(items)
+                    .setOnItemClick { _, key, value ->
+                        app = value  // 使用包名筛选
+                        binding.appButton.text = key  // 显示应用名
+                        Logger.d("App filter updated: app='$app' (display: $key)")
+                        reload()
+                    }
+                    .show()
+            }
+        }
     }
 
     /**

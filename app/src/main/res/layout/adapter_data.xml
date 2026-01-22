@@ -18,16 +18,65 @@
         android:orientation="vertical"
         android:padding="@dimen/padding">
 
-        <!-- 时间 -->
-        <net.ankio.auto.ui.components.IconView
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
+        <!-- 顶部信息行：应用logo + 应用名/时间 + 类型badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:iconSrc="@drawable/float_time"
-            app:iconTintEnabled="true"
-            app:textColor="?colorOnBackground"
-            tools:text="2025-06-22 09:03:57"
-            android:layout_gravity="start" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="@dimen/one_padding">
+
+            <!-- 应用图标 -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/appIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/wechat" />
+
+            <!-- 应用名称和时间 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="@dimen/padding">
+
+                <!-- 应用名称 -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/appName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="?colorOnSurface"
+                    tools:text="微信" />
+
+                <!-- 时间（无图标） -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="?colorOnSurfaceVariant"
+                    tools:text="2025-06-22 09:03:57" />
+
+            </LinearLayout>
+
+            <!-- 数据类型badge -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/typeBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/currency_label_background"
+                android:backgroundTint="?attr/colorPrimaryContainer"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                tools:text="通知" />
+
+        </LinearLayout>
 
         <!-- 内容 -->
         <com.google.android.material.textview.MaterialTextView
@@ -40,7 +89,7 @@
             android:paddingTop="@dimen/one_padding"
             android:paddingBottom="@dimen/one_padding"
             android:textColor="?colorOnSurface"
-            android:text="这是一个规则内容xxx这是一个规则内容xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+            tools:text="这是一个规则内容xxx这是一个规则内容xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
 
         <!-- 规则名称行 -->
         <net.ankio.auto.ui.components.IconView

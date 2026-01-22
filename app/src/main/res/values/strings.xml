@@ -266,6 +266,7 @@
     <string name="title_data_rule">Data rules</string>
 
     <!-- Filter dropdown options -->
+    <string name="filter_app">Application</string>
     <string name="filter_rule_type">Rule Type</string>
     <string name="filter_creator">Creator</string>
     <string name="filter_match">Match</string>

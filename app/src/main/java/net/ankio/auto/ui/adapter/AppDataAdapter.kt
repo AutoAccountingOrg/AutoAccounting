@@ -24,6 +24,8 @@ import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.getAppInfoFromPackageName
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.AppDataModel
 
 class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
@@ -95,17 +97,32 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
         position: Int
     ) {
         val binding = holder.binding
+        val context = holder.context
 
-        // 基础数据绑定
+        // 应用信息：图标和名称
+        val appInfo = getAppInfoFromPackageName(data.app)
+        binding.appIcon.setImageDrawable(appInfo?.icon)
+        binding.appName.text = appInfo?.name ?: data.app
+
+        // 时间（无图标）
+        binding.time.text = DateUtils.stampToDate(data.time)
+
+        // 数据类型badge
+        binding.typeBadge.text = when (data.type) {
+            DataType.NOTICE -> context.getString(R.string.data_type_notice)
+            DataType.DATA -> context.getString(R.string.data_type_app)
+            DataType.OCR -> context.getString(R.string.data_type_ocr)
+        }
+
+        // 内容
         binding.content.text = data.data
-        binding.time.setText(DateUtils.stampToDate(data.time))
 
         // 规则相关UI状态
         val hasRule = data.isMatched()
-
         binding.ruleName.setText(if (hasRule) extractRuleName(data.rule) else "")
         binding.ruleName.visibility = if (hasRule) View.VISIBLE else View.INVISIBLE
         binding.uploadData.isVisible = true
+
         // 根据匹配状态设置按钮文案：有效匹配显示"反馈"，无效匹配显示"适配"
         binding.uploadData.setText(
             if (data.hasValidMatch()) R.string.btn_upload_feedback else R.string.btn_upload_adapter

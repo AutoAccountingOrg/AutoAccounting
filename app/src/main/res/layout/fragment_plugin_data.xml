@@ -39,27 +39,10 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- 主内容区 -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <!-- 左侧导航 -->
-        <net.ankio.auto.ui.components.CustomNavigationRail
-            android:id="@+id/leftList"
-            android:layout_width="70dp"
-            android:layout_height="match_parent"
-            android:paddingStart="0dp"
-            android:paddingTop="0dp"
-            android:paddingEnd="0dp"
-            android:paddingBottom="0dp" />
-
-        <!-- 右侧内容区，使用ConstraintLayout避免嵌套weights -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
 
             <!-- 过滤器和搜索框切换容器 -->
             <ViewFlipper
@@ -90,6 +73,28 @@
                         android:layout_weight="1"
                         android:gravity="start|center_vertical"
                         android:orientation="horizontal">
+
+                        <!-- 应用筛选 -->
+                        <com.google.android.material.button.MaterialSplitButton
+                            android:id="@+id/app_split_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/filter_app"
+                            android:gravity="center_horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/app_button"
+                                style="?attr/materialSplitButtonLeadingFilledTonalStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/filter_type_all"
+                                app:icon="@drawable/ic_apps" />
+
+                        </com.google.android.material.button.MaterialSplitButton>
+
+                        <Space
+                            android:layout_width="4dp"
+                            android:layout_height="wrap_content" />
 
                         <!-- 数据类型筛选 -->
                         <com.google.android.material.button.MaterialSplitButton
@@ -153,6 +158,5 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -255,6 +255,7 @@
     <string name="title_data_rule">数据规则</string>
 
     <!-- Filter dropdown options -->
+    <string name="filter_app">应用</string>
     <string name="filter_rule_type">规则类型</string>
     <string name="filter_creator">创建者</string>
     <string name="filter_match">匹配</string>
