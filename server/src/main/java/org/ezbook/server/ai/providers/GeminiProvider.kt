@@ -1,15 +1,13 @@
 package org.ezbook.server.ai.providers
+
+import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.google.gson.Gson
-import com.google.gson.JsonParser
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.tools.ServerLog
-import java.util.concurrent.TimeUnit
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**
  * Gemini API 提供商实现
@@ -19,13 +17,13 @@ class GeminiProvider : BaseAIProvider() {
 
     override val createKeyUri: String = "https://aistudio.google.com/app/apikey"
 
-    override val apiUri: String = "https://generativelanguage.googleapis.com/v1beta/models"
+    override val apiUri: String = "https://generativelanguage.googleapis.com/v1beta"
 
-    override var model: String = "gemini-2.0-flash"
+    override var model: String = "models/gemini-3-flash-preview"
 
     private suspend fun base(): String {
         val base = getApiUri().trimEnd('/')
-        return if (base.endsWith("/v1beta/models")) base else "$base/v1beta/models"
+        return if (base.endsWith("/v1beta")) base else "$base/v1beta"
     }
 
     /**
@@ -37,6 +35,7 @@ class GeminiProvider : BaseAIProvider() {
             .url(url)
             .get()
             .build()
+
         runCatchingExceptCancel {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
@@ -89,6 +88,7 @@ class GeminiProvider : BaseAIProvider() {
                 .addHeader("x-goog-api-key", getApiKey())
                 .addHeader("Content-Type", "application/json")
                 .build()
+
             runCatchingExceptCancel {
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
