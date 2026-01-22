@@ -524,5 +524,140 @@ object Hooker {
         }
     }
 
+    /**
+     * 监视类的所有方法调用，打印详细信息
+     * @param clazz 类名或类对象
+     * @param methodFilter 方法名过滤器，只监视包含此关键字的方法（不区分大小写），null表示监视所有方法
+     * @param printStack 是否打印调用堆栈
+     * @param printArgs 是否打印参数
+     * @param printReturn 是否打印返回值
+     * @param maxStackDepth 堆栈打印深度，默认5层
+     */
+    fun watch(
+        clazz: Any,
+        methodFilter: String? = null,
+        printStack: Boolean = true,
+        printArgs: Boolean = true,
+        printReturn: Boolean = true,
+        maxStackDepth: Int = 5
+    ) {
+        try {
+            val targetClass = when (clazz) {
+                is String -> loader(clazz, AppRuntime.classLoader)
+                is Class<*> -> clazz
+                else -> throw IllegalArgumentException("Invalid class type: must be String or Class<*>")
+            }
+
+            Logger.d("🔍 开始监视类: ${targetClass.name}")
+            Logger.d("   过滤器: ${methodFilter ?: "无（监视所有方法）"}")
+            Logger.d("   堆栈: $printStack | 参数: $printArgs | 返回: $printReturn")
+
+            var hookedCount = 0
+            targetClass.declaredMethods
+                .filter { method ->
+                    methodFilter == null || method.name.contains(methodFilter, ignoreCase = true)
+                }
+                .forEach { method ->
+                    try {
+                        XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                            override fun beforeHookedMethod(param: MethodHookParam) {
+                                val sb = StringBuilder()
+                                sb.append("\n" + "=".repeat(80) + "\n")
+                                sb.append("📞 方法调用: ${targetClass.simpleName}.${method.name}\n")
+                                sb.append("=".repeat(80) + "\n")
+
+                                // 打印调用堆栈
+                                if (printStack) {
+                                    sb.append("📚 调用堆栈:\n")
+                                    val stackTrace = Thread.currentThread().stackTrace
+                                    stackTrace.take(maxStackDepth + 3).drop(3)
+                                        .forEachIndexed { index, element ->
+                                            if (index < maxStackDepth) {
+                                                sb.append("   ${index + 1}. ${element.className}.${element.methodName}")
+                                                sb.append("(${element.fileName}:${element.lineNumber})\n")
+                                            }
+                                        }
+                                }
+
+                                // 打印参数
+                                if (printArgs && param.args.isNotEmpty()) {
+                                    sb.append("\n📥 参数列表:\n")
+                                    method.parameterTypes.forEachIndexed { index, paramType ->
+                                        val argValue = param.args.getOrNull(index)
+                                        sb.append(
+                                            "   [$index] ${paramType.simpleName} = ${
+                                                formatValue(
+                                                    argValue
+                                                )
+                                            }\n"
+                                        )
+                                    }
+                                } else if (printArgs) {
+                                    sb.append("\n📥 参数: 无\n")
+                                }
+
+                                Logger.d(sb.toString())
+                            }
+
+                            override fun afterHookedMethod(param: MethodHookParam) {
+                                // 打印返回值
+                                if (printReturn) {
+                                    val sb = StringBuilder()
+                                    sb.append(
+                                        "📤 返回值: ${method.returnType.simpleName} = ${
+                                            formatValue(
+                                                param.result
+                                            )
+                                        }\n"
+                                    )
+                                    sb.append("=".repeat(80) + "\n")
+                                    Logger.d(sb.toString())
+                                }
+                            }
+                        })
+                        hookedCount++
+                    } catch (e: Exception) {
+                        Logger.e("无法hook方法: ${method.name}", e)
+                    }
+                }
+
+            Logger.d("✅ 成功监视 $hookedCount 个方法")
+
+        } catch (e: Exception) {
+            Logger.e("Watch失败: ${e.message}", e)
+        }
+    }
+
+    /**
+     * 格式化值用于打印
+     * 通用格式化函数，不依赖特定类型
+     */
+    private fun formatValue(value: Any?): String {
+        return try {
+            when (value) {
+                null -> "null"
+                is String -> "\"$value\""
+                is CharSequence -> "\"$value\""
+                is Number -> value.toString()
+                is Boolean -> value.toString()
+                is Array<*> -> "[${
+                    value.take(3).joinToString(", ")
+                }${if (value.size > 3) "..." else ""}] (${value.size})"
+
+                is Collection<*> -> "[${
+                    value.take(3).joinToString(", ")
+                }${if (value.size > 3) "..." else ""}] (${value.size})"
+
+                else -> {
+                    val className = value.javaClass.simpleName
+                    "$className@${Integer.toHexString(value.hashCode())}"
+                }
+            }
+        } catch (e: Exception) {
+            // 任何格式化错误都不应该导致hook崩溃
+            "Error:${e.javaClass.simpleName}"
+        }
+    }
+
 
 }

@@ -18,6 +18,7 @@ package net.ankio.auto.xposed.hooks.android.hooks
 import android.app.Notification
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -32,57 +33,139 @@ import net.ankio.auto.xposed.core.utils.AnalysisUtils
 
 class NotificationHooker : PartHooker() {
     private val hashTable = MD5HashTable()
+
     override fun hook() {
-        Hooker.allMethodsEqBefore(
-            Hooker.loader("com.android.server.notification.NotificationManagerService"),
-            "enqueueNotificationInternal",
-        ) { param , method ->
-            val app = param.args[0] as String
-            val opkg = param.args[1] as String
+        hookNotifyListenersPostedAndLogLocked()
+    }
 
-            var notification: Notification? = null
 
-            for (i in 0 until param.args.size) {
-                if (param.args[i] is Notification) {
-                    notification = param.args[i] as Notification
-                    break
+    /**
+     * Hook enqueueNotificationInternal - 通知入队的统一入口
+     * 这个方法在Android 8.0+版本稳定存在，是最可靠的hook点
+     */
+    private fun hookEnqueueNotification() {
+        // TODO 部分情况下无法获取
+        try {
+            val nmsClass =
+                Hooker.loader("com.android.server.notification.NotificationManagerService")
+            Hooker.allMethodsEqBefore(nmsClass, "enqueueNotificationInternal") { param, method ->
+                runCatching {
+                    // enqueueNotificationInternal的第一个参数通常是包名(String)
+                    // 需要从参数中找到NotificationRecord或StatusBarNotification
+                    extractAndProcessNotification(param)
+                }.onFailure {
+                    AppRuntime.manifest.e("hookEnqueueNotification failed: ${it.message}")
+                }
+                null
+            }
+        } catch (e: Exception) {
+            AppRuntime.manifest.e("Failed to hook enqueueNotificationInternal: ${e.message}")
+        }
+    }
+
+    /**
+     * Hook notifyListenersPostedAndLogLocked - 通知发布的核心方法
+     * 这个方法在通知真正发布给监听器时调用
+     * 参数：(NotificationRecord r, NotificationRecord old, ...)
+     */
+    private fun hookNotifyListenersPostedAndLogLocked() {
+        try {
+            val nmsClass =
+                Hooker.loader("com.android.server.notification.NotificationManagerService")
+            Hooker.allMethodsEqBefore(
+                nmsClass,
+                "notifyCallNotificationEventListenerOnPosted"
+            ) { param, method ->
+                runCatching {
+                    // 第一个参数是NotificationRecord，包含StatusBarNotification
+                    val record = param.args.firstOrNull() ?: return@runCatching
+
+                    // 安全地提取sbn字段
+                    val sbnField = record.javaClass.declaredFields.find { it.name == "sbn" }
+                    if (sbnField != null) {
+                        sbnField.isAccessible = true
+                        val sbn =
+                            sbnField.get(record) as? android.service.notification.StatusBarNotification
+                        if (sbn != null) {
+                            processNotification(sbn)
+                        }
+                    }
+                }.onFailure {
+                    AppRuntime.manifest.e(
+                        "hookNotifyListenersPostedAndLogLocked failed: ${it.message}",
+                        it
+                    )
+                }
+                null
+            }
+        } catch (e: Exception) {
+            AppRuntime.manifest.e(
+                "Failed to hook notifyListenersPostedAndLogLocked: ${e.message}",
+                e
+            )
+        }
+    }
+
+    /**
+     * 从方法参数中提取并处理通知
+     * 尝试从各种可能的参数类型中获取StatusBarNotification
+     */
+    private fun extractAndProcessNotification(param: de.robv.android.xposed.XC_MethodHook.MethodHookParam) {
+        // 遍历所有参数，找到StatusBarNotification或NotificationRecord
+        for (arg in param.args) {
+            when (arg) {
+                is android.service.notification.StatusBarNotification -> {
+                    processNotification(arg)
+                    return
+                }
+
+                else -> {
+                    // 尝试从NotificationRecord中提取sbn
+                    runCatching {
+                        val sbn = XposedHelpers.getObjectField(
+                            arg,
+                            "sbn"
+                        ) as? android.service.notification.StatusBarNotification
+                        if (sbn != null) {
+                            processNotification(sbn)
+                            return
+                        }
+                    }
                 }
             }
+        }
+    }
 
-            if (notification == null) {
-                return@allMethodsEqBefore null
-            }
+    /**
+     * 处理StatusBarNotification，提取通知内容并分析
+     */
+    private fun processNotification(sbn: android.service.notification.StatusBarNotification) {
+        val app = sbn.packageName
+        val notification = sbn.notification ?: return
+        val extras = notification.extras
 
+        // 提取标题和内容
+        val originalTitle = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString() ?: ""
 
-            val originalTitle = runCatching {
-                notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
-            }.getOrElse { "" }
-            val originalText = runCatching {
-                notification.extras.getString(Notification.EXTRA_BIG_TEXT)  // 首先尝试获取大文本
-                    ?: notification.extras.getString(Notification.EXTRA_TEXT)  // 如果没有大文本，则获取普通文本
-                    ?: ""  // 如果都没有，返回空字符串
-            }.getOrElse { "" }
+        // 按优先级提取内容：大文本 > 普通文本 > 子文本
+        val originalText = (extras.getCharSequence(Notification.EXTRA_BIG_TEXT)
+            ?: extras.getCharSequence(Notification.EXTRA_TEXT)
+            ?: extras.getCharSequence(Notification.EXTRA_SUB_TEXT)
+            ?: "").toString()
 
+        // 去重：避免重复处理相同通知
+        val hash = MD5HashTable.md5("$app$originalTitle$originalText")
+        if (hashTable.contains(hash)) {
+            AppRuntime.manifest.d("Duplicate notification ignored: $app")
+            return
+        }
+        hashTable.put(hash)
 
-          //  AppRuntime.manifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
-            val hash = MD5HashTable.md5("$app$originalTitle$originalText")
-            if (hashTable.contains(hash)) {
-                //AppRuntime.manifest.logD("hashTable contains $hash, $originalTitle, $originalText")
-                return@allMethodsEqBefore null
-            }
-            hashTable.put(hash)
+        AppRuntime.manifest.d("Notification: app=$app, title=$originalTitle, text=$originalText")
 
-            CoroutineUtils.withIO {
-                checkNotification(
-                    app,
-                    originalTitle,
-                    originalText
-                )
-
-            }
-
-
-
+        // 异步处理通知
+        CoroutineUtils.withIO {
+            checkNotification(app, originalTitle, originalText)
         }
     }
 
