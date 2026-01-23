@@ -17,6 +17,7 @@ package net.ankio.auto.xposed.hooks.android
 
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.hooks.android.hooks.AmsHooker
 import net.ankio.auto.xposed.hooks.android.hooks.NotificationHooker
 import net.ankio.auto.xposed.hooks.android.hooks.PermissionCheckHooker
 import net.ankio.auto.xposed.hooks.android.hooks.PermissionHooker
@@ -41,6 +42,7 @@ class AndroidHooker : HookerManifest() {
             NotificationHooker(),
             PermissionHooker(),
             PermissionCheckHooker(),
+            AmsHooker(),
         )
         set(value) {}
     override var rules: MutableList<Clazz>
