@@ -17,6 +17,7 @@ package org.ezbook.server.tools
 
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.log.ServerLog
 
 /**
  * 重复账单检测器

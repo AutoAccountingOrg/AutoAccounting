@@ -18,15 +18,12 @@ package net.ankio.auto.xposed.core
 import android.app.AndroidAppHelper
 import android.app.Application
 import android.app.Instrumentation
-import android.content.Context
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.runBlocking
-import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.XposedModule
 import net.ankio.auto.xposed.core.api.HookerManifest
@@ -41,9 +38,6 @@ import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.core.utils.NetSecurityUtils
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.tools.MD5HashTable
-import org.ezbook.server.tools.MemoryCache
-import org.ezbook.server.tools.BaseLogger
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {

@@ -18,7 +18,6 @@ package net.ankio.auto.xposed.core.api
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.result.ClazzResult
-import org.ezbook.server.tools.ILogger
 
 /**
  * HookerManifest

@@ -17,8 +17,7 @@ package org.ezbook.server.engine
 
 import com.shiqi.quickjs.JSString
 import com.shiqi.quickjs.QuickJS
-import org.ezbook.server.Server
-import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.Closeable
 

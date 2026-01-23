@@ -26,7 +26,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.LogAPI
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
-import org.ezbook.server.tools.BaseLogger
+import org.ezbook.server.log.BaseLogger
 
 /**
  * Xposed日志工具

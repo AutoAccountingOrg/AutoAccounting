@@ -16,6 +16,7 @@
 package net.ankio.auto.http.api
 
 import android.net.Uri
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,6 +27,14 @@ import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 object LogAPI {
+    // 日志缓冲队列
+    private val buffer = mutableListOf<LogModel>()
+    private var lastFlushTime = System.currentTimeMillis()
+
+    // 批量发送参数：达到50条或超过3秒则发送
+    private const val BATCH_SIZE = 50
+    private const val FLUSH_INTERVAL = 3000L
+    
     /**
      * 添加日志
      */
@@ -34,11 +43,30 @@ object LogAPI {
         add(logModel = log)
     }
 
+    /**
+     * 添加日志（支持批量缓冲）
+     * 当缓冲区达到BATCH_SIZE或距离上次发送超过FLUSH_INTERVAL时自动批量发送
+     */
     suspend fun add(logModel: LogModel) = withContext(Dispatchers.IO) {
-        runCatchingExceptCancel {
-            LocalNetwork.post<String>("log/add", Gson().toJson(logModel)).getOrThrow()
-        }.getOrElse {
+        val toSend = synchronized(buffer) {
+            buffer.add(logModel)
+            val shouldFlush = buffer.size >= BATCH_SIZE ||
+                    System.currentTimeMillis() - lastFlushTime > FLUSH_INTERVAL
+            if (shouldFlush) {
+                val snapshot = buffer.toList()
+                buffer.clear()
+                lastFlushTime = System.currentTimeMillis()
+                snapshot
+            } else null
+        }
 
+        toSend?.let {
+            runCatchingExceptCancel {
+                LocalNetwork.post<String>("log/addBatch", Gson().toJson(it)).getOrThrow()
+            }.getOrElse { item ->
+                // 批量发送失败，静默忽略
+                Log.e(LogAPI.javaClass.name, item.message ?: "", item)
+            }
         }
     }
 

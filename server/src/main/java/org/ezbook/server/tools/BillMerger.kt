@@ -20,6 +20,7 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.log.ServerLog
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

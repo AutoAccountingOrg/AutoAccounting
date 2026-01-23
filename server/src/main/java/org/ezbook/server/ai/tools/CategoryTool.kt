@@ -18,7 +18,7 @@ package org.ezbook.server.ai.tools
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.db.Db
-import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.SettingUtils
 import org.ezbook.server.tools.runCatchingExceptCancel
 

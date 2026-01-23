@@ -27,7 +27,7 @@ import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.SettingUtils
 
 /**

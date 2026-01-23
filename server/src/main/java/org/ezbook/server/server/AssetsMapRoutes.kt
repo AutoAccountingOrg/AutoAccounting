@@ -29,7 +29,8 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.AssetsMap
-import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.log.ServerLog
+import java.util.Date
 
 /**
  * 资产映射管理路由配置
@@ -185,7 +186,7 @@ private suspend fun reapplyAssetMappingToHistoryData() {
 
     // 计算3个月前的时间戳
     val threeMonthsAgo = calculateThreeMonthsAgo()
-    ServerLog.d("处理时间范围: ${java.util.Date(threeMonthsAgo)} 至今")
+    ServerLog.d("处理时间范围: ${Date(threeMonthsAgo)} 至今")
 
     val totalBills = db.billInfoDao().getRecentBillsCount(threeMonthsAgo)
     val batchSize = 100 // 每批处理100条记录

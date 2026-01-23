@@ -21,15 +21,13 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.constant.AnalysisTaskStatus
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AnalysisTaskModel
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.SettingUtils
 import org.ezbook.server.tools.SummaryService
 import org.ezbook.server.tools.runCatchingExceptCancel

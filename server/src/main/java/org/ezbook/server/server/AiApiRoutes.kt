@@ -27,7 +27,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.SettingUtils
 import org.ezbook.server.tools.runCatchingExceptCancel
 

@@ -19,7 +19,7 @@ import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AnalysisUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DataType
-import org.ezbook.server.tools.ILogger
+import org.ezbook.server.log.ILogger
 
 abstract class PartHooker : ILogger by Logger {
 

@@ -29,7 +29,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import org.ezbook.server.db.Db
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**

@@ -28,7 +28,7 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.models.OrderGroupDto
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.StatisticsService
 import java.text.SimpleDateFormat
 import java.util.Locale

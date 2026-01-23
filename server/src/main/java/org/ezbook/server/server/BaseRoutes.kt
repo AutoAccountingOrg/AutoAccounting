@@ -15,7 +15,6 @@
 
 package org.ezbook.server.server
 
-import android.util.Log
 import io.ktor.application.call
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -23,7 +22,6 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import org.ezbook.server.Server
 import org.ezbook.server.models.ResultModel
-import org.ezbook.server.tools.ServerLog
 
 /**
  * 基础路由配置

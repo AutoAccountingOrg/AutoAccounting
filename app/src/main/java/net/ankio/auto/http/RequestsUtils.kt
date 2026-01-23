@@ -30,6 +30,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.ezbook.server.tools.HttpUtils
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
@@ -105,6 +106,7 @@ class RequestsUtils {
      * - 失败: 抛出包含 HTTP 状态码和错误信息的异常
      */
     private fun executeAndGetBody(request: Request): String {
+        // HttpUtils.logRawHttpRequest(request)
         client.newCall(request).execute().use { resp ->
             val body = resp.body?.string().orEmpty()
             if (!resp.isSuccessful) {
