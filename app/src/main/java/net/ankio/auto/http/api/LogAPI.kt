@@ -62,7 +62,8 @@ object LogAPI {
 
         toSend?.let {
             runCatchingExceptCancel {
-                LocalNetwork.post<String>("log/addBatch", Gson().toJson(it)).getOrThrow()
+                // 批量发送日志，返回的是插入后的 ID 列表 List<Long>
+                LocalNetwork.post<List<Long>>("log/addBatch", Gson().toJson(it)).getOrThrow()
             }.getOrElse { item ->
                 // 批量发送失败，静默忽略
                 Log.e(LogAPI.javaClass.name, item.message ?: "", item)
