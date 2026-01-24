@@ -56,8 +56,13 @@ abstract class BaseLogger : ILogger {
         }
 
         logcatFormater(priority, file, line, msg, tr)?.let {
-            Log.println(priority.toAndroidLevel(), className, it)
-            extendLoggerPrinter?.let { printer -> printer(it) }
+            // 如果设置了扩展打印器（如 XposedBridge.log），则只使用扩展打印器
+            // 避免重复输出到系统日志
+            if (extendLoggerPrinter != null) {
+                extendLoggerPrinter?.invoke(it)
+            } else {
+                Log.println(priority.toAndroidLevel(), className, it)
+            }
         }
 
 
