@@ -17,7 +17,7 @@ package net.ankio.auto.xposed.core.utils
 
 import android.widget.Toast
 import com.hjq.toast.Toaster
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.CoroutineUtils.Companion.withMain
 
 object MessageUtils {
@@ -36,7 +36,7 @@ object MessageUtils {
             } catch (e: Throwable) {
                 Toast.makeText(AppRuntime.application, msg, Toast.LENGTH_LONG).show()
             } finally {
-                Logger.i(msg)
+                XposedLogger.i(msg)
             }
         }
     }

@@ -16,6 +16,7 @@
 package org.ezbook.server.log
 
 import android.util.Log
+import kotlinx.coroutines.runBlocking
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
@@ -31,11 +32,11 @@ abstract class BaseLogger : ILogger {
                     !ILogger::class.java.isAssignableFrom(Class.forName(className))
         }
 
-    var debugging: Boolean = false
 
     var extendLoggerPrinter: ((String) -> Unit)? = null
 
-    override fun d(msg: String, tr: Throwable?) = if (debugging) log(LogLevel.DEBUG, msg, tr) else Unit
+    override fun d(msg: String, tr: Throwable?) =
+        if (isDebugMode()) log(LogLevel.DEBUG, msg, tr) else Unit
 
     override fun i(msg: String, tr: Throwable?) = log(LogLevel.INFO, msg, tr)
 
@@ -48,7 +49,7 @@ abstract class BaseLogger : ILogger {
         var file = ""
         var line = -1
 
-        if (priority == LogLevel.ERROR || priority == LogLevel.FATAL || debugging) {
+        if (priority == LogLevel.ERROR || priority == LogLevel.FATAL || isDebugMode()) {
             val caller = callerData
             className = caller?.className?.substringAfterLast('.')?.substringBefore('$') ?: "ServerLog"
             file = caller?.fileName ?: ""

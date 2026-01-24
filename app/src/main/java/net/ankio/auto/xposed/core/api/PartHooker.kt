@@ -15,13 +15,13 @@
 
 package net.ankio.auto.xposed.core.api
 
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AnalysisUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.log.ILogger
 
-abstract class PartHooker : ILogger by Logger {
+abstract class PartHooker : ILogger by XposedLogger {
 
 
     protected val manifest by lazy { AppRuntime.manifest }

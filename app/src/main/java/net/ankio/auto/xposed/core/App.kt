@@ -28,7 +28,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.XposedModule
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AdaptationUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.CoroutineUtils
@@ -58,7 +58,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         manifest: HookerManifest,
         callback: (Application?) -> Unit
     ) {
-        Logger.d("start hook app context")
+        XposedLogger.d("start hook app context")
         when {
             // 系统进程无需 Application 实例
             manifest.packageName == "android" -> {
@@ -67,7 +67,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
             // 默认 Application，直接获取
             manifest.applicationName.isEmpty() -> {
-                Logger.d("使用默认 Application: ${manifest.appName}")
+                XposedLogger.d("使用默认 Application: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
 
@@ -102,15 +102,15 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 hookedApplication = true
 
                 val application = param.args[0] as Application
-                Logger.d("Hook Application 成功: ${manifest.applicationName} -> ${application.javaClass.name}")
+                XposedLogger.d("Hook Application 成功: ${manifest.applicationName} -> ${application.javaClass.name}")
                 callback(application)
             }
 
 
 
         } catch (e: Exception) {
-            Logger.i("Hook Application 失败: ${manifest.applicationName}, 错误: ${e.message}")
-            Logger.e(e)
+            XposedLogger.i("Hook Application 失败: ${manifest.applicationName}, 错误: ${e.message}")
+            XposedLogger.e(e)
         }
     }
 
@@ -124,7 +124,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             if (it.packageName == pkg) {
                 if (processName == null || process == processName) return it
                 else {
-                    Logger.d("Process name not pair: excepted ${process}, but provide ${processName}")
+                    XposedLogger.d("Process name not pair: excepted ${process}, but provide ${processName}")
                 }
             }
         }
@@ -137,14 +137,11 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
 
-        Logger.app = lpparam.packageName
-        Logger.debugging = runBlocking {
-            DataUtils.configBoolean(Setting.DEBUG_MODE, true)
-        }
+        XposedLogger.app = lpparam.packageName
         // 如果无法通过api获取当前是否为调试模式应该默认会退到调试模式，因为此时的API服务尚未启动或者被其他应用阻止
         // 会退到调试模式有利于用户通过xposed日志反馈问题
 
-        Logger.extendLoggerPrinter = {
+        XposedLogger.extendLoggerPrinter = {
             XposedBridge.log(it)
         }
 
@@ -153,14 +150,14 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         hookAppContext(targetApp) { application ->
             val classLoader = application?.classLoader ?: lpparam.classLoader
             AppRuntime.init(application, classLoader, targetApp)
-            Logger.i("初始化Hook: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}")
+            XposedLogger.i("初始化Hook: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}")
             // 设置允许明文
             NetSecurityUtils.allowCleartextTraffic()
             // 初始化Toast
             application?.let { Toaster.init(it) }
             //
             if (!AdaptationUtils.autoAdaption(targetApp)) {
-                Logger.i("自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook")
+                XposedLogger.i("自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook")
                 return@hookAppContext
             }
 

@@ -29,4 +29,6 @@ interface ILogger {
     fun e(msg: String, tr: Throwable? = null)
 
     fun e(tr: Throwable) = e(tr.message ?: "Unknown error", tr)
+
+    fun isDebugMode(): Boolean
 }

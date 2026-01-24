@@ -20,7 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.Server
 import android.os.Process
@@ -44,7 +44,7 @@ object AppInstaller {
                                     runCatching {
                                         AppRuntime.restart()
                                     }.onFailure { e ->
-                                        Logger.e("AppInstaller", e)
+                                        XposedLogger.e("AppInstaller", e)
                                         Process.killProcess(Process.myPid())
                                     }
                                 }
@@ -63,7 +63,7 @@ object AppInstaller {
 
             context.registerReceiver(receiver, filter)
         } catch (e: Exception) {
-            Logger.e("AppInstaller", e)
+            XposedLogger.e("AppInstaller", e)
         }
     }
 }

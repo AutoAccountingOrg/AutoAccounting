@@ -74,8 +74,6 @@ open class App : Application() {
 
         // 设置全局实例
         autoApp = this
-
-        Logger.debugging = PrefManager.debugMode
         // 初始化核心组件（优先初始化PrefManager以获取用户设置）
         initSystemComponents()
         initBuglyIfRelease()

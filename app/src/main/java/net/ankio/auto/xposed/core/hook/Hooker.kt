@@ -4,7 +4,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import java.lang.reflect.Method
 
@@ -60,11 +60,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             after(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            Logger.e("Class not found: $clazz", e)
+            XposedLogger.e("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
-            Logger.e("Invalid parameter type: ${e.message}", e)
+            XposedLogger.e("Invalid parameter type: ${e.message}", e)
         } catch (e: Exception) {
-            Logger.e("Error hooking method after: $clazz.$method - ${e.message}", e)
+            XposedLogger.e("Error hooking method after: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -92,7 +92,7 @@ object Hooker {
                     }
                 })
         } catch (e: Exception) {
-            Logger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
+            XposedLogger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -114,9 +114,9 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             before(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            Logger.e("Class not found: $clazz", e)
+            XposedLogger.e("Class not found: $clazz", e)
         } catch (e: Exception) {
-            Logger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
+            XposedLogger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -144,7 +144,7 @@ object Hooker {
                     }
                 })
         } catch (e: Exception) {
-            Logger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
+            XposedLogger.e("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -179,7 +179,7 @@ object Hooker {
                 })
             hookMap[hookKey] = unhook
         } catch (e: Exception) {
-            Logger.e("Error hooking once method after: $clazz.$method - ${e.message}", e)
+            XposedLogger.e("Error hooking once method after: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -214,7 +214,7 @@ object Hooker {
                 })
             hookMap[hookKey] = unhook
         } catch (e: Exception) {
-            Logger.e("Error hooking once method before: $clazz.$method - ${e.message}", e)
+            XposedLogger.e("Error hooking once method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -235,7 +235,7 @@ object Hooker {
                     }
                 })
             } catch (e: Exception) {
-                Logger.e("Error hooking method before: ${method.name} - ${e.message}", e)
+                XposedLogger.e("Error hooking method before: ${method.name} - ${e.message}", e)
             }
         }
     }
@@ -257,7 +257,7 @@ object Hooker {
                     }
                 })
             } catch (e: Exception) {
-                Logger.e("Error hooking method after: ${method.name} - ${e.message}", e)
+                XposedLogger.e("Error hooking method after: ${method.name} - ${e.message}", e)
             }
         }
     }
@@ -340,11 +340,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             replace(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            Logger.e("Class not found: $clazz", e)
+            XposedLogger.e("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
-            Logger.e("Invalid parameter type: ${e.message}", e)
+            XposedLogger.e("Invalid parameter type: ${e.message}", e)
         } catch (e: Exception) {
-            Logger.e("Error replacing method: $clazz.$method - ${e.message}", e)
+            XposedLogger.e("Error replacing method: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -391,11 +391,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             replaceReturn(loadedClass, method, value, *types)
         } catch (e: ClassNotFoundException) {
-            Logger.e("Class not found: $clazz", e)
+            XposedLogger.e("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
-            Logger.e("Invalid parameter type: ${e.message}", e)
+            XposedLogger.e("Invalid parameter type: ${e.message}", e)
         } catch (e: Exception) {
-            Logger.e("Error replacing return value: $clazz.$method - ${e.message}", e)
+            XposedLogger.e("Error replacing return value: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -477,8 +477,8 @@ object Hooker {
                 }
         } catch (e: Exception) {
             when (e) {
-                is ClassNotFoundException -> Logger.e("Class not found: $clazz", e)
-                else -> Logger.e("Error hooking method: $clazz.$methodName", e)
+                is ClassNotFoundException -> XposedLogger.e("Class not found: $clazz", e)
+                else -> XposedLogger.e("Error hooking method: $clazz.$methodName", e)
             }
         }
     }
@@ -518,8 +518,8 @@ object Hooker {
                 }
         } catch (e: Exception) {
             when (e) {
-                is ClassNotFoundException -> Logger.e("Class not found: $clazz", e)
-                else -> Logger.e("Error hooking method: $clazz.$methodName", e)
+                is ClassNotFoundException -> XposedLogger.e("Class not found: $clazz", e)
+                else -> XposedLogger.e("Error hooking method: $clazz.$methodName", e)
             }
         }
     }
@@ -548,9 +548,9 @@ object Hooker {
                 else -> throw IllegalArgumentException("Invalid class type: must be String or Class<*>")
             }
 
-            Logger.d("🔍 开始监视类: ${targetClass.name}")
-            Logger.d("   过滤器: ${methodFilter ?: "无（监视所有方法）"}")
-            Logger.d("   堆栈: $printStack | 参数: $printArgs | 返回: $printReturn")
+            XposedLogger.d("🔍 开始监视类: ${targetClass.name}")
+            XposedLogger.d("   过滤器: ${methodFilter ?: "无（监视所有方法）"}")
+            XposedLogger.d("   堆栈: $printStack | 参数: $printArgs | 返回: $printReturn")
 
             var hookedCount = 0
             targetClass.declaredMethods
@@ -596,7 +596,7 @@ object Hooker {
                                     sb.append("\n📥 参数: 无\n")
                                 }
 
-                                Logger.d(sb.toString())
+                                XposedLogger.d(sb.toString())
                             }
 
                             override fun afterHookedMethod(param: MethodHookParam) {
@@ -611,20 +611,20 @@ object Hooker {
                                         }\n"
                                     )
                                     sb.append("=".repeat(80) + "\n")
-                                    Logger.d(sb.toString())
+                                    XposedLogger.d(sb.toString())
                                 }
                             }
                         })
                         hookedCount++
                     } catch (e: Exception) {
-                        Logger.e("无法hook方法: ${method.name}", e)
+                        XposedLogger.e("无法hook方法: ${method.name}", e)
                     }
                 }
 
-            Logger.d("✅ 成功监视 $hookedCount 个方法")
+            XposedLogger.d("✅ 成功监视 $hookedCount 个方法")
 
         } catch (e: Exception) {
-            Logger.e("Watch失败: ${e.message}", e)
+            XposedLogger.e("Watch失败: ${e.message}", e)
         }
     }
 

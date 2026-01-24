@@ -15,7 +15,7 @@
 
 package net.ankio.auto.xposed.core.api
 
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.result.ClazzResult
 
@@ -77,13 +77,13 @@ abstract class HookerManifest {
      */
     open var clazz = HashMap<String, ClazzResult>()
 
-    fun d(msg: String, tr: Throwable? = null) = Logger.d(msg, tr)
+    fun d(msg: String, tr: Throwable? = null) = XposedLogger.d(msg, tr)
 
-    fun i(msg: String, tr: Throwable? = null) = Logger.i(msg, tr)
+    fun i(msg: String, tr: Throwable? = null) = XposedLogger.i(msg, tr)
 
-    fun w(msg: String, tr: Throwable? = null) = Logger.w(msg, tr)
+    fun w(msg: String, tr: Throwable? = null) = XposedLogger.w(msg, tr)
 
-    fun e(msg: String, tr: Throwable? = null) = Logger.e(msg, tr)
+    fun e(msg: String, tr: Throwable? = null) = XposedLogger.e(msg, tr)
 
-    fun e(tr: Throwable) = Logger.e(tr)
+    fun e(tr: Throwable) = XposedLogger.e(tr)
 }

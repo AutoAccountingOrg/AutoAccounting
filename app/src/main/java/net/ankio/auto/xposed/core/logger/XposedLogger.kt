@@ -22,8 +22,10 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.LogAPI
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.log.BaseLogger
@@ -32,7 +34,7 @@ import org.ezbook.server.log.BaseLogger
  * Xposed日志工具
  *
  */
-object Logger : BaseLogger() {
+object XposedLogger : BaseLogger() {
     var app = "unknown"
 
     private val scope = CoroutineScope(SupervisorJob())
@@ -67,7 +69,7 @@ object Logger : BaseLogger() {
         priority: LogLevel, className: String, file: String, line: Int, msg: String, tr: Throwable?
     ): LogModel = LogModel(
         level = priority,
-        app = this@Logger.app,
+        app = this@XposedLogger.app,
         // location 统一为 "类名(File.kt:行号)"
         location = className + if (line != -1) "($file:$line)" else "",
         message = "$msg\n${tr?.stackTrace?.joinToString("\n") ?: ""}".trimEnd()
@@ -76,4 +78,6 @@ object Logger : BaseLogger() {
     override fun onLogModel(model: LogModel) {
         scope.launch { actor.send(model) }
     }
+
+    override fun isDebugMode(): Boolean = AppRuntime.isDebugMode()
 }

@@ -16,7 +16,7 @@
 package net.ankio.auto.xposed.core.utils
 
 import net.ankio.auto.http.api.JsAPI
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -59,7 +59,7 @@ object AnalysisUtils {
             }
 
             val result = JsAPI.analysis(type, data, manifestAppPackage)
-            Logger.i("$manifestAppPackage -> 分析结果: $result")
+            XposedLogger.i("$manifestAppPackage -> 分析结果: $result")
         }
     }
 }

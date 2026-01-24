@@ -20,7 +20,6 @@ package net.ankio.auto.xposed.hooks.qianji.impl
  * 该类负责获取最近10天的账单列表并同步到自动记账
  */
 import com.google.gson.Gson
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -30,26 +29,18 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl.convert2Bill
-import net.ankio.auto.xposed.hooks.qianji.filter.AssetsFilter
 import net.ankio.auto.xposed.hooks.qianji.filter.BillFlagFilter
 import net.ankio.auto.xposed.hooks.qianji.filter.BookFilter
 import net.ankio.auto.xposed.hooks.qianji.filter.DataFilter
-import net.ankio.auto.xposed.hooks.qianji.filter.ImageFilter
-import net.ankio.auto.xposed.hooks.qianji.filter.MoneyFilter
-import net.ankio.auto.xposed.hooks.qianji.filter.PlatformFilter
 import net.ankio.auto.xposed.hooks.qianji.filter.SortFilter
-import net.ankio.auto.xposed.hooks.qianji.filter.TagsFilter
 import net.ankio.auto.xposed.hooks.qianji.filter.TypesFilter
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.BookBillModel
-import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import java.util.Calendar
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import net.ankio.auto.http.api.BookBillAPI
 import net.ankio.auto.http.api.SettingAPI
-import net.ankio.auto.xposed.core.logger.Logger
 
 object SearchPresenterImpl : HookerClazz() {
     private const val CLAZZ = "com.mutangtech.qianji.bill.search.SearchPresenterImpl"

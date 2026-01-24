@@ -15,12 +15,17 @@
 
 package org.ezbook.server.log
 
+import kotlinx.coroutines.runBlocking
 import org.ezbook.server.Server
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
+import org.ezbook.server.tools.SettingUtils
 
 object ServerLog : BaseLogger() {
+    override fun isDebugMode(): Boolean = runBlocking {
+        SettingUtils.debugMode()
+    }
     override fun logcatFormater(
         priority: LogLevel, file: String, line: Int, msg: String, tr: Throwable?
     ): String {

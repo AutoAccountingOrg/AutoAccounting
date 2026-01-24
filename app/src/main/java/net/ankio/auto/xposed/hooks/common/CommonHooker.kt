@@ -16,7 +16,7 @@
 package net.ankio.auto.xposed.hooks.common
 
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.Server
 import java.io.File
@@ -26,9 +26,9 @@ object CommonHooker {
     fun runServerInAndroid(): Boolean {
         val file = File("/sdcard/Download/Bluetooth/auto_server")
         if (file.exists()) {
-            Logger.d("server file exist...")
+            XposedLogger.d("server file exist...")
         } else {
-            Logger.d("server file not exist...")
+            XposedLogger.d("server file not exist...")
         }
         return file.exists()
     }
@@ -44,13 +44,13 @@ object CommonHooker {
         }
     }
     fun init() {
-        Logger.d("Start server...: ${AppRuntime.manifest.packageName}")
+        XposedLogger.d("Start server...: ${AppRuntime.manifest.packageName}")
         // 端口占用检查：最前置，未通过则直接返回，避免后续初始化浪费
         if (isPortOccupied(Server.PORT)) {
-            Logger.d("Server port ${Server.PORT} is occupied, skip start")
+            XposedLogger.d("Server port ${Server.PORT} is occupied, skip start")
             return
         }
-        Logger.d("Start server...: ${AppRuntime.manifest.packageName}")
+        XposedLogger.d("Start server...: ${AppRuntime.manifest.packageName}")
         try {
             /**
              * js引擎
@@ -66,9 +66,9 @@ object CommonHooker {
             server.startServer()
             AppInstaller.init(AppRuntime.application!!, server)
             UnLockScreen.init()
-            Logger.d("Server start success")
+            XposedLogger.d("Server start success")
         } catch (e: Throwable) {
-            Logger.d(e.message ?: "")
+            XposedLogger.d(e.message ?: "")
         }
     }
 }

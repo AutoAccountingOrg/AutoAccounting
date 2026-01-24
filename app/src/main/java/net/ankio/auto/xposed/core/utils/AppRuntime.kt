@@ -22,9 +22,11 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Process
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.api.HookerManifest
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import org.ezbook.server.constant.Setting
 
 object AppRuntime {
@@ -46,7 +48,9 @@ object AppRuntime {
      * 来源：默认取 `BuildConfig.DEBUG`，在 `init` 之后通过配置中心异步覆盖。
      * 注意：初始化后短时间内存在读到默认值的窗口期。
      */
-    var debug = BuildConfig.DEBUG
+    fun isDebugMode(): Boolean = runBlocking {
+        DataUtils.configBoolean(Setting.DEBUG_MODE, true)
+    }
 
     /**
      * 应用 `Application` 实例。
@@ -101,10 +105,6 @@ object AppRuntime {
         classLoader = app?.classLoader ?: loader
         manifest = m
         name = m.appName
-        CoroutineUtils.withIO {
-            debug = DataUtils.configBoolean(Setting.DEBUG_MODE, BuildConfig.DEBUG)
-            Logger.d("Hook: ${m.appName}(${m.packageName}) 运行在${if (debug) "调试" else "生产"}模式")
-        }
     }
 
     /**
@@ -145,9 +145,9 @@ object AppRuntime {
         try {
             val file = moduleSoPath + "lib$name.so"
             System.load(file)
-            Logger.d("Load $name success")
+            XposedLogger.d("Load $name success")
         } catch (e: Throwable) {
-            Logger.e("Load $name failed : $e", e)
+            XposedLogger.e("Load $name failed : $e", e)
         }
     }
 

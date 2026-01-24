@@ -9,6 +9,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.http.api.LogAPI
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.log.BaseLogger
@@ -182,4 +183,6 @@ object Logger : BaseLogger() {
 
         file
     }
+
+    override fun isDebugMode(): Boolean = PrefManager.debugMode
 }

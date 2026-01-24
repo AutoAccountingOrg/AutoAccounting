@@ -34,7 +34,6 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import net.ankio.auto.http.api.BookBillAPI
 import net.ankio.auto.http.api.SettingAPI
-import net.ankio.auto.xposed.core.logger.Logger
 
 /**
  * 通过 Xposed 反射驱动钱迹的报销模块：

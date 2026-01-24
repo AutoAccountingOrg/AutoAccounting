@@ -46,9 +46,6 @@ class Server(private val context: Application) {
      * 启动服务
      */
     fun startServer() {
-        runBlocking {
-            ServerLog.debugging = SettingUtils.debugMode()
-        }
         server = embeddedServer(Netty, port = port) {
             module(context)
         }

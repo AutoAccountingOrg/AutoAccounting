@@ -16,7 +16,7 @@
 package net.ankio.auto.xposed.core.utils
 
 import net.ankio.auto.xposed.core.api.HookerManifest
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.logger.XposedLogger
 
 object VersionUtils {
     /**
@@ -38,7 +38,7 @@ object VersionUtils {
 
     fun check(manifest: HookerManifest): Boolean {
         val (code, name) = version()
-        Logger.i("应用版本号: $code, 版本名: $name")
+        XposedLogger.i("应用版本号: $code, 版本名: $name")
         if (manifest.minVersion == 0L) return true
         // 检查App版本是否过低，过低无法使用
         return code >= manifest.minVersion
