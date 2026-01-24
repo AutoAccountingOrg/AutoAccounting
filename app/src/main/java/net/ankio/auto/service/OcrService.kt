@@ -353,6 +353,7 @@ class OcrService : ICoreService() {
 
     /**
      * 获取当前前台应用包名
+     * 支持重试机制，处理应用切换时的不稳定状态
      * @return 返回最近使用的应用包名
      */
     private suspend fun getTopPackagePostL(): String? {
@@ -366,28 +367,59 @@ class OcrService : ICoreService() {
             "dumpsys window | grep mCurrentFocus"
         )
 
-        for (cmd in commands) {
-            val output = runCatchingExceptCancel { shell.exec(cmd) }.getOrNull()
-            if (output.isNullOrBlank()) continue
+        // 重试3次，处理应用切换时的时序问题
+        repeat(3) { attempt ->
+            for (cmd in commands) {
+                val output = runCatchingExceptCancel {
+                    shell.exec(cmd)
+                }.getOrElse {
+                    Logger.w("Shell执行失败[$cmd]: ${it.message}")
+                    null
+                }
 
-            // 直接在整段输出内提取一次即可，无需逐行。
-            val pkg = extractPackageFromDumpsysLine(output)
-            if (!pkg.isNullOrBlank()) return pkg
+                if (output.isNullOrBlank()) {
+                    Logger.d("命令[$cmd]输出为空")
+                    continue
+                }
+
+                val pkg = extractPackageFromDumpsys(output)
+                if (!pkg.isNullOrBlank()) {
+                    Logger.d("成功获取包名: $pkg (第${attempt + 1}次尝试)")
+                    return pkg
+                }
+            }
+
+            // 前两次失败后等待100ms再重试
+            if (attempt < 2) {
+                Logger.d("第${attempt + 1}次尝试失败，100ms后重试")
+                delay(100)
+            }
         }
+
+        Logger.e("所有尝试均失败，无法获取前台应用")
         return null
     }
 
     /**
-     * 从一行文本中提取包名：先找 '/'，再向前找空白，二者之间即包名。
+     * 从 dumpsys 输出中提取包名（支持多行输出）
+     * 使用正则匹配 "包名/Activity" 格式
+     * @param output dumpsys 命令的完整输出（可能包含多行）
+     * @return 提取到的包名，失败返回null
      */
-    private fun extractPackageFromDumpsysLine(line: String): String? {
-        val slashIndex = line.indexOf('/')
-        if (slashIndex <= 0) return null
-        var start = slashIndex - 1
-        while (start >= 0 && !line[start].isWhitespace()) start--
-        if (start + 1 >= slashIndex) return null
-        val pkg = line.substring(start + 1, slashIndex)
-        return pkg.takeIf { it.isNotBlank() && it.contains('.') }
+    private fun extractPackageFromDumpsys(output: String): String? {
+        // 正则：匹配标准的包名格式（至少包含一个点，且以字母开头）
+        // 示例：com.android.systemui/MainActivity
+        val regex = Regex("""([a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+)/""")
+
+        // 逐行扫描，找到第一个有效的包名
+        return output.lineSequence()
+            .mapNotNull { line ->
+                regex.find(line)?.groupValues?.get(1)
+            }
+            .firstOrNull { pkg ->
+                // 过滤明显无效的包名
+                pkg.contains('.') && pkg.length > 3 && !pkg.startsWith(".")
+            }
     }
 
 
