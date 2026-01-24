@@ -20,24 +20,40 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.graphics.createBitmap
 import com.benjaminwan.ocrlibrary.OcrEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.Executors
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 
+/**
+ * OCR处理器 - 线程安全的文字识别封装
+ *
+ * 关键设计：每次识别重建 OcrEngine，避免状态污染
+ * OcrEngine 的 doAngle 功能会修改内部状态，重用实例会导致乱码
+ */
+private lateinit var engine: OcrEngine
 open class OcrProcessor {
-    lateinit var ocrEngine: OcrEngine
     /**
-     * 应用上下文，用于访问 assets 与缓存目录。
+     * 应用上下文，用于访问 assets 与缓存目录
      */
     private lateinit var appCtx: Context
+
 
     private var debug: Boolean = false
 
     /**
-     * 绑定上下文（会持有 applicationContext 以避免泄露）。
+     * 绑定上下文（会持有 applicationContext 以避免泄露）
      */
     fun attach(context: Context) = apply {
         this.appCtx = context.applicationContext
+        if (!::engine.isInitialized) {
+            engine = createEngine()
+        }
     }
 
     fun debug(boolean: Boolean) = apply {
@@ -49,11 +65,12 @@ open class OcrProcessor {
         this.output = output
     }
 
-
-    private suspend fun ensureInit() {
-        if (::ocrEngine.isInitialized) return
-        ocrEngine = OcrEngine(this.appCtx)
-        ocrEngine.doAngle = true
+    /**
+     * 创建新的 OCR 引擎实例
+     * 每次识别都重建，确保无状态污染
+     */
+    private fun createEngine(): OcrEngine {
+        return OcrEngine(appCtx)
     }
 
     /**
@@ -96,24 +113,40 @@ open class OcrProcessor {
     }
 
 
+    /**
+     * 执行OCR识别
+     * 每次调用创建新引擎实例，避免状态污染导致的乱码问题
+     * @param bitmap 输入图片
+     * @return 识别的文本
+     */
     suspend fun startProcess(bitmap: Bitmap): String {
-        ensureInit()
-        output?.invoke("ocr process start", Log.DEBUG)
-        val boxImg = createBitmap(bitmap.width, bitmap.height)
-        val maxSize = max(bitmap.height, bitmap.width)
-        val result = ocrEngine.detect(bitmap, boxImg, maxSize)
+        output?.invoke("OCR开始, 输入尺寸: ${bitmap.width}x${bitmap.height}", Log.DEBUG)
 
-        // 调试模式下保存标注框图片
-        if (debug) {
-            saveDebugImage(boxImg)
+
+        try {
+            val boxImg = createBitmap(bitmap.width, bitmap.height)
+            val maxSize = max(bitmap.height, bitmap.width)
+
+            val result = engine.detect(bitmap, boxImg, maxSize)
+
+            // 调试模式下保存标注框图片，否则立即回收
+            if (debug) {
+                saveDebugImage(boxImg)
+            }
+
+            boxImg.recycle()
+
+            output?.invoke(
+                "OCR完成: detectTime=${result.detectTime}ms, dbNetTime=${result.dbNetTime}ms, strResLen=${result.strRes.length}",
+                Log.DEBUG
+            )
+
+            return result.strRes
+
+        } catch (e: Exception) {
+            output?.invoke("OCR异常: ${e.message}", Log.ERROR)
+            throw e
         }
-
-        output?.invoke(
-            "ocr process detectTime : ${result.detectTime}ms, dbNetTime : ${result.dbNetTime}ms",
-            Log.DEBUG
-        )
-
-        return result.strRes
     }
 
 
