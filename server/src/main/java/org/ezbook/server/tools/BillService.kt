@@ -87,11 +87,13 @@ class BillService(
         val isLandscape = isLandscapeMode()
         // 检查横屏状态并处理
         if (isLandscape && dnd) {
-            Toast.makeText(
-                Server.application,
-                "账单金额：${billInfoModel.money}，横屏状态下为您自动暂存。",
-                Toast.LENGTH_SHORT
-            ).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    Server.application,
+                    "账单金额：${billInfoModel.money}，横屏状态下为您自动暂存。",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             // 记录横屏免打扰触发，便于排查为何未拉起悬浮窗
             ServerLog.d("横屏免打扰开启，自动暂存账单并返回：money=${billInfoModel.money}, app=${billInfoModel.app}")
             return
