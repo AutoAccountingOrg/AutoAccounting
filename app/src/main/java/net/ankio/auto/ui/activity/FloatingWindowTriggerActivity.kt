@@ -63,12 +63,14 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         } catch (e: Exception) {
             Logger.e("启动服务失败: ${e.message}", e)
         } finally {
-            exitActivity()
+            window.decorView.postDelayed({
+                exitActivity()
+            }, 1000)
         }
     }
 
     private fun exitActivity() {
-        finishAffinity()
+        finish()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             // API 34+：新接口，第 3 个参数是背景色，传 0 表示不覆盖默认
             overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)

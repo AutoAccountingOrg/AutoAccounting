@@ -46,13 +46,14 @@
         android:theme="@style/AppTheme"
         tools:ignore="UnusedAttribute"
         tools:targetApi="31">
-
-
         <activity
             android:name=".ui.activity.FloatingWindowTriggerActivity"
             android:excludeFromRecents="true"
             android:exported="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity=".trigger"
             android:theme="@style/TransparentActivityTheme" />
+
 
         <activity android:name=".ui.activity.HomeActivity" />
         <activity
