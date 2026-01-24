@@ -211,7 +211,7 @@ object SettingUtils {
 
 
     /** 调试开关（Server.logD 用） */
-    suspend fun debugMode(): Boolean = getBoolean(Setting.DEBUG_MODE, Server.debug)
+    suspend fun debugMode(): Boolean = getBoolean(Setting.DEBUG_MODE, false)
 
     /** 注入的通用 JS（RuleGenerator 用） */
     suspend fun jsCommon(): String = getString(Setting.JS_COMMON, DefaultData.JS_COMMON)

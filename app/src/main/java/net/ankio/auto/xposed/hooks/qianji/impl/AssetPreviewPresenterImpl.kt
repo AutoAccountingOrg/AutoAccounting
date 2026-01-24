@@ -158,7 +158,7 @@ class AssetPreviewPresenterImpl private constructor() {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
-        if (server == md5  && !AppRuntime.debug || assets.isEmpty() ) { //资产为空也不同步
+        if (server == md5 || assets.isEmpty()) { //资产为空也不同步
             AppRuntime.manifest.i("No need to sync Assets, server md5:${server} local md5:${md5}")
             return@withContext
         }

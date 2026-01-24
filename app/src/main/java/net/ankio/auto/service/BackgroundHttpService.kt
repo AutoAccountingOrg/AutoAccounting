@@ -31,7 +31,6 @@ class BackgroundHttpService : ICoreService() {
 
             Server.packageName = BuildConfig.APPLICATION_ID
             Server.versionName = BuildConfig.VERSION_NAME
-            Server.debug = BuildConfig.DEBUG
 
             /**
              * js引擎

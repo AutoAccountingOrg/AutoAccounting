@@ -94,7 +94,7 @@ object CateInitPresenterImpl : HookerClazz() {
         val sync = Gson().toJson(arrayList)
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_CATEGORY, "")
-        if (server == md5 && !AppRuntime.debug) {
+        if (server == md5) {
             AppRuntime.manifest.i("No need to sync categories, Server md5:${server} local md5:${md5}")
             return@withContext
         }

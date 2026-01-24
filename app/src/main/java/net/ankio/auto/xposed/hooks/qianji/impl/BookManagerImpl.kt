@@ -136,7 +136,7 @@ object BookManagerImpl : HookerClazz() {
             val sync = Gson().toJson(bookList)
             val md5 = MD5HashTable.md5(sync)
             val server = SettingAPI.get(Setting.HASH_BOOK, "")
-            if (server == md5 && !AppRuntime.debug) {
+            if (server == md5) {
                 AppRuntime.manifest.i("跳过账本同步，MD5 一致（server=${server}, local=${md5}）")
                 return@withContext bookList
             }

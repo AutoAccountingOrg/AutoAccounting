@@ -181,7 +181,7 @@ object SearchPresenterImpl : HookerClazz() {
         val sync = Gson().toJson(bills)
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_BILL, "")
-        if (server == md5 && !AppRuntime.debug) {
+        if (server == md5) {
             AppRuntime.manifest.i("No need to sync bill Data, server md5:${server} local md5:${md5}")
             return@withContext
         }
