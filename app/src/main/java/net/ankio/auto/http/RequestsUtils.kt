@@ -16,11 +16,7 @@
 package net.ankio.auto.http
 
 import android.net.Uri
-import android.util.Log
 import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.Logger
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -30,7 +26,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.ezbook.server.tools.HttpUtils
 import org.ezbook.server.tools.runCatchingExceptCancel
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
