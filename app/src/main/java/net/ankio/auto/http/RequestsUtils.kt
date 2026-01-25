@@ -101,8 +101,11 @@ class RequestsUtils {
      * - 失败: 抛出包含 HTTP 状态码和错误信息的异常
      */
     private fun executeAndGetBody(request: Request): String {
-        // HttpUtils.logRawHttpRequest(request)
-        client.newCall(request).execute().use { resp ->
+        // 本地地址直连，避免被代理劫持导致 502
+        val host = request.url.host
+        val actualClient =
+            if (host.startsWith("127.") || host == "localhost") noProxyClient else client
+        actualClient.newCall(request).execute().use { resp ->
             val body = resp.body?.string().orEmpty()
             if (!resp.isSuccessful) {
                 // 构建包含状态码的错误信息
@@ -204,7 +207,11 @@ class RequestsUtils {
             .addHeaders()
             .build()
 
-        client.newCall(request).execute().use { response ->
+        // 本地地址直连，避免被代理劫持导致 502
+        val host = request.url.host
+        val actualClient =
+            if (host.startsWith("127.") || host == "localhost") noProxyClient else client
+        actualClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 val errorMsg = "HTTP ${response.code}: ${response.message}"
                 throw HttpException(response.code, errorMsg)
