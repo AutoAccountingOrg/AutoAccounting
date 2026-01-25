@@ -277,14 +277,13 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
      */
     private fun setupWebDAVConfigPreferences() {
         val configs = mapOf(
-            "setting_webdav_host" to Triple(
+            "setting_webdav_url" to Triple(
                 R.string.setting_webdav_url,
-                "https://your-webdav-server.com",
+                "https://dav.jianguoyun.com/dav/",
                 false
             ),
             "setting_webdav_user" to Triple(R.string.setting_webdav_user, "", false),
-            "setting_webdav_password" to Triple(R.string.setting_webdav_password, "", true),
-            "setting_webdav_path" to Triple(R.string.setting_webdav_path, "/AutoAccounting/", false)
+            "setting_webdav_password" to Triple(R.string.setting_webdav_password, "", true)
         )
 
         configs.forEach { (key, config) ->
@@ -378,7 +377,7 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
      * 检查WebDAV是否已配置
      */
     private fun isWebDAVConfigured(): Boolean {
-        return PrefManager.webdavHost.isNotBlank() &&
+        return PrefManager.webdavUrl.isNotBlank() &&
                 PrefManager.webdavUser.isNotBlank() &&
                 PrefManager.webdavPassword.isNotBlank()
     }
@@ -405,8 +404,8 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
         }
 
         // 更新WebDAV配置显示
-        findPreference<Preference>("setting_webdav_host")?.updateWebDAVConfigSummary(
-            PrefManager.webdavHost, R.string.setting_webdav_url_summary
+        findPreference<Preference>("setting_webdav_url")?.updateWebDAVConfigSummary(
+            PrefManager.webdavUrl, R.string.setting_webdav_url_summary
         )
         findPreference<Preference>("setting_webdav_user")?.updateWebDAVConfigSummary(
             PrefManager.webdavUser, R.string.setting_webdav_user_summary
@@ -415,9 +414,6 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
             summary = if (PrefManager.webdavPassword.isNotEmpty()) "••••••••"
             else getString(R.string.setting_webdav_password_summary)
         }
-        findPreference<Preference>("setting_webdav_path")?.updateWebDAVConfigSummary(
-            PrefManager.webdavPath, R.string.setting_webdav_path_summary
-        )
     }
 
     /**
@@ -431,10 +427,9 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
      * 获取WebDAV配置值
      */
     private fun getWebDAVConfigValue(key: String): String = when (key) {
-        "setting_webdav_host" -> PrefManager.webdavHost
+        "setting_webdav_url" -> PrefManager.webdavUrl
         "setting_webdav_user" -> PrefManager.webdavUser
         "setting_webdav_password" -> PrefManager.webdavPassword
-        "setting_webdav_path" -> PrefManager.webdavPath
         else -> ""
     }
 
@@ -443,10 +438,9 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
      */
     private fun setWebDAVConfigValue(key: String, value: String) {
         when (key) {
-            "setting_webdav_host" -> PrefManager.webdavHost = value
+            "setting_webdav_url" -> PrefManager.webdavUrl = value
             "setting_webdav_user" -> PrefManager.webdavUser = value
             "setting_webdav_password" -> PrefManager.webdavPassword = value
-            "setting_webdav_path" -> PrefManager.webdavPath = value
         }
     }
 

@@ -25,7 +25,7 @@ import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
 
 /**
- * WebDAV 管理器 - 真正的Linus式简化
+ * WebDAV 管理器 - Linus式简化：一行代码搞定 URL
  * 只做一件事：上传/下载文件，不管UI，不管Toast
  */
 class WebDAVManager {
@@ -34,11 +34,8 @@ class WebDAVManager {
     private val backupUrl: String
 
     init {
-        // 直接计算最终URL，消除所有中间步骤
-        val host = PrefManager.webdavHost.trim('/')
-        val path = PrefManager.webdavPath.trim('/')
-        val base = if (path.isNotEmpty()) "$host/$path" else host
-        backupUrl = "$base/AutoAccounting"
+        // 一行搞定，没有特殊情况，没有条件判断
+        backupUrl = "${PrefManager.webdavUrl.trim('/')}/AutoAccounting"
 
         // 设置认证
         requestUtils.addHeader(

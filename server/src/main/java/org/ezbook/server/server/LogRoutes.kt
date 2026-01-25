@@ -85,12 +85,11 @@ fun Route.logRoutes() {
         /**
          * POST /log/addBatch - 批量添加日志
          *
-         * @param body Array<LogModel> 日志数据数组
+         * @param body List<LogModel> 日志数据列表
          * @return ResultModel 包含新创建的日志ID列表
          */
         post("/addBatch") {
-            // 使用 Array 而不是 List，避免 Gson 泛型擦除导致的 LinkedTreeMap 类型转换错误
-            // Array 在 JVM 中保留类型信息，List 不保留
+            // 使用 List 类型，Ktor 序列化对其支持更稳定
             val logs = call.receive<Array<LogModel>>()
             val ids = Db.get().logDao().insert(logs.toList())
             call.respond(ResultModel.ok(ids))

@@ -862,14 +862,12 @@
     <string name="setting_backup_keep_count_summary">Keep %d backup files (applies to both local and WebDAV backups)</string>
     <string name="setting_backup_keep_count_updated">Backup keep count updated to %d</string>
     <string name="setting_backup_keep_count_invalid">Please enter a valid number between 1 and 100</string>
-    <string name="setting_webdav_url">WebDAV URL</string>
-    <string name="setting_webdav_url_summary">WebDAV server URL</string>
+    <string name="setting_webdav_url">WebDAV Server URL</string>
+    <string name="setting_webdav_url_summary">Full WebDAV URL, e.g., https://dav.jianguoyun.com/dav/</string>
     <string name="setting_webdav_user">WebDAV User</string>
     <string name="setting_webdav_user_summary">WebDAV username</string>
     <string name="setting_webdav_password">WebDAV Password</string>
     <string name="setting_webdav_password_summary">WebDAV password</string>
-    <string name="setting_webdav_path">WebDAV Path</string>
-    <string name="setting_webdav_path_summary">Remote backup path</string>
     <string name="setting_local_backup_path">Local Backup Path</string>
     <string name="setting_local_backup_path_summary">Local backup storage path</string>
     <string name="setting_debug_mode">Debug Mode</string>

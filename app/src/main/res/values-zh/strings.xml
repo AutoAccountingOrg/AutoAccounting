@@ -777,14 +777,12 @@
     <string name="setting_backup_keep_count_summary">保留 %d 个备份文件（适用于本地和WebDAV备份）</string>
     <string name="setting_backup_keep_count_updated">备份保留数量已更新为 %d</string>
     <string name="setting_backup_keep_count_invalid">请输入1到100之间的有效数字</string>
-    <string name="setting_webdav_url">WebDAV URL</string>
-    <string name="setting_webdav_url_summary">WebDAV 服务器 URL</string>
+    <string name="setting_webdav_url">WebDAV 服务器地址</string>
+    <string name="setting_webdav_url_summary">填写完整的 WebDAV URL，如：https://dav.jianguoyun.com/dav/</string>
     <string name="setting_webdav_user">WebDAV 用户</string>
     <string name="setting_webdav_user_summary">WebDAV 用户名</string>
     <string name="setting_webdav_password">WebDAV 密码</string>
     <string name="setting_webdav_password_summary">WebDAV 密码</string>
-    <string name="setting_webdav_path">WebDAV 路径</string>
-    <string name="setting_webdav_path_summary">远程备份路径</string>
     <string name="setting_debug_mode">调试模式</string>
     <string name="setting_debug_mode_summary">启用调试日志和功能</string>
     <string name="setting_send_error_report">错误报告</string>

@@ -127,10 +127,9 @@ object Setting {
 
     // -------- WebDAV备份 --------
     const val USE_WEBDAV = "setting_use_webdav"                    // 启用WebDAV
-    const val WEBDAV_HOST = "setting_webdav_host"                  // WebDAV服务器
+    const val WEBDAV_URL = "setting_webdav_url"                    // WebDAV服务器URL
     const val WEBDAV_USER = "setting_webdav_user"                  // WebDAV用户名
     const val WEBDAV_PASSWORD = "setting_webdav_password"         // WebDAV密码
-    const val WEBDAV_PATH = "setting_webdav_path"                  // WebDAV路径
 
     // ===================================================================
     // 系统设置 (settings_system.xml)

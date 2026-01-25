@@ -289,10 +289,9 @@ Fields: ruleName, shopName, shopItem
 
     // -------- WebDAV备份 --------
     val USE_WEBDAV = false                                          // 启用WebDAV默认关闭
-    val WEBDAV_HOST = "https://dav.jianguoyun.com/dav/"             // WebDAV服务器默认值
+    val WEBDAV_URL = "https://dav.jianguoyun.com/dav/"              // WebDAV服务器URL默认值（示例：坚果云）
     val WEBDAV_USER = ""                                            // WebDAV用户名默认值
     val WEBDAV_PASSWORD = ""                                        // WebDAV密码默认值
-    val WEBDAV_PATH = ""                                            // WebDAV路径默认值
 
     // ===================================================================
     // 系统设置 (settings_system.xml)

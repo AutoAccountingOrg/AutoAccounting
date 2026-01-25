@@ -50,7 +50,7 @@
         <androidx.preference.Preference
             android:dependency="setting_use_webdav"
             android:icon="@drawable/ic_open_in_new"
-            android:key="setting_webdav_host"
+            android:key="setting_webdav_url"
             android:summary="@string/setting_webdav_url_summary"
             android:title="@string/setting_webdav_url" />
 
@@ -67,13 +67,6 @@
             android:key="setting_webdav_password"
             android:summary="@string/setting_webdav_password_summary"
             android:title="@string/setting_webdav_password" />
-
-        <androidx.preference.Preference
-            android:dependency="setting_use_webdav"
-            android:icon="@drawable/setting2_icon_dir"
-            android:key="setting_webdav_path"
-            android:summary="@string/setting_webdav_path_summary"
-            android:title="@string/setting_webdav_path" />
 
         <androidx.preference.Preference
             android:dependency="setting_use_webdav"

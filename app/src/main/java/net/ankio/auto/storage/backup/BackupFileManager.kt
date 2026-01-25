@@ -145,6 +145,11 @@ class BackupFileManager(private val context: Context) {
         val result = requestUtils.download("http://127.0.0.1:52045/db/export", dbFile)
 
         if (result.isFailure) {
+            val exception = result.exceptionOrNull()
+            if (exception !== null) {
+                Logger.e(exception)
+            }
+
             throw RestoreBackupException(context.getString(R.string.backup_error))
         }
     }

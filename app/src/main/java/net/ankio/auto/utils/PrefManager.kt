@@ -385,10 +385,47 @@ object PrefManager {
         get() = getBoolean(Setting.USE_WEBDAV, DefaultData.USE_WEBDAV)
         set(value) = putBoolean(Setting.USE_WEBDAV, value)
 
-    /** WebDAV 服务器地址 */
-    var webdavHost: String
-        get() = getString(Setting.WEBDAV_HOST, DefaultData.WEBDAV_HOST)
-        set(value) = putString(Setting.WEBDAV_HOST, value)
+    /**
+     * WebDAV 服务器 URL - 完整的 WebDAV 服务器地址
+     *
+     * 自动迁移逻辑：如果检测到旧的 host+path 配置，自动合并为 URL
+     */
+    var webdavUrl: String
+        get() {
+            // 先尝试读取新配置
+            val url = getString(Setting.WEBDAV_URL, "")
+            if (url.isNotEmpty()) return url
+
+            // 兼容性：如果新配置为空，尝试从旧配置迁移
+            val oldHost = runCatching {
+                pref.getString("setting_webdav_host", null)
+            }.getOrNull()
+
+            val oldPath = runCatching {
+                pref.getString("setting_webdav_path", null)
+            }.getOrNull()
+
+            if (!oldHost.isNullOrEmpty()) {
+                // 自动迁移：合并 host 和 path
+                val host = oldHost.trim('/')
+                val path = oldPath?.trim('/') ?: ""
+                val migratedUrl = if (path.isNotEmpty()) "$host/$path" else host
+
+                // 写入新配置
+                putString(Setting.WEBDAV_URL, migratedUrl)
+
+                // 清理旧配置
+                pref.edit {
+                    remove("setting_webdav_host")
+                    remove("setting_webdav_path")
+                }
+
+                return migratedUrl
+            }
+
+            return DefaultData.WEBDAV_URL
+        }
+        set(value) = putString(Setting.WEBDAV_URL, value)
 
     /** WebDAV 用户名 */
     var webdavUser: String
@@ -399,11 +436,6 @@ object PrefManager {
     var webdavPassword: String
         get() = getString(Setting.WEBDAV_PASSWORD, DefaultData.WEBDAV_PASSWORD)
         set(value) = putString(Setting.WEBDAV_PASSWORD, value)
-
-    /** WebDAV 路径 */
-    var webdavPath: String
-        get() = getString(Setting.WEBDAV_PATH, DefaultData.WEBDAV_PATH)
-        set(value) = putString(Setting.WEBDAV_PATH, value)
 
     // ===================================================================
     // 系统设置 (settings_system.xml)
