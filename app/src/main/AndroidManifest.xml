@@ -50,9 +50,15 @@
             android:name=".ui.activity.FloatingWindowTriggerActivity"
             android:excludeFromRecents="true"
             android:exported="true"
+            android:label="@string/ocr_shortcut_short_label"
             android:launchMode="singleInstance"
             android:taskAffinity=".trigger"
-            android:theme="@style/TransparentActivityTheme" />
+            android:theme="@style/TransparentActivityTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
 
         <activity android:name=".ui.activity.HomeActivity" />

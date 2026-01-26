@@ -46,10 +46,14 @@ class FloatingWindowTriggerActivity : BaseActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
+        // 处理创建快捷方式的请求（兼容老式启动器）
+        if (intent.action == Intent.ACTION_CREATE_SHORTCUT) {
+            createShortcutResult()
+            return
+        }
+
         val type = intent.getStringExtra(INTENT_TYPE_KEY)
-
         Logger.i("处理Intent: 类型=$type")
-
 
         // https://stackoverflow.com/questions/46173460/why-does-settings-candrawoverlays-method-in-android-8-returns-false-when-use
         // 应该是安卓的历史遗留问题
@@ -67,6 +71,35 @@ class FloatingWindowTriggerActivity : BaseActivity() {
                 exitActivity()
             }, 1000)
         }
+    }
+
+    /**
+     * 创建快捷方式的返回结果
+     * 用于兼容老式启动器的 CREATE_SHORTCUT 机制
+     */
+    private fun createShortcutResult() {
+        // 创建启动 OCR 功能的 Intent
+        val launchIntent = Intent(this, FloatingWindowTriggerActivity::class.java).apply {
+            action = Intent.ACTION_MAIN
+            putExtra(INTENT_TYPE_KEY, "OCR")
+            putExtra("manual", true)
+        }
+
+        // 创建快捷方式的 Intent
+        val shortcutIntent = Intent().apply {
+            putExtra(Intent.EXTRA_SHORTCUT_INTENT, launchIntent)
+            putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.ocr_shortcut_short_label))
+            putExtra(
+                Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource.fromContext(
+                    this@FloatingWindowTriggerActivity,
+                    R.drawable.ic_ocr
+                )
+            )
+        }
+
+        setResult(RESULT_OK, shortcutIntent)
+        finish()
     }
 
     private fun exitActivity() {

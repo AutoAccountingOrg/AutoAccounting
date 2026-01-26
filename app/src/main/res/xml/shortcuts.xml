@@ -23,19 +23,16 @@
         android:shortcutLongLabel="@string/ocr_shortcut_long_label"
         android:shortcutDisabledMessage="@string/ocr_shortcut_disabled_message">
         <intent
-            android:action="android.intent.action.VIEW"
+            android:action="android.intent.action.MAIN"
             android:targetPackage="net.ankio.auto"
             android:targetClass="net.ankio.auto.ui.activity.FloatingWindowTriggerActivity">
-            <!-- 传递intentType参数，标识为OCR类型 -->
             <extra
                 android:name="intentType"
                 android:value="OCR" />
-            <!-- 标记为手动触发 -->
             <extra
                 android:name="manual"
                 android:value="true" />
         </intent>
-        <categories android:name="android.shortcut.conversation" />
     </shortcut>
 </shortcuts>
 
