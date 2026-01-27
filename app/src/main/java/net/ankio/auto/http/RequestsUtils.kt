@@ -17,6 +17,7 @@ package net.ankio.auto.http
 
 import android.net.Uri
 import com.google.gson.JsonObject
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.Logger
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -92,6 +93,8 @@ class RequestsUtils {
         headers.forEach { (key, value) ->
             addHeader(key, value)
         }
+
+        addHeader("User-Agent", "AutoAccounting/${BuildConfig.VERSION_CODE}")
     }
 
 
@@ -208,6 +211,7 @@ class RequestsUtils {
             .build()
 
         // 本地地址直连，避免被代理劫持导致 502
+
         val host = request.url.host
         val actualClient =
             if (host.startsWith("127.") || host == "localhost") noProxyClient else client

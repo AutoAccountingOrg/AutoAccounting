@@ -99,6 +99,7 @@ class BigModelProvider : BaseAIProvider() {
             .url(url)
             .addHeader("Authorization", "Bearer ${getApiKey()}")
             .addHeader("Content-Type", "application/json")
+            .addUserAgent()
             .apply { if (onChunk != null) addHeader("Accept", "text/event-stream") }
             .post(gson.toJson(bodyMap).toRequestBody("application/json".toMediaTypeOrNull()))
             .build()

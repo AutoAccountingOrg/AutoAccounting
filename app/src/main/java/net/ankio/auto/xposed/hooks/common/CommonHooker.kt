@@ -62,6 +62,7 @@ object CommonHooker {
             val server = Server(AppRuntime.application!!)
             Server.versionName = BuildConfig.VERSION_NAME
             Server.packageName = BuildConfig.APPLICATION_ID
+            Server.versionCode = BuildConfig.VERSION_CODE
             server.startServer()
             AppInstaller.init(AppRuntime.application!!, server)
             UnLockScreen.init()

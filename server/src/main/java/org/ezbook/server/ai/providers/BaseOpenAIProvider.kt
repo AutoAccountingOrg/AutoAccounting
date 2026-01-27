@@ -39,6 +39,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
         val request = Request.Builder()
             .url("${getApiUri()}/v1/models")
             .addHeader("Authorization", "Bearer ${getApiKey()}")
+            .addUserAgent()
             .build()
 
 
@@ -119,6 +120,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                     addHeader("Accept", "text/event-stream")
                 }
             }
+            .addUserAgent()
             .post(gson.toJson(requestBody).toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
 

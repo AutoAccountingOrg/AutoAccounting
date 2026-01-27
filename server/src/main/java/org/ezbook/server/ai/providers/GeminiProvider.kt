@@ -33,6 +33,7 @@ class GeminiProvider : BaseAIProvider() {
         val url = "${base()}?key=${getApiKey()}"
         val request = Request.Builder()
             .url(url)
+            .addUserAgent()
             .get()
             .build()
 
@@ -82,6 +83,7 @@ class GeminiProvider : BaseAIProvider() {
             )
             val request = Request.Builder()
                 .url(url)
+                .addUserAgent()
                 .post(
                     gson.toJson(requestBody).toRequestBody("application/json".toMediaTypeOrNull())
                 )

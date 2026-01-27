@@ -70,6 +70,7 @@ class Server(private val context: Application) {
         const val PORT: Int = 52045
 
         var versionName = "1.0.0"
+        var versionCode = 1
         var packageName = "net.ankio.auto"
         lateinit var application: Application
 
