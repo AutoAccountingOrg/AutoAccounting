@@ -21,7 +21,8 @@ package org.ezbook.server.ai.providers
 class QWenProvider : BaseOpenAIProvider() {
     override val name: String = "qwen"
 
-    override val createKeyUri: String = "https://dashscope.console.aliyun.com/apiKey"
+    override val createKeyUri: String =
+        "https://bailian.console.aliyun.com/cn-beijing/?tab=model#/api-key"
     override suspend fun getAvailableModels(): List<String> {
         return listOf(
             model,       // 速度快、成本低
