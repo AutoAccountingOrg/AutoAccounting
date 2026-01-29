@@ -411,7 +411,10 @@ class OcrService : ICoreService() {
     private fun extractPackageFromDumpsys(output: String): String? {
         // 正则：匹配标准的包名格式（至少包含一个点，且以字母开头）
         // 示例：com.android.systemui/MainActivity
-        val regex = Regex("""([a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+)/""")
+        val regex = Regex(
+            """([a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+)/""",
+            RegexOption.IGNORE_CASE
+        )
 
         // 逐行扫描，找到第一个有效的包名
         return output.lineSequence()
