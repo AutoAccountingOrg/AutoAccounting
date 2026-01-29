@@ -67,9 +67,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         } catch (e: Exception) {
             Logger.e("启动服务失败: ${e.message}", e)
         } finally {
-            window.decorView.postDelayed({
-                exitActivity()
-            }, 1000)
+            exitActivity()
         }
     }
 
