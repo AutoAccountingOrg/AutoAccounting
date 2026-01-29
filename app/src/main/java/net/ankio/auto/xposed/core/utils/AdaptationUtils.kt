@@ -127,7 +127,7 @@ object AdaptationUtils {
                     }
 
                     set(KEY_ADAPT_VERSION, "0")
-                    toast("适配失败，请检查应用版本是否支持")
+                    toast("适配失败，请更新自动记账或在Github反馈。")
                 }
             }.onFailure { e ->
                 manifest.e(e)
