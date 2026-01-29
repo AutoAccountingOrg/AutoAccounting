@@ -382,6 +382,8 @@ class OcrService : ICoreService() {
                     continue
                 }
 
+                Logger.d("命令[$cmd]输出为 $output")
+
                 val pkg = extractPackageFromDumpsys(output)
                 if (!pkg.isNullOrBlank()) {
                     Logger.d("成功获取包名: $pkg (第${attempt + 1}次尝试)")
