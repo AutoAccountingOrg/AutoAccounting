@@ -104,11 +104,6 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
         updatePreferenceSummaries()
         updateDelayedSyncDependency()
         updateBillRecognitionSummaries()
-        if (!PrefManager.featureAiAvailable) {
-            findPreference<MaterialSwitchPreference>("aiBillRecognition")?.isEnabled = false
-            findPreference<MaterialSwitchPreference>("aiCategoryRecognition")?.isEnabled = false
-            findPreference<MaterialSwitchPreference>("aiAssetMapping")?.isEnabled = false
-        }
     }
 
     /**

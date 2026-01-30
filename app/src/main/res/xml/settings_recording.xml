@@ -73,12 +73,6 @@
             android:title="@string/setting_auto_transfer_time_threshold"
             android:dependency="autoTransferRecognition" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_ai"
-            android:key="aiBillRecognition"
-            android:summary="@string/setting_ai_bill_recognition_summary"
-            android:title="@string/setting_ai_bill_recognition" />
     </PreferenceCategory>
 
     <!-- 账单管理 -->
@@ -120,12 +114,6 @@
             android:summary="@string/setting_auto_create_category_summary"
             android:title="@string/setting_auto_create_category" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/setting2_icon_category"
-            android:key="aiCategoryRecognition"
-            android:summary="@string/setting_ai_category_recognition_summary"
-            android:title="@string/setting_ai_category_recognition" />
     </PreferenceCategory>
 
     <!-- 资产管理 -->
@@ -170,13 +158,6 @@
             android:title="@string/setting_auto_asset_mapping" />
 
 
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/setting_icon_ai_map"
-            android:key="aiAssetMapping"
-            app:dependency="featureAssetManage"
-            android:summary="@string/setting_ai_asset_mapping_summary"
-            android:title="@string/setting_ai_asset_mapping" />
     </PreferenceCategory>
 
     <!-- 账本配置 -->

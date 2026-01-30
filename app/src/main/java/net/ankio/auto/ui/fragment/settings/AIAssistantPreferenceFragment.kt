@@ -49,6 +49,13 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
             true
         }
 
+        // AI功能总开关：仅控制可用性，不影响AI配置入口
+        findPreference<MaterialSwitchPreference>("featureAiAvailable")?.setOnPreferenceChangeListener { _, newValue ->
+            val isEnabled = newValue as? Boolean ?: return@setOnPreferenceChangeListener true
+            updateAiFeatureDependencies(isEnabled)
+            true
+        }
+
         // AI总结提示词设置
         findPreference<Preference>("aiSummaryPrompt")?.apply {
             setOnPreferenceClickListener {
@@ -84,6 +91,9 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
             }
             updateAiCategoryRecognitionPromptSummary()
         }
+
+        // 初始同步AI功能可用性
+        updateAiFeatureDependencies()
     }
 
     override fun onResume() {
@@ -92,13 +102,22 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
         findPreference<Preference>("aiBillRecognitionPrompt")?.updateAiBillRecognitionPromptSummary()
         findPreference<Preference>("aiAssetMappingPrompt")?.updateAiAssetMappingPromptSummary()
         findPreference<Preference>("aiCategoryRecognitionPrompt")?.updateAiCategoryRecognitionPromptSummary()
-        if (!PrefManager.featureAiAvailable) {
-            findPreference<Preference>("aiSummaryPrompt")?.isEnabled = false
-            findPreference<Preference>("aiBillRecognitionPrompt")?.isEnabled = false
-            findPreference<Preference>("aiAssetMappingPrompt")?.isEnabled = false
-            findPreference<Preference>("aiCategoryRecognitionPrompt")?.isEnabled =
-                false
-        }
+        updateAiFeatureDependencies()
+    }
+
+    /**
+     * 更新AI功能与提示词入口的可用性
+     */
+    private fun updateAiFeatureDependencies(isAvailable: Boolean = PrefManager.featureAiAvailable) {
+        // AI能力不可用时，禁用AI功能与提示词入口，避免误操作
+        findPreference<MaterialSwitchPreference>("aiBillRecognition")?.isEnabled = isAvailable
+        findPreference<MaterialSwitchPreference>("aiCategoryRecognition")?.isEnabled = isAvailable
+        findPreference<MaterialSwitchPreference>("aiAssetMapping")?.isEnabled = isAvailable
+        findPreference<MaterialSwitchPreference>("aiMonthlySummary")?.isEnabled = isAvailable
+        findPreference<Preference>("aiSummaryPrompt")?.isEnabled = isAvailable
+        findPreference<Preference>("aiBillRecognitionPrompt")?.isEnabled = isAvailable
+        findPreference<Preference>("aiAssetMappingPrompt")?.isEnabled = isAvailable
+        findPreference<Preference>("aiCategoryRecognitionPrompt")?.isEnabled = isAvailable
     }
 
     /**
@@ -220,6 +239,7 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
         override fun getBoolean(key: String?, defValue: Boolean): Boolean {
             return when (key) {
                 // AI功能
+                "featureAiAvailable" -> PrefManager.featureAiAvailable
                 "aiBillRecognition" -> PrefManager.aiBillRecognition
                 "aiCategoryRecognition" -> PrefManager.aiCategoryRecognition
                 "aiAssetMapping" -> PrefManager.aiAssetMapping
@@ -231,6 +251,7 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
         override fun putBoolean(key: String?, value: Boolean) {
             when (key) {
                 // AI功能
+                "featureAiAvailable" -> PrefManager.featureAiAvailable = value
                 "aiBillRecognition" -> PrefManager.aiBillRecognition = value
                 "aiCategoryRecognition" -> PrefManager.aiCategoryRecognition = value
                 "aiAssetMapping" -> PrefManager.aiAssetMapping = value

@@ -2,12 +2,50 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- AI配置 -->
-    <PreferenceCategory android:title="@string/setting_ai">
+    <PreferenceCategory android:title="@string/setting_ai_config">
         <androidx.preference.Preference
             android:icon="@drawable/ic_ai"
             android:key="aiConfig"
             android:summary="@string/setting_ai_config_summary"
             android:title="@string/setting_ai_config" />
+    </PreferenceCategory>
+
+    <!-- AI功能 -->
+    <PreferenceCategory android:title="@string/setting_ai">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_ai"
+            android:key="featureAiAvailable"
+            android:summary="@string/setting_ai_feature_available_summary"
+            android:title="@string/setting_ai_feature_available" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_ai"
+            android:key="aiBillRecognition"
+            android:summary="@string/setting_ai_bill_recognition_summary"
+            android:title="@string/setting_ai_bill_recognition" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting2_icon_category"
+            android:key="aiCategoryRecognition"
+            android:summary="@string/setting_ai_category_recognition_summary"
+            android:title="@string/setting_ai_category_recognition" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_ai_map"
+            android:key="aiAssetMapping"
+            android:summary="@string/setting_ai_asset_mapping_summary"
+            android:title="@string/setting_ai_asset_mapping" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_ai"
+            android:key="aiMonthlySummary"
+            android:summary="@string/setting_ai_monthly_summary_summary"
+            android:title="@string/setting_ai_monthly_summary" />
     </PreferenceCategory>
 
     <!-- 提示词管理 -->
