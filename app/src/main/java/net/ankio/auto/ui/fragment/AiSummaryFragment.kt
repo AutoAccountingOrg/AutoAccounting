@@ -30,11 +30,13 @@ import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
 import java.util.*
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.AnalysisTaskModel
+import java.text.SimpleDateFormat
 
 /**
  * AI分析任务管理页面
@@ -57,7 +59,8 @@ class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryB
         LAST_30_DAYS,   // 最近30天
         THIS_MONTH,     // 这个月
         LAST_YEAR,      // 最近一年
-        THIS_YEAR       // 今年
+        THIS_YEAR,      // 今年
+        CUSTOM          // 自定义区间
     }
 
     /**
@@ -171,7 +174,8 @@ class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryB
             getString(R.string.period_last_30_days) to Period.LAST_30_DAYS,
             getString(R.string.period_this_month) to Period.THIS_MONTH,
             getString(R.string.period_last_year) to Period.LAST_YEAR,
-            getString(R.string.period_this_year) to Period.THIS_YEAR
+            getString(R.string.period_this_year) to Period.THIS_YEAR,
+            getString(R.string.period_custom_range) to Period.CUSTOM
         )
 
         ListPopupUtilsGeneric.create<Period>(requireContext())
@@ -179,6 +183,10 @@ class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryB
             .setList(periodMap)
             .setSelectedValue(Period.LAST_30_DAYS) // 默认选择最近30天
             .setOnItemClick { _, _, period ->
+                if (period == Period.CUSTOM) {
+                    showCustomRangePicker()
+                    return@setOnItemClick
+                }
                 val periodData = calculatePeriodData(period)
                 createAnalysisTask(periodData)
             }
@@ -248,7 +256,37 @@ class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryB
                 val startTime = calendar.timeInMillis
                 PeriodData(period, startTime, now, "今年")
             }
+
+            Period.CUSTOM -> {
+                PeriodData(period, now, now, getString(R.string.period_custom_range))
+            }
         }
+    }
+
+    /**
+     * 自定义区间选择
+     */
+    private fun showCustomRangePicker() {
+        BaseSheetDialog.create<DateTimePickerDialog>(requireContext())
+            .setTitle(getString(R.string.period_custom_range))
+            .setRangeMode(true)
+            .setOnDateRangeSelected { start, end ->
+                if (end < start) {
+                    ToastUtils.error(getString(R.string.time_range_invalid))
+                    return@setOnDateRangeSelected
+                }
+                val label = formatRangeLabel(start, end)
+                createAnalysisTask(PeriodData(Period.CUSTOM, start, end, label))
+            }
+            .show()
+    }
+
+    /**
+     * 格式化区间标题
+     */
+    private fun formatRangeLabel(start: Long, end: Long): String {
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return "${format.format(Date(start))} ~ ${format.format(Date(end))}"
     }
 
     /**

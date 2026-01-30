@@ -796,8 +796,8 @@
     <string name="setting_ai_category_recognition_summary">自动为账单分配适当的分类</string>
     <string name="setting_ai_asset_mapping">使用AI进行资产映射</string>
     <string name="setting_ai_asset_mapping_summary">自动将账单映射到相应的资产账户</string>
-    <string name="setting_ai_monthly_summary">AI 月度摘要</string>
-    <string name="setting_ai_monthly_summary_summary">生成月度财务分析和摘要报告</string>
+    <string name="setting_ai_monthly_summary">AI分析</string>
+    <string name="setting_ai_monthly_summary_summary">生成财务分析和摘要报告</string>
 
     <!-- AI Advanced Settings -->
     <string name="setting_category_ai_advanced">高级设置</string>
@@ -812,7 +812,7 @@
 
     <!-- WebDAV 相关字符串 -->
     <string name="setting_use_webdav">使用 WebDAV</string><!-- AI Summary 相关字符串 -->
-    <string name="ai_summary_title">AI 财务分析</string><!-- 分析任务状态 -->
+    <string name="ai_summary_title">AI分析</string><!-- 分析任务状态 -->
     <string name="analysis_status_pending">待处理</string>
     <string name="analysis_status_processing">分析中</string>
     <string name="analysis_status_completed">已完成</string>

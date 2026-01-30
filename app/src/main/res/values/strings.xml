@@ -883,8 +883,8 @@
     <string name="setting_ai_category_recognition_summary">Automatically assign appropriate categories to bills</string>
     <string name="setting_ai_asset_mapping">AI Asset Mapping</string>
     <string name="setting_ai_asset_mapping_summary">Automatically map bills to corresponding asset accounts</string>
-    <string name="setting_ai_monthly_summary">AI Monthly Summary</string>
-    <string name="setting_ai_monthly_summary_summary">Generate monthly financial analysis and summary reports</string>
+    <string name="setting_ai_monthly_summary">AI Analysis</string>
+    <string name="setting_ai_monthly_summary_summary">Generate financial analysis and summary reports</string>
 
     <!-- AI Advanced Settings -->
     <string name="setting_category_ai_advanced">Advanced Settings</string>
@@ -924,7 +924,7 @@
 
     <!-- WebDAV 相关字符串 -->
     <string name="setting_use_webdav">Use WebDAV</string><!-- AI Summary 相关字符串 -->
-    <string name="ai_summary_title">AI Financial Analysis</string><!-- Statistics page -->
+    <string name="ai_summary_title">AI Analysis</string><!-- Statistics page -->
     <string name="stat_title">Statistics</string>
     <string name="stat_summary">Summary</string>
     <string name="total_expense">Total expense</string>
