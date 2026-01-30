@@ -5,7 +5,6 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.utils.AppRuntime
 
 
 /**
@@ -64,8 +63,6 @@ class AmsHooker : PartHooker() {
 
             pr.setCurAdj(PROCESS_ADJ);
             pr.setCurRawAdj(PROCESS_ADJ);
-
-            AppRuntime.manifest.d("update the adj to $PROCESS_ADJ")
         }
     }
 
