@@ -365,6 +365,8 @@
     <string name="setting_title_ai_config">AI Configuration</string>
     <string name="setting_ai_config">AI Configuration</string>
     <string name="setting_ai_config_summary">Configure AI model and API settings</string>
+    <string name="setting_ai_feature_available">Enable AI Features</string>
+    <string name="setting_ai_feature_available_summary">Master switch for AI recognition and analysis</string>
     <string name="setting_category_ai_config">AI Configuration</string>
     <string name="ai_test_connection">Test Connection</string>
     <string name="ai_test_result">Test Result</string>

@@ -351,6 +351,8 @@
     <string name="setting_title_ai_config">AI 配置</string>
     <string name="setting_ai_config">AI 配置</string>
     <string name="setting_ai_config_summary">配置 AI 模型和 API 设置</string>
+    <string name="setting_ai_feature_available">启用 AI 功能</string>
+    <string name="setting_ai_feature_available_summary">AI 功能总开关，关闭后将禁用识别与分析</string>
     <string name="setting_category_ai_config">AI 配置</string>
     <string name="ai_test_connection">测试连接</string>
     <string name="ai_test_result">测试结果</string>
