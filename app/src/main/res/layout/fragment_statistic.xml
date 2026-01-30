@@ -134,6 +134,20 @@
 
                     </com.google.android.material.chip.ChipGroup>
 
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/btnCustomRange"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/period_custom_range"
+                        android:textSize="13sp"
+                        android:checkable="true"
+                        app:chipMinHeight="32dp"
+                        app:chipMinTouchTargetSize="0dp"
+                        app:chipStrokeWidth="0dp"
+                        app:checkedIcon="@null" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

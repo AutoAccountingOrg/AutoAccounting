@@ -34,7 +34,11 @@ import androidx.core.content.ContextCompat
 import android.content.Context
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import net.ankio.auto.R
 import net.ankio.auto.ui.adapter.CategoryStatsAdapter
+import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import java.util.Calendar
 import java.util.Locale
 
@@ -74,6 +78,7 @@ class StatisticFragment : BaseFragment<FragmentStatisticBinding>() {
         setupCardColors()
         setupAmountColors()
         setupCategoryRecyclerView()
+        setupCustomRangeButton()
     }
 
     /** 设置分类统计RecyclerView */
@@ -226,6 +231,7 @@ class StatisticFragment : BaseFragment<FragmentStatisticBinding>() {
     private fun bindPeriodChips() {
         // 默认选中"本月"
         binding.chipThisMonth.isChecked = true
+        binding.btnCustomRange.isChecked = false
 
         // 数据驱动的chip配置
         val chipConfigs = mapOf(
@@ -239,10 +245,49 @@ class StatisticFragment : BaseFragment<FragmentStatisticBinding>() {
 
         chipConfigs.forEach { (chip, calculator) ->
             chip.setOnClickListener {
+                // 选择预设周期时，取消自定义区间的选中状态
+                binding.btnCustomRange.isChecked = false
                 val (start, end) = calculator()
                 setTimeRange(start, end)
             }
         }
+
+        // chipGroup 发生选择时，确保自定义区间处于未选中
+        binding.chipGroupPeriod.setOnCheckedStateChangeListener { _, _ ->
+            binding.btnCustomRange.isChecked = false
+        }
+    }
+
+    /** 自定义时间区间按钮 */
+    private fun setupCustomRangeButton() {
+        binding.btnCustomRange.setOnClickListener {
+            // 选择自定义区间时，清空 chipGroup 的选中状态
+            binding.chipGroupPeriod.clearCheck()
+            binding.btnCustomRange.isChecked = true
+            showCustomRangePicker()
+        }
+    }
+
+    /**
+     * 显示自定义时间区间选择器
+     */
+    private fun showCustomRangePicker() {
+        // 使用内置选择器的区间模式，避免弹两次对话框
+        BaseSheetDialog.create<DateTimePickerDialog>(requireContext())
+            .setTitle(getString(R.string.period_custom_range))
+            .setRangeMode(true)
+            .setOnDateRangeSelected { start, end ->
+                if (end < start) {
+                    ToastUtils.error(getString(R.string.time_range_invalid))
+                    // 无效区间时，不保持自定义选中
+                    binding.btnCustomRange.isChecked = false
+                    return@setOnDateRangeSelected
+                }
+                // 有效区间：保持自定义选中
+                binding.btnCustomRange.isChecked = true
+                setTimeRange(start, end)
+            }
+            .show()
     }
 
     private fun setTimeRange(start: Long, end: Long) {
