@@ -965,6 +965,10 @@
     <string name="period_this_month">This Month</string>
     <string name="period_last_year">Last Year</string>
     <string name="period_this_year">This Year</string>
+    <string name="period_custom_range">Custom Range</string>
+    <string name="select_start_date">Select start date</string>
+    <string name="select_end_date">Select end date</string>
+    <string name="time_range_invalid">End date must be after start date</string>
 
     <!-- Toasts -->
     <string name="remember_category_success">Category remembered: %s</string>

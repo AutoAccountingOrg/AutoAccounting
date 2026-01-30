@@ -22,6 +22,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import net.ankio.auto.databinding.CustomDateTimePickerBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.utils.ToastUtils
 import java.util.Calendar
 import kotlin.math.min
 
@@ -53,11 +54,15 @@ class DateTimePickerDialog internal constructor(
 
     // 仅选择年月模式：隐藏日、时、分，仅保留年、月选择
     private var yearMonthOnly: Boolean = false
+
+    // 区间选择模式：显示起止日期，隐藏时间选择
+    private var rangeMode: Boolean = false
     private var title: String? = null
 
     // 回调函数
     private var onDateTimeSelectedListener: ((year: Int, month: Int, day: Int, hour: Int, minute: Int) -> Unit)? =
         null
+    private var onDateRangeSelectedListener: ((startMillis: Long, endMillis: Long) -> Unit)? = null
 
     // 当前选中的日期时间
     private var currentYear = Calendar.getInstance().get(Calendar.YEAR)
@@ -65,6 +70,11 @@ class DateTimePickerDialog internal constructor(
     private var currentDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
     private var currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     private var currentMinute = Calendar.getInstance().get(Calendar.MINUTE)
+
+    // 结束日期（区间选择）
+    private var endYear = Calendar.getInstance().get(Calendar.YEAR)
+    private var endMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+    private var endDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
 
     /**
      * 设置是否仅显示时间选择器
@@ -80,6 +90,14 @@ class DateTimePickerDialog internal constructor(
      */
     fun setYearMonthOnly(yearMonthOnly: Boolean) = apply {
         this.yearMonthOnly = yearMonthOnly
+    }
+
+    /**
+     * 设置是否为区间选择模式
+     * @param rangeMode true 表示起止日期选择
+     */
+    fun setRangeMode(rangeMode: Boolean) = apply {
+        this.rangeMode = rangeMode
     }
 
     /**
@@ -102,6 +120,14 @@ class DateTimePickerDialog internal constructor(
     }
 
     /**
+     * 设置日期区间选择回调
+     * @param listener 返回起止时间戳（毫秒）
+     */
+    fun setOnDateRangeSelected(listener: (startMillis: Long, endMillis: Long) -> Unit) = apply {
+        this.onDateRangeSelectedListener = listener
+    }
+
+    /**
      * 设置初始日期时间
      * @param year 年份
      * @param month 月份（1-12）
@@ -118,6 +144,19 @@ class DateTimePickerDialog internal constructor(
         this.currentMinute = minute
     }
 
+    /**
+     * 设置区间时间（仅日期）
+     * @param startMillis 起始时间戳
+     * @param endMillis 结束时间戳
+     */
+    fun setDateRangeFromMillis(startMillis: Long, endMillis: Long) = apply {
+        setDateTimeFromMillis(startMillis)
+        val calendar = Calendar.getInstance().apply { timeInMillis = endMillis }
+        endYear = calendar.get(Calendar.YEAR)
+        endMonth = calendar.get(Calendar.MONTH) + 1
+        endDay = calendar.get(Calendar.DAY_OF_MONTH)
+    }
+
     override fun onViewCreated(view: View?) {
         super.onViewCreated(view)
 
@@ -130,7 +169,7 @@ class DateTimePickerDialog internal constructor(
         }
 
         // 仅时间模式：隐藏日期
-        if (timeOnly) {
+        if (timeOnly && !rangeMode) {
             binding.llDateTitle.visibility = View.GONE
             binding.llDate.visibility = View.GONE
         }
@@ -149,18 +188,37 @@ class DateTimePickerDialog internal constructor(
 
         }
 
+        // 区间模式：显示起止日期并隐藏时间选择
+        if (rangeMode) {
+            binding.llDateTitle.text = context.getString(net.ankio.auto.R.string.select_start_date)
+            binding.llDateEndTitle.visibility = View.VISIBLE
+            binding.llDateEnd.visibility = View.VISIBLE
+            binding.lTimeSelect.visibility = View.GONE
+            binding.tvTime.visibility = View.GONE
+        }
+
         // 初始化选择器
         setupPickers()
 
         // 设置确认按钮
         binding.positiveButton.setOnClickListener {
-            onDateTimeSelectedListener?.invoke(
-                currentYear,
-                currentMonth,
-                currentDay,
-                currentHour,
-                currentMinute
-            )
+            if (rangeMode) {
+                val startMillis = getRangeStartMillis()
+                val endMillis = getRangeEndMillis()
+                if (endMillis < startMillis) {
+                    ToastUtils.error(context.getString(net.ankio.auto.R.string.time_range_invalid))
+                    return@setOnClickListener
+                }
+                onDateRangeSelectedListener?.invoke(startMillis, endMillis)
+            } else {
+                onDateTimeSelectedListener?.invoke(
+                    currentYear,
+                    currentMonth,
+                    currentDay,
+                    currentHour,
+                    currentMinute
+                )
+            }
             dismiss()
         }
 
@@ -174,11 +232,14 @@ class DateTimePickerDialog internal constructor(
      * 初始化所有选择器
      */
     private fun setupPickers() {
-        if (!timeOnly) {
+        if (!timeOnly || rangeMode) {
             setupDatePickers()
         }
-        if (!yearMonthOnly) {
+        if (!yearMonthOnly && !rangeMode) {
             setupTimePickers()
+        }
+        if (rangeMode) {
+            setupEndDatePickers()
         }
     }
 
@@ -210,6 +271,33 @@ class DateTimePickerDialog internal constructor(
 
         // 日期选择器
         updateDayPicker()
+    }
+
+    /**
+     * 设置结束日期选择器（区间模式）
+     */
+    private fun setupEndDatePickers() {
+        binding.npYearEnd.apply {
+            minValue = 1900
+            maxValue = 2100
+            value = endYear
+            setOnValueChangedListener { _, _, newVal ->
+                endYear = newVal
+                updateEndDayPicker()
+            }
+        }
+
+        binding.npMonthEnd.apply {
+            minValue = 1
+            maxValue = 12
+            value = endMonth
+            setOnValueChangedListener { _, _, newVal ->
+                endMonth = newVal
+                updateEndDayPicker()
+            }
+        }
+
+        updateEndDayPicker()
     }
 
     /**
@@ -264,6 +352,24 @@ class DateTimePickerDialog internal constructor(
     }
 
     /**
+     * 更新结束日期选择器的最大值
+     */
+    private fun updateEndDayPicker() {
+        val maxDay = getMaxDayOfMonth(endYear, endMonth)
+        binding.npDayEnd.apply {
+            minValue = 1
+            maxValue = maxDay
+            if (endDay > maxDay) {
+                endDay = maxDay
+            }
+            value = endDay
+            setOnValueChangedListener { _, _, newVal ->
+                endDay = newVal
+            }
+        }
+    }
+
+    /**
      * 获取指定年月的最大天数
      * @param year 年份
      * @param month 月份（1-12）
@@ -295,6 +401,26 @@ class DateTimePickerDialog internal constructor(
         val calendar = Calendar.getInstance()
         calendar.set(currentYear, currentMonth - 1, currentDay, currentHour, currentMinute, 0)
         calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    /**
+     * 获取起始日期的时间戳（00:00:00.000）
+     */
+    private fun getRangeStartMillis(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(currentYear, currentMonth - 1, currentDay, 0, 0, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    /**
+     * 获取结束日期的时间戳（23:59:59.999）
+     */
+    private fun getRangeEndMillis(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(endYear, endMonth - 1, endDay, 23, 59, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
         return calendar.timeInMillis
     }
 

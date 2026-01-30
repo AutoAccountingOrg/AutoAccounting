@@ -25,18 +25,19 @@
         android:text="@string/date"
         android:textColor="?colorPrimary" />
 
-    <!-- 日期选择 -->
+    <!-- 日期选择：增加上下内边距，避免“日”被裁剪 -->
     <LinearLayout
         android:id="@+id/ll_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
+        android:paddingVertical="@dimen/mini_padding"
         android:orientation="horizontal">
 
         <NumberPicker
             android:id="@+id/np_year"
-            android:layout_width="wrap_content"
+            android:layout_width="72dp"
             android:layout_height="wrap_content" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -48,7 +49,7 @@
 
         <NumberPicker
             android:id="@+id/np_month"
-            android:layout_width="wrap_content"
+            android:layout_width="56dp"
             android:layout_height="wrap_content" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -60,7 +61,7 @@
 
         <NumberPicker
             android:id="@+id/np_day"
-            android:layout_width="wrap_content"
+            android:layout_width="56dp"
             android:layout_height="wrap_content" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -69,6 +70,73 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/one_padding"
             android:layout_marginEnd="@dimen/one_padding"
+            android:includeFontPadding="true"
+            android:paddingTop="@dimen/mini_padding"
+            android:paddingBottom="@dimen/mini_padding"
+            android:text="@string/picker_day" />
+    </LinearLayout>
+
+    <!-- 结束日期标题 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/ll_date_end_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/one_padding"
+        android:layout_marginTop="@dimen/one_padding"
+        android:layout_marginEnd="@dimen/one_padding"
+        android:text="@string/select_end_date"
+        android:textColor="?colorPrimary"
+        android:visibility="gone" />
+
+    <!-- 结束日期选择：增加上下内边距，避免“日”被裁剪 -->
+    <LinearLayout
+        android:id="@+id/ll_date_end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:paddingVertical="@dimen/mini_padding"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <NumberPicker
+            android:id="@+id/np_year_end"
+            android:layout_width="72dp"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/one_padding"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:text="@string/picker_year" />
+
+        <NumberPicker
+            android:id="@+id/np_month_end"
+            android:layout_width="56dp"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/one_padding"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:text="@string/picker_month" />
+
+        <NumberPicker
+            android:id="@+id/np_day_end"
+            android:layout_width="56dp"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvDayEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/one_padding"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:includeFontPadding="true"
+            android:paddingTop="@dimen/mini_padding"
+            android:paddingBottom="@dimen/mini_padding"
             android:text="@string/picker_day" />
     </LinearLayout>
 
