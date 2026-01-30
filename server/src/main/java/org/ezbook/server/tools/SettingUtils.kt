@@ -116,6 +116,14 @@ object SettingUtils {
     // ===================== 常用配置（便捷封装） =====================
     // —— AI 功能开关 ——
 
+    /** AI功能总开关 */
+    suspend fun featureAiAvailable(): Boolean =
+        getBoolean(Setting.FEATURE_AI_AVAILABLE, DefaultData.FEATURE_AI_AVAILABLE)
+
+    /** 设置：AI功能总开关 */
+    suspend fun setFeatureAiAvailable(value: Boolean) =
+        setBoolean(Setting.FEATURE_AI_AVAILABLE, value)
+
     /** 使用AI识别账单 */
     suspend fun aiBillRecognition(): Boolean =
         getBoolean(Setting.AI_BILL_RECOGNITION, DefaultData.AI_BILL_RECOGNITION)

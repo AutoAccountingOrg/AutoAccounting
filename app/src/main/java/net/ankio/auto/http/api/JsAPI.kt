@@ -29,13 +29,12 @@ object JsAPI {
         type: DataType,
         data: String,
         appPackage: String,
-        fromAppData: Boolean = false,
-        forceAI: Boolean = false
+        fromAppData: Boolean = false
     ): BillResultModel? = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
             val resp = LocalNetwork.post<BillResultModel>(
-                "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData&forceAI=$forceAI",
+                "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData",
                 data
             ).getOrThrow()
             resp.data

@@ -1,55 +1,51 @@
 [
   {
-    "name": "云闪付入账通知（Income）- 工商银行收款",
+    "name": "\u4e91\u95ea\u4ed8\u5165\u8d26\u901a\u77e5\uff08Income\uff09- \u5de5\u5546\u94f6\u884c\u6536\u6b3e",
     "timestamp": "2026-01-01 19:27:41.710",
     "app": "com.unionpay",
     "type": "NOTICE",
     "fromAppData": false,
-    "forceAI": false,
     "data": {
-      "title": "支付助手：入账成功",
-      "text": "您的工商银行卡6212 **** **** 8464收到来自*贵江的转账5000.00元，已于2026-01-01 19:27成功到账！",
+      "title": "\u652f\u4ed8\u52a9\u624b\uff1a\u5165\u8d26\u6210\u529f",
+      "text": "\u60a8\u7684\u5de5\u5546\u94f6\u884c\u53616212 **** **** 8464\u6536\u5230\u6765\u81ea*\u8d35\u6c5f\u7684\u8f6c\u8d265000.00\u5143\uff0c\u5df2\u4e8e2026-01-01 19:27\u6210\u529f\u5230\u8d26\uff01",
       "t": 1767266861710
     }
   },
   {
-    "name": "云闪付转账成功通知（Expend）- 转账到工商银行",
+    "name": "\u4e91\u95ea\u4ed8\u8f6c\u8d26\u6210\u529f\u901a\u77e5\uff08Expend\uff09- \u8f6c\u8d26\u5230\u5de5\u5546\u94f6\u884c",
     "timestamp": "2026-01-01 19:27:41.700",
     "app": "com.unionpay",
     "type": "NOTICE",
     "fromAppData": false,
-    "forceAI": false,
     "data": {
-      "title": "支付助手：转账成功",
-      "text": "您向徐贵江的工商银行卡6212 **** **** 8464转账5000.00元，已于2026-01-01 19:27成功到账！",
+      "title": "\u652f\u4ed8\u52a9\u624b\uff1a\u8f6c\u8d26\u6210\u529f",
+      "text": "\u60a8\u5411\u5f90\u8d35\u6c5f\u7684\u5de5\u5546\u94f6\u884c\u53616212 **** **** 8464\u8f6c\u8d265000.00\u5143\uff0c\u5df2\u4e8e2026-01-01 19:27\u6210\u529f\u5230\u8d26\uff01",
       "t": 1767266861700
     }
   },
   {
-    "name": "工商银行动账通知（Income）- 银联入账",
+    "name": "\u5de5\u5546\u94f6\u884c\u52a8\u8d26\u901a\u77e5\uff08Income\uff09- \u94f6\u8054\u5165\u8d26",
     "timestamp": "2026-01-01 19:27:42.115",
     "app": "com.icbc",
     "type": "NOTICE",
     "fromAppData": false,
-    "forceAI": false,
     "data": {
-      "title": "动账通知",
-      "text": "尾号8464卡1月1日19:27网上银行收入(银联入账)5,000元。请点击查看详情。",
+      "title": "\u52a8\u8d26\u901a\u77e5",
+      "text": "\u5c3e\u53f78464\u53611\u67081\u65e519:27\u7f51\u4e0a\u94f6\u884c\u6536\u5165(\u94f6\u8054\u5165\u8d26)5,000\u5143\u3002\u8bf7\u70b9\u51fb\u67e5\u770b\u8be6\u60c5\u3002",
       "t": 1767266862115
     }
   },
   {
-    "name": "微信公众号交通银行微银行（Expend）- 转账支出",
+    "name": "\u5fae\u4fe1\u516c\u4f17\u53f7\u4ea4\u901a\u94f6\u884c\u5fae\u94f6\u884c\uff08Expend\uff09- \u8f6c\u8d26\u652f\u51fa",
     "timestamp": "2026-01-01 19:27:42.418",
     "app": "com.tencent.mm",
     "type": "DATA",
     "fromAppData": false,
-    "forceAI": false,
     "data": {
       "mMap": {
-        "description": "账号：*9412\n账户名称：交通银行账户\n交易时间：2026-01-01 19:27\n交易类型：网络支付转账(云闪付转出)\n交易金额：5000.00元",
-        "source": "交通银行微银行",
-        "title": "账户变动提醒",
+        "description": "\u8d26\u53f7\uff1a*9412\n\u8d26\u6237\u540d\u79f0\uff1a\u4ea4\u901a\u94f6\u884c\u8d26\u6237\n\u4ea4\u6613\u65f6\u95f4\uff1a2026-01-01 19:27\n\u4ea4\u6613\u7c7b\u578b\uff1a\u7f51\u7edc\u652f\u4ed8\u8f6c\u8d26(\u4e91\u95ea\u4ed8\u8f6c\u51fa)\n\u4ea4\u6613\u91d1\u989d\uff1a5000.00\u5143",
+        "source": "\u4ea4\u901a\u94f6\u884c\u5fae\u94f6\u884c",
+        "title": "\u8d26\u6237\u53d8\u52a8\u63d0\u9192",
         "cachedPayTools": "",
         "cachedPayMoney": "",
         "cachedPayShop": "",

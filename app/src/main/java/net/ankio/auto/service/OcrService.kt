@@ -234,7 +234,7 @@ class OcrService : ICoreService() {
                         if (PrefManager.dataFilter.any { !ocrResult.contains(it) }) {
                             Logger.d("识别文本长度: ${ocrResult.length}")
                             // 手动触发 → 强制AI识别
-                            send2JsEngine(ocrResult, packageName, forceAI = manual)
+                            send2JsEngine(ocrResult, packageName)
                         } else {
                             Logger.d("数据信息不在识别关键字里面，忽略")
                         }
@@ -328,16 +328,14 @@ class OcrService : ICoreService() {
      */
     private suspend fun send2JsEngine(
         text: String,
-        app: String,
-        forceAI: Boolean = false
+        app: String
     ): Boolean {
         Logger.d("app=$app, text=$text")
         val billResult = JsAPI.analysis(
             DataType.OCR,
             text,
             app,
-            fromAppData = false,
-            forceAI = forceAI
+            fromAppData = false
         )
 
         return if (billResult == null) {

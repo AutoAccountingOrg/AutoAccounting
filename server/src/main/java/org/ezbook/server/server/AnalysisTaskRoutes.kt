@@ -166,6 +166,18 @@ private suspend fun executeTask(taskId: Long) {
     runCatchingExceptCancel {
         val task = dao.getById(taskId) ?: return
 
+        // AI功能总开关或AI月度摘要关闭时，直接标记失败并返回
+        if (!SettingUtils.featureAiAvailable() || !SettingUtils.aiMonthlySummary()) {
+            val message = "AI功能未启用"
+            dao.updateStatus(taskId, AnalysisTaskStatus.FAILED)
+            dao.update(task.apply {
+                errorMessage = message
+                updateTime = System.currentTimeMillis()
+            })
+            ServerLog.d("AI分析任务被跳过：$message, ID: $taskId")
+            return
+        }
+
         // 更新状态为处理中
         dao.updateStatus(taskId, AnalysisTaskStatus.PROCESSING)
         dao.updateProgress(taskId, 10)

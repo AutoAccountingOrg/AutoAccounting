@@ -71,6 +71,7 @@ class AssetsMap {
      * 对账单的来源账户和目标账户进行映射处理，将原始账户名称转换为标准化的资产名称
      *
      * @param billInfoModel 账单信息模型，会直接修改其中的账户名称字段
+     * @param useAi 调用方是否允许AI参与映射（路由或批处理可强制关闭）
      *
      * 注意：必须运行在IO线程中，因为涉及数据库操作
      */
@@ -147,6 +148,8 @@ class AssetsMap {
      *
      * @param accountName 原始账户名称
      * @param billInfoModel 账单模型，用于判断是否AI生成
+     * @param isAccountName2 是否为目标账户名（避免双向AI映射冲突）
+     * @param useAi 调用方是否允许AI参与映射
      * @return 映射后的账户名称，null表示无法映射
      */
     private suspend fun mapAccount(
@@ -194,7 +197,12 @@ class AssetsMap {
         }
 
         // 3.5 让AI处理
-        if (useAi && SettingUtils.aiAssetMapping() && !isAccountName2) {
+        // AI资产映射需要总开关与资产映射开关同时开启
+        if (useAi &&
+            SettingUtils.featureAiAvailable() &&
+            SettingUtils.aiAssetMapping() &&
+            !isAccountName2
+        ) {
             ServerLog.d("通过AI进行资产映射")
             val json =
                 AssetTool().execute(billInfoModel.accountNameTo, billInfoModel.accountNameFrom)

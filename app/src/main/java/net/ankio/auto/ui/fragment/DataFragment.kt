@@ -109,7 +109,6 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
 
         return AppDataAdapter().apply {
             onTestRuleClick = ::handleTestRuleClick
-            onTestRuleLongClick = ::handleTestRuleLongClick
             onContentClick = ::handleContentClick
             onCreateRuleClick = ::handleCreateRuleClick
             onUploadDataClick = ::handleUploadDataClick
@@ -126,30 +125,6 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             loading.show(R.string.rule_testing)
 
             val billResultModel = JsAPI.analysis(item.type, item.data, item.app, true)
-
-            billResultModel?.let {
-                BaseSheetDialog.create<BillEditorDialog>(requireContext())
-                    .setBillInfo(billResultModel.parentInfoModel ?: billResultModel.billInfoModel)
-                    .setOnConfirm {
-
-                    }
-                    .setOnCancel { _ -> }
-                    .show()
-            } ?: ToastUtils.error(getString(R.string.no_rule_hint))
-
-            loading.close()
-        }
-    }
-
-    /**
-     * 处理测试规则长按事件：强制 AI 识别
-     */
-    private fun handleTestRuleLongClick(item: AppDataModel) {
-        launch {
-            val loading = LoadingUtils(requireContext())
-            loading.show(R.string.rule_testing)
-
-            val billResultModel = JsAPI.analysis(item.type, item.data, item.app, true, true)
 
             billResultModel?.let {
                 BaseSheetDialog.create<BillEditorDialog>(requireContext())

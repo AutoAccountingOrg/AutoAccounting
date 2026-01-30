@@ -66,4 +66,7 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.gson)
+
+    // Kotlin反射 - Ktor的reified泛型需要
+    implementation(kotlin("reflect"))
 }

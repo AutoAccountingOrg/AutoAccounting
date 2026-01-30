@@ -51,7 +51,6 @@ abstract class BaseTest {
         val app: String,
         val type: String,
         val fromAppData: Boolean,
-        val forceAI: Boolean,
         val data: JsonObject
     )
 
@@ -92,8 +91,7 @@ abstract class BaseTest {
             val urlString = "http://$SERVER_HOST:$SERVER_PORT$API_PATH" +
                     "?app=${item.app}" +
                     "&type=${item.type}" +
-                    "&fromAppData=${item.fromAppData}" +
-                    "&forceAI=${item.forceAI}"
+                    "&fromAppData=${item.fromAppData}"
 
             val url = URL(urlString)
             val connection = url.openConnection() as HttpURLConnection

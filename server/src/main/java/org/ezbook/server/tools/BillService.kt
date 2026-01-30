@@ -178,8 +178,7 @@ class BillService(
                 analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
                     ?: analyzeWithAI(
                         analysisParams.app,
-                        analysisParams.data,
-                        force = analysisParams.forceAI
+                        analysisParams.data
                     )
                     ?: run {
                         ServerLog.d("AI和规则的解析结果都为NULL\n==============账单分析结束===============")
@@ -372,12 +371,18 @@ class BillService(
      */
     private suspend fun analyzeWithAI(
         app: String,
-        data: String,
-        force: Boolean = false
+        data: String
     ): BillInfoModel? {
 
-        if (!force && !SettingUtils.aiBillRecognition()) {
-            ServerLog.d("AI分析账单功能禁用，跳过账单分析")
+        // AI功能总开关关闭时，直接跳过AI分析
+        if (!SettingUtils.featureAiAvailable()) {
+            ServerLog.d("AI功能总开关关闭，跳过账单AI分析")
+            return null
+        }
+
+        // AI识别账单开关关闭时不调用 AI
+        if (!SettingUtils.aiBillRecognition()) {
+            ServerLog.d("AI识别账单已关闭，跳过账单分析")
             return null
         }
         ServerLog.d("AI分析中，$data")
@@ -500,7 +505,11 @@ class BillService(
         bill.cateName = categoryJson.safeGetStringNonBlank("category", "其他")
         bill.remark = categoryJson.safeGetStringNonBlank("remark", "")
         ServerLog.d("规则处理后的账单信息：$bill")
-        if (!bill.hasValidCategory() && SettingUtils.aiCategoryRecognition()) {
+        // AI分类识别需要总开关和分类开关同时开启
+        if (!bill.hasValidCategory() &&
+            SettingUtils.featureAiAvailable() &&
+            SettingUtils.aiCategoryRecognition()
+        ) {
             bill.cateName = CategoryTool().execute(
                 win.toString()
             ).takeUnless { it.isNullOrEmpty() } ?: "其他"

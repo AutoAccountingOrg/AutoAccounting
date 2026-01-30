@@ -1,16 +1,15 @@
 [
   {
-    "name": "微信公众号交通银行微银行-支出（已知资产）",
+    "name": "\u5fae\u4fe1\u516c\u4f17\u53f7\u4ea4\u901a\u94f6\u884c\u5fae\u94f6\u884c-\u652f\u51fa\uff08\u5df2\u77e5\u8d44\u4ea7\uff09",
     "timestamp": "2026-01-01 19:22:58.000",
     "app": "com.tencent.mm",
     "type": "DATA",
     "fromAppData": false,
-    "forceAI": false,
     "data": {
       "mMap": {
-        "description": "账号：*9412\n账户名称：交通银行账户\n交易时间：2026-01-01 19:22\n交易类型：网络支付消费\n交易金额：3433.09元",
-        "source": "交通银行微银行",
-        "title": "账户变动提醒",
+        "description": "\u8d26\u53f7\uff1a*9412\n\u8d26\u6237\u540d\u79f0\uff1a\u4ea4\u901a\u94f6\u884c\u8d26\u6237\n\u4ea4\u6613\u65f6\u95f4\uff1a2026-01-01 19:22\n\u4ea4\u6613\u7c7b\u578b\uff1a\u7f51\u7edc\u652f\u4ed8\u6d88\u8d39\n\u4ea4\u6613\u91d1\u989d\uff1a3433.09\u5143",
+        "source": "\u4ea4\u901a\u94f6\u884c\u5fae\u94f6\u884c",
+        "title": "\u8d26\u6237\u53d8\u52a8\u63d0\u9192",
         "cachedPayTools": "",
         "cachedPayMoney": "",
         "cachedPayShop": "",
@@ -19,17 +18,16 @@
     }
   },
   {
-    "name": "微信公众号招商银行信用卡-还款",
+    "name": "\u5fae\u4fe1\u516c\u4f17\u53f7\u62db\u5546\u94f6\u884c\u4fe1\u7528\u5361-\u8fd8\u6b3e",
     "timestamp": "2026-01-01 19:22:58.100",
     "app": "com.tencent.mm",
     "type": "DATA",
     "fromAppData": false,
-    "forceAI": false,
     "data": {
       "mMap": {
-        "description": "账户类型:个人消费卡账户\n还款时间:1月1日 19:22:58\n还款金额:人民币3433.09元\n还款结果:账单已还清",
-        "source": "招商银行信用卡",
-        "title": "还款提醒",
+        "description": "\u8d26\u6237\u7c7b\u578b:\u4e2a\u4eba\u6d88\u8d39\u5361\u8d26\u6237\n\u8fd8\u6b3e\u65f6\u95f4:1\u67081\u65e5 19:22:58\n\u8fd8\u6b3e\u91d1\u989d:\u4eba\u6c11\u5e013433.09\u5143\n\u8fd8\u6b3e\u7ed3\u679c:\u8d26\u5355\u5df2\u8fd8\u6e05",
+        "source": "\u62db\u5546\u94f6\u884c\u4fe1\u7528\u5361",
+        "title": "\u8fd8\u6b3e\u63d0\u9192",
         "cachedPayTools": "",
         "cachedPayMoney": "",
         "cachedPayShop": "",
@@ -38,17 +36,15 @@
     }
   },
   {
-    "name": "云闪付App通知-支出（通用值银行卡）",
+    "name": "\u4e91\u95ea\u4ed8App\u901a\u77e5-\u652f\u51fa\uff08\u901a\u7528\u503c\u94f6\u884c\u5361\uff09",
     "timestamp": "2026-01-01 19:23:00.500",
     "app": "com.unionpay",
     "type": "NOTICE",
     "fromAppData": false,
-    "forceAI": false,
     "data": {
-      "title": "支付助手：付款成功",
-      "text": "您尾号为9412的银行卡于1日19时22分消费3433.09元",
+      "title": "\u652f\u4ed8\u52a9\u624b\uff1a\u4ed8\u6b3e\u6210\u529f",
+      "text": "\u60a8\u5c3e\u53f7\u4e3a9412\u7684\u94f6\u884c\u5361\u4e8e1\u65e519\u65f622\u5206\u6d88\u8d393433.09\u5143",
       "t": 1767266580500
     }
   }
 ]
-
