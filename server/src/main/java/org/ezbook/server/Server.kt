@@ -83,10 +83,15 @@ class Server(private val context: Application) {
 
         /** 全局协程作用域 - 使用 SupervisorJob 防止异常传播 */
         private val mainJob = SupervisorJob()
-        private val mainScope = CoroutineScope(Dispatchers.Main + mainJob + exceptionHandler)
 
+        /** IO 专用作用域，避免依赖 Main dispatcher */
+        private val ioScope = CoroutineScope(Dispatchers.IO + mainJob + exceptionHandler)
+
+        /**
+         * 统一的 IO 执行入口：用于后台任务与日志写入。
+         */
         fun withIO(block: suspend () -> Unit) {
-            mainScope.launch(Dispatchers.IO) { block() }
+            ioScope.launch { block() }
         }
 
 

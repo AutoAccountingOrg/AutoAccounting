@@ -21,6 +21,7 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
+import kotlinx.coroutines.delay
 import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.constant.AnalysisTaskStatus
@@ -37,6 +38,8 @@ import org.ezbook.server.tools.runCatchingExceptCancel
  * 提供AI分析任务的管理功能，包括任务列表、创建、详情查看和删除
  */
 fun Route.analysisTaskRoutes() {
+    // 服务启动时恢复待处理任务，避免长期挂起
+    resumePendingTasks()
     route("/analysis") {
         /**
          * POST /analysis/all - 获取分析任务列表（支持分页）
@@ -164,9 +167,11 @@ private suspend fun executeTask(taskId: Long) {
     val dao = Db.get().analysisTaskDao()
 
     runCatchingExceptCancel {
+        ServerLog.d("AI分析任务开始执行，ID: $taskId")
         val task = dao.getById(taskId) ?: return
 
         // AI功能总开关或AI月度摘要关闭时，直接标记失败并返回
+
         if (!SettingUtils.featureAiAvailable() || !SettingUtils.aiMonthlySummary()) {
             val message = "AI功能未启用"
             dao.updateStatus(taskId, AnalysisTaskStatus.FAILED)
@@ -181,27 +186,28 @@ private suspend fun executeTask(taskId: Long) {
         // 更新状态为处理中
         dao.updateStatus(taskId, AnalysisTaskStatus.PROCESSING)
         dao.updateProgress(taskId, 10)
+        ServerLog.d("AI分析任务进入处理中，ID: $taskId")
 
         // 获取账单摘要数据
         val dataSummary = SummaryService.generateSummary(task.startTime, task.endTime, task.title)
+        ServerLog.d("AI分析摘要已生成，ID: $taskId")
 
         dao.updateProgress(taskId, 30)
 
         // 构建AI分析请求
         val userInput = """
-请根据以下账单数据生成财务总结报告，包括收支分析、分类统计和理财建议：
+请严格基于以下结构化数据与样本生成财务分析报告：
 
 时间范围：${task.title}
 
 $dataSummary
-
-请生成详细的财务分析报告。
             """.trimIndent()
 
         dao.updateProgress(taskId, 50)
 
         // 调用AI生成分析报告
         val aiResult = AiManager.getInstance().request(SettingUtils.aiSummaryPrompt(), userInput)
+        ServerLog.d("AI请求已返回，ID: $taskId, success=${aiResult.isSuccess}")
 
         if (aiResult.isSuccess) {
             val analysisContent = aiResult.getOrNull()
@@ -236,6 +242,23 @@ $dataSummary
                 errorMessage = e.message ?: "未知错误"
                 updateTime = System.currentTimeMillis()
             })
+        }
+    }
+}
+
+/**
+ * 恢复所有待处理任务（用于服务重启后的补偿执行）。
+ */
+private fun resumePendingTasks() {
+    Server.withIO {
+        delay(3000)
+        val dao = Db.get().analysisTaskDao()
+        val pendingTasks = dao.getByStatus(AnalysisTaskStatus.PENDING)
+        ServerLog.d("待处理任务恢复检查，数量=${pendingTasks.size}")
+        if (pendingTasks.isEmpty()) return@withIO
+        pendingTasks.forEach { task ->
+            ServerLog.d("恢复执行待处理任务，ID: ${task.id}")
+            executeTask(task.id)
         }
     }
 }

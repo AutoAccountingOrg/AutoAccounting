@@ -25,6 +25,7 @@ import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BillSummaryModel
 import org.ezbook.server.db.model.CategoryStatsModel
 import org.ezbook.server.db.model.ShopStatsModel
+import org.ezbook.server.db.model.TimeBucketStatsModel
 
 @Dao
 interface BillInfoDao {
@@ -197,6 +198,28 @@ interface BillInfoDao {
     )
     suspend fun getExpenseShopStats(startTime: Long, endTime: Long): List<ShopStatsModel>
 
+    /**
+     * 获取小额支出分类统计（用于拿铁因子）
+     * 仅统计支出且金额不超过阈值
+     */
+    @Query(
+        """
+        SELECT cateName, SUM(money) as amount, COUNT(*) as count
+        FROM BillInfoModel
+        WHERE type = 'Expend'
+          AND money <= :maxAmount
+          AND time >= :startTime AND time <= :endTime
+          AND groupId = -1
+        GROUP BY cateName
+        ORDER BY amount DESC
+    """
+    )
+    suspend fun getSmallExpenseCategoryStats(
+        startTime: Long,
+        endTime: Long,
+        maxAmount: Double
+    ): List<CategoryStatsModel>
+
     /** 获取大额交易样本（必须限制数量，避免过多） */
     @Query(
         """
@@ -235,6 +258,70 @@ interface BillInfoDao {
 
     @Query("SELECT COUNT(*) FROM BillInfoModel WHERE type = 'Transfer' AND time >= :startTime AND time <= :endTime AND groupId = -1")
     suspend fun getTransferCount(startTime: Long, endTime: Long): Int
+
+    /**
+     * 按星期聚合支出（0=周日...6=周六）
+     * 仅统计支出，金额口径使用 money
+     */
+    @Query(
+        """
+        SELECT 
+            strftime('%w', datetime(time/1000, 'unixepoch', 'localtime')) as bucket,
+            SUM(money) as amount,
+            COUNT(*) as count
+        FROM BillInfoModel
+        WHERE type = 'Expend'
+          AND time >= :startTime AND time <= :endTime
+          AND groupId = -1
+        GROUP BY bucket
+        ORDER BY bucket ASC
+        """
+    )
+    suspend fun getExpenseWeekdayStats(
+        startTime: Long,
+        endTime: Long
+    ): List<TimeBucketStatsModel>
+
+    /**
+     * 按小时聚合支出（00-23）
+     * 仅统计支出，金额口径使用 money
+     */
+    @Query(
+        """
+        SELECT 
+            strftime('%H', datetime(time/1000, 'unixepoch', 'localtime')) as bucket,
+            SUM(money) as amount,
+            COUNT(*) as count
+        FROM BillInfoModel
+        WHERE type = 'Expend'
+          AND time >= :startTime AND time <= :endTime
+          AND groupId = -1
+        GROUP BY bucket
+        ORDER BY bucket ASC
+        """
+    )
+    suspend fun getExpenseHourStats(
+        startTime: Long,
+        endTime: Long
+    ): List<TimeBucketStatsModel>
+
+    /**
+     * 按类型汇总金额（AI分析用）。
+     * 仅使用 money 字段，避免引入 fee 口径差异。
+     */
+    @Query(
+        """
+        SELECT SUM(money) FROM BillInfoModel
+        WHERE groupId = -1 
+          AND type IN (:types)
+          AND time >= :startTime AND time <= :endTime
+        """
+    )
+    suspend fun sumAmountByTypes(
+        startTime: Long,
+        endTime: Long,
+        types: List<BillType>
+    ): Double?
 
     /** 简化的按天趋势统计：只统计Income和Expend，只使用money字段 */
     @Query(
