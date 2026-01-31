@@ -402,4 +402,21 @@ interface BillInfoDao {
         startTime: Long,
         endTime: Long
     ): List<org.ezbook.server.db.model.CategoryAggregateRow>
+
+    /**
+     * 获取收入分类统计（用于 AI 分析，返回 CategoryStatsModel）
+     */
+    @Query(
+        """
+        SELECT cateName, SUM(money) as amount, COUNT(*) as count
+        FROM BillInfoModel
+        WHERE type = 'Income' AND time >= :startTime AND time <= :endTime AND groupId = -1
+        GROUP BY cateName
+        ORDER BY amount DESC
+        """
+    )
+    suspend fun getIncomeCategoryStatsForAI(
+        startTime: Long,
+        endTime: Long
+    ): List<CategoryStatsModel>
 }

@@ -155,8 +155,7 @@ class AnalysisDetailFragment : BaseFragment<FragmentAnalysisDetailBinding>() {
                     binding.topAppBar.title = task.title
                     binding.topAppBar.subtitle =
                         DateUtils.formatTimeRange(requireContext(), task.startTime, task.endTime)
-                    val htmlContent = convertToHtml(task.resultHtml!!)
-                    displayHtml(htmlContent)
+                    loadHtmlTemplate(task.resultHtml!!)
                 } else {
                     showError(getString(R.string.analysis_result_not_found))
                 }
@@ -170,12 +169,188 @@ class AnalysisDetailFragment : BaseFragment<FragmentAnalysisDetailBinding>() {
     }
 
     /**
-     * 显示HTML内容
+     * 加载 HTML 模板并注入数据
      */
-    private fun displayHtml(htmlContent: String) {
+    private fun loadHtmlTemplate(data: String) {
         if (!uiReady()) return
-        binding.webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-        binding.statusPage.showContent()
+
+        // 判断数据类型：JSON 或 HTML
+        val isJson = data.trimStart().startsWith("{")
+
+        if (isJson) {
+            // 新数据：JSON 格式，使用模板
+            loadJsonData(data)
+        } else {
+            // 老数据：HTML 格式，直接显示
+            loadLegacyHtml(data)
+        }
+    }
+
+    /**
+     * 加载新格式数据（JSON）
+     */
+    private fun loadJsonData(jsonData: String) {
+        // 加载 ai.html 模板
+        binding.webView.loadUrl("file:///android_asset/summary/ai.html")
+
+        // 等待页面加载完成后注入数据
+        binding.webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                if (!uiReady()) return
+
+                // 准备完整数据（包含 logo 和时间）
+                val logoBase64 = getAppLogoBase64()
+                val appName = getString(R.string.app_name)
+                val currentTime =
+                    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+
+                // 构建完整 JSON（合并后端数据、固定标签、logo 和时间）
+                val finalJson = buildFinalJson(jsonData, logoBase64, appName, currentTime)
+
+                // 调用 setJson 注入数据
+                binding.webView.evaluateJavascript(
+                    "setJson($finalJson);",
+                    null
+                )
+
+                binding.btnShare.visibility = View.VISIBLE
+                binding.webView.visibility = View.VISIBLE
+                binding.statusPage.showContent()
+            }
+        }
+    }
+
+    /**
+     * 加载老格式数据（HTML）
+     */
+    private fun loadLegacyHtml(htmlContent: String) {
+        val appName = getString(R.string.app_name)
+        val logoBase64 = getAppLogoBase64()
+        val wrappedHtml = wrapLegacyHtml(htmlContent, logoBase64, appName)
+
+        binding.webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                if (!uiReady()) return
+                binding.btnShare.visibility = View.VISIBLE
+                binding.webView.visibility = View.VISIBLE
+                binding.statusPage.showContent()
+            }
+        }
+
+        binding.webView.loadDataWithBaseURL(null, wrappedHtml, "text/html", "UTF-8", null)
+    }
+
+    /**
+     * 包装老格式 HTML（添加头部和底部）
+     */
+    private fun wrapLegacyHtml(content: String, logoBase64: String, appName: String): String {
+        val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="color-scheme" content="light dark">
+            <style>
+                :root {
+                    --text-primary: #1f2937;
+                    --text-secondary: #6b7280;
+                }
+                @media (prefers-color-scheme: dark) {
+                    :root {
+                        --text-primary: #e5e7eb;
+                        --text-secondary: #9ca3af;
+                    }
+                }
+                body { padding: 1.5rem; }
+                .header {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 1.5rem;
+                }
+                .logo img {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                }
+                .logo .emoji {
+                    font-size: 20px;
+                    line-height: 1;
+                }
+                .period-title {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    margin: 0;
+                }
+                .footer {
+                    text-align: center;
+                    padding: 1.5rem;
+                    color: var(--text-secondary);
+                    font-size: 14px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="logo">${if (logoBase64.isNotEmpty()) "<img src=\"$logoBase64\" alt=\"Logo\">" else "<span class=\"emoji\">💰</span>"}</div>
+                    <p class="period-title">$appName • 财务分析</p>
+                </div>
+                <div class="content">
+                    $content
+                </div>
+                <div class="footer">
+                    由 $appName 生成 • $currentTime
+                </div>
+            </div>
+        </body>
+        </html>
+        """.trimIndent()
+    }
+
+    /**
+     * 构建最终 JSON（合并所有数据）
+     */
+    private fun buildFinalJson(
+        backendAndAiJson: String,
+        logoBase64: String,
+        appName: String,
+        currentTime: String
+    ): String {
+        return try {
+            // 解析后端+AI的数据
+            val data = org.json.JSONObject(backendAndAiJson)
+
+            // 添加固定标签
+            data.put("reportTitle", "财务全景透视报告")
+            data.put("healthScoreLabel", "AI 财务健康分")
+            data.put("incomeLabel", "总收入 (含工资/理财)")
+            data.put("expenseLabel", "本月总支出")
+            data.put("outlierLabel", "独秀指数 (Outlier)")
+            data.put("consumeTitle", "🧩 消费结构分析")
+            data.put("radarTitle", "🚀 结构画像雷达")
+            data.put("riskTitle", "<span>⚠️</span> 异常风险")
+            data.put("behaviorTitle", "🔍 消费画像与行为规律")
+            data.put("conclusionTitle", "<span>⚖️</span> 综合结论与健康等级")
+            data.put("actionTitle", "<span>✅</span> 行动清单")
+            data.put("executionTitle", "✅ 执行优先级")
+            data.put("recordQualityTitle", "🧭 记录质量提升")
+
+            // 添加 logo 和时间
+            data.put("logoBase64", logoBase64)
+            data.put("pageHeaderTitle", "$appName • 财务分析")
+            data.put("pageFooter", "由 $appName 生成 • $currentTime")
+            data.toString()
+        } catch (e: Exception) {
+            Logger.e("解析 JSON 失败，数据格式可能有误", e)
+            "{}" // 返回空对象
+        }
     }
 
     /**
@@ -327,134 +502,31 @@ class AnalysisDetailFragment : BaseFragment<FragmentAnalysisDetailBinding>() {
      */
     private fun getAppLogoBase64(): String {
         return try {
-            // 获取应用logo drawable
             val drawable = requireContext().getDrawable(R.mipmap.ic_launcher)
             if (drawable != null) {
-                // 转换为bitmap
                 val bitmap = if (drawable is android.graphics.drawable.BitmapDrawable) {
                     drawable.bitmap
                 } else {
                     val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 48
                     val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 48
                     val bitmap = createBitmap(width, height)
-
                     val canvas = Canvas(bitmap)
                     drawable.setBounds(0, 0, canvas.width, canvas.height)
                     drawable.draw(canvas)
                     bitmap
                 }
 
-                // 转换为base64
                 val outputStream = ByteArrayOutputStream()
                 bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outputStream)
                 val byteArray = outputStream.toByteArray()
                 "data:image/png;base64," + Base64.encodeToString(byteArray, Base64.NO_WRAP)
             } else {
-                "" // 如果获取失败，返回空字符串
+                ""
             }
         } catch (e: Exception) {
             Logger.e("获取应用logo失败", e)
-            "" // 出错时返回空字符串
+            ""
         }
-    }
-
-    /**
-     * 将AI生成的内容转换为HTML
-     */
-    private fun convertToHtml(content: String): String {
-        val appName = getString(R.string.app_name)
-        val logoBase64 = getAppLogoBase64()
-
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          
-            <meta name="color-scheme" content="light dark">
-            <style>
-              
-                :root {
-                 
-                    --text-primary: #1f2937;          /* 浅色主文本（更稳的深灰） */
-                    --text-secondary: #6b7280;        /* 浅色次文本 */
-                }
-                @media (prefers-color-scheme: dark) {
-                    :root {
-                      
-                        --text-primary: #e5e7eb;      /* 深色主文本（近 Gray-200） */
-                        --text-secondary: #9ca3af;    /* 深色次文本（Gray-400） */
-                    }
-                }
-                body{
-                    padding:1.5rem
-                }
-
-
-                /* 顶部页眉：左侧小 Logo + 周期标题 */
-                .header {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 1.5rem;
-                }
-                .logo {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .logo img {
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 6px;
-                }
-                .logo .emoji {
-                    font-size: 20px;
-                    line-height: 1;
-                }
-                .period-title {
-                    font-size: 18px;
-                    font-weight: 600;
-                    color: var(--text-primary);
-                    margin: 0;
-                }
-                
-                .footer {
-                    text-align: center;
-                        padding:1.5rem;
-                    color: var(--text-secondary);
-                    font-size: 14px;
-                }
-               
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <!-- 顶部页眉：左侧小 Logo，不显示应用标题，仅显示周期标题 -->
-                <div class="header">
-                    <div class="logo">${if (logoBase64.isNotEmpty()) "<img src=\"$logoBase64\" alt=\"Logo\">" else "<span class=\"emoji\">💰</span>"}</div>
-                    <p class="period-title">自动记账 • 财务分析</p>
-                </div>
-                
-                <!-- AI分析内容 -->
-                <div class="content">
-                    ${content}
-                </div>
-                
-                <!-- 底部信息 -->
-                <div class="footer">
-                    由 $appName 生成 • ${
-            SimpleDateFormat(
-                "yyyy-MM-dd HH:mm",
-                Locale.getDefault()
-            ).format(Date())
-        }
-                </div>
-            </div>
-        </body>
-        </html>
-        """.trimIndent()
     }
 
     /**

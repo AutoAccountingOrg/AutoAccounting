@@ -188,19 +188,25 @@ private suspend fun executeTask(taskId: Long) {
         dao.updateProgress(taskId, 10)
         ServerLog.d("AI分析任务进入处理中，ID: $taskId")
 
-        // 获取账单摘要数据
+        // 获取账单摘要、样本与结构化数据，减少AI解析歧义
         val dataSummary = SummaryService.generateSummary(task.startTime, task.endTime, task.title)
         ServerLog.d("AI分析摘要已生成，ID: $taskId")
 
+        if (dataSummary.isEmpty()) {
+            error("AI分析失败: 收支数据为空")
+        }
+
         dao.updateProgress(taskId, 30)
 
-        // 构建AI分析请求
+        // 构建AI分析请求，并明确字段范围避免模型臆造
         val userInput = """
-请严格基于以下结构化数据与样本生成财务分析报告：
+请严格基于以下结构化数据（JSON）与账单样本生成财务分析报告：
 
 时间范围：${task.title}
 
+结构化数据JSON：
 $dataSummary
+
             """.trimIndent()
 
         dao.updateProgress(taskId, 50)

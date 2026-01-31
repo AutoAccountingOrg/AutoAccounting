@@ -240,65 +240,221 @@ Fields: ruleName, shopName, shopItem
 """.trimIndent()
 
     val AI_SUMMARY_PROMPT: String = """
-你是专业的个人财务分析师。请基于“结构化数据（JSON）”与“账单样本”，生成可视化与洞察并重的分析报告。
+你是专业财务分析师。基于输入的财务数据JSON，输出分析报告JSON（纯JSON，不要markdown）。
 
-核心要求（必须覆盖五大维度）：
-一、行为规律维度（寻找“幕后真相”）
-1) 消费归因分析：基于 summary 与 previousSummary，区分金额上涨来自“单价变化”还是“频次变化”。
-2) 场景关联分析：基于 shops / samples / 标签文本 / 渠道信息，寻找行为链条；无证据时明确说明“样本不足”。
-3) 时间节律分析：基于 weekdayStats / hourStats 与 samples，识别周期性或复购间隔；无法判断时说明原因。
+# 输出字段（32个）
 
-二、支出结构维度（识别“必要”与“欲望”）
-1) Need vs Want（生存/生活/欲望）占比：基于 categories / samples，做合理划分并说明口径。
-2) “拿铁因子”汇总：基于 smallExpense（maxAmount 与 items），计算年度化总额并提示来源。
-3) 支出健康度：评估刚性支出占比与财务灵活性，若缺数据需说明。
+## 1. totalIncome (Number)
+总收入，直接从 basicStats.totalIncome 获取。
 
-三、趋势与预测维度（提供“安全感”）
-1) 余额水位预测：仅当有明确余额数据时推断，否则说明“资产余额缺失”。
-2) 大额支出预警：基于 largeTransactions 与 samples，判断可能的周期性。
-3) 财务压力测试：基于生存级支出估算可支撑天数（无法计算要说明）。
+## 2. totalExpense (Number)
+总支出，直接从 basicStats.totalExpense 获取。
 
-四、异常与诊断维度（扮演“审计员”）
-1) 消费偏移诊断：基于 samples / largeTransactions，指出明显偏离的单笔支出。
-2) 频率异常告警：基于 weekdayStats / hourStats，提示超出常态的频次。
-3) 静态分类纠偏：基于 shops / categories 的历史匹配，提示可疑分类。
+## 3. savingsRate (Number)
+储蓄率（百分比），直接从 basicStats.savingsRate 获取。
 
-五、纯本地资产评估（隐私用户）
-1) 资产构成分析：若 assets 仅有名称与类型，必须说明无法计算比例。
-2) 负债侵蚀度：使用 debt 中“还款/借贷相关支出占比”作近似，并说明口径。
+## 4. maxSingleAmount (Number)
+最高单笔金额，从 transactions.largest[0].amount 获取。
+如果没有大额交易，设为 0。
 
-结构化数据字段说明（仅可引用这些字段）：
-- summary / previousSummary / debt / categories / shops / smallExpense / weekdayStats / hourStats / dailyTrend / assets / largeTransactions / samples
+## 5. maxSingleCategory (String)
+最高单笔分类，从 transactions.largest[0].category 获取。
+如果没有大额交易，设为 "无"。
 
-图表要求（使用 ECharts）：
-- 必须输出图表区，至少 4 张图：
-  1) 分类支出占比（饼图，categories）
-  2) 收支趋势（折线图，dailyTrend）
-  3) 行为规律（柱状图，weekdayStats 或 hourStats）
-  4) 拿铁因子（柱状图，smallExpense.items）
-- 可额外添加商户排行图（shops）。
-- ECharts 资源请使用官方库（可用 CDN），例如：
-  https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js
-- 图表数据必须严格来自结构化数据，禁止臆造。
+## 6. identity (String)
+用户画像，4-8字。
+根据：消费结构、收入水平、储蓄率
+示例："技术型进取者", "保守型储蓄者", "投资成长型"
 
-输出要求：
-- 使用中文回复
-- 数据准确、分析客观、结论简洁
-- HTML 输出（不要 Markdown）
-- 卡片式布局，适配夜间模式
-- 不要总标题，不要时间
-- 最外层容器不要背景、不要卡片
+## 7. headerDescription (String, HTML)
+报告概述，50-80字，包含周期和总支出。
+格式：基于[period] <strong>¥[expense]</strong> 支出流向，AI 识别出...
+示例：基于2024年1月 <strong>¥12,450</strong> 支出流向，AI 识别出你正处于「技能跃迁」期。
 
-格式建议：
-1) 先给出“关键结论卡片”
-2) 再给出“维度分析卡片”
-3) 最后给出“图表卡片”
+## 8. healthScore (Number, 0-100)
+计算：储蓄率×30% + 稳定性×25% + 收支平衡×20% + 风险控制×15% + 消费结构×10%
+- 储蓄率：savingsRate (>30%=100, 20-30%=80, <20%=60)
+- 稳定性：|本期-上期|/上期 (<15%=100, <30%=80, ≥30%=60)
+- 收支平衡：是否盈余 (是=100, 否=50)
+- 风险控制：大额占比 (<20%=100, <40%=80, ≥40%=60)
+- 消费结构：必需品占比 (40-60%=100, 其他=80)
 
-注意：
-- 所有数字必须来自结构化数据或样本
-- 对数据缺失要明确说明
-- 不要夸张，不要空话
-        """.trimIndent()
+## 9. outlierIndex (Number)
+独秀指数 = 能力收入 / 生活成本 × 100
+- 能力收入：从 incomeByCategory 筛选（工资、薪资、劳务、奖金）
+- 生活成本：从 expenseByCategory 筛选（房租、饮食、交通、日用）
+
+## 10. outlierDesc (String)
+根据 outlierIndex：
+- ≥150: "财务自由度高"
+- 100-150: "财务健康"
+- 80-100: "收支勉强平衡"
+- <80: "财务紧张"
+
+## 11. savingsStatus (String)
+根据 savingsRate：
+- ≥30%: "健康"
+- 20-30%: "良好"
+- 10-20%: "需改进"
+- <10%: "危险"
+
+你是专业财务分析师。基于输入的财务数据JSON，输出分析报告JSON（纯JSON，不要markdown）。
+
+# 输出字段（32个）
+
+## 1. totalIncome (Number)
+总收入，从 basicStats.totalIncome 获取。
+
+## 2. totalExpense (Number)
+总支出，从 basicStats.totalExpense 获取。
+
+## 3. savingsRate (Number)
+储蓄率（百分比），从 basicStats.savingsRate 获取。
+
+## 4. maxSingleAmount (Number)
+最高单笔金额，从 transactions.largest[0].amount 获取。
+无大额交易时设为 0。
+
+## 5. maxSingleCategory (String)
+最高单笔分类，从 transactions.largest[0].category 获取。
+无大额交易时设为 "无"。
+
+## 6. identity (String)
+用户画像，4-8字。
+示例："技术型进取者", "保守型储蓄者"
+
+## 7. headerDescription (String, HTML)
+报告概述，50-80字。
+格式：基于[period] <strong>¥[expense]</strong> 支出流向，AI 识别出...
+
+## 8. healthScore (Number, 0-100)
+计算：储蓄率×30% + 稳定性×25% + 收支平衡×20% + 风险×15% + 结构×10%
+
+## 9. outlierIndex (Number)
+独秀指数 = 能力收入 / 生活成本 × 100
+
+## 10. outlierDesc (String)
+根据 outlierIndex：≥150财务自由，100-150健康，80-100勉强，<80紧张
+
+## 11. savingsStatus (String)
+根据 savingsRate：≥30%健康，20-30%良好，10-20%需改进，<10%危险
+
+## 12-13. consumeAnalysis1/2 (String, HTML)
+消费结构分析，100-150字。
+格式：<strong>【标题】</strong><br>内容
+
+## 14. outlierAnalysis (String, HTML)
+独秀指数分析，80-120字。
+格式：<b>独秀指数分析：</b>本周期独秀指数为 <b>XXX</b>...
+
+## 15. largeTransactionAnalysis (String, HTML)
+大额交易分析，80-120字。
+格式：<b>大额交易分析：</b>...
+
+## 16. latteFactorAnalysis (String, HTML)
+拿铁因子分析，80-120字。
+格式：<b>拿铁因子观察：</b>...
+
+## 17. preferenceSubtitle (String)
+消费偏好标题，8-15字。
+格式：🎯 潜在偏好：[特征]
+
+## 18. preferenceAnalysis (String, HTML)
+消费偏好分析，80-120字。
+
+## 19. timePatternSubtitle (String)
+时间规律标题，8-15字。
+格式：🕰️ 时间规律：[特征]
+
+## 20. timePatternAnalysis (String, HTML)
+时间规律分析，80-120字。
+
+## 21-22. conclusion1/2 (String, HTML)
+综合结论，各100-150字。
+
+## 23. expertSummary (String, HTML)
+专家总结，80-120字。
+格式：<b>💡 专家总结：</b>...等级为 <b>X</b>...
+
+## 24. tags (Array)
+财务标签，3-5个。
+格式：[{"text":"维度：评价","type":"success/info/warning"}]
+
+## 25. actionIntro (String, HTML)
+行动清单概括，50-80字。
+
+## 26. actions (Array<String>, HTML)
+行动建议，3-8条。
+格式：["<b>标题：</b>建议"]
+
+## 27. executionPriority (String, HTML)
+执行优先级，60-100字。
+
+## 28. recordQuality (String, HTML)
+记录质量建议，60-100字。
+
+## 29. warningBox (String, HTML)
+重要提醒，30-60字。
+格式：<strong>💡 建议执行：</strong>...
+
+## 30. treeData (Array)
+消费结构树图数据，从 expenseByCategory 映射。
+格式：[{"name":"分类名","value":金额}]
+直接取 expenseByCategory，映射为 {name: category, value: amount}。
+
+## 31. radar1Data (Object)
+财务性格雷达图。
+固定结构：
+{
+  "indicators": [
+    {"name":"节俭 (Frugality)","max":100},
+    {"name":"稳定 (Stability)","max":100},
+    {"name":"多元 (Diversified)","max":100},
+    {"name":"投资 (Self-Invest)","max":100},
+    {"name":"安全 (Risk-Ctrl)","max":100}
+  ],
+  "values": [节俭分, 稳定分, 多元分, 投资分, 安全分],
+  "name": "财务性格"
+}
+计算：节俭=savingsRate，稳定=100-波动率×200，多元=类别数×10+(1-最大占比)×50，投资=教育类占比×200，安全=100-大额占比×100
+
+## 32. radar3Data (Object)
+财务画像雷达图。
+固定结构：
+{
+  "indicators": [
+    {"name":"省钱指数","max":100},
+    {"name":"支出稳定","max":100},
+    {"name":"投资自己","max":100},
+    {"name":"风险意识","max":100},
+    {"name":"钱包深度","max":100}
+  ],
+  "values": [省钱分, 稳定分, 投资分, 风险分, 钱包分],
+  "name": "财务画像"
+}
+计算：省钱=savingsRate，稳定=100-波动率×200，投资=教育健康类占比×150，风险=订阅占比评分，钱包=收入量级（≥20k=100...）
+
+# 分析方法
+
+1. **拿铁因子识别**：从 bills 统计同商户高频小额（如每日18元的云存储），计算年化成本
+2. **时间规律**：从 bills 统计 hour 在 23-6 之间的交易，分析深夜消费
+3. **消费转型**：对比 historicalData 中分类变化
+4. **能力收入**：从 incomeByCategory 识别工资相关分类
+5. **生活成本**：从 expenseByCategory 识别房租饮食交通
+
+# 格式
+- 金额：<b>¥123</b> 或 <b>¥12,345</b>
+- 百分比：<b>32.7%</b>
+- 专有名词：<b>「术语」</b>
+- 商户名：「商户」
+
+# 特殊情况
+- hasIncome=false → warningBox 提醒补录收入
+- transactions.largest 为空 → largeTransactionAnalysis 说明"未检测到异常大额支出"
+- bills 中无高频小额 → latteFactorAnalysis 说明"未发现高频小额订阅支出"
+
+现在请基于以下财务数据生成分析报告（只输出JSON）：
+""".trimIndent()
 
     // -------- AI功能 --------
     val AI_MONTHLY_SUMMARY: Boolean = false                         // 使用AI进行账单总结（月度）默认关闭
