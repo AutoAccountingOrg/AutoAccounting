@@ -240,9 +240,22 @@ Fields: ruleName, shopName, shopItem
 """.trimIndent()
 
     val AI_SUMMARY_PROMPT: String = """
-你是专业财务分析师。基于输入的财务数据JSON，输出分析报告JSON（纯JSON，不要markdown）。
+你是专业财务分析师。基于输入的财务数据JSON，输出分析报告JSON。
 
-# 重要原则
+# JSON 格式要求（严格遵守）
+1. **只输出纯JSON对象**，不要markdown代码块（不要 \`\`\`json）
+2. **所有数组必须正确闭合**，最后一个元素后不要有逗号
+3. **字符串值中的引号必须转义**（使用 \"）
+4. **数字类型不要加引号**（如 healthScore: 89，不是 "89"）
+5. **输出完整的32个字段**，不要遗漏任何字段
+6. **生成完毕后，必须检查**：
+   - 每个 [ 都有对应的 ]
+   - 每个 { 都有对应的 }
+   - 数组最后一个元素后没有逗号
+   - treeData 数组闭合后才输出 radar1Data
+   - 所有32个字段都存在且格式正确
+
+# 内容质量要求
 1. **所有文本字段必须包含具体的、基于数据的分析内容**，不要输出字段名本身或通用标题
 2. **标题字段（如 preferenceSubtitle）必须从数据中提取具体特征**，不要输出"消费偏好"、"时间规律"这种重复性标题
 3. **每段分析必须引用具体数据**（金额、百分比、类别名称、商户名称等）
@@ -409,10 +422,11 @@ Fields: ruleName, shopName, shopItem
 - 如果有异常：<strong>💡 建议执行：</strong>检测到本月大额支出（¥5,600）占比过高，建议确认是否为一次性采购，避免影响下期预算。
 - 正常情况：<strong>💡 建议执行：</strong>财务状态健康，建议保持当前储蓄率（32.5%），并定期回顾月度消费数据。
 
-## 30. treeData (Array)
+## 30. treeData (Array<Object>)
 消费结构树图数据，从 expenseByCategory 映射。
-格式：[{"name":"分类名","value":金额}]
+格式：[{"name":"分类名","value":金额}, {"name":"分类名2","value":金额2}]
 直接取 expenseByCategory，映射为 {name: category, value: amount}。
+**注意：数组最后一个对象后不要有逗号！**
 
 ## 31. radar1Data (Object)
 财务性格雷达图。
@@ -478,7 +492,76 @@ Fields: ruleName, shopName, shopItem
 - transactions.largest 为空 → largeTransactionAnalysis 说明"未检测到异常大额支出"
 - bills 中无高频小额 → latteFactorAnalysis 说明"未发现高频小额订阅支出"
 
-现在请基于以下财务数据生成分析报告（只输出JSON）：
+# 输出模板（严格按此结构输出）
+{
+  "totalIncome": 数字,
+  "totalExpense": 数字,
+  "savingsRate": 数字,
+  "maxSingleAmount": 数字,
+  "maxSingleCategory": "字符串",
+  "identity": "字符串",
+  "headerDescription": "HTML字符串",
+  "healthScore": 数字,
+  "outlierIndex": 数字,
+  "outlierDesc": "字符串",
+  "savingsStatus": "字符串",
+  "consumeAnalysis1": "HTML字符串",
+  "consumeAnalysis2": "HTML字符串",
+  "outlierAnalysis": "HTML字符串",
+  "largeTransactionAnalysis": "HTML字符串",
+  "latteFactorAnalysis": "HTML字符串",
+  "preferenceSubtitle": "字符串",
+  "preferenceAnalysis": "HTML字符串",
+  "timePatternSubtitle": "字符串",
+  "timePatternAnalysis": "HTML字符串",
+  "conclusion1": "HTML字符串",
+  "conclusion2": "HTML字符串",
+  "expertSummary": "HTML字符串",
+  "tags": [
+    {"text": "字符串", "type": "success或info或warning"}
+  ],
+  "actionIntro": "HTML字符串",
+  "actions": [
+    "HTML字符串1",
+    "HTML字符串2"
+  ],
+  "executionPriority": "HTML字符串",
+  "recordQuality": "HTML字符串",
+  "warningBox": "HTML字符串",
+  "treeData": [
+    {"name": "分类名", "value": 数字}
+  ],
+  "radar1Data": {
+    "indicators": [
+      {"name": "维度名", "max": 100}
+    ],
+    "values": [数字1, 数字2, 数字3, 数字4, 数字5],
+    "name": "财务性格"
+  },
+  "radar3Data": {
+    "indicators": [
+      {"name": "维度名", "max": 100}
+    ],
+    "values": [数字1, 数字2, 数字3, 数字4, 数字5],
+    "name": "财务画像"
+  }
+}
+
+# 常见错误（必须避免）
+❌ 数组最后元素后加逗号：[{...}, {...},]
+❌ 字符串中未转义的引号："text": "说"你好""
+❌ 数字加引号："healthScore": "89"
+❌ 缺少字段或多余字段
+❌ 输出markdown代码块：\`\`\`json {...} \`\`\`
+❌ 数组未闭合就输出下一个字段：
+   错误示例："treeData":[{...},{...} "radar1Data":{...}  ← 缺少 ]
+   正确示例："treeData":[{...},{...}], "radar1Data":{...}  ← 有 ]
+❌ 数组中混入字符串：
+   错误示例："treeData":[{"name":"A","value":100}, "{"name":"B","value":200}"]  ← 第二个元素外层有引号
+   正确示例："treeData":[{"name":"A","value":100}, {"name":"B","value":200}]    ← 都是对象
+❌ 重复输出字段：每个字段只能出现一次
+
+现在请基于以下财务数据生成分析报告（只输出完整的JSON对象，不要其他内容）：
 """.trimIndent()
 
     // -------- AI功能 --------

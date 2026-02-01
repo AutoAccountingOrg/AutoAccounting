@@ -821,6 +821,8 @@
     <!-- 分析详情 -->
     <string name="analysis_detail_title">分析报告</string>
     <string name="analysis_result_not_found">未找到分析结果</string>
+    <string name="analysis_result_empty">AI 分析结果为空，请重新生成</string>
+    <string name="analysis_result_parse_error">分析结果格式错误，请重新生成</string>
     <string name="analysis_load_error">加载错误：%s</string>
     <string name="analysis_generating_image">生成图片中…</string>
     <string name="analysis_image_error">图片错误：%s</string>

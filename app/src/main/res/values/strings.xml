@@ -995,6 +995,8 @@
     <!-- Analysis Detail -->
     <string name="analysis_detail_title">Analysis Report</string>
     <string name="analysis_result_not_found">Analysis result not found</string>
+    <string name="analysis_result_empty">AI analysis result is empty, please regenerate</string>
+    <string name="analysis_result_parse_error">Analysis result format error, please regenerate</string>
     <string name="analysis_load_error">Load error: %s</string>
     <string name="analysis_generating_image">Generating image…</string>
     <string name="analysis_image_error">Image error: %s</string>

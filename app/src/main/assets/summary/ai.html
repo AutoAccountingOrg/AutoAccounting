@@ -19,181 +19,589 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 财务报告风格整合</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="./echarts.min.js"></script>
     <style>
-        /* 通用色板：默认主题色，支持外部注入覆盖 */
+        /**
+         * CSS 变量定义 - Material 3 主题色系统
+         * 参考 summary.html 的设计系统，统一全局色阶
+         */
         :root {
-            --color-bg-page: #f1f5f9;
-            --color-surface-1: #f8fafc;
-            --color-surface-2: #ffffff;
-            --color-surface-1-dark: #0f172a;
-            --color-surface-2-dark: #1e293b;
-            --color-text-title: #1f2937;
-            --color-text-body: #334155;
-            --color-text-muted: #475569;
-            --color-text-subtle: #4b5563;
-            --color-primary: #6366f1;
-            --color-primary-dark: #818cf8;
-            --color-secondary: #94a3b8;
-            --color-secondary-dark: #64748b;
-            --color-success: #22c55e;
-            --color-success-deep: #059669;
-            --color-danger: #ef4444;
-            --color-warning: #f59e0b;
-            --color-warning-deep: #d97706;
-            --color-info: #2563eb;
-            --color-warning-text: #ea580c;
-            --color-tag-bg: #f3f4f6;
-            --color-tag-success-bg: #ecfdf5;
-            --color-tag-info-bg: #eff6ff;
-            --color-alert-bg: #fff7ed;
-            --color-alert-border: #ffedd5;
-            --color-alert-text: #9a3412;
-            --color-gradient-start: #4f46e5;
-            --color-gradient-end: #7c3aed;
-            --color-black-rgb: 0, 0, 0;
-            --color-white-rgb: 255, 255, 255;
-            --color-primary-rgb: 99, 102, 241;
-            --color-warning-deep-rgb: 217, 119, 6;
+            /* 基础背景色 */
+            --color-bg: #fffbfe;
+            --color-card: #fffbfe;
+            --color-card-hover: #f5eff7;
+            
+            /* 文字颜色 */
+            --color-text: #1c1b1f;
+            --color-text-light: #49454f;
+            --color-text-muted: #79747e;
+            
+            /* Material 3 主题色 */
+            --color-primary: #6750a4;
+            --color-primary-light: #eaddff;
+            --color-secondary: #625b71;
+            --color-tertiary: #7d5260;
+            --color-on-primary: #ffffff;
+            --color-on-secondary: #ffffff;
+            
+            /* 语义化颜色 */
+            --color-success: #006c4b;
+            --color-success-bg: #b6f1d8;
+            --color-danger: #b3261e;
+            --color-danger-bg: #f9dedc;
+            --color-warning: #8d6e00;
+            --color-warning-bg: #ffddb4;
+            
+            /* 辅助颜色 */
+            --color-border: #79747e;
+            --color-surface-variant: #e7e0ec;
+            --color-outline: #79747e;
+            
+            /* RGB 格式（用于 rgba） */
+            --color-primary-rgb: 103, 80, 164;
+            --color-success-rgb: 0, 108, 75;
+            --color-danger-rgb: 179, 38, 30;
+            --color-warning-rgb: 141, 110, 0;
         }
-        /* 通用页面结构与分区标识 */
-        body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        .page { padding: 20px 0 40px; }
-        .theme { padding: 25px 0; }
-        .theme-title {
-            max-width: 1000px; margin: 0 auto 12px; padding: 0 20px;
-            font-size: 16px; font-weight: 700; color: var(--color-text-title);
-        }
-
-        /* 主题一：全景透视风格样式 */
-        .theme-1 {
-            --card: var(--color-surface-2);
-            --primary: var(--color-primary);
-            --secondary: var(--color-secondary);
-            --success: var(--color-success);
-            --danger: var(--color-danger);
-            --warning: var(--color-warning);
-            color: var(--color-text-body);
-        }
-        @media (prefers-color-scheme: dark) {
-            .theme-1 {
-                --card: var(--color-surface-2-dark);
-                --primary: var(--color-primary-dark);
-                --secondary: var(--color-secondary-dark);
-            }
-        }
-        .theme-1 .container { max-width: 1000px; margin: 0 auto; padding: 25px; }
-        /* Theme-1 layout: mobile-first stacked flow */
-        .theme-1 .grid { display: flex; flex-direction: column; gap: 20px; }
-        /* Theme-1 shared card base */
-        .theme-1 .card { background: var(--card); border-radius: 24px; padding: 25px; box-shadow: 0 10px 25px rgba(var(--color-black-rgb), 0.05); }
-        .theme-1 .header-card { background: linear-gradient(135deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%); color: white; }
-        /* Theme-1 header layout */
-        .theme-1 .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
-        .theme-1 .header-title { margin: 10px 0; }
-        .theme-1 .header-desc { opacity: 0.8; max-width: 600px; }
-        .theme-1 .header-score { text-align: right; }
-        .theme-1 .header-score-label { font-size: 12px; opacity: 0.8; }
-        .theme-1 .header-score-value { font-size: 64px; font-weight: 900; }
-        /* Theme-1 spacing helpers */
-        .theme-1 .grid-top { margin-top: 20px; }
-        .theme-1 .grid-main { margin-top: 20px; }
-        /* Theme-1 stat blocks */
-        .theme-1 .stat-label { color: var(--secondary); font-size: 13px; }
-        .theme-1 .stat-val { font-size: 28px; font-weight: 800; margin: 5px 0; }
-        .theme-1 .stat-val-primary { color: var(--primary); }
-        .theme-1 .stat-val-danger { color: var(--danger); }
-        .theme-1 .stat-val-warning { color: var(--warning); }
-        .theme-1 .stat-note { font-size: 12px; }
-        .theme-1 .stat-note-success { color: var(--success); }
-        .theme-1 .stat-note-warning { color: var(--warning); }
-        .theme-1 .stat-note-muted { color: var(--color-text-muted); }
-        .theme-1 .chart { width: 100%; height: 350px; }
-        .theme-1 .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; background: rgba(var(--color-white-rgb), 0.2); }
-        .theme-1 .ai-text { font-size: 14px; line-height: 1.6; border-left: 3px solid var(--primary); padding-left: 15px; margin: 15px 0; }
-        /* Theme-1 section titles */
-        .theme-1 .section-title { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .theme-1 .section-title-warning { color: var(--warning); }
-        .theme-1 .section-title-success { color: var(--success); }
-        /* Theme-1 paragraph blocks */
-        .theme-1 .analysis-text { color: var(--color-text-muted); font-size: 14px; text-align: justify; margin-bottom: 15px; line-height: 1.6; }
-        .theme-1 .analysis-text b { color: var(--primary); }
-        .theme-1 .insight-box { background: rgba(var(--color-primary-rgb), 0.05); border-radius: 12px; padding: 15px; border-left: 4px solid var(--primary); margin-top: 10px; }
-        /* Theme-1 insight variants */
-        .theme-1 .insight-warning { background: rgba(var(--color-warning-deep-rgb), 0.05); border-left-color: var(--warning); }
-        /* Theme-1 tags and analysis blocks */
-        .theme-1 .tag { padding: 4px 12px; border-radius: 100px; font-size: 12px; background: var(--color-tag-bg); color: var(--color-text-subtle); font-weight: 500; }
-        .theme-1 .tag-row { display: flex; justify-content: center; gap: 10px; }
-        .theme-1 .tag-success { background: var(--color-tag-success-bg); color: var(--color-success-deep); }
-        .theme-1 .tag-info { background: var(--color-tag-info-bg); color: var(--color-info); }
-        .theme-1 .tag-warning { background: var(--color-alert-bg); color: var(--color-warning-text); }
-        .theme-1 .analysis-section h3 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .theme-1 .analysis-subtitle { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
-        .theme-1 .analysis-p { font-size: 14px; line-height: 1.8; color: var(--color-text-subtle); margin-bottom: 15px; text-align: justify; }
-        .theme-1 .highlight { color: var(--color-primary); font-weight: 600; }
-        .theme-1 .warning-box { background: var(--color-alert-bg); border: 1px solid var(--color-alert-border); padding: 15px; border-radius: 12px; color: var(--color-alert-text); font-size: 13px; }
-        .theme-1 .chart-box { height: 300px; width: 100%; margin: 20px 0; }
-        /* Theme-1 card modifiers */
-        .theme-1 .card-warning-bottom { border-bottom: 5px solid var(--warning); }
-        .theme-1 .card-warning-left { border-left: 6px solid var(--warning); }
-        .theme-1 .card-title-primary { color: var(--primary); }
-        .theme-1 .card-title-compact { margin-top: 0; font-size: 16px; }
-        /* Theme-1 inner panels and lists */
-        .theme-1 .risk-panel { background: rgba(var(--color-primary-rgb), 0.03); border-radius: 15px; padding: 15px; }
-        .theme-1 .risk-list { font-size: 13px; color: var(--color-text-muted); padding-left: 20px; }
-        /* Theme-1 action list */
-        .theme-1 .action-list { font-size: 13px; color: var(--color-text-muted); padding-left: 20px; }
-        .theme-1 .action-list b { color: var(--primary); }
-        /* Theme-1 responsive layout */
-        @media (max-width: 900px) {
-            /* Mobile: add spacing between major sections */
-            .theme-1 .grid-main { margin-top: 28px; }
-            /* Mobile: header stacks vertically */
-            .theme-1 .header-row { flex-direction: column; gap: 12px; }
-            .theme-1 .header-score { text-align: left; }
-            .theme-1 .header-score-value { font-size: 48px; }
-            /* Mobile: compact charts and tags */
-            .theme-1 .chart { height: 260px; }
-            .theme-1 .chart-box { height: 240px; }
-            .theme-1 .tag-row { flex-wrap: wrap; }
+        /**
+         * 全局基础样式 - Material 3 排版系统
+         */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        /* 页面头部和底部 */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .page {
+            padding: 20px 0 40px;
+        }
+        
+        .theme {
+            padding: 0;
+        }
+
+        /**
+         * 容器与布局 - Material 3 流式布局
+         */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /**
+         * 网格布局 - 自适应响应式
+         * 使用传统 margin 方式，避免 gap 兼容性问题
+         */
+        .grid {
+            display: flex;
+            flex-direction: column;
+            margin: -8px 0; /* 负边距抵消首尾元素的多余间距 */
+        }
+        
+        .grid > * {
+            margin: 8px 0; /* 每个子元素上下各 8px，总间距 16px */
+        }
+        
+        /**
+         * 卡片基础样式 - Material 3 高程系统
+         */
+        .card {
+            background: var(--color-card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        /**
+         * 头部卡片 - Material 3 主色背景
+         */
+        .header-card {
+            background: var(--color-primary);
+            color: var(--color-on-primary);
+        }
+        /**
+         * 头部布局 - 双栏自适应
+         */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .header-row > * {
+            margin-right: 20px;
+        }
+        
+        .header-row > *:last-child {
+            margin-right: 0;
+        }
+        
+        .header-title {
+            margin: 10px 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .header-desc {
+            opacity: 0.9;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .header-score {
+            text-align: right;
+        }
+        
+        .header-score-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+        
+        .header-score-value {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1;
+        }
+        /**
+         * 间距辅助类
+         */
+        .grid-top {
+            margin-top: 20px;
+        }
+        
+        .grid-main {
+            margin-top: 20px;
+        }
+        
+        /**
+         * 统计数据块样式 - Material 3 排版
+         */
+        .stat-label {
+            font-size: 14px;
+            color: var(--color-text-light);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .stat-val {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 8px 0;
+            line-height: 1.2;
+        }
+        
+        .stat-val-primary {
+            color: var(--color-primary);
+        }
+        
+        .stat-val-danger {
+            color: var(--color-danger);
+        }
+        
+        .stat-val-warning {
+            color: var(--color-warning);
+        }
+        
+        .stat-note {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+        
+        .stat-note-success {
+            color: var(--color-success);
+        }
+        
+        .stat-note-warning {
+            color: var(--color-warning);
+        }
+        
+        .stat-note-muted {
+            color: var(--color-text-muted);
+        }
+        /**
+         * 图表容器
+         */
+        .chart {
+            width: 100%;
+            height: 380px;
+            margin-top: 16px;
+        }
+        
+        .chart-box {
+            height: 300px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        /**
+         * 徽章样式 - Material 3 Chip
+         */
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+        }
+        
+        /**
+         * AI 文本块 - 带侧边装饰
+         */
+        .ai-text {
+            font-size: 14px;
+            line-height: 1.8;
+            border-left: 4px solid var(--color-primary);
+            padding-left: 16px;
+            margin: 16px 0;
+            color: var(--color-text-light);
+        }
+        
+        /**
+         * 章节标题 - Material 3 标题样式
+         */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title > * {
+            margin-right: 8px;
+        }
+        
+        .section-title > *:last-child {
+            margin-right: 0;
+        }
+        
+        .section-title-warning {
+            color: var(--color-warning);
+        }
+        
+        .section-title-success {
+            color: var(--color-success);
+        }
+        /**
+         * 分析文本段落
+         */
+        .analysis-text {
+            color: var(--color-text-light);
+            font-size: 14px;
+            text-align: justify;
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+        
+        .analysis-text b,
+        .analysis-text strong {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+        
+        /**
+         * 洞察盒子 - Material 3 Surface
+         */
+        .insight-box {
+            background: var(--color-primary-light);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid var(--color-primary);
+            margin-top: 16px;
+        }
+        
+        .insight-warning {
+            background: var(--color-warning-bg);
+            border-left-color: var(--color-warning);
+        }
+        /**
+         * 标签组件 - Material 3 Chip
+         */
+        .tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .tag-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            margin-left: -4px;
+            margin-right: -4px;
+        }
+        
+        .tag-row > * {
+            margin: 0 4px; /* 左右各 4px，总间距 8px */
+        }
+        
+        .tag-success {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+        
+        .tag-info {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        
+        .tag-warning {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+        
+        /**
+         * 分析章节样式
+         */
+        .analysis-section h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            color: var(--color-text);
+        }
+        
+        .analysis-section h3 > * {
+            margin-right: 8px;
+        }
+        
+        .analysis-section h3 > *:last-child {
+            margin-right: 0;
+        }
+        
+        .analysis-subtitle {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--color-text);
+        }
+        
+        .analysis-p {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--color-text-light);
+            margin-bottom: 16px;
+            text-align: justify;
+        }
+        
+        .highlight {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+        
+        /**
+         * 警告框 - Material 3 Alert
+         */
+        .warning-box {
+            background: var(--color-warning-bg);
+            border: 1px solid var(--color-warning);
+            padding: 16px;
+            border-radius: 12px;
+            color: var(--color-warning);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .warning-box strong {
+            font-weight: 700;
+        }
+        /**
+         * 卡片修饰样式 - 强调边框
+         */
+        .card-warning-bottom {
+            border-bottom: 4px solid var(--color-warning);
+        }
+        
+        .card-warning-left {
+            border-left: 4px solid var(--color-warning);
+        }
+        
+        .card-title-primary {
+            color: var(--color-primary);
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .card-title-compact {
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        /**
+         * 内部面板 - 次级容器
+         */
+        .risk-panel {
+            background: var(--color-surface-variant);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .risk-list {
+            font-size: 14px;
+            color: var(--color-text-light);
+            padding-left: 24px;
+            line-height: 1.8;
+        }
+        
+        .risk-list li {
+            margin-bottom: 8px;
+        }
+        
+        /**
+         * 行动清单
+         */
+        .action-list {
+            font-size: 14px;
+            color: var(--color-text-light);
+            padding-left: 24px;
+            line-height: 1.8;
+        }
+        
+        .action-list li {
+            margin-bottom: 12px;
+        }
+        
+        .action-list b,
+        .action-list strong {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+        /**
+         * 响应式布局 - 移动端优化
+         */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+            
+            .card {
+                padding: 16px;
+                border-radius: 12px;
+            }
+            
+            .grid {
+                margin: -6px 0;
+            }
+            
+            .grid > * {
+                margin: 6px 0; /* 每个子元素上下各 6px，总间距 12px */
+            }
+            
+            .grid-main {
+                margin-top: 24px;
+            }
+            
+            /* 头部区域垂直堆叠 */
+            .header-row {
+                flex-direction: column;
+            }
+            
+            .header-row > * {
+                margin-bottom: 16px;
+            }
+            
+            .header-row > *:last-child {
+                margin-bottom: 0;
+            }
+            
+            .header-score {
+                text-align: left;
+            }
+            
+            .header-score-value {
+                font-size: 48px;
+            }
+            
+            /* 图表高度优化 */
+            .chart {
+                height: 280px;
+            }
+            
+            .chart-box {
+                height: 240px;
+            }
+            
+            /* 统计数值缩小 */
+            .stat-val {
+                font-size: 24px;
+            }
+        }
+        
+        /**
+         * 页面头部 - 品牌标识区
+         */
         .page-header {
             display: flex;
             align-items: center;
-            gap: 12px;
             padding: 24px 20px 12px;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
-        .page-logo {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
+        
+        .page-header > * {
+            margin-right: 12px;
         }
+        
+        .page-header > *:last-child {
+            margin-right: 0;
+        }
+        
+        .page-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .page-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
         .page-logo-emoji {
-            font-size: 20px;
+            font-size: 24px;
             line-height: 1;
         }
+        
         .page-header-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--color-text-title);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-text);
             margin: 0;
         }
+        
+        /**
+         * 页面底部 - 版权信息
+         */
         .page-footer {
             text-align: center;
-            padding: 24px 20px;
+            padding: 32px 20px;
             color: var(--color-text-muted);
             font-size: 14px;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-        }
-        @media (prefers-color-scheme: dark) {
-            .page-header-title {
-                color: #e5e7eb;
-            }
         }
     </style>
 </head>
@@ -204,8 +612,8 @@
         <div class="page-logo" id="pageLogo"></div>
         <p class="page-header-title" id="pageHeaderTitle">自动记账 • 财务分析</p>
     </div>
-    <!-- 主题一内容：全景透视风格 -->
-    <section class="theme theme-1">
+    <!-- 主内容区 -->
+    <section class="theme">
         <div class="container">
             <!-- 报告头部：身份与评分概览 -->
             <div class="card header-card">
@@ -312,15 +720,20 @@
 </div>
 
 <script>
-    // ==========================================================
-    // 默认数据结构 - 所有数据集中定义
-    // ==========================================================
+    /**
+     * ========================================
+     * 默认数据结构定义
+     * ========================================
+     *
+     * 该数据结构定义了 AI 财务报告的完整数据模型
+     * 外部通过 window.setJson(data) 注入数据后会与此默认结构合并
+     */
     const defaultData = {
         // 页面头部和底部
         logoBase64: "",
         pageHeaderTitle: "自动记账 • 财务分析",
         pageFooter: "由自动记账生成",
-        
+
         // 页面标题和标签
         reportTitle: "财务全景透视报告",
         healthScoreLabel: "AI 财务健康分",
@@ -328,7 +741,7 @@
         expenseLabel: "本月总支出",
         outlierLabel: "独秀指数 (Outlier)",
         outlierDesc: "支出模式存在明显波动",
-        
+
         // 章节标题
         consumeTitle: "🧩 消费结构分析",
         radarTitle: "🚀 结构画像雷达",
@@ -338,54 +751,54 @@
         actionTitle: "<span>✅</span> 行动清单",
         executionTitle: "✅ 执行优先级",
         recordQualityTitle: "🧭 记录质量提升",
-        
+
         // 子标题
         preferenceSubtitle: "🎯 潜在偏好：技能树投资",
         timePatternSubtitle: "🕰️ 时间规律：深夜决策风险",
-        
+
         // 基础信息
         identity: "技术型进取者",
         period: "xxx周期",
         totalExpenseInDesc: "12,450",
         headerDescription: "基于xxx周期内 <strong>¥12,450</strong> 支出流向，AI 识别出你正处于「技能跃迁」与「健康重塑」的双重成长期。",
         healthScore: 89,
-        
+
         // 收入数据
         totalIncome: 18500.00,
         savingsRate: 32.7,
         savingsStatus: "健康",
-        
+
         // 支出数据
         totalExpense: 12450.41,
         maxSingleAmount: 5600,
         maxSingleCategory: "摄影器材",
         outlierIndex: 76,
-        
+
         // 消费结构分析文本
         consumeAnalysis1: "<strong>【摄影与自我投资】</strong><br>本月摄影器材支出占总开支的 45%。作为一种「昂贵的爱好」，AI 建议将其摊销到未来 12 个月分析。你对专业工具的追求与你在 SOC 协作中对细节的把控逻辑高度一致。",
         consumeAnalysis2: "<strong>【饮食健康反馈】</strong><br>监测到「全热食计划」执行良好，外卖/冷食支出下降 40%。但本月蛋白质采购（里脊/鸡腿）成本因节假日上升，建议关注生鲜平台的周期性优惠。",
-        
+
         // 异常风险分析文本
         outlierAnalysis: "<b>独秀指数分析：</b>本周期触发了 <b>82%</b> 的偏离预警。主要诱因是出现一笔金额明显高于历史均值的交易，且与常规消费节奏不一致。建议回看该笔交易的用途与必要性，确认是否为一次性大额支出或临时性预算波动。",
         largeTransactionAnalysis: "<b>大额交易分析：</b>本周期出现一笔金额为 <b>¥5,600</b> 的单笔交易（商户：摄影器材购置）。该金额约为本月平均单笔支出的 <b>4.5 倍</b>，且发生在月中，导致当周可支配预算明显收紧。建议标记该笔为一次性大额采购，并在下周期预留大件预算，避免挤压日常支出。",
         latteFactorAnalysis: "<b>拿铁因子观察：</b>检测到「云端存储服务」每日扣费 <b>¥18</b>，已连续出现 <b>92</b> 天，累计约 <b>¥1,656</b>。若维持当前频率，年度支出将达 <b>¥6,570</b>。建议核对是否存在重复订阅或低使用率服务，并设置月度小额订阅上限。",
-        
+
         // 消费画像文本
         preferenceAnalysis: "通过商户语义分析，AI 发现你本周期在<b>教育与工具类（占总支出 24.8%）</b>上的投入呈现高频特征。这表明你倾向于通过付费获取时间效率，属于典型的<b>「生产力驱动型」</b>画像。",
         timePatternAnalysis: "约有 15% 的非计划消费发生在 <b>23:00 以后</b>。尽管单笔金额较小，但 AI 建议警惕由于生理性疲劳导致的「冲动型」数字订阅，这类支出往往具有极高的长期隐形成本。",
-        
+
         // 综合结论文本
         conclusion1: "本周期内，你的财务系统表现出极强的<b>「防御性扩张」</b>特征。尽管总支出有所上升，但<b>核心盈余率（32.5%）</b>仍高于该资产量级用户的平均基准。AI 监测到你的消费决策路径正在发生偏移：从过去的「补偿型消费」转向了当前的<b>「投资型消费」</b>。",
         conclusion2: "你的支出波动主要集中在月末，这通常与固定周期的订阅费用结算相关。值得肯定的是，你在<b>非必需品（如娱乐开销）</b>上的自控力表现卓越，这类开支仅占总比的 4.2%。",
         expertSummary: "<b>💡 专家总结：</b>你目前的财务状态非常健康，抗风险能力等级为 <b>A-</b>。由于你的固定支出占比极低，你拥有极大的财务灵活性来应对下一周期的突发性投入。",
-        
+
         // 标签数据
         tags: [
             { text: "稳定性：优", type: "success" },
             { text: "自律度：优", type: "info" },
             { text: "防御力：一般", type: "warning" }
         ],
-        
+
         // 行动清单文本
         actionIntro: "本周期呈现「高支出 + 订阅累积 + 大额采购」三类压力源。行动清单以「先稳现金流、再压可选支出、最后补齐数据」为优先级，避免因信息不完整导致误判。",
         actions: [
@@ -398,7 +811,7 @@
         executionPriority: "执行顺序建议为：先补齐收入 → 再处理大额交易归类 → 最后清理订阅。这样能确保现金流底盘稳定后再做结构调整。",
         recordQuality: "记录粒度建议从「金额」升级到「用途 + 是否复发 + 必需/可选」。这样系统能区分一次性采购与持续性支出，结论更稳定，也更能指导预算配置。",
         warningBox: "<strong>💡 建议执行：</strong> 你现在的账单里只有支出，没有收入，AI 没法算出你的「财务安全感」。建议记一笔最近的工资，看看你的钱能撑多久？",
-        
+
         // 图表数据：树图
         treeData: [
             { name: "器材投资 (摄影)", value: 5600 },
@@ -407,7 +820,7 @@
             { name: "固定成本 (房租/水电)", value: 2500 },
             { name: "拿铁因子 (小额订阅)", value: 350 }
         ],
-        
+
         // 图表数据：雷达图1
         radar1Data: {
             indicators: [
@@ -420,7 +833,7 @@
             values: [65, 80, 45, 95, 88],
             name: "财务性格"
         },
-        
+
         // 图表数据：雷达图3
         radar3Data: {
             indicators: [
@@ -435,24 +848,29 @@
         }
     };
 
-    // ==========================================================
-    // 工具函数：格式化金额
-    // ==========================================================
+    /**
+     * 格式化金额为中文货币格式
+     * @param {number} amount - 金额数值
+     * @returns {string} 格式化后的金额字符串（如 "¥ 1,234.56"）
+     */
     function formatMoney(amount) {
         return "¥ " + amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // ==========================================================
-    // 工具函数：安全设置文本内容
-    // ==========================================================
+    /**
+     * 安全设置元素的 HTML 内容
+     * @param {string} id - 元素 ID
+     * @param {string} content - 要设置的内容（支持 HTML）
+     */
     function setText(id, content) {
         const el = document.getElementById(id);
         if (el) el.innerHTML = content;
     }
 
-    // ==========================================================
-    // 核心函数：渲染页面数据
-    // ==========================================================
+    /**
+     * 渲染页面所有数据
+     * @param {Object} data - 完整的数据对象
+     */
     function renderData(data) {
         // 页面头部和底部
         if (data.logoBase64) {
@@ -541,26 +959,31 @@
         renderCharts(data);
     }
 
-    // ==========================================================
-    // 渲染图表
-    // ==========================================================
+    /**
+     * 渲染所有图表组件
+     * @param {Object} data - 包含图表数据的对象
+     */
     function renderCharts(data) {
-        const rootStyles = getComputedStyle(document.documentElement);
-        const cssVar = (name) => rootStyles.getPropertyValue(name).trim();
-        const rgbaFromVar = (name, alpha) => `rgba(${cssVar(name)}, ${alpha})`;
-        
+        // 图表专用配色方案（独立于 Material 3，保持原始视觉风格）
         const chartColors = {
-            primary: cssVar('--color-primary'),
-            primaryRgb: '--color-primary-rgb',
-            secondary: cssVar('--color-secondary'),
-            success: cssVar('--color-success'),
-            warning: cssVar('--color-warning'),
-            primaryDark: cssVar('--color-primary-dark'),
-            textSubtle: cssVar('--color-text-subtle'),
+            primary: '#6366f1',      // 靛蓝
+            primaryDark: '#818cf8',  // 浅靛蓝
+            secondary: '#94a3b8',    // 灰蓝
+            success: '#22c55e',      // 绿色
+            warning: '#f59e0b',      // 橙色
+            textSubtle: '#4b5563',   // 深灰
         };
 
-        // 树图
+        /**
+         * 1. 消费结构树图（Treemap）
+         * 展示各类消费的占比和金额
+         */
         const treeOption = {
+            tooltip: {
+                formatter: function(params) {
+                    return params.name + '<br/>' + formatMoney(params.value);
+                }
+            },
             series: [{
                 type: 'treemap',
                 data: data.treeData.map((item, idx) => ({
@@ -576,7 +999,10 @@
         const treeChart = echarts.init(document.getElementById('treeChart1'));
         treeChart.setOption(treeOption);
 
-        // 雷达图1
+        /**
+         * 2. 财务性格雷达图
+         * 展示节俭、稳定、多元、投资、安全等维度
+         */
         const radarOption1 = {
             radar: {
                 indicator: data.radar1Data.indicators,
@@ -587,7 +1013,7 @@
                 data: [{
                     value: data.radar1Data.values,
                     name: data.radar1Data.name,
-                    areaStyle: { color: rgbaFromVar(chartColors.primaryRgb, 0.4) },
+                    areaStyle: { color: 'rgba(99, 102, 241, 0.4)' },
                     lineStyle: { color: chartColors.primary }
                 }]
             }]
@@ -595,14 +1021,17 @@
         const radarChart1 = echarts.init(document.getElementById('radarChart1'));
         radarChart1.setOption(radarOption1);
 
-        // 雷达图3
+        /**
+         * 3. 财务画像雷达图
+         * 展示省钱指数、支出稳定、投资自己等维度
+         */
         const radarOption3 = {
             radar: {
                 indicator: data.radar3Data.indicators,
                 shape: 'circle',
                 splitNumber: 4,
                 axisName: { color: chartColors.textSubtle },
-                splitLine: { lineStyle: { color: rgbaFromVar(chartColors.primaryRgb, 0.1) } },
+                splitLine: { lineStyle: { color: 'rgba(99, 102, 241, 0.1)' } },
                 splitArea: { show: false }
             },
             series: [{
@@ -611,7 +1040,7 @@
                     value: data.radar3Data.values,
                     name: data.radar3Data.name,
                     itemStyle: { color: chartColors.primary },
-                    areaStyle: { color: rgbaFromVar(chartColors.primaryRgb, 0.2) }
+                    areaStyle: { color: 'rgba(99, 102, 241, 0.2)' }
                 }]
             }]
         };
@@ -639,7 +1068,7 @@
     // 页面初始化：使用默认数据渲染
     // ==========================================================
     document.addEventListener('DOMContentLoaded', function() {
-        renderData(defaultData);
+        
     });
 
     // 暴露接口到全局
