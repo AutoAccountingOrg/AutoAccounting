@@ -23,6 +23,7 @@ import net.ankio.auto.ui.api.BasePreferenceFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.constant.DefaultData
 import rikka.material.preference.MaterialSwitchPreference
 
 /**
@@ -129,7 +130,8 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
             .setMultiLine(minLines = 10, maxLines = 20)
             .setMessage(PrefManager.aiSummaryPrompt)
             .setEditorPositiveButton(R.string.btn_confirm) { prompt ->
-                PrefManager.aiSummaryPrompt = prompt
+                // 如果提示词为空，则使用默认值
+                PrefManager.aiSummaryPrompt = prompt.ifBlank { DefaultData.AI_SUMMARY_PROMPT }
                 findPreference<Preference>("aiSummaryPrompt")?.updateAiSummaryPromptSummary()
             }
             .setNegativeButton(R.string.btn_cancel) { _, _ -> }
@@ -145,7 +147,8 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
             .setMultiLine(minLines = 10, maxLines = 20)
             .setMessage(PrefManager.aiBillRecognitionPrompt)
             .setEditorPositiveButton(R.string.btn_confirm) { prompt ->
-                PrefManager.aiBillRecognitionPrompt = prompt
+                // 如果提示词为空，则使用默认值
+                PrefManager.aiBillRecognitionPrompt = prompt.ifBlank { DefaultData.AI_BILL_RECOGNITION_PROMPT }
                 findPreference<Preference>("aiBillRecognitionPrompt")?.updateAiBillRecognitionPromptSummary()
             }
             .setNegativeButton(R.string.btn_cancel) { _, _ -> }
@@ -161,7 +164,8 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
             .setMultiLine(minLines = 10, maxLines = 20)
             .setMessage(PrefManager.aiAssetMappingPrompt)
             .setEditorPositiveButton(R.string.btn_confirm) { prompt ->
-                PrefManager.aiAssetMappingPrompt = prompt
+                // 如果提示词为空，则使用默认值
+                PrefManager.aiAssetMappingPrompt = prompt.ifBlank { DefaultData.AI_ASSET_MAPPING_PROMPT }
                 findPreference<Preference>("aiAssetMappingPrompt")?.updateAiAssetMappingPromptSummary()
             }
             .setNegativeButton(R.string.btn_cancel) { _, _ -> }
@@ -177,7 +181,8 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
             .setMultiLine(minLines = 10, maxLines = 20)
             .setMessage(PrefManager.aiCategoryRecognitionPrompt)
             .setEditorPositiveButton(R.string.btn_confirm) { prompt ->
-                PrefManager.aiCategoryRecognitionPrompt = prompt
+                // 如果提示词为空，则使用默认值
+                PrefManager.aiCategoryRecognitionPrompt = prompt.ifBlank { DefaultData.AI_CATEGORY_RECOGNITION_PROMPT }
                 findPreference<Preference>("aiCategoryRecognitionPrompt")?.updateAiCategoryRecognitionPromptSummary()
             }
             .setNegativeButton(R.string.btn_cancel) { _, _ -> }
@@ -188,48 +193,32 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
      * 更新AI总结提示词摘要
      */
     private fun Preference.updateAiSummaryPromptSummary() {
-        summary = if (PrefManager.aiSummaryPrompt.isNotEmpty()) {
-            PrefManager.aiSummaryPrompt.take(100)
-                .let { if (it.length < PrefManager.aiSummaryPrompt.length) "$it..." else it }
-        } else {
-            getString(R.string.setting_ai_summary_prompt_summary)
-        }
+        val prompt = PrefManager.aiSummaryPrompt.ifBlank { DefaultData.AI_SUMMARY_PROMPT }
+        summary = prompt.take(100).let { if (it.length < prompt.length) "$it..." else it }
     }
 
     /**
      * 更新AI账单识别提示词摘要
      */
     private fun Preference.updateAiBillRecognitionPromptSummary() {
-        summary = if (PrefManager.aiBillRecognitionPrompt.isNotEmpty()) {
-            PrefManager.aiBillRecognitionPrompt.take(100)
-                .let { if (it.length < PrefManager.aiBillRecognitionPrompt.length) "$it..." else it }
-        } else {
-            getString(R.string.setting_ai_bill_recognition_prompt_summary)
-        }
+        val prompt = PrefManager.aiBillRecognitionPrompt.ifBlank { DefaultData.AI_BILL_RECOGNITION_PROMPT }
+        summary = prompt.take(100).let { if (it.length < prompt.length) "$it..." else it }
     }
 
     /**
      * 更新AI资产映射提示词摘要
      */
     private fun Preference.updateAiAssetMappingPromptSummary() {
-        summary = if (PrefManager.aiAssetMappingPrompt.isNotEmpty()) {
-            PrefManager.aiAssetMappingPrompt.take(100)
-                .let { if (it.length < PrefManager.aiAssetMappingPrompt.length) "$it..." else it }
-        } else {
-            getString(R.string.setting_ai_asset_mapping_prompt_summary)
-        }
+        val prompt = PrefManager.aiAssetMappingPrompt.ifBlank { DefaultData.AI_ASSET_MAPPING_PROMPT }
+        summary = prompt.take(100).let { if (it.length < prompt.length) "$it..." else it }
     }
 
     /**
      * 更新AI分类识别提示词摘要
      */
     private fun Preference.updateAiCategoryRecognitionPromptSummary() {
-        summary = if (PrefManager.aiCategoryRecognitionPrompt.isNotEmpty()) {
-            PrefManager.aiCategoryRecognitionPrompt.take(100)
-                .let { if (it.length < PrefManager.aiCategoryRecognitionPrompt.length) "$it..." else it }
-        } else {
-            getString(R.string.setting_ai_category_recognition_prompt_summary)
-        }
+        val prompt = PrefManager.aiCategoryRecognitionPrompt.ifBlank { DefaultData.AI_CATEGORY_RECOGNITION_PROMPT }
+        summary = prompt.take(100).let { if (it.length < prompt.length) "$it..." else it }
     }
 
     /**
