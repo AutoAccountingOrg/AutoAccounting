@@ -19,6 +19,7 @@ import android.content.Context
 import android.graphics.Color as AndroidColor
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.elevation.SurfaceColors
 import com.google.android.material.R as MaterialR
@@ -53,6 +54,7 @@ object DynamicColors {
     ): Int {
         return MaterialColors.getColor(context, attr, defaultColor)
     }
+
 
     // 常用主题色（属性式访问）
     val Primary get() = resolve(AppCompatR.attr.colorPrimary)
@@ -105,4 +107,16 @@ object DynamicColors {
     val PrimaryInverse get() = resolve(MaterialR.attr.colorPrimaryInverse)
 }
 
+fun Int.toHex(): String {
+    return String.format("#%06X", 0xFFFFFF and this)
+}
 
+fun Int.toARGBHex(): String {
+    val r = (this shr 16) and 0xFF
+    val g = (this shr 8) and 0xFF
+    val b = this and 0xFF
+    val a = (this shr 24) and 0xFF // Alpha 在 Android 中是在最前面的
+
+    // 将 Alpha 拼在 RGB 后面
+    return String.format("#%02X%02X%02X%02X", r, g, b, a)
+}

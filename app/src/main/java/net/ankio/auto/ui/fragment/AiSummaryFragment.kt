@@ -33,10 +33,10 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.PeriodSelector
 import java.util.*
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.AnalysisTaskModel
-import java.text.SimpleDateFormat
 
 /**
  * AI分析任务管理页面
@@ -50,28 +50,6 @@ import java.text.SimpleDateFormat
 class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryBinding>() {
 
     private var autoRefreshJob: Job? = null
-
-    /**
-     * 周期类型枚举
-     */
-    enum class Period {
-        LAST_WEEK,      // 最近一周
-        LAST_30_DAYS,   // 最近30天
-        THIS_MONTH,     // 这个月
-        LAST_YEAR,      // 最近一年
-        THIS_YEAR,      // 今年
-        CUSTOM          // 自定义区间
-    }
-
-    /**
-     * 周期数据类
-     */
-    data class PeriodData(
-        val type: Period,
-        val startTime: Long,
-        val endTime: Long,
-        val displayName: String
-    )
 
     override suspend fun loadData(): List<AnalysisTaskModel> =
         AnalysisTaskAPI.getTasksPage(page, pageSize)
@@ -144,7 +122,16 @@ class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryB
     private fun setupUI() {
         // 设置创建任务按钮
         binding.fabCreate.setOnClickListener {
-            showPeriodSelector(it)
+            PeriodSelector.show(requireContext(), it) { start, end, label ->
+                createAnalysisTask(
+                    PeriodSelector.PeriodData(
+                        PeriodSelector.Period.CUSTOM,
+                        start,
+                        end,
+                        label
+                    )
+                )
+            }
         }
 
         // 设置返回按钮
@@ -166,133 +153,9 @@ class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryB
     }
 
     /**
-     * 显示周期选择弹窗
-     */
-    private fun showPeriodSelector(anchorView: View) {
-        val periodMap = mapOf(
-            getString(R.string.period_last_week) to Period.LAST_WEEK,
-            getString(R.string.period_last_30_days) to Period.LAST_30_DAYS,
-            getString(R.string.period_this_month) to Period.THIS_MONTH,
-            getString(R.string.period_last_year) to Period.LAST_YEAR,
-            getString(R.string.period_this_year) to Period.THIS_YEAR,
-            getString(R.string.period_custom_range) to Period.CUSTOM
-        )
-
-        ListPopupUtilsGeneric.create<Period>(requireContext())
-            .setAnchor(anchorView)
-            .setList(periodMap)
-            .setSelectedValue(Period.LAST_30_DAYS) // 默认选择最近30天
-            .setOnItemClick { _, _, period ->
-                if (period == Period.CUSTOM) {
-                    showCustomRangePicker()
-                    return@setOnItemClick
-                }
-                val periodData = calculatePeriodData(period)
-                createAnalysisTask(periodData)
-            }
-            .show()
-    }
-
-    /**
-     * 计算周期的时间范围
-     */
-    private fun calculatePeriodData(period: Period): PeriodData {
-        val calendar = Calendar.getInstance()
-        val now = System.currentTimeMillis()
-
-        return when (period) {
-            Period.LAST_WEEK -> {
-                // 最近7天
-                calendar.add(Calendar.DAY_OF_YEAR, -6)
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                val startTime = calendar.timeInMillis
-                PeriodData(period, startTime, now, getString(R.string.period_last_week))
-            }
-
-            Period.LAST_30_DAYS -> {
-                // 最近30天
-                calendar.add(Calendar.DAY_OF_YEAR, -29)
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                val startTime = calendar.timeInMillis
-                PeriodData(period, startTime, now, getString(R.string.period_last_30_days))
-            }
-
-            Period.THIS_MONTH -> {
-                // 本月1号到现在
-                calendar.set(Calendar.DAY_OF_MONTH, 1)
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                val startTime = calendar.timeInMillis
-                PeriodData(period, startTime, now, getString(R.string.period_this_month))
-            }
-
-            Period.LAST_YEAR -> {
-                // 最近365天
-                calendar.add(Calendar.DAY_OF_YEAR, -364)
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                val startTime = calendar.timeInMillis
-                PeriodData(period, startTime, now, getString(R.string.period_last_year))
-            }
-
-            Period.THIS_YEAR -> {
-                // 今年1月1号到现在
-                calendar.set(Calendar.MONTH, Calendar.JANUARY)
-                calendar.set(Calendar.DAY_OF_MONTH, 1)
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                val startTime = calendar.timeInMillis
-                PeriodData(period, startTime, now, "今年")
-            }
-
-            Period.CUSTOM -> {
-                PeriodData(period, now, now, getString(R.string.period_custom_range))
-            }
-        }
-    }
-
-    /**
-     * 自定义区间选择
-     */
-    private fun showCustomRangePicker() {
-        BaseSheetDialog.create<DateTimePickerDialog>(requireContext())
-            .setTitle(getString(R.string.period_custom_range))
-            .setRangeMode(true)
-            .setOnDateRangeSelected { start, end ->
-                if (end < start) {
-                    ToastUtils.error(getString(R.string.time_range_invalid))
-                    return@setOnDateRangeSelected
-                }
-                val label = formatRangeLabel(start, end)
-                createAnalysisTask(PeriodData(Period.CUSTOM, start, end, label))
-            }
-            .show()
-    }
-
-    /**
-     * 格式化区间标题
-     */
-    private fun formatRangeLabel(start: Long, end: Long): String {
-        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return "${format.format(Date(start))} ~ ${format.format(Date(end))}"
-    }
-
-    /**
      * 创建分析任务
      */
-    private fun createAnalysisTask(periodData: PeriodData) {
+    private fun createAnalysisTask(periodData: PeriodSelector.PeriodData) {
 
 
         launch {
@@ -343,16 +206,16 @@ class AiSummaryFragment : BasePageFragment<AnalysisTaskModel, FragmentAiSummaryB
      */
     private fun showClearAllConfirmation() {
         BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
-            .setTitle("清空所有分析")
-            .setMessage("确定要删除所有财务分析任务吗？此操作不可恢复。")
+            .setTitle(getString(R.string.clear_all_analysis))
+            .setMessage(getString(R.string.clear_all_analysis_message))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
                 this@AiSummaryFragment.launch {
                     val success = AnalysisTaskAPI.clearAllTasks()
                     if (success) {
-                        ToastUtils.info("已清空所有分析任务")
+                        ToastUtils.info(getString(R.string.clear_all_analysis_success))
                         reload()
                     } else {
-                        ToastUtils.error("清空失败，请重试")
+                        ToastUtils.error(getString(R.string.clear_all_analysis_failed))
                     }
                 }
             }
