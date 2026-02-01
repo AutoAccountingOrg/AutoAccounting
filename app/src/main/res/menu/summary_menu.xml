@@ -1,5 +1,5 @@
-<!--
-  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2026 ankio(ankio@ankio.net)
   ~ Licensed under the Apache License, Version 3.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -13,13 +13,11 @@
   ~   limitations under the License.
   -->
 
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="960"
-    android:viewportHeight="960"
-    android:tint="?colorOnBackground">
-    <path
-        android:pathData="M200,840q-33,0 -56.5,-23.5T120,760v-640h80v640h640v80L200,840ZM240,720v-360h160v360L240,720ZM440,720v-560h160v560L440,720ZM640,720v-200h160v200L640,720Z"
-        android:fillColor="#000000" />
-</vector>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_filter_period"
+        android:icon="@drawable/ic_date_range"
+        app:showAsAction="always"
+        android:title="@string/period_custom_range" />
+</menu>

@@ -1068,4 +1068,8 @@
     <string name="rule_ai_generate_success">AI规则已生成</string>
     <string name="rule_test_failed">测试规则失败</string>
     <string name="rule_save_failed">保存规则失败</string>
+    <string name="clear_all_analysis">清空所有分析</string>
+    <string name="clear_all_analysis_message">确定要删除所有财务分析任务吗？此操作不可恢复。</string>
+    <string name="clear_all_analysis_success">已清空所有分析任务</string>
+    <string name="clear_all_analysis_failed">清空失败，请重试</string>
 </resources>

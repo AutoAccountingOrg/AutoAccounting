@@ -355,9 +355,9 @@
 
     <fragment
         android:id="@+id/statisticFragment"
-        android:name="net.ankio.auto.ui.fragment.StatisticFragment"
+        android:name="net.ankio.auto.ui.fragment.SummaryWebViewFragment"
         android:label="@string/stat_title"
-        tools:layout="@layout/fragment_statistic">
+        tools:layout="@layout/fragment_summary_webview">
 
     </fragment>
 

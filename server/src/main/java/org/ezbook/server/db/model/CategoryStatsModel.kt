@@ -35,3 +35,19 @@ data class CategoryStatsModel(
      */
     val count: Int
 )
+
+/**
+ * 移除父类前缀，仅保留子类名称。
+ * - 格式为 "父类-子类" 时返回子类
+ * - 否则返回原字符串（去除首尾空格）
+ */
+fun String.removeParent(): String {
+    val trimmed = trim()
+    val idx = trimmed.indexOf('-')
+    return if (idx in 1 until trimmed.lastIndex) {
+        trimmed.substring(idx + 1).trim()
+    } else {
+        trimmed
+    }
+}
+

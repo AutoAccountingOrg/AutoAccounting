@@ -223,18 +223,23 @@ object BillAPI {
             }
         }
 
-    /**
-     * 获取指定时间范围的统计数据（服务端计算）。
-     */
-    suspend fun stats(startTime: Long, endTime: Long): StatsResponse? =
-        withContext(Dispatchers.IO) {
 
+    /**
+     * 获取WebView展示用的完整消费分析数据
+     *
+     * @param startTime 开始时间戳（毫秒）
+     * @param endTime 结束时间戳（毫秒）
+     * @param period 周期名称（如"2024年1月"）
+     * @return Map格式的数据，可直接转JSON给WebView
+     */
+    suspend fun summary(startTime: Long, endTime: Long, period: String): Map<String, Any?>? =
+        withContext(Dispatchers.IO) {
             return@withContext runCatchingExceptCancel {
-                val url = "bill/stats?start=$startTime&end=$endTime"
-                val resp = LocalNetwork.get<StatsResponse>(url).getOrThrow()
+                val url = "bill/summary?start=$startTime&end=$endTime&period=$period"
+                val resp = LocalNetwork.get<Map<String, Any?>>(url).getOrThrow()
                 resp.data
             }.getOrElse {
-                Logger.e("stats error: ${it.message}", it)
+                Logger.e("summary error: ${it.message}", it)
                 null
             }
         }

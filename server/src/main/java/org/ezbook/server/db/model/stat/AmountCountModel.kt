@@ -13,20 +13,15 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.db.model
+package org.ezbook.server.db.model.stat
 
 /**
- * 分类聚合查询行模型。
- * @property parent 父类名称
- * @property child 子类名称（可能为空字符串）
- * @property amount 金额合计
- * @property count 记录数量
+ * 金额 + 次数 统计结果模型
+ * 用于小额/大额支出等汇总统计
  */
-data class CategoryAggregateRow(
-    val parent: String,
-    val child: String,
-    val amount: Double?,
-    val count: Int = 0
+data class AmountCountModel(
+    /** 聚合金额 */
+    val amount: Double,
+    /** 交易次数 */
+    val count: Int
 )
-
-

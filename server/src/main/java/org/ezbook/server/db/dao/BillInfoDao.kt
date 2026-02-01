@@ -26,6 +26,10 @@ import org.ezbook.server.db.model.BillSummaryModel
 import org.ezbook.server.db.model.CategoryStatsModel
 import org.ezbook.server.db.model.ShopStatsModel
 import org.ezbook.server.db.model.TimeBucketStatsModel
+import org.ezbook.server.db.model.stat.AmountBucketCountModel
+import org.ezbook.server.db.model.stat.AmountCountModel
+import org.ezbook.server.db.model.stat.AmountSumModel
+import org.ezbook.server.db.model.stat.HeatmapStatsModel
 
 @Dao
 interface BillInfoDao {
@@ -198,6 +202,7 @@ interface BillInfoDao {
     )
     suspend fun getExpenseShopStats(startTime: Long, endTime: Long): List<ShopStatsModel>
 
+
     /**
      * 获取小额支出分类统计（用于拿铁因子）
      * 仅统计支出且金额不超过阈值
@@ -306,6 +311,134 @@ interface BillInfoDao {
     ): List<TimeBucketStatsModel>
 
     /**
+     * 按星期+小时聚合支出（消费生物钟热力图）
+     * bucketDay: 0=周日...6=周六
+     * bucketHour: 00-23
+     */
+    @Query(
+        """
+        SELECT 
+            strftime('%w', datetime(time/1000, 'unixepoch', 'localtime')) as bucketDay,
+            strftime('%H', datetime(time/1000, 'unixepoch', 'localtime')) as bucketHour,
+            SUM(money) as amount
+        FROM BillInfoModel
+        WHERE type = 'Expend'
+          AND time >= :startTime AND time <= :endTime
+          AND groupId = -1
+        GROUP BY bucketDay, bucketHour
+        ORDER BY bucketDay ASC, bucketHour ASC
+        """
+    )
+    suspend fun getExpenseHeatmapStats(
+        startTime: Long,
+        endTime: Long
+    ): List<HeatmapStatsModel>
+
+    /**
+     * 支出金额区间分布统计（金额分布柱状图）
+     * bucket: 0-50 / 50-100 / 100-200 / 200-500 / 500-1000 / 1000+
+     */
+    @Query(
+        """
+        SELECT 
+            CASE
+                WHEN money < 50 THEN '0-50'
+                WHEN money < 100 THEN '50-100'
+                WHEN money < 200 THEN '100-200'
+                WHEN money < 500 THEN '200-500'
+                WHEN money < 1000 THEN '500-1000'
+                ELSE '1000+'
+            END as bucket,
+            COUNT(*) as count
+        FROM BillInfoModel
+        WHERE type = 'Expend'
+          AND time >= :startTime AND time <= :endTime
+          AND groupId = -1
+        GROUP BY bucket
+        """
+    )
+    suspend fun getExpenseAmountDistribution(
+        startTime: Long,
+        endTime: Long
+    ): List<AmountBucketCountModel>
+
+    /**
+     * 小额支出统计（拿铁因子）
+     */
+    @Query(
+        """
+        SELECT 
+            SUM(money) as amount,
+            COUNT(*) as count
+        FROM BillInfoModel
+        WHERE type = 'Expend'
+          AND money < :maxAmount
+          AND time >= :startTime AND time <= :endTime
+          AND groupId = -1
+        """
+    )
+    suspend fun getSmallExpenseStats(
+        startTime: Long,
+        endTime: Long,
+        maxAmount: Double
+    ): AmountCountModel
+
+    /**
+     * 大额支出统计
+     */
+    @Query(
+        """
+        SELECT 
+            SUM(money) as amount,
+            COUNT(*) as count
+        FROM BillInfoModel
+        WHERE type = 'Expend'
+          AND money >= :minAmount
+          AND time >= :startTime AND time <= :endTime
+          AND groupId = -1
+        """
+    )
+    suspend fun getLargeExpenseStats(
+        startTime: Long,
+        endTime: Long,
+        minAmount: Double
+    ): AmountCountModel
+
+    /**
+     * 周末支出统计（周六/周日）
+     */
+    @Query(
+        """
+        SELECT 
+            SUM(money) as amount
+        FROM BillInfoModel
+        WHERE type = 'Expend'
+          AND time >= :startTime AND time <= :endTime
+          AND groupId = -1
+          AND strftime('%w', datetime(time/1000, 'unixepoch', 'localtime')) IN ('0','6')
+        """
+    )
+    suspend fun getWeekendExpenseSum(
+        startTime: Long,
+        endTime: Long
+    ): AmountSumModel
+
+    /**
+     * 统计指定时间范围内的总交易数
+     */
+    @Query(
+        """
+        SELECT COUNT(*) FROM BillInfoModel
+        WHERE groupId = -1
+          AND time >= :startTime AND time <= :endTime
+        """
+    )
+    suspend fun getBillsCountByTimeRange(
+        startTime: Long,
+        endTime: Long
+    ): Int
+
+    /**
      * 按类型汇总金额（AI分析用）。
      * 仅使用 money 字段，避免引入 fee 口径差异。
      */
@@ -359,49 +492,45 @@ interface BillInfoDao {
         endTime: Long
     ): List<org.ezbook.server.db.model.TrendRowModel>
 
-    /** 支出分类统计：优先按子类统计，包含金额和计数 */
+    /** 支出分类统计：直接返回分类名称（有子类则只保留子类） */
     @Query(
         """
         SELECT 
-            TRIM(CASE WHEN instr(cateName, '-') <= 0 THEN cateName ELSE substr(cateName, 1, instr(cateName, '-') - 1) END) as parent,
-            TRIM(CASE 
-                    WHEN instr(cateName, '-') > 1 AND instr(cateName, '-') < length(cateName) THEN substr(cateName, instr(cateName, '-') + 1)
-                    ELSE ''
-                END) as child,
+            cateName,
             SUM(money) as amount,
             COUNT(*) as count
         FROM BillInfoModel
-        WHERE groupId = -1 AND type = 'Expend' AND time >= :startTime AND time <= :endTime
-        GROUP BY parent, child
+        WHERE groupId = -1
+          AND type = 'Expend'
+          AND time >= :startTime AND time <= :endTime
+        GROUP BY cateName
         ORDER BY amount DESC
         """
     )
     suspend fun getExpenseCategoryStats(
         startTime: Long,
         endTime: Long
-    ): List<org.ezbook.server.db.model.CategoryAggregateRow>
+    ): List<org.ezbook.server.db.model.CategoryStatsModel>
 
-    /** 收入分类统计：优先按子类统计，包含金额和计数 */
+    /** 收入分类统计：直接返回分类名称（有子类则只保留子类） */
     @Query(
         """
         SELECT 
-            TRIM(CASE WHEN instr(cateName, '-') <= 0 THEN cateName ELSE substr(cateName, 1, instr(cateName, '-') - 1) END) as parent,
-            TRIM(CASE 
-                    WHEN instr(cateName, '-') > 1 AND instr(cateName, '-') < length(cateName) THEN substr(cateName, instr(cateName, '-') + 1)
-                    ELSE ''
-                END) as child,
+            cateName,
             SUM(money) as amount,
             COUNT(*) as count
         FROM BillInfoModel
-        WHERE groupId = -1 AND type = 'Income' AND time >= :startTime AND time <= :endTime
-        GROUP BY parent, child
+        WHERE groupId = -1
+          AND type = 'Income'
+          AND time >= :startTime AND time <= :endTime
+        GROUP BY cateName
         ORDER BY amount DESC
         """
     )
     suspend fun getIncomeCategoryStats(
         startTime: Long,
         endTime: Long
-    ): List<org.ezbook.server.db.model.CategoryAggregateRow>
+    ): List<org.ezbook.server.db.model.CategoryStatsModel>
 
     /**
      * 获取收入分类统计（用于 AI 分析，返回 CategoryStatsModel）

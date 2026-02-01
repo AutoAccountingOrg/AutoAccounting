@@ -1089,4 +1089,8 @@
     <string name="rule_ai_generate_success">AI rule generated</string>
     <string name="rule_test_failed">Rule test failed</string>
     <string name="rule_save_failed">Failed to save rule</string>
+    <string name="clear_all_analysis">Clear All Analysis</string>
+    <string name="clear_all_analysis_message">Are you sure you want to delete all financial analysis tasks? This operation cannot be undone.</string>
+    <string name="clear_all_analysis_success">All analysis tasks cleared</string>
+    <string name="clear_all_analysis_failed">Clear failed, please try again</string>
 </resources>

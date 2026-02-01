@@ -258,13 +258,14 @@ fun Route.billRoutes() {
         }
 
         /**
-         * GET /bill/stats - 获取指定时间范围的统计数据
-         * 返回汇总、趋势、分类占比三部分，客户端无需再遍历账单构建。
+         * GET /bill/summary - 获取WebView展示用的完整消费分析数据
+         * 返回包含分类、商户、账单明细的完整JSON，供summary.html使用
          *
          * @param start 开始时间戳（毫秒）必填
          * @param end 结束时间戳（毫秒）必填
+         * @param period 周期名称（可选）
          */
-        get("/stats") {
+        get("/summary") {
             val startTime = call.request.queryParameters["start"]?.toLong()
                 ?: return@get call.respond(
                     ResultModel.error(
@@ -274,9 +275,10 @@ fun Route.billRoutes() {
                 )
             val endTime = call.request.queryParameters["end"]?.toLong()
                 ?: return@get call.respond(ResultModel.error(400, "End time parameter is required"))
+            val period = call.request.queryParameters["period"] ?: "未知周期"
 
-            val stats = StatisticsService.buildStats(startTime, endTime)
-            call.respond(ResultModel.ok(stats))
+            val summaryData = StatisticsService.buildSummaryForWebView(startTime, endTime, period)
+            call.respond(ResultModel.ok(summaryData))
         }
 
         /**
