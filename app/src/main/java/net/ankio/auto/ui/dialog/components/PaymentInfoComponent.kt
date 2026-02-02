@@ -333,6 +333,17 @@ class PaymentInfoComponent(
         binding.transferTo.setOnClickListener {
             showAssetSelector(false)
         }
+        // 转账方向点击：交换来源/目标账户
+        binding.transferSwap.setOnClickListener {
+            swapTransferAccounts(binding.transferSwap)
+        }
+        // 债务方向箭头点击：交换来源/目标账户
+        binding.debtSwap.setOnClickListener {
+            swapTransferAccounts(binding.debtSwap)
+        }
+        binding.debtSwap2.setOnClickListener {
+            swapTransferAccounts(binding.debtSwap2)
+        }
 
         // 债务账户点击
         binding.debtAccount.setOnClickListener {
@@ -463,6 +474,31 @@ class PaymentInfoComponent(
                 // isFirstAccount=true 时不更新，因为来源是人员而非账户
             }
         }
+    }
+
+    /**
+     * 交换转账来源/目标账户（仅转账类型生效）
+     */
+    private fun swapTransferAccounts(arrowView: View) {
+        if (!::billInfoModel.isInitialized) { // 未初始化则直接返回
+            return
+        }
+        val from = billInfoModel.accountNameFrom // 备份来源
+        val to = billInfoModel.accountNameTo // 备份目标
+        billInfoModel.accountNameFrom = to // 交换来源
+        billInfoModel.accountNameTo = from // 交换目标
+        playSwapAnimation(arrowView) // 触发轻微动画提示
+        refresh() // 刷新显示与图标
+    }
+
+    /**
+     * 转账交换动画（轻微提示，不刻意）
+     */
+    private fun playSwapAnimation(arrowView: View) {
+        arrowView.animate() // 启动动画
+            .rotationBy(360f) // 旋转一整圈
+            .setDuration(220L) // 动画时长
+            .start() // 开始动画
     }
 }
 
