@@ -102,6 +102,10 @@ abstract class BaseWebViewFragment<VB : ViewBinding> : BaseFragment<VB>() {
      */
     private fun injectMaterialColors() {
         val isDarkMode = ThemeUtils.isDark
+        val isExpenseRed = PrefManager.isExpenseRed
+        val incomeColor = if (isExpenseRed) R.color.success else R.color.danger
+        val expenseColor = if (isExpenseRed) R.color.danger else R.color.success
+
         val js = """
             (function() {
                 window.__isDarkMode = $isDarkMode;
@@ -135,6 +139,17 @@ abstract class BaseWebViewFragment<VB : ViewBinding> : BaseFragment<VB>() {
                 root.style.setProperty('--color-success-bg', '${
             R.color.success_bg.resToColor().toARGBHex()
         }');
+
+                // 收支颜色（动态注入）
+                root.style.setProperty('--color-income', '${incomeColor.resToColor().toHex()}');
+                root.style.setProperty('--color-expense', '${expenseColor.resToColor().toHex()}');
+                
+                // 如果页面定义了 setThemeColors 函数，则调用它更新 JS 变量
+                if (window.setThemeColors) {
+                    window.setThemeColors('${
+            incomeColor.resToColor().toHex()
+        }', '${expenseColor.resToColor().toHex()}');
+                }
             })();
         """.trimIndent()
 

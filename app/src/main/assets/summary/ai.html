@@ -62,6 +62,10 @@
             --color-success-rgb: 0, 108, 75;
             --color-danger-rgb: 179, 38, 30;
             --color-warning-rgb: 141, 110, 0;
+
+            /* 收支颜色（动态注入） */
+            --color-income: var(--color-success);
+            --color-expense: var(--color-danger);
         }
         /**
          * 全局基础样式 - Material 3 排版系统
@@ -212,6 +216,14 @@
         
         .stat-val-warning {
             color: var(--color-warning);
+        }
+
+        .color-income {
+            color: var(--color-income);
+        }
+
+        .color-expense {
+            color: var(--color-expense);
         }
         
         .stat-note {
@@ -634,12 +646,12 @@
             <div class="grid grid-top">
                 <div class="card">
                     <div class="stat-label" id="incomeLabel"></div>
-                    <div class="stat-val stat-val-primary" id="totalIncome"></div>
+                    <div class="stat-val color-income" id="totalIncome"></div>
                     <div class="stat-note stat-note-success" id="savingsNote"></div>
                 </div>
                 <div class="card">
                     <div class="stat-label" id="expenseLabel"></div>
-                    <div class="stat-val stat-val-danger" id="totalExpense"></div>
+                    <div class="stat-val color-expense" id="totalExpense"></div>
                     <div class="stat-note stat-note-warning" id="maxSingleNote"></div>
                 </div>
                 <div class="card card-warning-bottom">
@@ -846,6 +858,15 @@
             values: [95, 98, 70, 90, 30],
             name: "财务画像"
         }
+    };
+
+    // 当前数据
+    let currentData = defaultData;
+
+    // 主题颜色配置
+    let themeColors = {
+        income: '#006c4b', // 默认绿色
+        expense: '#b3261e' // 默认红色
     };
 
     /**
@@ -1061,7 +1082,26 @@
     function setJson(jsonData) {
         // 合并用户数据和默认数据
         const data = Object.assign({}, defaultData, jsonData);
+        currentData = data; // 更新全局数据
         renderData(data);
+    }
+
+    /**
+     * 外部调用接口：设置主题颜色
+     * @param {string} incomeColor - 收入颜色 (hex)
+     * @param {string} expenseColor - 支出颜色 (hex)
+     */
+    function setThemeColors(incomeColor, expenseColor) {
+        themeColors.income = incomeColor;
+        themeColors.expense = expenseColor;
+        
+        // 更新CSS变量
+        document.documentElement.style.setProperty('--color-income', incomeColor);
+        document.documentElement.style.setProperty('--color-expense', expenseColor);
+        
+        // 重新渲染图表以应用新颜色（如果图表使用了收支颜色）
+        // 目前 ai.html 的图表主要是结构分析，暂时保持默认配色或根据需要调整
+        // renderCharts(currentData); 
     }
 
     // ==========================================================
@@ -1125,6 +1165,7 @@
 
     // 暴露接口到全局
     window.setJson = setJson;
+    window.setThemeColors = setThemeColors;
     window.togglePrivacyMode = togglePrivacyMode;
 </script>
 </body>
