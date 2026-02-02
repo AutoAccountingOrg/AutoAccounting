@@ -1474,9 +1474,55 @@
         renderAll(defaultData);
     });
 
+    /**
+     * 隐私模式控制：隐藏/显示金额
+     * @param {boolean} enabled - true=隐藏金额，false=显示金额
+     */
+    function togglePrivacyMode(enabled) {
+        // 递归遍历指定元素的所有文本节点
+        function processTextNodes(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                if (enabled) {
+                    // 开启隐私模式：匹配金额格式
+                    // 支持格式：¥100, ¥ 100, ¥-100, ¥ -100
+                    if (/¥\s*-?[\d,.]+/.test(node.nodeValue)) {
+                        if (!node._originalText) {
+                            node._originalText = node.nodeValue;
+                        }
+                        node.nodeValue = node.nodeValue.replace(/¥\s*-?[\d,.]+/g, '¥***');
+                    }
+                } else {
+                    // 关闭隐私模式：如果有备份则恢复
+                    if (node._originalText) {
+                        node.nodeValue = node._originalText;
+                        delete node._originalText;
+                    }
+                }
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                // 递归处理子节点
+                node.childNodes.forEach(processTextNodes);
+            }
+        }
+
+        // 选择所有可能包含金额的容器
+        const selectors = [
+            '.stat-value',         // 统计数值
+            '.stat-compare',       // 统计对比
+            '.insight-content',    // 洞察内容
+            '.insight-card',       // 洞察卡片
+            '.stat-item'           // 统计项（总览区域）
+        ];
+
+        // 遍历所有匹配的元素
+        document.querySelectorAll(selectors.join(', ')).forEach(el => {
+            processTextNodes(el);
+        });
+    }
+
     // 暴露接口到全局
     window.setJson = setJson;
     window.switchCategoryTab = switchCategoryTab;
+    window.togglePrivacyMode = togglePrivacyMode;
 
     /* ========================================
      * 使用说明

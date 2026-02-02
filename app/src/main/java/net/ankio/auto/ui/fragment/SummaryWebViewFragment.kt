@@ -39,6 +39,7 @@ class SummaryWebViewFragment : BaseWebViewFragment<FragmentSummaryWebviewBinding
 
     private var startTime: Long = 0L
     private var endTime: Long = 0L
+    private var isPrivacyMode = false
     private val gson = Gson()
 
     override fun getWebView(): WebView = binding.webView
@@ -80,8 +81,18 @@ class SummaryWebViewFragment : BaseWebViewFragment<FragmentSummaryWebviewBinding
                 }
                 true
             }
+            R.id.action_privacy_mode -> {
+                togglePrivacyMode(item)
+                true
+            }
             else -> false
         }
+    }
+
+    private fun togglePrivacyMode(item: MenuItem) {
+        isPrivacyMode = !isPrivacyMode
+        item.setIcon(if (isPrivacyMode) R.drawable.ic_visibility_off else R.drawable.ic_visibility)
+        binding.webView.evaluateJavascript("togglePrivacyMode($isPrivacyMode)", null)
     }
 
     private fun initDefaultPeriod() {

@@ -52,6 +52,7 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
 
     private var taskId: Long = -1
     private var taskModel: AnalysisTaskModel? = null
+    private var isPrivacyMode = false
 
     companion object {
         private const val ARG_TASK_ID = "task_id"
@@ -84,8 +85,25 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
         binding.topAppBar.apply {
             setTitle(R.string.analysis_detail_title)
             setNavigationOnClickListener { findNavController().popBackStack() }
+            inflateMenu(R.menu.analysis_detail_menu)
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.action_privacy_mode -> {
+                        togglePrivacyMode(it)
+                        true
+                    }
+
+                    else -> false
+                }
+            }
         }
         binding.btnShare.setOnClickListener { shareAsImage() }
+    }
+
+    private fun togglePrivacyMode(item: android.view.MenuItem) {
+        isPrivacyMode = !isPrivacyMode
+        item.setIcon(if (isPrivacyMode) R.drawable.ic_visibility_off else R.drawable.ic_visibility)
+        binding.webView.evaluateJavascript("togglePrivacyMode($isPrivacyMode)", null)
     }
 
     override fun loadInitialUrl(): String? = null
@@ -167,7 +185,31 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
             .logo img { width: 28px; height: 28px; border-radius: 6px; }
             .period-title { font-size: 18px; font-weight: 600; margin: 0; }
             .footer { text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 14px; }
-        </style></head><body>
+        </style>
+        <script>
+            function togglePrivacyMode(enabled) {
+                function processTextNodes(node) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        if (enabled) {
+                            // 支持格式：¥100, ¥ 100, ¥-100, ¥ -100
+                            if (/¥\s*-?[\d,.]+/.test(node.nodeValue)) {
+                                if (!node._originalText) node._originalText = node.nodeValue;
+                                node.nodeValue = node.nodeValue.replace(/¥\s*-?[\d,.]+/g, '¥***');
+                            }
+                        } else {
+                            if (node._originalText) {
+                                node.nodeValue = node._originalText;
+                                delete node._originalText;
+                            }
+                        }
+                    } else if (node.nodeType === Node.ELEMENT_NODE) {
+                        node.childNodes.forEach(processTextNodes);
+                    }
+                }
+                processTextNodes(document.body);
+            }
+        </script>
+        </head><body>
             <div class="header">
                 <div class="logo">${if (logoBase64.isNotEmpty()) "<img src=\"$logoBase64\">" else "💰"}</div>
                 <p class="period-title">$appName • 财务分析</p>
