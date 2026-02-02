@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_privacy_mode"
+        android:icon="@drawable/ic_visibility"
+        android:title="@string/setting_privacy"
+        app:showAsAction="always" />
+</menu>
