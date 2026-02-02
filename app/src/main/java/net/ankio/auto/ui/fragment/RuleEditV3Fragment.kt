@@ -131,6 +131,10 @@ class RuleEditV3Fragment : BaseWebViewFragment<FragmentRuleV3EditBinding>() {
     private fun setupToolbar() {
         binding.toolbar.apply {
             title = getString(R.string.title_rule_edit)
+            // 返回按钮：统一交给导航栈处理，避免 WebView 拦截返回事件
+            setNavigationOnClickListener {
+                findNavController().popBackStack()
+            }
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_run -> {
