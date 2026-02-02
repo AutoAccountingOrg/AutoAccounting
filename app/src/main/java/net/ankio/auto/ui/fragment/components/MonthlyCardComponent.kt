@@ -50,8 +50,17 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
         super.onComponentCreate()
         binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor1)
         setupColors()
+        setupPrivacyToggle()
         // 设置底部操作按钮
         setupBottomButtons()
+    }
+
+    private fun setupPrivacyToggle() {
+        val toggleAction = {
+            PrefManager.homePrivacyMode = !PrefManager.homePrivacyMode
+            refreshData()
+        }
+        binding.incomeExpenseLayout.setOnClickListener { toggleAction() }
     }
 
     private fun setupColors() {
@@ -115,9 +124,14 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
                 val incomeAmount = stats["income"] ?: 0.0
                 val expenseAmount = stats["expense"] ?: 0.0
 
-                // 现在ID已经修正，可以按正常逻辑显示数据
-                binding.tvIncomeAmount.text = BillTool.formatAmount(incomeAmount)
-                binding.tvExpenseAmount.text = BillTool.formatAmount(expenseAmount)
+                // 隐私模式处理
+                if (PrefManager.homePrivacyMode) {
+                    binding.tvIncomeAmount.text = "****"
+                    binding.tvExpenseAmount.text = "****"
+                } else {
+                    binding.tvIncomeAmount.text = BillTool.formatAmount(incomeAmount)
+                    binding.tvExpenseAmount.text = BillTool.formatAmount(expenseAmount)
+                }
             }
         }
     }

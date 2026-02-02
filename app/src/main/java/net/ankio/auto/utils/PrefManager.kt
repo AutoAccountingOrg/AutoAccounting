@@ -710,5 +710,8 @@ object PrefManager {
         get() = getString("canary_warning_version", "")
         set(value) = putString("canary_warning_version", value)
 
-
+    /** 首页隐私模式 - 是否隐藏首页收支金额 */
+    var homePrivacyMode: Boolean
+        get() = getBoolean("home_privacy_mode", false)
+        set(value) = putBoolean("home_privacy_mode", value)
 }

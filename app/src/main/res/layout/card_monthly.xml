@@ -9,8 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
-
         <!-- 收入支出展示区域 -->
         <LinearLayout
             android:id="@+id/incomeExpenseLayout"
@@ -137,7 +135,8 @@
             android:id="@+id/bottomButtonsLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -145,7 +144,8 @@
             <com.google.android.material.button.MaterialButtonGroup
                 android:id="@+id/monthlyButtonGroup"
                 style="@style/Widget.Material3.MaterialButtonGroup.Connected"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 app:selectionRequired="false"
                 app:singleSelection="false">
@@ -159,8 +159,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/btn_ai_analysis"
                     android:textSize="12sp"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="6dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     app:icon="@drawable/ic_ai"
@@ -176,8 +176,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/btn_bill_statistics"
                     android:textSize="12sp"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="6dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     app:icon="@drawable/ic_statistic"
@@ -193,8 +193,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/btn_bill_sync"
                     android:textSize="12sp"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="6dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     app:icon="@drawable/ic_sync"
