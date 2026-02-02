@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -23,7 +22,6 @@ import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -35,17 +33,15 @@ import net.ankio.auto.databinding.FragmentRuleV3EditBinding
 import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.http.api.RuleManageAPI
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseWebViewFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.tools.DataConvert
-
 
 /**
  * WebView规则编辑器 - Linus品味重构版
@@ -55,7 +51,7 @@ import org.ezbook.server.tools.DataConvert
  * 2. 消除特殊情况 - WebView 和 Native 通过统一的 Bridge 通信
  * 3. 简化初始化 - WebView 一次性配置完成
  */
-class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
+class RuleEditV3Fragment : BaseWebViewFragment<FragmentRuleV3EditBinding>() {
 
     companion object {
         /** WebView URL */
@@ -69,12 +65,25 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
     /** 主线程Handler - 用于JS回调 */
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun getWebView(): WebView = binding.webView
 
+    override fun loadInitialUrl(): String = WEBVIEW_URL
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initData()
-        setupWebView()
+        super.onViewCreated(view, savedInstanceState)
         setupToolbar()
+        // 补充特定配置
+        binding.webView.apply {
+            settings.mediaPlaybackRequiresUserGesture = false
+            settings.cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
+            webChromeClient = createWebChromeClient()
+        }
+    }
+
+    override fun onWebViewReady() {
+        // 页面加载完成后初始化数据
+        callJsFunction("webviewCallback.setData(${ruleData.struct})")
     }
 
     /** 初始化数据 - 消除特殊情况处理 */
@@ -289,98 +298,8 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
     }
 
 
-    /** 设置WebView - 一次性配置完成 */
-    @SuppressLint("SetJavaScriptEnabled")
-    private fun setupWebView() {
-        binding.webView.apply {
-            // 配置WebSettings
-            settings.apply {
-                javaScriptEnabled = true
-                domStorageEnabled = true
-                allowFileAccess = true
-                mediaPlaybackRequiresUserGesture = false
-
-                // 优化性能
-                cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
-
-                // 启用调试（仅开发环境）
-                if (PrefManager.debugMode) {
-                    WebView.setWebContentsDebuggingEnabled(true)
-                }
-            }
-
-            // 设置WebView客户端
-            webViewClient = createWebViewClient()
-            webChromeClient = createWebChromeClient()
 
 
-            Logger.d("[WebView] 开始加载规则编辑页面")
-            // 加载HTML
-            loadUrl(WEBVIEW_URL)
-        }
-    }
-
-    /** 注入 Material You 动态颜色到 WebView */
-    private fun injectMaterialYouColors() {
-        // 将颜色值转换为 CSS 十六进制格式
-        val colorToHex = { color: Int ->
-            String.format("#%06X", 0xFFFFFF and color)
-        }
-
-        val js = """
-            (function() {
-                const root = document.documentElement;
-                root.style.setProperty('--md-sys-color-primary', '${colorToHex(DynamicColors.Primary)}');
-                root.style.setProperty('--md-sys-color-on-primary', '${colorToHex(DynamicColors.OnPrimary)}');
-                root.style.setProperty('--md-sys-color-primary-container', '${
-            colorToHex(
-                DynamicColors.PrimaryContainer
-            )
-        }');
-                root.style.setProperty('--md-sys-color-on-primary-container', '${
-            colorToHex(
-                DynamicColors.OnPrimaryContainer
-            )
-        }');
-                root.style.setProperty('--md-sys-color-surface', '${colorToHex(DynamicColors.Surface)}');
-                root.style.setProperty('--md-sys-color-on-surface', '${colorToHex(DynamicColors.OnSurface)}');
-                root.style.setProperty('--md-sys-color-surface-variant', '${colorToHex(DynamicColors.SurfaceVariant)}');
-                root.style.setProperty('--md-sys-color-on-surface-variant', '${
-            colorToHex(
-                DynamicColors.OnSurfaceVariant
-            )
-        }');
-                root.style.setProperty('--md-sys-color-outline', '${colorToHex(DynamicColors.Outline)}');
-                root.style.setProperty('--md-sys-color-outline-variant', '${colorToHex(DynamicColors.OutlineVariant)}');
-                root.style.setProperty('--md-sys-color-background', '${colorToHex(DynamicColors.SurfaceContainer)}');
-            })();
-        """.trimIndent()
-
-        binding.webView.evaluateJavascript(js, null)
-        Logger.d("[WebView] Material You 颜色已注入")
-    }
-
-    /** 创建WebViewClient - 处理页面加载和错误 */
-    private fun createWebViewClient() = object : WebViewClient() {
-        override fun onPageStarted(
-            view: WebView?,
-            url: String?,
-            favicon: android.graphics.Bitmap?
-        ) {
-            super.onPageStarted(view, url, favicon)
-            Logger.d("[WebView] 页面开始加载: $url")
-        }
-
-        override fun onPageFinished(view: WebView?, url: String?) {
-            super.onPageFinished(view, url)
-            Logger.d("[WebView] 页面加载完成: $url")
-            // 注入 Material You 颜色变量
-            injectMaterialYouColors()
-            // 页面加载完成后初始化数据
-            callJsFunction("webviewCallback.setData(${ruleData.struct})")
-        }
-
-    }
 
 
 
@@ -546,14 +465,4 @@ class RuleEditV3Fragment : BaseFragment<FragmentRuleV3EditBinding>() {
             .show()
     }
 
-    /** 清理资源 */
-    override fun onDestroyView() {
-        binding.webView.apply {
-            loadUrl("about:blank")
-            clearHistory()
-            clearCache(true)
-            destroy()
-        }
-        super.onDestroyView()
-    }
 }
