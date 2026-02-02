@@ -795,7 +795,18 @@
      */
     function renderCategoryChart(categories, type, summaryData) {
         const chartEl = document.getElementById('categoryChart');
+        const insightEl = document.getElementById('categoryInsight');
         
+        // 1. 销毁旧实例：无论是否有新数据，先清理旧的
+        if (charts.categoryChart) {
+            charts.categoryChart.dispose();
+            charts.categoryChart = null;
+        }
+        
+        // 2. 清理容器：防止 ECharts 在非空容器上初始化报错，或残留空状态 HTML
+        chartEl.innerHTML = '';
+        insightEl.innerHTML = ''; // 同时清理洞察区域
+
         if (!categories || categories.length === 0) {
             chartEl.innerHTML = '<div class="empty-state"><div class="icon">🏷️</div><div class="text">暂无分类数据</div></div>';
             return;
