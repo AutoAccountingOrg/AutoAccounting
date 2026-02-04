@@ -742,6 +742,10 @@
     <string name="tag_color">Tag Color</string>
     <string name="tag_group">Tag Group</string>
     <string name="tag_group_hint">Select or enter group name</string>
+    <string name="bill_tag_title">Tags</string>
+    <string name="bill_tag_empty">No tags available</string>
+    <string name="bill_tag_limit">You can select up to %d tags</string>
+    <string name="bill_tag_unselected">Select tags</string>
     <string name="select_color">Select Color</string>
     <string name="delete_tag_message">Are you sure to delete tag "%s"?</string>
     <string name="tag_created_successfully">Tag created successfully</string>

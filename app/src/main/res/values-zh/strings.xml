@@ -672,6 +672,10 @@
     <string name="tag_color">标签颜色</string>
     <string name="tag_group">标签组</string>
     <string name="tag_group_hint">选择或输入组名</string>
+    <string name="bill_tag_title">标签</string>
+    <string name="bill_tag_empty">暂无可用标签</string>
+    <string name="bill_tag_limit">最多选择 %d 个标签</string>
+    <string name="bill_tag_unselected">选择标签</string>
     <string name="select_color">选择颜色</string>
     <string name="tag_created_successfully">标签创建成功</string>
     <string name="tag_updated_successfully">标签更新成功</string>

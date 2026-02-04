@@ -96,6 +96,51 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- 标签行：只展示已绑定的标签，空则隐藏 -->
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/tag_labels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:visibility="gone"
+        app:alignItems="center"
+        app:flexWrap="wrap"
+        tools:visibility="visible">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/currency_label_background"
+            android:backgroundTint="?attr/colorSurfaceContainerHighest"
+            android:drawablePadding="6dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            app:drawableStartCompat="@drawable/ic_tag"
+            app:drawableTint="?attr/colorOnSurfaceVariant"
+            tools:text="#餐饮" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/currency_label_background"
+            android:backgroundTint="?attr/colorSurfaceContainerHighest"
+            android:drawablePadding="6dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            app:drawableStartCompat="@drawable/ic_tag"
+            app:drawableTint="?attr/colorOnSurfaceVariant"
+            tools:text="#出差" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
     <!-- 第三行：备注（补充信息，保留两行但降低视觉权重，避免与资产抢焦点） -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/remark"
