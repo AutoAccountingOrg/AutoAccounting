@@ -98,55 +98,6 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- 标签颜色选择 - 简化设计 -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/one_padding"
-                    android:text="@string/tag_color"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
-
-                <!-- 使用item_color.xml的颜色选择项 -->
-                <LinearLayout
-                    android:id="@+id/color_selection_item"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/padding"
-                    android:background="@drawable/ripple_effect"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/one_padding">
-
-                    <!-- 引入颜色项布局 -->
-                    <include
-                        android:id="@+id/color_item_layout"
-                        layout="@layout/item_color"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/one_padding" />
-
-                    <!-- 右侧16进制颜色值 -->
-                    <TextView
-                        android:id="@+id/color_text"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="#2196F3"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                        android:textColor="?android:textColorPrimary" />
-
-                    <!-- 右侧选择图标 -->
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_open_in_new"
-                        android:tint="?android:textColorSecondary" />
-
-                </LinearLayout>
-
-
             </LinearLayout>
 
         </ScrollView>

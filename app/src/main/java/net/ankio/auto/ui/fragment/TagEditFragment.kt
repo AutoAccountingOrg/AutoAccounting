@@ -20,8 +20,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.ArrayAdapter
-import androidx.core.graphics.toColorInt
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
@@ -29,8 +27,6 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentTagEditBinding
 import net.ankio.auto.http.api.TagAPI
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.dialog.ColorPickerDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.TagModel
 
@@ -43,12 +39,11 @@ import org.ezbook.server.db.model.TagModel
  * 3. 消除魔法数字 - 使用常量定义
  * 4. 简化状态管理 - 减少不必要的状态变量
  *
- * 功能：创建或编辑标签，提供标签名称输入和颜色选择功能
+ * 功能：创建或编辑标签，提供标签名称和分组输入
  */
 class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
 
     companion object {
-        private const val DEFAULT_COLOR = "#E57373"
         private const val MAX_TAG_NAME_LENGTH = 50
         private const val DROPDOWN_THRESHOLD = 0
     }
@@ -67,8 +62,6 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
         setupListeners()
     }
 
-    val defaultColor = "#E57373"
-
     /**
      * 初始化标签数据
      */
@@ -81,9 +74,7 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
             // 编辑模式，加载现有标签
             launch {
                 try {
-                    tagModel = TagAPI.getById(tagId) ?: TagModel().apply {
-                        color = defaultColor
-                    }
+                    tagModel = TagAPI.getById(tagId) ?: TagModel()
                     setupViewsWithData()
                     // 在 tagModel 初始化完成后再初始化分组选择
                     setupGroupSelection()
@@ -94,9 +85,7 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
             }
         } else {
             // 新建模式
-            tagModel = TagModel().apply {
-                color = defaultColor
-            }
+            tagModel = TagModel()
             setupViewsWithData()
             // 新建模式下立即初始化分组选择
             setupGroupSelection()
@@ -124,7 +113,6 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
     private fun setupViewsWithData() {
         binding.tagNameInput.setText(tagModel.name)
         binding.tagGroupInput.setText(tagModel.group, false)
-        updateColorDisplay(tagModel.color)
     }
 
     /**
@@ -209,67 +197,9 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
             }
         }
 
-        // 颜色选择项点击 - 简化为单一点击事件
-        binding.colorSelectionItem.setOnClickListener {
-            showColorPicker()
-        }
-
         // 保存按钮点击
         binding.saveButton.setOnClickListener {
             saveTag()
-        }
-    }
-
-    /**
-     * 显示颜色选择器
-     */
-    private fun showColorPicker() {
-        BaseSheetDialog.create<ColorPickerDialog>(requireContext())
-            .setInitialColor(tagModel.color)
-            .setOnColorSelected { selectedColor ->
-                tagModel.color = selectedColor
-                updateColorDisplay(selectedColor)
-            }
-            .show()
-    }
-
-    /**
-     * 更新颜色显示
-     */
-    private fun updateColorDisplay(color: String) {
-        try {
-            val colorInt = color.toColorInt()
-
-            // 通过include布局访问内部的颜色圆圈
-            val colorCircle = binding.colorItemLayout.colorCircle
-            val checkIcon = binding.colorItemLayout.checkIcon
-
-            // 创建圆形背景并设置颜色
-            val circleDrawable = android.graphics.drawable.GradientDrawable().apply {
-                shape = android.graphics.drawable.GradientDrawable.OVAL
-                setColor(colorInt)
-            }
-            colorCircle.background = circleDrawable
-
-            // 隐藏选中图标（在标签编辑页面不需要显示）
-            checkIcon.isVisible = false
-
-            // 更新颜色文本显示
-            binding.colorText.text = color.uppercase()
-        } catch (e: Exception) {
-            // 使用默认颜色
-            val colorCircle = binding.colorItemLayout.colorCircle
-            val checkIcon = binding.colorItemLayout.checkIcon
-
-            val circleDrawable = android.graphics.drawable.GradientDrawable().apply {
-                shape = android.graphics.drawable.GradientDrawable.OVAL
-                setColor(defaultColor.toColorInt())
-            }
-            colorCircle.background = circleDrawable
-            checkIcon.isVisible = false
-
-            binding.colorText.text = defaultColor
-            tagModel.color = defaultColor
         }
     }
 

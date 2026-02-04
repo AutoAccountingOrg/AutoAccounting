@@ -67,7 +67,6 @@ class TagUtils {
                 tagMap[category]?.forEach { jsonTag ->
                     val tagModel = createTagModel(
                         name = jsonTag.name,
-                        color = jsonTag.color,
                         group = category
                     )
                     tagList.add(tagModel)
@@ -87,17 +86,14 @@ class TagUtils {
     /**
      * 创建TagModel实例
      * @param name 标签名称
-     * @param color 标签颜色
      * @return TagModel实例
      */
     private fun createTagModel(
         name: String,
-        color: String,
         group: String
     ): TagModel {
         return TagModel().apply {
             this.name = name
-            this.color = color
             this.group = group
         }
     }
