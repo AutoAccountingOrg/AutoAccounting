@@ -1,6 +1,7 @@
 package net.ankio.auto.ui.utils
 
 import android.content.Context
+import android.graphics.Color
 import android.util.SparseIntArray
 import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
@@ -60,6 +61,72 @@ object PaletteManager {
         return cacheLabelColors.getOrPut(label) {
             val index = calculateColorIndex(label)
             getColors(context, index)
+        }
+    }
+
+    /**
+     * 获取强调色（用于选中态或强调态）
+     * @param context 上下文
+     * @param tagName 标签文本
+     * @return 强调色
+     */
+    fun getAccentColor(context: Context, tagName: String): Int {
+        return getColorsByLabel(context, tagName).emphasis
+    }
+
+    /**
+     * 获取标签显示颜色（文本/背景）
+     * @param context 上下文
+     * @param tagName 标签文本
+     * @param defaultTextColor 默认文本色
+     * @param defaultBackgroundColor 默认背景色
+     * @return Pair(文本色, 背景色)
+     */
+    fun getLabelColors(
+        context: Context,
+        tagName: String,
+        defaultTextColor: Int,
+        defaultBackgroundColor: Int
+    ): Pair<Int, Int> {
+        val palette = getColorsByLabel(context, tagName)
+        // 调色板颜色降噪处理，避免抢走主视觉
+        val mixedTextColor = ColorUtils.blendARGB(defaultTextColor, palette.emphasis, 0.45f)
+        val mixedBackgroundColor = ColorUtils.blendARGB(
+            defaultBackgroundColor,
+            palette.background,
+            0.2f
+        )
+        val textColor = applyAlpha(mixedTextColor, 0.8f)
+        val backgroundColor = applyAlpha(mixedBackgroundColor, 0.8f)
+        return if (tagName.isEmpty()) {
+            defaultTextColor to defaultBackgroundColor
+        } else {
+            textColor to backgroundColor
+        }
+    }
+
+    /**
+     * 获取选中态标签颜色（与选择面板一致）
+     * @param context 上下文
+     * @param tagName 标签文本
+     * @param defaultTextColor 默认文本色
+     * @param surfaceStrongColor 高层级背景色
+     * @return Pair(文本色, 背景色)
+     */
+    fun getSelectedLabelColors(
+        context: Context,
+        tagName: String,
+        defaultTextColor: Int,
+        surfaceStrongColor: Int
+    ): Pair<Int, Int> {
+        val accentColor = getAccentColor(context, tagName)
+        val backgroundColor = ColorUtils.blendARGB(surfaceStrongColor, accentColor, 0.28f)
+        val mixedTextColor = ColorUtils.blendARGB(defaultTextColor, accentColor, 0.65f)
+        val textColor = applyAlpha(mixedTextColor, 0.95f)
+        return if (tagName.isEmpty()) {
+            defaultTextColor to surfaceStrongColor
+        } else {
+            textColor to backgroundColor
         }
     }
 
@@ -180,6 +247,19 @@ object PaletteManager {
         }
 
         return ColorUtils.HSLToColor(hsl)
+    }
+
+    /**
+     * 透明度处理，保持颜色主体但降低存在感
+     */
+    private fun applyAlpha(color: Int, alpha: Float): Int {
+        val clampedAlpha = (alpha.coerceIn(0f, 1f) * 255).toInt()
+        return Color.argb(
+            clampedAlpha,
+            Color.red(color),
+            Color.green(color),
+            Color.blue(color)
+        )
     }
 }
 
