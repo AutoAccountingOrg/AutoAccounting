@@ -30,16 +30,13 @@ import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import net.ankio.auto.ui.dialog.TagSelectorDialog
 import net.ankio.auto.R
-import com.google.android.material.color.MaterialColors
 import android.widget.ListPopupWindow
-import android.view.ViewGroup
-import com.google.android.material.textview.MaterialTextView
 import net.ankio.auto.ui.adapter.CurrencyDropdownAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.ui.utils.load
 import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.ui.utils.setAssetIcon
+import net.ankio.auto.ui.utils.TagUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
@@ -325,89 +322,11 @@ class BasicInfoComponent(
         binding.tagLabels.visibility = View.VISIBLE
 
         val tagNames = billInfoModel.getTagList()
-        val isEmpty = tagNames.isEmpty()
-        // label 风格：空态也保留占位，保证交互入口稳定
-        val labelTexts = if (isEmpty) {
-            listOf(context.getString(R.string.bill_tag_unselected))
-        } else {
-            tagNames
-        }
-        val defaultTextColor = MaterialColors.getColor(
+        // 统一使用标签工具渲染，保持风格一致
+        TagUtils.renderTagLabels(
             binding.tagLabels,
-            com.google.android.material.R.attr.colorOnSurfaceVariant
-        )
-        val defaultBackgroundColor = MaterialColors.getColor(
-            binding.tagLabels,
-            com.google.android.material.R.attr.colorSurfaceContainerLow
-        )
-        val surfaceStrongColor = MaterialColors.getColor(
-            binding.tagLabels,
-            com.google.android.material.R.attr.colorSurfaceContainerHighest
-        )
-        val emptyTextColor = applyAlpha(defaultTextColor, 0.6f)
-        val emptyBackgroundColor = applyAlpha(defaultBackgroundColor, 0.6f)
-
-        binding.tagLabels.removeAllViews()
-        binding.tagLabels.visibility = View.VISIBLE
-        val paddingHorizontal = dpToPx(binding.tagLabels, 8)
-        val paddingVertical = dpToPx(binding.tagLabels, 3)
-        dpToPx(binding.tagLabels, 4)
-        val marginBottom = dpToPx(binding.tagLabels, 4)
-
-        labelTexts.forEach { text ->
-            // 空态不应用标签色，保持弱提示
-            val tagName = text
-            val (textColor, backgroundColor) = if (isEmpty) {
-                emptyTextColor to emptyBackgroundColor
-            } else {
-                val (text, background, _) = PaletteManager.getSelectorTagColors(
-                    context,
-                    tagName,
-                    defaultTextColor,
-                    defaultBackgroundColor,
-                    surfaceStrongColor,
-                    true
-                )
-                text to background
-            }
-            val label = MaterialTextView(binding.root.context).apply {
-                this.text = text
-                setTextColor(textColor)
-                textSize = 12f
-                setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical)
-                background = binding.root.context.getDrawable(R.drawable.currency_label_background)
-                background?.setTint(backgroundColor)
-            }
-            val params = ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                // marginEnd = marginEnd
-                bottomMargin = marginBottom
-                rightMargin = marginBottom
-            }
-            binding.tagLabels.addView(label, params)
-        }
-    }
-
-    /**
-     * dp 转 px，避免硬编码
-     */
-    private fun dpToPx(view: View, dp: Int): Int {
-        return (dp * view.resources.displayMetrics.density).toInt()
-    }
-
-
-    /**
-     * 透明度处理，保持风格统一
-     */
-    private fun applyAlpha(color: Int, alpha: Float): Int {
-        val clampedAlpha = (alpha.coerceIn(0f, 1f) * 255).toInt()
-        return android.graphics.Color.argb(
-            clampedAlpha,
-            android.graphics.Color.red(color),
-            android.graphics.Color.green(color),
-            android.graphics.Color.blue(color)
+            tagNames,
+            context.getString(R.string.bill_tag_unselected)
         )
     }
 }

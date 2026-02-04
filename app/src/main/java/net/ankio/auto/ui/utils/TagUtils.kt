@@ -15,6 +15,11 @@
 
 package net.ankio.auto.ui.utils
 
+import android.graphics.Color
+import android.view.View
+import android.view.ViewGroup
+import com.google.android.material.color.MaterialColors
+import com.google.android.material.textview.MaterialTextView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.ankio.auto.R
@@ -26,7 +31,7 @@ import java.io.InputStreamReader
 /**
  * 标签工具类，用于处理标签数据
  */
-class TagUtils {
+object TagUtils {
 
     /**
      * JSON标签项数据模型，用于解析default_tags.json
@@ -84,6 +89,94 @@ class TagUtils {
     }
 
     /**
+     * 渲染标签列表到容器，风格与基础信息组件保持一致
+     * @param container 标签容器
+     * @param tagNames 标签名称列表
+     * @param emptyPlaceholder 空列表时显示的占位文本，传 null 则直接隐藏
+     * @param textSizeSp 文本大小，单位 sp
+     */
+    fun renderTagLabels(
+        container: ViewGroup,
+        tagNames: List<String>,
+        emptyPlaceholder: String? = null,
+        textSizeSp: Float = 12f
+    ) {
+        if (tagNames.isEmpty() && emptyPlaceholder == null) {
+            // 无标签且无需占位时直接隐藏
+            container.visibility = View.GONE
+            container.removeAllViews()
+            return
+        }
+
+        // 处理空态占位文本
+        val isEmpty = tagNames.isEmpty()
+        val labelTexts = if (isEmpty) {
+            listOf(emptyPlaceholder ?: "")
+        } else {
+            tagNames
+        }
+
+        // 基础配色与基础信息组件保持一致
+        val defaultTextColor = MaterialColors.getColor(
+            container,
+            com.google.android.material.R.attr.colorOnSurfaceVariant
+        )
+        val defaultBackgroundColor = MaterialColors.getColor(
+            container,
+            com.google.android.material.R.attr.colorSurfaceContainerLow
+        )
+        val surfaceStrongColor = MaterialColors.getColor(
+            container,
+            com.google.android.material.R.attr.colorSurfaceContainerHighest
+        )
+        val emptyTextColor = applyAlpha(defaultTextColor, 0.6f)
+        val emptyBackgroundColor = applyAlpha(defaultBackgroundColor, 0.6f)
+
+        container.removeAllViews()
+        container.visibility = View.VISIBLE
+
+        val paddingHorizontal = dpToPx(container, 8)
+        val paddingVertical = dpToPx(container, 3)
+        val marginBottom = dpToPx(container, 4)
+
+        labelTexts.forEach { text ->
+            // 空态弱化显示，非空态使用标签配色
+            val (textColor, backgroundColor) = if (isEmpty) {
+                emptyTextColor to emptyBackgroundColor
+            } else {
+                val (tColor, bgColor, _) = PaletteManager.getSelectorTagColors(
+                    container.context,
+                    text,
+                    defaultTextColor,
+                    defaultBackgroundColor,
+                    surfaceStrongColor,
+                    true
+                )
+                tColor to bgColor
+            }
+
+            val label = MaterialTextView(container.context).apply {
+                // 标签文本保持原样，不增加图标等装饰
+                this.text = text
+                setTextColor(textColor)
+                textSize = textSizeSp
+                setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical)
+                background = container.context.getDrawable(R.drawable.currency_label_background)
+                background?.setTint(backgroundColor)
+            }
+            val params = ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                // 与基础信息组件一致的边距策略
+                rightMargin = marginBottom
+                bottomMargin = marginBottom
+            }
+            container.addView(label, params)
+        }
+    }
+
+    /**
      * 创建TagModel实例
      * @param name 标签名称
      * @return TagModel实例
@@ -96,5 +189,31 @@ class TagUtils {
             this.name = name
             this.group = group
         }
+    }
+
+    /**
+     * dp 转 px，避免硬编码
+     * @param view 参考视图
+     * @param dp dp 数值
+     * @return px 数值
+     */
+    private fun dpToPx(view: View, dp: Int): Int {
+        return (dp * view.resources.displayMetrics.density).toInt()
+    }
+
+    /**
+     * 透明度处理，保持风格统一
+     * @param color 原始颜色
+     * @param alpha 透明度比例
+     * @return 应用透明度后的颜色
+     */
+    private fun applyAlpha(color: Int, alpha: Float): Int {
+        val clampedAlpha = (alpha.coerceIn(0f, 1f) * 255).toInt()
+        return Color.argb(
+            clampedAlpha,
+            Color.red(color),
+            Color.green(color),
+            Color.blue(color)
+        )
     }
 }

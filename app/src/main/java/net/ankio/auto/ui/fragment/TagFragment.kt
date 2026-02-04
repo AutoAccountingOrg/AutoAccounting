@@ -149,8 +149,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
     private fun restoreDefaultTags() {
         launch {
             // 获取默认标签
-            val tagUtils = TagUtils()
-            val defaultTags = tagUtils.setDefaultTags()
+            val defaultTags = TagUtils.setDefaultTags()
 
             if (defaultTags.isNotEmpty()) {
                 // 批量插入默认标签
