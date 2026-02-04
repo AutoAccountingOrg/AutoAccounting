@@ -60,6 +60,7 @@ class OcrService : ICoreService() {
         }
     }
 
+
     private val shell = Shell(BuildConfig.APPLICATION_ID)
 
     private val ocrView = OcrViews()
@@ -111,6 +112,11 @@ class OcrService : ICoreService() {
      * 服务销毁时的清理工作
      */
     override fun onDestroy() {
+
+        if (::ocrProcessor.isInitialized) {
+            ocrProcessor.release()
+        }
+
         detector.stop()
 
         shell.close()

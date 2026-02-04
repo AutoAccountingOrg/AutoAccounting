@@ -20,14 +20,8 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.graphics.createBitmap
 import com.benjaminwan.ocrlibrary.OcrEngine
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.util.concurrent.Executors
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 
 /**
@@ -36,7 +30,7 @@ import kotlin.math.max
  * 关键设计：每次识别重建 OcrEngine，避免状态污染
  * OcrEngine 的 doAngle 功能会修改内部状态，重用实例会导致乱码
  */
-private lateinit var engine: OcrEngine
+private var engine: OcrEngine? = null
 open class OcrProcessor {
     /**
      * 应用上下文，用于访问 assets 与缓存目录
@@ -51,9 +45,13 @@ open class OcrProcessor {
      */
     fun attach(context: Context) = apply {
         this.appCtx = context.applicationContext
-        if (!::engine.isInitialized) {
-            engine = createEngine()
+        if (engine == null) {
+            engine = OcrEngine(appCtx)
         }
+    }
+
+    fun release() {
+        engine?.closeAndRelease()
     }
 
     fun debug(boolean: Boolean) = apply {
@@ -65,13 +63,6 @@ open class OcrProcessor {
         this.output = output
     }
 
-    /**
-     * 创建新的 OCR 引擎实例
-     * 每次识别都重建，确保无状态污染
-     */
-    private fun createEngine(): OcrEngine {
-        return OcrEngine(appCtx)
-    }
 
     /**
      * 保存调试图片到缓存目录
@@ -120,6 +111,12 @@ open class OcrProcessor {
      * @return 识别的文本
      */
     suspend fun startProcess(bitmap: Bitmap): String {
+
+        // 引擎未初始化时直接抛错，避免继续走到 native 调用
+        if (engine == null) {
+            throw IllegalStateException("OCR engine is not initialized, call attach() first")
+        }
+
         output?.invoke("OCR开始, 输入尺寸: ${bitmap.width}x${bitmap.height}", Log.DEBUG)
 
 
@@ -127,7 +124,7 @@ open class OcrProcessor {
             val boxImg = createBitmap(bitmap.width, bitmap.height)
             val maxSize = max(bitmap.height, bitmap.width)
 
-            val result = engine.detect(bitmap, boxImg, maxSize)
+            val result = engine!!.detect(bitmap, boxImg, maxSize)
 
             // 调试模式下保存标注框图片，否则立即回收
             if (debug) {
