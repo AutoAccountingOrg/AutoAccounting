@@ -28,10 +28,15 @@ import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
-import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
-import net.ankio.auto.ui.adapter.CurrencyDropdownAdapter
+import net.ankio.auto.ui.dialog.TagSelectorDialog
+import net.ankio.auto.R
+import com.google.android.material.color.MaterialColors
 import android.widget.ListPopupWindow
+import android.view.ViewGroup
+import com.google.android.material.textview.MaterialTextView
+import net.ankio.auto.ui.adapter.CurrencyDropdownAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.ui.utils.load
 import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.ui.utils.setAssetIcon
@@ -99,6 +104,9 @@ class BasicInfoComponent(
 
         // 更新时间显示
         binding.time.setText(DateUtils.stampToDate(billInfoModel.time))
+
+        // 更新标签显示
+        updateTagDisplay()
 
         // 更新备注
         binding.remark.setText(billInfoModel.remark)
@@ -178,6 +186,10 @@ class BasicInfoComponent(
             showTimeSelector()
         }
 
+        binding.tagLabels.setOnClickListener {
+            showTagSelector()
+        }
+
         binding.moneyType.setOnClickListener {
             showCurrencySelector()
         }
@@ -231,6 +243,23 @@ class BasicInfoComponent(
     }
 
     /**
+     * 显示标签选择对话框
+     */
+    private fun showTagSelector() {
+        if (!::billInfoModel.isInitialized) {
+            return
+        }
+
+        BaseSheetDialog.create<TagSelectorDialog>(context)
+            .setSelectedTags(billInfoModel.getTagList())
+            .setCallback { selectedTags ->
+                billInfoModel.setTagList(selectedTags)
+                updateTagDisplay()
+            }
+            .show()
+    }
+
+    /**
      * 显示货币选择列表 - 使用带图标的CurrencyDropdownAdapter
      */
     private fun showCurrencySelector() {
@@ -273,5 +302,112 @@ class BasicInfoComponent(
         if (currentIndex >= 0) {
             popupWindow.listView?.setSelection(currentIndex)
         }
+    }
+
+    /**
+     * 更新标签显示
+     */
+    private fun updateTagDisplay() {
+        if (!::billInfoModel.isInitialized) {
+            return
+        }
+
+        if (!PrefManager.featureTag
+            || billInfoModel.type == BillType.ExpendLending
+            || billInfoModel.type == BillType.ExpendRepayment
+            || billInfoModel.type == BillType.IncomeLending
+            || billInfoModel.type == BillType.IncomeRepayment
+        ) {
+            binding.tagLabels.visibility = View.GONE
+            return
+        }
+
+        binding.tagLabels.visibility = View.VISIBLE
+
+        val tagNames = billInfoModel.getTagList()
+        val isEmpty = tagNames.isEmpty()
+        // label 风格：空态也保留占位，保证交互入口稳定
+        val labelTexts = if (isEmpty) {
+            listOf(context.getString(R.string.bill_tag_unselected))
+        } else {
+            tagNames
+        }
+        val defaultTextColor = MaterialColors.getColor(
+            binding.tagLabels,
+            com.google.android.material.R.attr.colorOnSurfaceVariant
+        )
+        val defaultBackgroundColor = MaterialColors.getColor(
+            binding.tagLabels,
+            com.google.android.material.R.attr.colorSurfaceContainerLow
+        )
+        val surfaceStrongColor = MaterialColors.getColor(
+            binding.tagLabels,
+            com.google.android.material.R.attr.colorSurfaceContainerHighest
+        )
+        val emptyTextColor = applyAlpha(defaultTextColor, 0.6f)
+        val emptyBackgroundColor = applyAlpha(defaultBackgroundColor, 0.6f)
+
+        binding.tagLabels.removeAllViews()
+        binding.tagLabels.visibility = View.VISIBLE
+        val paddingHorizontal = dpToPx(binding.tagLabels, 8)
+        val paddingVertical = dpToPx(binding.tagLabels, 3)
+        dpToPx(binding.tagLabels, 4)
+        val marginBottom = dpToPx(binding.tagLabels, 4)
+
+        labelTexts.forEach { text ->
+            // 空态不应用标签色，保持弱提示
+            val tagName = text
+            val (textColor, backgroundColor) = if (isEmpty) {
+                emptyTextColor to emptyBackgroundColor
+            } else {
+                val (text, background, _) = PaletteManager.getSelectorTagColors(
+                    context,
+                    tagName,
+                    defaultTextColor,
+                    defaultBackgroundColor,
+                    surfaceStrongColor,
+                    true
+                )
+                text to background
+            }
+            val label = MaterialTextView(binding.root.context).apply {
+                this.text = text
+                setTextColor(textColor)
+                textSize = 12f
+                setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical)
+                background = binding.root.context.getDrawable(R.drawable.currency_label_background)
+                background?.setTint(backgroundColor)
+            }
+            val params = ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                // marginEnd = marginEnd
+                bottomMargin = marginBottom
+                rightMargin = marginBottom
+            }
+            binding.tagLabels.addView(label, params)
+        }
+    }
+
+    /**
+     * dp 转 px，避免硬编码
+     */
+    private fun dpToPx(view: View, dp: Int): Int {
+        return (dp * view.resources.displayMetrics.density).toInt()
+    }
+
+
+    /**
+     * 透明度处理，保持风格统一
+     */
+    private fun applyAlpha(color: Int, alpha: Float): Int {
+        val clampedAlpha = (alpha.coerceIn(0f, 1f) * 255).toInt()
+        return android.graphics.Color.argb(
+            clampedAlpha,
+            android.graphics.Color.red(color),
+            android.graphics.Color.green(color),
+            android.graphics.Color.blue(color)
+        )
     }
 }

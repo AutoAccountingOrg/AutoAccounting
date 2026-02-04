@@ -30,7 +30,7 @@ import net.ankio.auto.databinding.AdapterTagListBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import org.ezbook.server.db.model.TagModel
-import net.ankio.auto.ui.utils.TagColorUtils
+import net.ankio.auto.ui.utils.PaletteManager
 
 /**
  * 标签选择器适配器
@@ -133,45 +133,8 @@ class TagSelectorAdapter(
     private fun setChip(chip: Chip, tag: TagModel) {
         chip.text = tag.name
         val isSelected = selectedTags.contains(tag)
-        // 使用更清晰的对比，保证可读性
-        val surfaceColor = MaterialColors.getColor(
-            chip,
-            com.google.android.material.R.attr.colorSurfaceContainerLow
-        )
-        val surfaceStrongColor = MaterialColors.getColor(
-            chip,
-            com.google.android.material.R.attr.colorSurfaceContainerHighest
-        )
-        val defaultTextColor = MaterialColors.getColor(
-            chip,
-            com.google.android.material.R.attr.colorOnSurface
-        )
-        // 标签色完全由文本计算，确保一致性
-        val accentColor = TagColorUtils.getAccentColor(chip.context, tag.name)
-        // 选中态：更清晰的对比；未选中：保持克制但可读
-        val backgroundColor = if (isSelected) {
-            ColorUtils.blendARGB(surfaceStrongColor, accentColor, 0.28f)
-        } else {
-            ColorUtils.blendARGB(surfaceColor, accentColor, 0.12f)
-        }
-        val mixedTextColor = if (isSelected) {
-            ColorUtils.blendARGB(defaultTextColor, accentColor, 0.65f)
-        } else {
-            ColorUtils.blendARGB(defaultTextColor, accentColor, 0.35f)
-        }
-        val textColor = applyAlpha(mixedTextColor, if (isSelected) 0.95f else 0.85f)
-        val strokeColor = if (isSelected) {
-            applyAlpha(accentColor, 0.7f)
-        } else {
-            applyAlpha(accentColor, 0.35f)
-        }
-
-        chip.chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
-        chip.setTextColor(textColor)
-        // 细描边让标签更像 label，而不是按钮
-        val strokeWidth = (if (isSelected) 1.5f else 1.0f) * chip.resources.displayMetrics.density
-        chip.chipStrokeColor = ColorStateList.valueOf(strokeColor)
-        chip.chipStrokeWidth = strokeWidth
+        // 根据选中态应用样式，避免重复逻辑
+        val textColor = applyChipStyle(chip, tag, isSelected)
 
         if (isEditMode) {
             // 编辑模式：显示删除按钮，长按编辑，点击不响应
@@ -189,8 +152,50 @@ class TagSelectorAdapter(
             chip.isCheckedIconVisible = false
         }
 
-        chip.isSelected = isSelected
-        chip.isChecked = isSelected
+        // 绑定期间禁止触发回调，避免在布局计算中调用 notify
+        isInternalSelectionUpdate = true
+        try {
+            chip.isSelected = isSelected
+            chip.isChecked = isSelected
+        } finally {
+            isInternalSelectionUpdate = false
+        }
+    }
+
+    /**
+     * 应用标签样式，集中处理颜色与描边逻辑
+     */
+    private fun applyChipStyle(chip: Chip, tag: TagModel, isSelected: Boolean): Int {
+        // 使用更清晰的对比，保证可读性
+        val surfaceColor = MaterialColors.getColor(
+            chip,
+            com.google.android.material.R.attr.colorSurfaceContainerLow
+        )
+        val surfaceStrongColor = MaterialColors.getColor(
+            chip,
+            com.google.android.material.R.attr.colorSurfaceContainerHighest
+        )
+        val defaultTextColor = MaterialColors.getColor(
+            chip,
+            com.google.android.material.R.attr.colorOnSurface
+        )
+        // 选中态与未选中态颜色统一交由调色板工具计算
+        val (textColor, backgroundColor, strokeColor) = PaletteManager.getSelectorTagColors(
+            chip.context,
+            tag.name,
+            defaultTextColor,
+            surfaceColor,
+            surfaceStrongColor,
+            isSelected
+        )
+
+        chip.chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
+        chip.setTextColor(textColor)
+        // 细描边让标签更像 label，而不是按钮
+        val strokeWidth = (if (isSelected) 1.5f else 1.0f) * chip.resources.displayMetrics.density
+        chip.chipStrokeColor = ColorStateList.valueOf(strokeColor)
+        chip.chipStrokeWidth = strokeWidth
+        return textColor
     }
 
     /**
@@ -252,6 +257,8 @@ class TagSelectorAdapter(
                     isInternalSelectionUpdate = true
                     buttonView.isChecked = false
                     isInternalSelectionUpdate = false
+                    // 回退选择后刷新样式，确保颜色与状态一致
+                    applyChipStyle(buttonView as Chip, tag, false)
                     onSelectionLimitReached?.invoke(selectionLimit)
                     return@setOnCheckedChangeListener
                 }
@@ -262,11 +269,9 @@ class TagSelectorAdapter(
                 selectedTags.remove(tag)
             }
             onSelectionChanged?.invoke(selectedTags.toList())
-            // 立即刷新当前项，确保选中态颜色实时反馈
-            val position = indexOf(tag)
-            if (position >= 0) {
-                notifyItemChanged(position)
-            }
+            // 直接更新样式，避免在布局计算中触发 notify
+            buttonView.isSelected = isChecked
+            applyChipStyle(buttonView as Chip, tag, isChecked)
         }
     }
 

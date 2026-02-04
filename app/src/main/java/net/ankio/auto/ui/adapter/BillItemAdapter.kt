@@ -17,14 +17,17 @@ package net.ankio.auto.ui.adapter
 
 import android.content.res.ColorStateList
 import android.view.View
+import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.textview.MaterialTextView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.components.IconView
+import net.ankio.auto.ui.utils.PaletteManager
 import net.ankio.auto.ui.utils.setAssetIconByName
 import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.utils.BillTool
@@ -90,6 +93,9 @@ class BillItemAdapter(
             binding.remark.visibility = View.VISIBLE
             binding.remark.text = data.remark
         }
+
+        // 标签渲染：单独封装，避免在主逻辑里塞细节
+        renderTags(binding, data)
 
 
         fun loadCategoryIcon(name: String) {
@@ -307,6 +313,79 @@ class BillItemAdapter(
         }
 
     }
+
+    /**
+     * 渲染标签列表到 ChipGroup
+     *
+     * 规则：
+     * - 空标签：隐藏整行并清空内容
+     * - 有标签：按名称创建静态 Chip
+     *
+     * @param binding 账单条目绑定
+     * @param data 账单数据
+     */
+    private fun renderTags(binding: AdapterOrderItemBinding, data: BillInfoModel) {
+        val tagNames = data.getTagList()
+        if (tagNames.isEmpty()) {
+            binding.tagLabels.visibility = View.GONE
+            binding.tagLabels.removeAllViews()
+            return
+        }
+
+        binding.tagLabels.visibility = View.VISIBLE
+        binding.tagLabels.removeAllViews()
+
+        // 使用中性配色作为兜底，避免和主信息冲突
+        val defaultBackgroundColor = MaterialColors.getColor(
+            binding.tagLabels,
+            com.google.android.material.R.attr.colorSurfaceContainerHighest
+        )
+        val defaultTextColor = MaterialColors.getColor(
+            binding.tagLabels,
+            com.google.android.material.R.attr.colorOnSurfaceVariant
+        )
+        val paddingHorizontal = dpToPx(binding.tagLabels, 8)
+        val paddingVertical = dpToPx(binding.tagLabels, 3)
+        var marginEnd = dpToPx(binding.tagLabels, 4)
+        val marginBottom = dpToPx(binding.tagLabels, 4)
+
+        tagNames.forEach { name ->
+            // 标签以 label 样式呈现，保持与其它元数据一致
+            val (textColor, backgroundColor) = PaletteManager.getLabelColors(
+                binding.root.context,
+                name,
+                defaultTextColor,
+                defaultBackgroundColor
+            )
+            val label = MaterialTextView(binding.root.context).apply {
+                text = "$name"
+                setTextColor(textColor)
+                textSize = 12f
+                setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical)
+                background = binding.root.context.getDrawable(R.drawable.currency_label_background)
+                background?.setTint(backgroundColor)
+                setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_tag, 0, 0, 0)
+                compoundDrawablePadding = dpToPx(binding.tagLabels, 6)
+            }
+
+            val params = ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = marginEnd
+                bottomMargin = marginBottom
+            }
+            binding.tagLabels.addView(label, params)
+        }
+    }
+
+    /**
+     * dp 转 px，避免硬编码
+     */
+    private fun dpToPx(view: View, dp: Int): Int {
+        return (dp * view.resources.displayMetrics.density).toInt()
+    }
+
 
     override fun areItemsSame(oldItem: BillInfoModel, newItem: BillInfoModel): Boolean {
         return oldItem.id == newItem.id

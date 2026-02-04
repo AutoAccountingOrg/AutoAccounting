@@ -75,6 +75,48 @@ object PaletteManager {
     }
 
     /**
+     * 获取选择面板标签的颜色组合（文本/背景/描边）
+     * @param context 上下文
+     * @param tagName 标签文本
+     * @param defaultTextColor 默认文本色
+     * @param surfaceColor 低层级背景色
+     * @param surfaceStrongColor 高层级背景色
+     * @param isSelected 是否选中
+     * @return Triple(文本色, 背景色, 描边色)
+     */
+    fun getSelectorTagColors(
+        context: Context,
+        tagName: String,
+        defaultTextColor: Int,
+        surfaceColor: Int,
+        surfaceStrongColor: Int,
+        isSelected: Boolean
+    ): Triple<Int, Int, Int> {
+        // 标签色完全由文本计算，确保一致性
+        val accentColor = getAccentColor(context, tagName)
+        // 背景色：选中态更明显，未选中保持克制
+        val backgroundColor = if (isSelected) {
+            ColorUtils.blendARGB(surfaceStrongColor, accentColor, 0.28f)
+        } else {
+            ColorUtils.blendARGB(surfaceColor, accentColor, 0.12f)
+        }
+        // 文本色：选中态对比更强
+        val mixedTextColor = if (isSelected) {
+            ColorUtils.blendARGB(defaultTextColor, accentColor, 0.65f)
+        } else {
+            ColorUtils.blendARGB(defaultTextColor, accentColor, 0.35f)
+        }
+        val textColor = applyAlpha(mixedTextColor, if (isSelected) 0.95f else 0.85f)
+        // 描边色：选中态更清晰
+        val strokeColor = if (isSelected) {
+            applyAlpha(accentColor, 0.7f)
+        } else {
+            applyAlpha(accentColor, 0.35f)
+        }
+        return Triple(textColor, backgroundColor, strokeColor)
+    }
+
+    /**
      * 获取标签显示颜色（文本/背景）
      * @param context 上下文
      * @param tagName 标签文本
@@ -105,30 +147,6 @@ object PaletteManager {
         }
     }
 
-    /**
-     * 获取选中态标签颜色（与选择面板一致）
-     * @param context 上下文
-     * @param tagName 标签文本
-     * @param defaultTextColor 默认文本色
-     * @param surfaceStrongColor 高层级背景色
-     * @return Pair(文本色, 背景色)
-     */
-    fun getSelectedLabelColors(
-        context: Context,
-        tagName: String,
-        defaultTextColor: Int,
-        surfaceStrongColor: Int
-    ): Pair<Int, Int> {
-        val accentColor = getAccentColor(context, tagName)
-        val backgroundColor = ColorUtils.blendARGB(surfaceStrongColor, accentColor, 0.28f)
-        val mixedTextColor = ColorUtils.blendARGB(defaultTextColor, accentColor, 0.65f)
-        val textColor = applyAlpha(mixedTextColor, 0.95f)
-        return if (tagName.isEmpty()) {
-            defaultTextColor to surfaceStrongColor
-        } else {
-            textColor to backgroundColor
-        }
-    }
 
     /**
      * 基于 label 计算调色板索引
