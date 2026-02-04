@@ -64,7 +64,7 @@ import org.ezbook.server.db.model.TagModel
         TagModel::class,
         AnalysisTaskModel::class
     ],
-    version = 16,
+    version = 17,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -380,5 +380,36 @@ val MIGRATION_15_16 = object : Migration(15, 16) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // 为 AssetsMapModel 添加 sort 字段，用于支持拖拽排序
         database.execSQL("ALTER TABLE AssetsMapModel ADD COLUMN sort INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+val MIGRATION_16_17 = object : Migration(16, 17) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // TagModel 移除 color 字段，采用新表迁移
+        database.execSQL(
+            """
+            CREATE TABLE TagModel_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                name TEXT NOT NULL,
+                `group` TEXT NOT NULL DEFAULT '',
+                UNIQUE(name)
+            )
+            """.trimIndent()
+        )
+        // 迁移时按 name 去重，保留最大 id 的标签，避免 UNIQUE(name) 冲突。
+        database.execSQL(
+            """
+            INSERT INTO TagModel_new (id, name, `group`)
+            SELECT t.id, t.name, t.`group`
+            FROM TagModel t
+            INNER JOIN (
+                SELECT name, MAX(id) AS max_id
+                FROM TagModel
+                GROUP BY name
+            ) latest ON latest.name = t.name AND latest.max_id = t.id
+            """.trimIndent()
+        )
+        database.execSQL("DROP TABLE TagModel")
+        database.execSQL("ALTER TABLE TagModel_new RENAME TO TagModel")
     }
 }

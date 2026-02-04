@@ -21,7 +21,7 @@ import androidx.room.PrimaryKey
 /**
  * 标签数据模型
  *
- * 用于存储账单标签信息，每个标签包含名称和颜色
+ * 用于存储账单标签信息，每个标签包含名称和分组
  */
 @Entity
 class TagModel {
@@ -34,18 +34,12 @@ class TagModel {
     var name: String = ""
 
     /**
-     * 标签颜色，使用16进制颜色值（如#FF0000）
-     */
-    var color: String = "#2196F3"
-
-    /**
      * 标签分组名称（如"场景"、"角色"等）
      */
     var group: String = ""
 
-
     override fun toString(): String {
-        return "TagModel(id=$id, name='$name', color='$color', group='$group')"
+        return "TagModel(id=$id, name='$name', group='$group')"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -56,15 +50,14 @@ class TagModel {
 
         if (id != other.id) return false
         if (name != other.name) return false
-        if (color != other.color) return false
-
+        if (group != other.group) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + name.hashCode()
-        result = 31 * result + color.hashCode()
+        result = 31 * result + group.hashCode()
         return result
     }
 }
