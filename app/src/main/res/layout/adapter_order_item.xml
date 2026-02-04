@@ -101,7 +101,7 @@
         android:id="@+id/tag_labels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:visibility="gone"
         app:alignItems="center"
         app:flexWrap="wrap"
@@ -118,26 +118,10 @@
             android:paddingHorizontal="8dp"
             android:paddingVertical="3dp"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="12sp"
-            app:drawableStartCompat="@drawable/ic_tag"
-            app:drawableTint="?attr/colorOnSurfaceVariant"
-            tools:text="#餐饮" />
+            android:textSize="10sp"
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="4dp"
-            android:background="@drawable/currency_label_background"
-            android:backgroundTint="?attr/colorSurfaceContainerHighest"
-            android:drawablePadding="6dp"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="12sp"
-            app:drawableStartCompat="@drawable/ic_tag"
-            app:drawableTint="?attr/colorOnSurfaceVariant"
-            tools:text="#出差" />
+            tools:text="餐饮" />
+
 
     </com.google.android.flexbox.FlexboxLayout>
 
