@@ -20,18 +20,20 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.graphics.createBitmap
 import com.benjaminwan.ocrlibrary.OcrEngine
+import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.max
 
-/**
- * OCR处理器 - 线程安全的文字识别封装
- *
- * 关键设计：每次识别重建 OcrEngine，避免状态污染
- * OcrEngine 的 doAngle 功能会修改内部状态，重用实例会导致乱码
- */
-private var engine: OcrEngine? = null
-open class OcrProcessor {
+open class OcrProcessor : Closeable {
+
+    /**
+     * OCR处理器 - 线程安全的文字识别封装
+     *
+     * 关键设计：每次识别重建 OcrEngine，避免状态污染
+     * OcrEngine 的 doAngle 功能会修改内部状态，重用实例会导致乱码
+     */
+    private var engine: OcrEngine? = null
     /**
      * 应用上下文，用于访问 assets 与缓存目录
      */
@@ -50,8 +52,14 @@ open class OcrProcessor {
         }
     }
 
+    /**
+     * 释放引擎资源并清空引用，确保可重复调用且不会泄露。
+     */
     fun release() {
+        // 释放底层 native 资源，防止重复创建后累积占用。
         engine?.closeAndRelease()
+        // 清空引用，保证后续使用时重新初始化，避免使用已释放实例。
+        engine = null
     }
 
     fun debug(boolean: Boolean) = apply {
@@ -77,7 +85,6 @@ open class OcrProcessor {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
         output?.invoke("Debug image saved: ${file.absolutePath}", Log.DEBUG)
-
         // 清理旧文件，保持最多 100 张图片
         cleanupOldImages(dir, maxCount = 100)
     }
@@ -132,6 +139,7 @@ open class OcrProcessor {
             }
 
             boxImg.recycle()
+            bitmap.recycle()
 
             output?.invoke(
                 "OCR完成: detectTime=${result.detectTime}ms, dbNetTime=${result.dbNetTime}ms, strResLen=${result.strRes.length}",
@@ -144,6 +152,14 @@ open class OcrProcessor {
             output?.invoke("OCR异常: ${e.message}", Log.ERROR)
             throw e
         }
+    }
+
+    /**
+     * 让 Kotlin 的 use 自动调用释放逻辑，保证作用域结束后自动关闭。
+     */
+    override fun close() {
+        // 统一走 release，保持关闭行为一致且可复用。
+        release()
     }
 
 

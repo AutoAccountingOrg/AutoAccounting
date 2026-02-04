@@ -65,6 +65,10 @@ class OcrService : ICoreService() {
 
     private val ocrView = OcrViews()
 
+    init {
+
+    }
+
     /**
      * 服务创建时的初始化
      * 检查必要权限并初始化相关组件
@@ -113,13 +117,11 @@ class OcrService : ICoreService() {
      */
     override fun onDestroy() {
 
-        if (::ocrProcessor.isInitialized) {
-            ocrProcessor.release()
-        }
-
         detector.stop()
 
         shell.close()
+        // 释放 OCR 引擎资源，确保跟随服务生命周期关闭。
+        ocrProcessor.close()
         // 确保悬浮窗被清理
         ocrView.stopOcrView()
 
@@ -303,7 +305,10 @@ class OcrService : ICoreService() {
             }
         }
 
-        val text = runCatching { ocrProcessor.startProcess(croppedBitmap) }.getOrElse {
+        val text = runCatching {
+            // 使用服务级 OCR 处理器，跟随服务生命周期复用并统一释放。
+            ocrProcessor.startProcess(croppedBitmap)
+        }.getOrElse {
             Logger.e("OCR 识别失败: ${it.message}")
             outFile.delete()
             croppedBitmap.recycle()
