@@ -218,7 +218,7 @@ class QianJiAdapter : IAppAdapter {
 
         // 14) 发起隐式 Intent 调起钱迹
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         Logger.i("目标应用uri：${uriBuilder}")
         SystemUtils.startActivityIfResolvable(intent, name) {
