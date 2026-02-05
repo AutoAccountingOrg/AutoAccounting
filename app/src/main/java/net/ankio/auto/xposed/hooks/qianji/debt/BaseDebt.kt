@@ -31,6 +31,7 @@ import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.json.JSONObject
 import kotlinx.coroutines.suspendCancellableCoroutine
+import net.ankio.auto.xposed.hooks.qianji.sync.SyncClazz
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -105,6 +106,7 @@ abstract class BaseDebt {
     }
 
     fun pushBill() {
+        SyncClazz.getInstance().startPush(AppRuntime.application!!)
         /*  val companion = XposedHelpers.getStaticObjectField(billToolsClazz, "Companion")
           val billTools = XposedHelpers.callMethod(companion, "getInstance")
           XposedHelpers.callMethod(billTools, "startPush", AppRuntime.application!!)*/

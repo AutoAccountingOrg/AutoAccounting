@@ -152,11 +152,10 @@ object TagRefreshPresenterImpl : HookerClazz() {
         val result = arrayListOf<QjTagModel>()
         groups.forEach {
             if (it == null) return@forEach
+
             val group = QjTagGroupModel.fromObject(it)
             val tags = group.getTagList()
-            tags.forEach { tag ->
-                result.add(QjTagModel.fromObject(tag))
-            }
+            result.addAll(tags)
         }
         return result
     }
@@ -213,27 +212,27 @@ object TagRefreshPresenterImpl : HookerClazz() {
      * @param tagNames 标签名称列表
      * @return 标签 ID 列表（字符串）
      */
-    suspend fun getTagIdsByNames(
+    suspend fun getTagsByNames(
         tagNames: List<String>
-    ): List<String> {
+    ): List<QjTagModel> {
         if (tagNames.isEmpty()) {
-            return emptyList()
+            return arrayListOf()
         }
         val tags = getTags()
         val tagMap = tags.associateBy { it.getName() ?: "" }
-        val ids = arrayListOf<String>()
+        val _tags = arrayListOf<QjTagModel>()
         val seen = hashSetOf<String>()
         tagNames.forEach { name ->
             val trimmedName = name.trim()
             if (trimmedName.isEmpty() || !seen.add(trimmedName)) {
                 return@forEach
             }
-            val tagId = tagMap[trimmedName]?.getTagId()
-            if (!tagId.isNullOrBlank()) {
-                ids.add(tagId)
+            val tag = tagMap[trimmedName]
+            if (tag != null) {
+                _tags.add(tag)
             }
         }
-        return ids
+        return _tags
     }
 
     /**

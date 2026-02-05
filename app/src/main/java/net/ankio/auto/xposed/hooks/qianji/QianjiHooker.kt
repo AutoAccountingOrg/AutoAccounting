@@ -54,6 +54,7 @@ import net.ankio.auto.xposed.hooks.qianji.models.QjCategoryModel
 import net.ankio.auto.xposed.hooks.qianji.models.LoanInfoModel
 import net.ankio.auto.xposed.hooks.qianji.models.QjTagModel
 import net.ankio.auto.xposed.hooks.qianji.models.UserModel
+import net.ankio.auto.xposed.hooks.qianji.sync.SyncClazz
 import net.ankio.auto.xposed.hooks.qianji.utils.BroadcastUtils
 import net.ankio.auto.xposed.hooks.qianji.utils.TimeRecordUtils
 import net.ankio.dex.model.Clazz
@@ -129,7 +130,8 @@ class QianjiHooker : HookerManifest() {
 
             BaseSubmitAssetPresenterImpl.rule,
             ViewInterface.rule,
-            TagRefreshPresenterImpl.rule
+            TagRefreshPresenterImpl.rule,
+            SyncClazz.rule
         )
         set(value) {}
 

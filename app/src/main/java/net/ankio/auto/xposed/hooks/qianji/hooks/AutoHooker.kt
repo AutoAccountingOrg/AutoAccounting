@@ -21,6 +21,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.core.net.toUri
 import de.robv.android.xposed.XposedBridge
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.BillAPI
@@ -48,6 +49,7 @@ import net.ankio.auto.xposed.hooks.qianji.debt.IncomeLendingUtils
 import net.ankio.auto.xposed.hooks.qianji.debt.ExpendRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.debt.IncomeRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.impl.TagRefreshPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.sync.SyncClazz
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import net.ankio.auto.xposed.hooks.qianji.utils.BroadcastUtils
@@ -112,29 +114,33 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("未登录的用户无法进行自动记账（钱迹限制）")
             }
         }
+
     }
 
     private fun hookBroadcast(activity: Activity, uri: Uri) {
-        Hooker.onceBefore(
+
+        Hooker.before(
             BroadcastUtils.clazz(),
             "onAddBill",
             QjBillModel.clazz(),
             Boolean::class.javaPrimitiveType!!
         ) {
             val billModel = QjBillModel.fromObject(it.args[0])
+
             //处理优惠
-            val extraModel = BillExtraModel.newInstance()
             //传入的是负值表示优惠
              val discount = uri.getQueryParameter("discount")?.toDoubleOrNull()
             if (discount != null && discount > 0 && (billModel.isAllSpend() || billModel.isTransfer())) {
                  //只有支出或者还款的账户才需要记录优惠
+                val extraModel = billModel.getExtra()
                  extraModel.setTransfee(-discount)
+
             }
 
             //处理标记位置
             val flag = uri.getQueryParameter("flag")?.toIntOrNull() ?: 0
             if (billModel.isAllIncome() || billModel.isAllSpend() || billModel.isTransfer()) {
-                extraModel.setFlag(flag)
+                billModel.setFlag(flag)
             }
 
 
@@ -142,25 +148,48 @@ class AutoHooker : PartHooker() {
             val tags = uri.getQueryParameter("tag")?.split(",") ?: listOf()
             if (tags.isNotEmpty()) {
 
-                var ids = runBlocking { TagRefreshPresenterImpl.getTagIdsByNames(tags) }
+                var tagList = runBlocking { TagRefreshPresenterImpl.getTagsByNames(tags) }
 
-                ids = if (UserModel.isVip()) {
-                    ids.take(8)
+                tagList = if (UserModel.isVip()) {
+                    tagList.take(8)
                 } else {
-                    ids.take(1)
+                    tagList.take(1)
                 }
 
-                extraModel.setTagIds(ids)
+                // 更新后tag为生效
+
+                billModel.setTagList(tagList)
             }
 
-             //TODO 对于币种的处理
+
+            //TODO 对于币种的处理
              // 先获取本位币
              // 根据本位币对目的币种的汇率计算本位币的实际支出金额
              // 给Extra填充汇率等信息
-            billModel.setExtra(extraModel)
-            it.args[0] = billModel.toObject()
+
+
+            billModel.setUpdateTimeInSec(System.currentTimeMillis() / 1000)
+            billModel.setStatus(2)
             BillDbHelper.newInstance().saveOrUpdateBill(billModel)
-            XposedBridge.log("保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}")
+            it.args[0] = billModel.toObject()
+            // TODO 这里有个时序的问题。自动记账在处理钱迹账单的时候，此时钱迹可能正在进行云端同步。此时若刚好在保存完成后进行同步，云端数据会覆盖本地数据，从而导致记账失败。所以这里延迟5秒重新保存并将账单设置为未同步的状态重新同步，这样会覆盖之前的同步数据。
+            CoroutineUtils.withIO {
+                delay(5_000)
+                billModel.setUpdateTimeInSec(System.currentTimeMillis() / 1000)
+                billModel.setStatus(2)
+                BillDbHelper.newInstance().saveOrUpdateBill(billModel)
+                SyncClazz.getInstance().startPush(activity)
+            }
+
+
+
+
+            XposedBridge.log(
+                "保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}, extra_flag:${
+                    billModel.getExtra().getFlag()
+                }, extra_tag:${billModel.getExtra().getTagIds()} ,status: ${billModel.getStatus()}"
+            )
+
 
 
 

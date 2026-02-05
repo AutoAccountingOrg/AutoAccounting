@@ -46,6 +46,10 @@ class BillDbHelper(private val obj: Any) {
     fun toObject() = obj
 
     fun saveOrUpdateBill(billModel: QjBillModel) {
-        XposedHelpers.callMethod(obj, "insertOrReplace", billModel.toObject())
+        XposedHelpers.callMethod(obj, "saveOrUpdateBill", billModel.toObject())
+    }
+
+    fun update(billModel: QjBillModel) {
+        XposedHelpers.callMethod(obj, "update", billModel.toObject())
     }
 }

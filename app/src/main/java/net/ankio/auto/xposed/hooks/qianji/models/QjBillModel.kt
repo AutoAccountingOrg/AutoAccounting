@@ -16,6 +16,7 @@
 package net.ankio.auto.xposed.hooks.qianji.models
 
 import android.content.Context
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerClazz
 import net.ankio.dex.model.Clazz
@@ -420,11 +421,13 @@ class QjBillModel {
     /**
      * 克隆账单
      */
-    fun clone(bill: QjBillModel?) {
-        XposedHelpers.callMethod(
+    fun clone(bill: Any): QjBillModel {
+        return fromObject(
+            XposedHelpers.callMethod(
             billObj,
             "clone",
-            bill?.toObject()
+                bill
+            )
         )
     }
 
@@ -1443,11 +1446,15 @@ class QjBillModel {
     /**
      * 设置标签列表
      */
-    fun setTagList(tags: ArrayList<QjTagModel>?) {
+    fun setTagList(tags: List<QjTagModel>) {
+        val tagObjects = tags.map {
+            it.toObject()
+        }
+
         XposedHelpers.callMethod(
             billObj,
             "setTagList",
-            tags?.map { it.toObject() }
+            tagObjects
         )
     }
 
