@@ -38,10 +38,22 @@ class AssetTool {
         }
     }
 
-    suspend fun execute(asset1: String, asset2: String): JsonObject? {
+    /**
+     * 执行资产映射
+     * @param asset1 目标账户线索
+     * @param asset2 来源账户线索
+     * @param app 来源应用
+     * @param billType 账单类型
+     */
+    suspend fun execute(
+        asset1: String,
+        asset2: String,
+        app: String,
+        billType: org.ezbook.server.constant.BillType
+    ): JsonObject? {
         val prompt = getPrompt()
         // 记录输入参数，便于问题复现与排查
-        ServerLog.d("资产匹配请求：asset1=$asset1, asset2=$asset2")
+        ServerLog.d("资产匹配请求：asset1=$asset1, asset2=$asset2, app=$app, billType=$billType")
         val data = Gson().toJson(
             hashMapOf(
                 "asset1" to asset1,
@@ -56,8 +68,12 @@ class AssetTool {
             .joinToString(",")
         // 记录候选资产规模，避免日志过长不打印全部列表
         ServerLog.d("资产候选统计：total=${assets.size}, usable=${assetsNames.split(',').size}")
+        // 组装上下文信息，帮助 AI 区分同名资产
         val user = """
 Input:
+- Context:
+  - Source App: $app
+  - Bill Type: $billType
 - Raw Data: 
   ```
   $data

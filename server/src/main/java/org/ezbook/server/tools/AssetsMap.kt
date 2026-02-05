@@ -205,7 +205,12 @@ class AssetsMap {
         ) {
             ServerLog.d("通过AI进行资产映射")
             val json =
-                AssetTool().execute(billInfoModel.accountNameTo, billInfoModel.accountNameFrom)
+                AssetTool().execute(
+                    billInfoModel.accountNameTo,
+                    billInfoModel.accountNameFrom,
+                    billInfoModel.app,
+                    billInfoModel.type
+                )
             if (json != null) {
                 val aiTo = json.safeGetString("asset1")
                 val aiFrom = json.safeGetString("asset2")
