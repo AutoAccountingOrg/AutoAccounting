@@ -306,6 +306,9 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
                 "showRuleName" -> PrefManager.showRuleName
                 "featureFee" -> PrefManager.featureFee
                 "featureTag" -> PrefManager.featureTag
+                // 账单标记
+                "billFlagNotCount" -> PrefManager.billFlagNotCount
+                "billFlagNotBudget" -> PrefManager.billFlagNotBudget
                 // 分类管理
                 "autoCreateCategory" -> PrefManager.rememberCategory
                 "aiCategoryRecognition" -> PrefManager.aiCategoryRecognition
@@ -343,6 +346,9 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
                 "showRuleName" -> PrefManager.showRuleName = value
                 "featureFee" -> PrefManager.featureFee = value
                 "featureTag" -> PrefManager.featureTag = value
+                // 账单标记
+                "billFlagNotCount" -> PrefManager.billFlagNotCount = value
+                "billFlagNotBudget" -> PrefManager.billFlagNotBudget = value
                 // 分类管理
                 "autoCreateCategory" -> PrefManager.rememberCategory = value
                 "aiCategoryRecognition" -> PrefManager.aiCategoryRecognition = value

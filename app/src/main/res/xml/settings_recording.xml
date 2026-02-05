@@ -105,6 +105,23 @@
             android:title="@string/setting_bill_remark" />
     </PreferenceCategory>
 
+    <!-- 账单标记 -->
+    <PreferenceCategory android:title="@string/setting_category_bill_mark">
+        <!-- 不计收支标记开关 -->
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_label"
+            android:key="billFlagNotCount"
+            android:title="@string/bill_flag_not_count" />
+
+        <!-- 不计预算标记开关 -->
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_label"
+            android:key="billFlagNotBudget"
+            android:title="@string/bill_flag_not_budget" />
+    </PreferenceCategory>
+
     <!-- 分类管理 -->
     <PreferenceCategory android:title="@string/setting_category_category_management">
         <rikka.material.preference.MaterialSwitchPreference

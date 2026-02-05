@@ -47,6 +47,10 @@ object DefaultData {
     val SETTING_TAG: Boolean = false                                // 标签功能默认关闭
     val NOTE_FORMAT: String = "【商户名称】【商品名称】"              // 备注格式默认值
 
+    // -------- 账单标记 --------
+    val BILL_FLAG_NOT_COUNT: Boolean = false                        // 不计收支标记默认关闭
+    val BILL_FLAG_NOT_BUDGET: Boolean = false                       // 不计预算标记默认关闭
+
     // -------- 分类管理 --------
     val AUTO_CREATE_CATEGORY = false                                // 自动创建分类默认关闭
     val AI_CATEGORY_RECOGNITION: Boolean = false                    // 使用AI识别分类默认关闭

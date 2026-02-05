@@ -64,7 +64,7 @@ import org.ezbook.server.db.model.TagModel
         TagModel::class,
         AnalysisTaskModel::class
     ],
-    version = 17,
+    version = 19,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -411,5 +411,19 @@ val MIGRATION_16_17 = object : Migration(16, 17) {
         )
         database.execSQL("DROP TABLE TagModel")
         database.execSQL("ALTER TABLE TagModel_new RENAME TO TagModel")
+    }
+}
+
+val MIGRATION_17_18 = object : Migration(17, 18) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // BookBillModel 添加 flag 字段，用于“不计收支/不计预算”标志位
+        database.execSQL("ALTER TABLE BookBillModel ADD COLUMN flag INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+val MIGRATION_18_19 = object : Migration(18, 19) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // BillInfoModel 添加 flag 字段，用于“不计收支/不计预算”标志位
+        database.execSQL("ALTER TABLE BillInfoModel ADD COLUMN flag INTEGER NOT NULL DEFAULT 0")
     }
 }

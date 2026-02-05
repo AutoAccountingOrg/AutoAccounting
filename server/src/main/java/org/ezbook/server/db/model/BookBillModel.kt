@@ -26,6 +26,16 @@ import androidx.room.PrimaryKey
 @Entity
 class BookBillModel {
 
+    companion object {
+        /** 标志位：无 */
+        const val FLAG_NONE = 0
+
+        /** 标志位：不计入统计 */
+        const val FLAG_NOT_COUNT = 1
+
+        /** 标志位：不计入预算 */
+        const val FLAG_NOT_BUDGET = 2
+    }
 
     @PrimaryKey(autoGenerate = true)
     var id = 0L
@@ -43,7 +53,10 @@ class BookBillModel {
     var category: String = ""
     var type: String = ""
 
+    /** 标志位：默认无，多个标志可叠加 */
+    var flag: Int = FLAG_NONE
+
     override fun toString(): String {
-        return "BookBillModel(id=$id, money=$money, time=$time, remark='$remark', remoteId='$remoteId', remoteBookId='$remoteBookId', category='$category', type='$type')"
+        return "BookBillModel(id=$id, money=$money, time=$time, remark='$remark', remoteId='$remoteId', remoteBookId='$remoteBookId', category='$category', type='$type', flag=$flag)"
     }
 }

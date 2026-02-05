@@ -716,6 +716,7 @@
     <string name="setting_category_recording_mode">记录方式</string>
     <string name="setting_category_bill_recognition">账单识别</string>
     <string name="setting_category_bill_management">账单管理</string>
+    <string name="setting_category_bill_mark">账单标记</string>
     <string name="setting_category_category_management">分类管理</string>
     <string name="setting_category_notification_settings">提醒设置</string>
     <string name="setting_category_popup_style_settings">弹窗风格</string>
@@ -888,6 +889,9 @@
     <string name="discounted">已优惠 %.2f</string>
     <string name="handling_fee">手续费 %.2f</string>
     <string name="fee">费用 %.2f</string>
+    <!-- 金额显示组件：账单标志位 -->
+    <string name="bill_flag_not_count">不计收支</string>
+    <string name="bill_flag_not_budget">不计预算</string>
 
     <!-- 账单列表标签 -->
     <string name="bill_fee_label">手续费 %s</string>

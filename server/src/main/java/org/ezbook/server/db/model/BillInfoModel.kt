@@ -130,8 +130,41 @@ data class BillInfoModel(
      * 标签名称列表，使用逗号分割的字符串存储多个标签名称
      * 例如: "餐饮,报销,出差" 表示该账单关联了这些标签
      */
-    var tags: String = ""
+    var tags: String = "",
+
+    /**
+     * 标志位集合：默认无，可通过位运算组合多个标志
+     */
+    var flag: Int = 0
 ) {
+    companion object {
+        /** 标志位：无 */
+        const val FLAG_NONE = 0
+
+        /** 标志位：不计入统计 */
+        const val FLAG_NOT_COUNT = 1
+
+        /** 标志位：不计入预算 */
+        const val FLAG_NOT_BUDGET = 2
+    }
+
+    /**
+     * 判断是否包含指定标志位
+     * @param flag 目标标志位
+     * @return 是否包含该标志位
+     */
+    fun hasFlag(flag: Int): Boolean {
+        return (this.flag and flag) == flag
+    }
+
+    /**
+     * 设置或清除指定标志位
+     * @param flag 目标标志位
+     * @param enabled 是否启用该标志位
+     */
+    fun setFlag(flag: Int, enabled: Boolean) {
+        this.flag = if (enabled) this.flag or flag else this.flag and flag.inv()
+    }
 
     fun needReCategory(): Boolean {
         // 分类内容为空 且 不是AI生成
@@ -148,7 +181,7 @@ data class BillInfoModel(
     }
 
     override fun toString(): String {
-        return "BillInfoModel(id=$id, type=$type, currency='$currency', money=$money, fee=$fee, time=$time, shopName='$shopName', shopItem='$shopItem', cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', app='$app', groupId=$groupId, channel='$channel', state=$state, remark='$remark', auto=$auto, ruleName='$ruleName', tags='$tags')"
+        return "BillInfoModel(id=$id, type=$type, currency='$currency', money=$money, fee=$fee, time=$time, shopName='$shopName', shopItem='$shopItem', cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', app='$app', groupId=$groupId, channel='$channel', state=$state, remark='$remark', auto=$auto, ruleName='$ruleName', tags='$tags', flag=$flag)"
     }
 
     fun hash(): String {

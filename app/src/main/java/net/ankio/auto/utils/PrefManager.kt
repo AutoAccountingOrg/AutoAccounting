@@ -158,6 +158,17 @@ object PrefManager {
         get() = getString(Setting.NOTE_FORMAT, DefaultData.NOTE_FORMAT)
         set(value) = putString(Setting.NOTE_FORMAT, value)
 
+    // -------- 账单标记 --------
+    /** 不计收支标记开关 - 控制是否启用不计收支的账单标记功能 */
+    var billFlagNotCount: Boolean
+        get() = getBoolean(Setting.BILL_FLAG_NOT_COUNT, DefaultData.BILL_FLAG_NOT_COUNT)
+        set(value) = putBoolean(Setting.BILL_FLAG_NOT_COUNT, value)
+
+    /** 不计预算标记开关 - 控制是否启用不计预算的账单标记功能 */
+    var billFlagNotBudget: Boolean
+        get() = getBoolean(Setting.BILL_FLAG_NOT_BUDGET, DefaultData.BILL_FLAG_NOT_BUDGET)
+        set(value) = putBoolean(Setting.BILL_FLAG_NOT_BUDGET, value)
+
     // -------- 分类管理 --------
     /** 记住分类开关 - 手动选择分类时记住该选择，用于相似账单 */
     var rememberCategory: Boolean

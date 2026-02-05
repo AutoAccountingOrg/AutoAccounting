@@ -679,6 +679,9 @@
     <string name="discounted">Discounted %.2f</string>
     <string name="handling_fee">Handling fee %.2f</string>
     <string name="fee">Fee %.2f</string>
+    <!-- Amount display: bill flags -->
+    <string name="bill_flag_not_count">Exclude from totals</string>
+    <string name="bill_flag_not_budget">Exclude from budget</string>
 
     <!-- 账单列表标签 -->
     <string name="bill_fee_label">Fee %s</string>
@@ -914,6 +917,7 @@
     <string name="setting_category_recording_mode">Recording Mode</string>
     <string name="setting_category_bill_recognition">Bill Recognition</string>
     <string name="setting_category_bill_management">Bill Management</string>
+    <string name="setting_category_bill_mark">Bill Flags</string>
     <string name="setting_category_category_management">Category Management</string>
     <string name="setting_category_notification_settings">Notification Settings</string>
     <string name="setting_category_popup_style_settings">Popup Style</string>

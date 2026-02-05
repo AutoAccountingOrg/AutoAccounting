@@ -48,6 +48,10 @@ object Setting {
     const val SETTING_TAG = "setting_tag"                           // 标签功能
     const val NOTE_FORMAT = "setting_note_format"                   // 备注格式
 
+    // -------- 账单标记 --------
+    const val BILL_FLAG_NOT_COUNT = "setting_bill_flag_not_count"   // 不计收支标记开关
+    const val BILL_FLAG_NOT_BUDGET = "setting_bill_flag_not_budget" // 不计预算标记开关
+
     // -------- 分类管理 --------
     const val AUTO_CREATE_CATEGORY = "setting_auto_create_category"  // 自动创建分类
     const val AI_CATEGORY_RECOGNITION: String = "ai_category_recognition" // 使用AI识别分类
