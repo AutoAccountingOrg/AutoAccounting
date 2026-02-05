@@ -62,7 +62,8 @@ class QianJiAdapter : IAppAdapter {
                 BookFeatures.DEBT,
                 BookFeatures.ASSET_MANAGE,
                 BookFeatures.MULTI_CURRENCY,
-                BookFeatures.REIMBURSEMENT
+                BookFeatures.REIMBURSEMENT,
+
             )
         } else {
             listOf(
@@ -198,7 +199,16 @@ class QianJiAdapter : IAppAdapter {
             uriBuilder.append("&id=").append(billInfoModel.id)
         }
 
-        // TODO 标签
+        if (PrefManager.featureTag) {
+            uriBuilder.append("&tag=").append(billInfoModel.tags)
+        }
+
+        if (PrefManager.billFlagNotCount || PrefManager.billFlagNotBudget) {
+            uriBuilder.append("&flag=").append(billInfoModel.flag)
+        }
+
+        // TODO 使用记账软件自带的记账面板
+
 
         if (!PrefManager.showSuccessPopup) {
             // 13) 统一不弹出成功提示
