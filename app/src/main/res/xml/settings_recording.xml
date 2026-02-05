@@ -110,14 +110,14 @@
         <!-- 不计收支标记开关 -->
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
-            android:icon="@drawable/ic_label"
+            android:icon="@drawable/ic_bill_flag_not_count"
             android:key="billFlagNotCount"
             android:title="@string/bill_flag_not_count" />
 
         <!-- 不计预算标记开关 -->
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
-            android:icon="@drawable/ic_label"
+            android:icon="@drawable/ic_bill_flag_not_budget"
             android:key="billFlagNotBudget"
             android:title="@string/bill_flag_not_budget" />
     </PreferenceCategory>
