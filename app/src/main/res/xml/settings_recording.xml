@@ -5,7 +5,7 @@
     <!-- 记账应用 -->
     <PreferenceCategory android:title="@string/setting_category_book_app">
         <androidx.preference.Preference
-            android:icon="@drawable/ic_open_in_new"
+            android:icon="@drawable/ic_apps"
             android:key="bookApp"
             android:summary="@string/setting_book_app_summary"
             android:title="@string/setting_book_app" />
@@ -99,7 +99,7 @@
             android:title="@string/setting_tag" />
 
         <androidx.preference.Preference
-            android:icon="@drawable/ic_open_in_new"
+            android:icon="@drawable/icon_edit"
             android:key="remarkFormat"
             android:summary="@string/setting_bill_remark_desc"
             android:title="@string/setting_bill_remark" />
