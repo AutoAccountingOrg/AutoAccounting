@@ -650,7 +650,7 @@ object Hooker {
 
                 else -> {
                     val className = value.javaClass.simpleName
-                    "$className@${Integer.toHexString(value.hashCode())}"
+                    "$className@${Integer.toHexString(value.hashCode())} -> ${value.toString()}"
                 }
             }
         } catch (e: Exception) {
