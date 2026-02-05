@@ -73,6 +73,13 @@
             android:title="@string/setting_auto_transfer_time_threshold"
             android:dependency="autoTransferRecognition" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_ai"
+            android:key="ruleMatchIncludeDisabled"
+            android:summary="@string/setting_rule_match_include_disabled_summary"
+            android:title="@string/setting_rule_match_include_disabled" />
+
     </PreferenceCategory>
 
     <!-- 账单管理 -->

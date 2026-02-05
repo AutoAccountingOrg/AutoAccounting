@@ -174,8 +174,26 @@ class BillService(
 
             // 4) 分析：保持“先规则，后AI”的顺序
             val start = System.currentTimeMillis()
+            val ruleMatchResult = analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
+            if (ruleMatchResult.matchedDisabled) {
+                // 命中禁用规则：直接丢弃，避免触发 AI 与后续账单流程
+                appDataModel?.let { model ->
+                    model.match = true
+                    model.rule = ruleMatchResult.ruleName
+                    model.version = SettingUtils.ruleVersion()
+                    Db.get().dataDao().update(model)
+                    // 记录禁用规则命中摘要，便于排查
+                    ServerLog.d("命中禁用规则并丢弃：id=${model.id}, rule=${model.rule}")
+                }
+                ServerLog.d("命中禁用规则，已丢弃\n==============账单分析结束===============")
+                return@withContext ResultModel<BillResultModel>(
+                    404,
+                    "命中禁用规则，已忽略。",
+                    null
+                )
+            }
             val billInfo: BillInfoModel =
-                analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
+                ruleMatchResult.billInfo
                     ?: analyzeWithAI(
                         analysisParams.app,
                         analysisParams.data
@@ -312,10 +330,11 @@ class BillService(
         app: String,
         data: String,
         dataType: DataType,
-        creator: String
+        creator: String,
+        scope: RuleGenerator.RuleScope
     ): BillInfoModel? {
         val src = if ("system" == creator) "系统" else "用户"
-        val js = ruleGenerator.data(app, dataType, creator)
+        val js = ruleGenerator.data(app, dataType, creator, scope)
         if (js.isBlank()) {
             ServerLog.d("${src}规则数据为空，跳过")
             return null
@@ -348,15 +367,36 @@ class BillService(
         app: String,
         data: String,
         dataType: DataType
-    ): BillInfoModel? {
+    ): RuleMatchResult {
         ServerLog.d("使用规则进行分析：$data")
         //为了避免部分用户的错误规则影响自动记账整体规则的可用性，拆分成2部分处理
         // 优先使用用户规则，随后使用系统规则兜底
         for (creator in arrayOf("user", "system")) {
-            analyzeWithCreator(app, data, dataType, creator)?.let { return it }
+            analyzeWithCreator(app, data, dataType, creator, RuleGenerator.RuleScope.Enabled)
+                ?.let { return RuleMatchResult(it, matchedDisabled = false) }
+        }
+        // 若开启“禁用规则参与匹配”，尝试禁用规则命中以规避 AI
+        if (SettingUtils.ruleMatchIncludeDisabled()) {
+            for (creator in arrayOf("user", "system")) {
+                analyzeWithCreator(app, data, dataType, creator, RuleGenerator.RuleScope.Disabled)
+                    ?.let { return RuleMatchResult(it, matchedDisabled = true) }
+            }
         }
         ServerLog.d("系统与用户规则均未解析出有效结果")
-        return null
+        return RuleMatchResult(null, matchedDisabled = false)
+    }
+
+    /**
+     * 规则匹配结果封装。
+     * @param billInfo 匹配到的账单信息
+     * @param matchedDisabled 是否命中禁用规则
+     */
+    private data class RuleMatchResult(
+        val billInfo: BillInfoModel?,
+        val matchedDisabled: Boolean
+    ) {
+        // 便捷输出规则名称，避免外层重复取空
+        val ruleName: String = billInfo?.ruleName ?: ""
     }
 
     /**

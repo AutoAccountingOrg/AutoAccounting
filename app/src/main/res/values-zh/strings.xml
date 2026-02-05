@@ -797,6 +797,8 @@
     <string name="setting_landscape_dnd_summary">当设备处于横屏状态时不会弹窗干扰</string><!-- AI Features -->
     <string name="setting_ai_bill_recognition">使用AI识别账单</string>
     <string name="setting_ai_bill_recognition_summary">从原始数据自动提取账单信息</string>
+    <string name="setting_rule_match_include_disabled">允许禁用规则参与匹配</string>
+    <string name="setting_rule_match_include_disabled_summary">命中禁用规则时直接丢弃，避免调用AI</string>
     <string name="setting_ai_category_recognition">使用AI进行分类识别</string>
     <string name="setting_ai_category_recognition_summary">自动为账单分配适当的分类</string>
     <string name="setting_ai_asset_mapping">使用AI进行资产映射</string>

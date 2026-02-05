@@ -302,6 +302,7 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
                 "autoGroup" -> PrefManager.autoGroup
                 "autoTransferRecognition" -> PrefManager.autoTransferRecognition
                 "aiBillRecognition" -> PrefManager.aiBillRecognition
+                "ruleMatchIncludeDisabled" -> PrefManager.ruleMatchIncludeDisabled
                 // 账单管理
                 "showRuleName" -> PrefManager.showRuleName
                 "featureFee" -> PrefManager.featureFee
@@ -342,6 +343,7 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
                 "autoGroup" -> PrefManager.autoGroup = value
                 "autoTransferRecognition" -> PrefManager.autoTransferRecognition = value
                 "aiBillRecognition" -> PrefManager.aiBillRecognition = value
+                "ruleMatchIncludeDisabled" -> PrefManager.ruleMatchIncludeDisabled = value
                 // 账单管理
                 "showRuleName" -> PrefManager.showRuleName = value
                 "featureFee" -> PrefManager.featureFee = value

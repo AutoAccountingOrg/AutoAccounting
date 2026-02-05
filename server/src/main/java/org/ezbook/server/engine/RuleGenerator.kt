@@ -27,13 +27,64 @@ import org.ezbook.server.tools.SettingUtils
  */
 object RuleGenerator {
     // 生成 hook的 js代码
-    // creator: "system" 生成系统规则，"user" 生成用户规则；为兼容旧接口，默认使用全部（保持原行为）
+    // creator: "system" 生成系统规则，"user" 生成用户规则；为兼容旧接口，默认使用启用规则（保持原行为）
     suspend fun data(app: String, type: DataType, creator: String? = null): String {
-        val rules = when (creator) {
-            "system" -> Db.get().ruleDao().loadAllEnabledByCreator(app, type.name, "system")
-            "user" -> Db.get().ruleDao().loadAllEnabledByCreator(app, type.name, "user")
-            else -> Db.get().ruleDao().loadAllEnabled(app, type.name)
+        return data(app, type, creator, RuleScope.Enabled)
+    }
+
+    /**
+     * 规则范围控制：启用规则或禁用规则。
+     */
+    enum class RuleScope {
+        Enabled,
+        Disabled
+    }
+
+    /**
+     * 生成规则匹配的 JS 代码。
+     * @param app 应用包名
+     * @param type 数据类型
+     * @param creator 规则来源（system/user/null）
+     * @param scope 规则范围（启用/禁用）
+     */
+    suspend fun data(
+        app: String,
+        type: DataType,
+        creator: String? = null,
+        scope: RuleScope
+    ): String {
+        val rules = loadRules(app, type, creator, scope)
+        return buildRuleJs(rules)
+    }
+
+    /**
+     * 按范围加载规则列表。
+     */
+    private suspend fun loadRules(
+        app: String,
+        type: DataType,
+        creator: String?,
+        scope: RuleScope
+    ): List<org.ezbook.server.db.model.RuleModel> {
+        return when (scope) {
+            RuleScope.Enabled -> when (creator) {
+                "system" -> Db.get().ruleDao().loadAllEnabledByCreator(app, type.name, "system")
+                "user" -> Db.get().ruleDao().loadAllEnabledByCreator(app, type.name, "user")
+                else -> Db.get().ruleDao().loadAllEnabled(app, type.name)
+            }
+
+            RuleScope.Disabled -> when (creator) {
+                "system" -> Db.get().ruleDao().loadAllDisabledByCreator(app, type.name, "system")
+                "user" -> Db.get().ruleDao().loadAllDisabledByCreator(app, type.name, "user")
+                else -> Db.get().ruleDao().loadAllDisabled(app, type.name)
+            }
         }
+    }
+
+    /**
+     * 将规则列表拼装为可执行的 JS。
+     */
+    private suspend fun buildRuleJs(rules: List<org.ezbook.server.db.model.RuleModel>): String {
         if (rules.isEmpty()) return ""
         val js = StringBuilder()
 
@@ -44,18 +95,16 @@ object RuleGenerator {
         // 注入规则
         val jsonArray = JsonArray()
 
-        rules.forEach {
+        rules.forEach { rule ->
             val jsonObject = JsonObject()
-            jsonObject.addProperty("name", it.name)
-            jsonObject.addProperty("obj", it.systemRuleName)
-            js.append(it.js)
+            jsonObject.addProperty("name", rule.name)
+            jsonObject.addProperty("obj", rule.systemRuleName)
+            js.append(rule.js)
             jsonArray.add(jsonObject)
         }
 
-
         val rulesStr = jsonArray.toString().replace(Regex("\"(rule_\\d+)\""), "$1")
         // 注入检测逻辑
-
         js.append("\n")
         //基础的js
         js.append(
@@ -65,25 +114,25 @@ object RuleGenerator {
              window.rules = $rulesStr;
              window.data = data;
              
-var data = window.data || '';
-var rules = window.rules || [];
+             var data = window.data || '';
+             var rules = window.rules || [];
 
-for (var i = 0; i < rules.length; i++) {
-  var rule = rules[i];
-  var result = null;
+             for (var i = 0; i < rules.length; i++) {
+               var rule = rules[i];
+               var result = null;
 
-  try {
-    result = rule.obj.get(data);
-  } catch (e) {
-    continue; // 出错就跳过
-  }
+               try {
+                 result = rule.obj.get(data);
+               } catch (e) {
+                 continue; // 出错就跳过
+               }
 
-  if (result && result.money && parseFloat(result.money) > 0) {
-    result.ruleName = rule.name;
-    print(JSON.stringify(result));
-    break;
-  }
-}
+               if (result && result.money && parseFloat(result.money) > 0) {
+                 result.ruleName = rule.name;
+                 print(JSON.stringify(result));
+                 break;
+               }
+             }
 
 
 

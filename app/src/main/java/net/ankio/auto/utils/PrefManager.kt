@@ -369,6 +369,14 @@ object PrefManager {
         get() = getBoolean(Setting.AI_MONTHLY_SUMMARY, DefaultData.AI_MONTHLY_SUMMARY)
         set(value) = putBoolean(Setting.AI_MONTHLY_SUMMARY, value)
 
+    /** 禁用规则参与匹配开关 - 命中禁用规则时跳过AI识别 */
+    var ruleMatchIncludeDisabled: Boolean
+        get() = getBoolean(
+            Setting.RULE_MATCH_INCLUDE_DISABLED,
+            DefaultData.RULE_MATCH_INCLUDE_DISABLED
+        )
+        set(value) = putBoolean(Setting.RULE_MATCH_INCLUDE_DISABLED, value)
+
     // ===================================================================
     // 数据管理 (settings_data_management.xml)
     // ===================================================================

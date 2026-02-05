@@ -156,6 +156,14 @@ object SettingUtils {
     suspend fun setAiMonthlySummary(value: Boolean) =
         setBoolean(Setting.AI_MONTHLY_SUMMARY, value)
 
+    /** 禁用规则参与匹配开关 - 命中禁用规则时跳过AI识别 */
+    suspend fun ruleMatchIncludeDisabled(): Boolean =
+        getBoolean(Setting.RULE_MATCH_INCLUDE_DISABLED, DefaultData.RULE_MATCH_INCLUDE_DISABLED)
+
+    /** 设置：禁用规则参与匹配开关 */
+    suspend fun setRuleMatchIncludeDisabled(value: Boolean) =
+        setBoolean(Setting.RULE_MATCH_INCLUDE_DISABLED, value)
+
     /** AI 总结自定义 Prompt */
     suspend fun aiSummaryPrompt(): String =
         getString(Setting.AI_SUMMARY_PROMPT, DefaultData.AI_SUMMARY_PROMPT)

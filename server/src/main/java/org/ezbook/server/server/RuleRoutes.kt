@@ -95,8 +95,9 @@ fun Route.ruleRoutes() {
          */
         post("/update") {
             val data = call.receive(RuleModel::class)
-            val id = Db.get().ruleDao().update(data)
-            call.respond(ResultModel.ok(id))
+            Db.get().ruleDao().update(data)
+            // 返回明确字符串，避免客户端按字符串解析时遇到对象结构
+            call.respond(ResultModel.ok("OK"))
         }
 
         /**

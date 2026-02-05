@@ -886,6 +886,8 @@
     <string name="setting_landscape_dnd_summary">Disable auto recording in landscape mode</string><!-- AI Features -->
     <string name="setting_ai_bill_recognition">Automatically use AI for bill recognition</string>
     <string name="setting_ai_bill_recognition_summary">Automatically extract bill information from raw data</string>
+    <string name="setting_rule_match_include_disabled">Allow matching with disabled rules</string>
+    <string name="setting_rule_match_include_disabled_summary">If a disabled rule matches, skip AI and discard the bill</string>
     <string name="setting_ai_category_recognition">AI Category Recognition</string>
     <string name="setting_ai_category_recognition_summary">Automatically assign appropriate categories to bills</string>
     <string name="setting_ai_asset_mapping">AI Asset Mapping</string>

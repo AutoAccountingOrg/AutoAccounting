@@ -570,6 +570,7 @@ Fields: ruleName, shopName, shopItem
 
     // -------- AI功能 --------
     val AI_MONTHLY_SUMMARY: Boolean = false                         // 使用AI进行账单总结（月度）默认关闭
+    val RULE_MATCH_INCLUDE_DISABLED: Boolean = false               // 禁用规则参与匹配默认关闭
 
     // ===================================================================
     // 数据管理 (settings_data_management.xml)

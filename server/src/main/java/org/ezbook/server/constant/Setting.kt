@@ -117,6 +117,8 @@ object Setting {
 
     // -------- AI功能 --------
     const val AI_MONTHLY_SUMMARY: String = "ai_monthly_summary"     // 使用AI进行账单总结（月度）
+    const val RULE_MATCH_INCLUDE_DISABLED: String =
+        "rule_match_include_disabled" // 禁用规则参与匹配（命中即跳过AI）
 
     // ===================================================================
     // 数据管理 (settings_data_management.xml)
