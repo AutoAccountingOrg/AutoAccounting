@@ -115,7 +115,7 @@
         android:id="@+id/remark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="6dp"
         android:ellipsize="end"
         android:maxLines="2"
         android:textColor="?attr/colorOnSurfaceVariant"
