@@ -110,43 +110,50 @@ object DefaultData {
     // -------- 提示词管理 --------
     /** AI账单识别提示词 - 从原始数据中提取账单信息 */
     val AI_BILL_RECOGNITION_PROMPT: String = """
-# Role
-You extract structured transaction info from raw financial texts.
+# 角色
+你从原始金融文本中提取结构化的交易信息。
 
-# Output
-Return ONLY one JSON object. No code fences, no prose. If any hard rule fails, return {}.
+# 输出
+只返回一个 JSON 对象。不要代码块、不要解释。若任一硬性规则失败，返回 {}。
 
-# Hard Rules
-1) accountNameFrom is MANDATORY. If missing/uncertain -> {}.
-2) No guessing. Use data explicitly present in input.
-3) Ignore promotions/ads and any non-transaction texts (e.g., 验证码/登录提醒/快递通知/系统提示/聊天/新闻/纯营销). If the content is unrelated to bills or contains no transaction signals (no explicit transaction amount/keyword, no account), return {}.
-4) Human personal names are not valid account names.
-5) cateName must be chosen strictly from Category Data (comma-separated). If no exact match, set "其他".
-6) Defaults: currency="CNY"; fee=0; money=0.00; empty string for optional text; timeText="".
-7) Numbers: output absolute value for money/fee; money with 2 decimals; dot as decimal point.
-8) Output must be valid JSON with keys exactly as the schema; no extra keys or trailing commas.
+# 上下文
+- Source App：来源应用包名或名称。
+- Data Type：数据来源类型（OCR/DATA/NOTICE）。
+- 允许使用上下文辅助判断场景与语义，但不得与 Raw Data 冲突；如冲突，以 Raw Data 为准。
+- 如果accountNameFrom没有内容，尝试使用应用包的名称作为accountNameFrom。
 
-# Field Rules
-- accountNameFrom: source account (e.g., 支付宝/微信/银行卡/理财/余额宝)。
-- accountNameTo: destination account if explicitly present; otherwise "".
-- cateName: pick exactly one from Category Data; do not invent.
-- currency: 3-letter ISO if present; else "CNY".
-- fee: explicit transaction fee; else 0.
-- money: transaction amount (not balance/limit/可用额度)。
-- shopItem: concrete item name if present; else "".
-- shopName: merchant or counterparty if present; else "".
-- type: one of ["Transfer","Income","Expend"], based on explicit words/signs:
-  - Transfer: both accountNameFrom and accountNameTo are present and different.
-  - Income: 收到/入账/到账/退款/收款/转入/充值 等。
-  - Expend: 支付/扣款/消费/转出/提现/付款 等。
-- timeText: full date-time string if explicitly present (e.g., 2024-08-02 12:01:22 / 2024/08/02 12:01 / 20240802 120122). If absent -> "".
+# 硬性规则
+1) accountNameFrom 非必填；缺失/不确定可留空字符串 ""。
+2) 禁止猜测，只能使用输入中明确出现的数据。
+3) 忽略营销/广告及任何非交易文本（如验证码/登录提醒/快递通知/系统提示/聊天/新闻/纯营销）。如果内容与账单无关或没有交易信号（无明确金额/关键词/账户），返回 {}。
+4) 人名不能作为账户名。
+5) cateName 必须严格从 Category Data（按收入/支出区分）中选择；无精确匹配则填“其他”。
+6) 默认值：currency="CNY"；fee=0；money=0.00；可选文本为空字符串；timeText=""。
+7) 数值：money/fee 输出绝对值；money 保留 2 位小数；小数点用 "."。
+8) 输出必须是合法 JSON，字段名严格与 schema 一致，不得多字段或尾随逗号。
 
-# Disambiguation
-- If multiple amounts appear, choose the one labeled as 支付/收款/退款/转账 金额; never choose 余额/限额。
-- If multiple categories fit, choose the most specific; if undecidable, set "".
-- Prefer omission over fabrication when OCR noise/ambiguity exists.
+# 字段规则
+- accountNameFrom：付款账户（如 支付宝/微信/银行卡/理财/余额宝）。
+- accountNameTo：收款账户（若明确出现，否则 ""）。
+- cateName：按 type 从对应的 Category Data 列表中选一个，禁止臆造。
+- currency：若出现则用 3 字母 ISO；否则 "CNY"。
+- fee：明确的手续费；否则 0。
+- money：交易金额（不是余额/限额/可用额度）。
+- shopItem：具体商品名，有则填，否则 ""。
+- shopName：商户或交易对手，有则填，否则 ""。
+- type：只能是 ["Transfer","Income","Expend"]，依据明确的关键词/符号：
+  - Transfer：accountNameFrom 与 accountNameTo 都存在且不同。
+  - Income：收到/入账/到账/退款/收款/转入/充值 等。
+  - Expend：支付/扣款/消费/转出/提现/付款 等。
+- timeText：若明确出现完整日期时间字符串则填（如 2024-08-02 12:01:22 / 2024/08/02 12:01 / 20240802 120122），否则 ""。
 
-# Schema
+# 消歧规则
+- 若出现多个金额，选标注为 支付/收款/退款/转账 的金额；不要选 余额/限额。
+- 若多个分类都匹配，选最具体；仍不确定则填 ""。
+- OCR 噪声/歧义时宁可缺省也不编造。
+- 原始数据含糊时，可结合 Context 提升候选优先级，但不得凭空生成字段值。
+
+# 结构
 {
   "accountNameFrom": "",
   "accountNameTo": "",
@@ -160,86 +167,86 @@ Return ONLY one JSON object. No code fences, no prose. If any hard rule fails, r
   "timeText": ""
 }
 
-# Examples
-Input: 支付宝消费，商户：肯德基，支付金额￥36.50，账户余额...，时间2024-08-02 12:01:22
+# 示例
+输入：支付宝消费，商户：肯德基，支付金额￥36.50，账户余额...，时间2024-08-02 12:01:22
 Category Data: 餐饮,交通,购物
-Output:
+输出：
 {"accountNameFrom":"支付宝","accountNameTo":"","cateName":"餐饮","currency":"CNY","fee":0,"money":36.50,"shopItem":"","shopName":"肯德基","type":"Expend","timeText":"2024-08-02 12:01:22"}
 
-Input: 推广信息：本店大促销...
+输入：推广信息：本店大促销...
 Category Data: 餐饮,交通
-Output:
+输出：
 {}
 """.trimIndent()
 
     /** AI资产映射提示词 - 将账单映射到对应资产账户 */
     val AI_ASSET_MAPPING_PROMPT: String = """
-# Role
-You select asset names strictly from Asset Data.
+# 角色
+你只能从 Asset Data 中选择资产名称。
 
-# Inputs
-Fields (may be empty): asset1, asset2
+# 输入
+字段（可能为空）：asset1、asset2
 
 # Asset Data
-- A comma-separated list of valid asset names.
-- You MUST choose exactly from this list. Do not invent, translate, or combine names.
+- 逗号分隔的合法资产名称列表。
+- 必须严格从该列表中选择，禁止臆造、翻译或拼接名称。
 
-# Output (strict JSON only)
-- Return ONLY a JSON object with exactly two keys:
+# 输出（仅严格 JSON）
+- 只返回一个 JSON 对象且仅包含两个键：
   {"asset1":"<name-or-empty>", "asset2":"<name-or-empty>"}
-- If a clue has no match, set its value to an empty string: "".
-- No extra fields, no explanations, no markdown, no text outside JSON.
+- 若线索无法匹配，值填空字符串 ""。
+- 不得有额外字段、解释、markdown 或 JSON 之外文本。
 
-# Matching rules (apply in order, independently for each clue)
-1) Exact equality (case-sensitive)
-2) Case-insensitive equality
-3) Substring/contains match; prefer the candidate with the longest overlap
-4) If multiple candidates tie, prefer the longer candidate name
-5) If still uncertain, use ""
+# 匹配规则（按顺序分别对每个线索独立执行）
+1) 完全相等（区分大小写）
+2) 忽略大小写相等
+3) 子串/包含匹配；优先选择重叠最长的候选
+4) 若多个候选并列，优先选择名称更长者
+5) 仍不确定则填 ""
 
-# Example Input
+# 示例输入
 {"asset1":"中国银行储蓄卡","asset2":"支付宝"}
 
-# Example Output
+# 示例输出
 {"asset1":"中国银行","asset2":"支付宝"}
 
-# Example Output (asset2 not found)
+# 示例输出（asset2 未找到）
 {"asset1":"中国银行","asset2":""}
 """.trimIndent()
 
     /** AI分类识别提示词 - 自动分类账单 */
     val AI_CATEGORY_RECOGNITION_PROMPT: String = """
-# Role
-You select exactly one category name from Category Data.
+# 角色
+你只能从 Category Data 中选择一个分类名称。
 
-# Inputs
-Fields: ruleName, shopName, shopItem
+# 输入
+字段：ruleName、shopName、shopItem
 
 # Category Data
-- A comma-separated list of valid category names.
-- You MUST choose one exactly from this list. Do not invent, translate, or combine names.
-- Exception: if uncertain after matching, output 其他.
+- 逗号分隔的合法分类名称列表。
+- 必须严格从该列表中选择一个，禁止臆造、翻译或组合名称。
+- 例外：匹配后仍不确定，输出 其他。
 
-# Output
-- Raw text, single line: the chosen category name only.
-- No quotes, no JSON, no explanations, no comments, no extra whitespace.
-- If uncertain, output 其他.
+# 输出
+- 纯文本单行：仅输出选中的分类名。
+- 不要引号、不要 JSON、不要解释、不要注释、不要多余空格。
+- 若不确定，输出 其他。
 
-# Matching rules (apply in order)
-1) Exact equality (case-sensitive): compare against shopItem, then shopName, then ruleName.
-2) Case-insensitive equality.
-3) Substring/contains match. Prefer the candidate with the longest overlap.
-4) If still uncertain, output 其他.
+# 匹配规则（按顺序执行）
+1) 完全相等（区分大小写）：依次对 shopItem、shopName、ruleName 比对。
+2) 忽略大小写相等。
+3) 子串/包含匹配，优先选择重叠最长者。
+4) 仍不确定则输出 其他。
 
-# Tie-breakers
-- Prefer shopItem over shopName over ruleName.
-- Prefer longer and more specific matches.
-- Except the fallback 其他, never output a name that is not in Category Data.
+# 额外规则
+- 优先级：shopItem > shopName > ruleName。
+- 优先选择更长、更具体的匹配。
+- 除了兜底 其他，不得输出 Category Data 之外的名称。
 
-# Example Input
+# 示例输入
 {"shopName": "钱塘江超市", "shopItem": "上好佳薯片", "ruleName": "支付宝红包"}
 
-# Example Output
+# 示例输出
 购物
 """.trimIndent()
 

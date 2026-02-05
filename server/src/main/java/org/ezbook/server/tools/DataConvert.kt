@@ -118,4 +118,27 @@ object DataConvert {
             null
         }
     }
+
+    /**
+     * 移除 Markdown 代码块标记；若存在代码块，仅返回代码块内容
+     * 目的：避免 AI 返回 ```json ... ``` 导致 JSON 解析失败
+     */
+    fun String.removeCodeBlock(): String {
+        val trimmed = trim()
+        // 优先提取所有代码块内容，避免夹杂解释性文本
+        val fenceRegex = Regex("```[\\w-]*\\s*([\\s\\S]*?)\\s*```")
+        val blocks = fenceRegex.findAll(trimmed).toList()
+        if (blocks.isEmpty()) {
+            return trimmed
+        }
+        return blocks.joinToString("\n") { it.groupValues[1].trim() }.trim()
+    }
+}
+
+/**
+ * 移除 Markdown 代码块标记的便捷方法
+ * 说明：复用 DataConvert 的实现，保持处理逻辑一致
+ */
+fun String.removeMarkdown(): String {
+    return with(DataConvert) { removeCodeBlock() }
 }

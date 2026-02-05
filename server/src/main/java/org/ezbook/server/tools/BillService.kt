@@ -196,7 +196,8 @@ class BillService(
                 ruleMatchResult.billInfo
                     ?: analyzeWithAI(
                         analysisParams.app,
-                        analysisParams.data
+                        analysisParams.data,
+                        dataType
                     )
                     ?: run {
                         ServerLog.d("AI和规则的解析结果都为NULL\n==============账单分析结束===============")
@@ -407,11 +408,13 @@ class BillService(
      *
      * @param app 应用名称
      * @param data 要分析的原始数据
+     * @param dataType 数据来源类型
      * @return 分析得到的账单信息，如果分析失败则返回null
      */
     private suspend fun analyzeWithAI(
         app: String,
-        data: String
+        data: String,
+        dataType: DataType
     ): BillInfoModel? {
 
         // AI功能总开关关闭时，直接跳过AI分析
@@ -426,7 +429,7 @@ class BillService(
             return null
         }
         ServerLog.d("AI分析中，$data")
-        val result = BillTool().execute(data) ?: run {
+        val result = BillTool().execute(data, app, dataType) ?: run {
             // 记录AI未返回有效结果
             ServerLog.d("AI未返回有效账单结果")
             return null

@@ -20,10 +20,13 @@ import com.google.gson.JsonParser
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.tools.DateUtils
 import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.SettingUtils
+import org.ezbook.server.tools.removeMarkdown
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 class BillTool {
@@ -39,26 +42,41 @@ class BillTool {
         }
     }
 
-    suspend fun execute(data: String): BillInfoModel? {
+    suspend fun execute(data: String, app: String, dataType: DataType): BillInfoModel? {
         val prompt = getPrompt()
         val categories = Db.get().categoryDao().all()
-        val categoryNames = categories.joinToString(",") { it.name.toString() }
+        // 按收支类型拆分分类列表，避免 AI 混用分类
+        val expendCategoryNames = categories
+            .filter { it.type.name.startsWith(BillType.Expend.name) }
+            .joinToString(",") { it.name.toString() }
+        val incomeCategoryNames = categories
+            .filter { it.type.name.startsWith(BillType.Income.name) }
+            .joinToString(",") { it.name.toString() }
+        // 组装上下文信息，帮助提示词做更准确的场景判断
         val user = """
 Input:
+- Context:
+  - Source App: $app
+  - Data Type: $dataType
 - Raw Data: 
   ```
   $data
   ```
 - Category Data:
-  ```
-  $categoryNames
-  ```      
+  - Expend:
+    ```
+    $expendCategoryNames
+    ```
+  - Income:
+    ```
+    $incomeCategoryNames
+    ```      
         """.trimIndent()
 
         return runCatchingExceptCancel {
             val data = AiManager.getInstance().request(prompt, user).getOrThrow()
 
-            val bill = data.replace("```json", "").replace("```", "")
+            val bill = data.removeMarkdown()
             ServerLog.d("AI分析结果: $bill")
             // 提取 timeText 并转换为时间戳（毫秒）。为空或解析失败则为 0。
             val json = JsonParser.parseString(bill).asJsonObject
