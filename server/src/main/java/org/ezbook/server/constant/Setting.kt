@@ -184,6 +184,7 @@ object Setting {
     const val HASH_BOOK = "setting_hash_book"                       // 账本哈希
     const val HASH_CATEGORY = "setting_hash_category"               // 分类哈希
     const val HASH_BAOXIAO_BILL: String = "hash_baoxiao_bill"       // 报销单哈希
+    const val HASH_TAG = "setting_hash_tag"                        // 标签哈希
 
     // -------- UI设置（其他） --------
     const val USE_SYSTEM_SKIN = "setting_use_system_skin"          // 系统皮肤

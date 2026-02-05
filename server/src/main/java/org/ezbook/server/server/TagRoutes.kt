@@ -23,6 +23,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.TagModel
 import org.ezbook.server.models.ResultModel
@@ -156,6 +157,8 @@ fun Route.tagRoutes() {
          * @return ResultModel 包含插入的标签ID列表
          */
         post("/batch") {
+            // 同步哈希（可选），用于服务端记录客户端数据快照
+            val md5 = call.request.queryParameters["md5"] ?: ""
             val requestBody = call.receiveText()
             val gson = com.google.gson.Gson()
             val tagsList = try {
@@ -180,6 +183,11 @@ fun Route.tagRoutes() {
 
                 // 再批量插入新标签
                 val insertedIds = Db.get().tagDao().batchInsert(tagsList)
+
+                // 写入标签哈希，便于后续幂等判断
+                if (md5.isNotEmpty()) {
+                    setByInner(Setting.HASH_TAG, md5)
+                }
                 call.respond(
                     ResultModel.ok(
                         mapOf("insertedIds" to insertedIds, "count" to insertedIds.size)

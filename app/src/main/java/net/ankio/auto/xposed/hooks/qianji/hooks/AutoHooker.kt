@@ -21,10 +21,12 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.core.net.toUri
 import de.robv.android.xposed.XposedBridge
+import kotlinx.coroutines.runBlocking
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.CoroutineUtils
@@ -45,6 +47,7 @@ import net.ankio.auto.xposed.hooks.qianji.models.UserModel
 import net.ankio.auto.xposed.hooks.qianji.debt.IncomeLendingUtils
 import net.ankio.auto.xposed.hooks.qianji.debt.ExpendRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.debt.IncomeRepaymentUtils
+import net.ankio.auto.xposed.hooks.qianji.impl.TagRefreshPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import net.ankio.auto.xposed.hooks.qianji.utils.BroadcastUtils
@@ -120,33 +123,41 @@ class AutoHooker : PartHooker() {
         ) {
             val billModel = QjBillModel.fromObject(it.args[0])
             //处理优惠
-
+            val extraModel = BillExtraModel.newInstance()
             //传入的是负值表示优惠
              val discount = uri.getQueryParameter("discount")?.toDoubleOrNull()
             if (discount != null && discount > 0 && (billModel.isAllSpend() || billModel.isTransfer())) {
                  //只有支出或者还款的账户才需要记录优惠
-                 val extraModel = BillExtraModel.newInstance()
                  extraModel.setTransfee(-discount)
-                 billModel.setExtra(extraModel)
-
-
             }
 
             //处理标记位置
             val flag = uri.getQueryParameter("flag")?.toIntOrNull() ?: 0
             if (billModel.isAllIncome() || billModel.isAllSpend() || billModel.isTransfer()) {
-                val extraModel = BillExtraModel.newInstance()
                 extraModel.setFlag(flag)
-                billModel.setExtra(extraModel)
             }
 
 
+            //处理标签
+            val tags = uri.getQueryParameter("tag")?.split(",") ?: listOf()
+            if (tags.isNotEmpty()) {
+
+                var ids = runBlocking { TagRefreshPresenterImpl.getTagIdsByNames(tags) }
+
+                ids = if (UserModel.isVip()) {
+                    ids.take(8)
+                } else {
+                    ids.take(1)
+                }
+
+                extraModel.setTagIds(ids)
+            }
 
              //TODO 对于币种的处理
              // 先获取本位币
              // 根据本位币对目的币种的汇率计算本位币的实际支出金额
              // 给Extra填充汇率等信息
-
+            billModel.setExtra(extraModel)
             it.args[0] = billModel.toObject()
             BillDbHelper.newInstance().saveOrUpdateBill(billModel)
             XposedBridge.log("保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}")
@@ -187,6 +198,8 @@ class AutoHooker : PartHooker() {
                         AssetPreviewPresenterImpl.syncAssets()
                         val books = BookManagerImpl.syncBooks()
                         CateInitPresenterImpl.syncCategory(books)
+                        TagRefreshPresenterImpl.syncTag()
+
                         MessageUtils.toast("资产信息同步完成")
                     }
 

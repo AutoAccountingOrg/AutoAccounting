@@ -179,16 +179,22 @@ object TagAPI {
     /**
      * 批量插入标签（重置模式：先清除所有现有标签，再插入新标签）。
      * @param tags 标签列表
+     * @param md5 数据哈希（可选，用于服务端记录同步哈希）
      * @return 后端返回的操作结果
      */
-    suspend fun batchInsert(tags: List<TagModel>): JsonObject = withContext(Dispatchers.IO) {
+    suspend fun batchInsert(tags: List<TagModel>, md5: String = ""): JsonObject =
+        withContext(Dispatchers.IO) {
 
-        return@withContext runCatchingExceptCancel {
-            val resp = LocalNetwork.post<JsonObject>("tag/batch", Gson().toJson(tags)).getOrThrow()
-            resp.data ?: JsonObject()
-        }.getOrElse {
-            Logger.e("batchInsert error: ${it.message}", it)
-            JsonObject()
+            // 携带 md5 时记录到服务端设置，便于幂等判断
+            val md5Query = if (md5.isNotEmpty()) "?md5=$md5" else ""
+            return@withContext runCatchingExceptCancel {
+                val resp =
+                    LocalNetwork.post<JsonObject>("tag/batch$md5Query", Gson().toJson(tags))
+                        .getOrThrow()
+                resp.data ?: JsonObject()
+            }.getOrElse {
+                Logger.e("batchInsert error: ${it.message}", it)
+                JsonObject()
+            }
         }
-    }
 }

@@ -200,7 +200,7 @@ class QianJiAdapter : IAppAdapter {
         }
 
         if (PrefManager.featureTag) {
-            uriBuilder.append("&tag=").append(billInfoModel.tags)
+            uriBuilder.append("&tag=").append(Uri.encode(billInfoModel.tags))
         }
 
         if (PrefManager.billFlagNotCount || PrefManager.billFlagNotBudget) {

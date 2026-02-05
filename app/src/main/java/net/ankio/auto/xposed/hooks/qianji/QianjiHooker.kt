@@ -43,6 +43,7 @@ import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.GetCategoryListInterface
 import net.ankio.auto.xposed.hooks.qianji.impl.RefundPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.TagRefreshPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.ViewInterface
 import net.ankio.auto.xposed.hooks.qianji.models.QjAssetAccountModel
 import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLogModel
@@ -127,7 +128,8 @@ class QianjiHooker : HookerManifest() {
             TypesFilter.rule,
 
             BaseSubmitAssetPresenterImpl.rule,
-            ViewInterface.rule
+            ViewInterface.rule,
+            TagRefreshPresenterImpl.rule
         )
         set(value) {}
 
