@@ -133,10 +133,10 @@ class AutoHooker : PartHooker() {
             }
 
             //处理标记位置
-            val flag = uri.getQueryParameter("flag")?.toIntOrNull()
+            val flag = uri.getQueryParameter("flag")?.toIntOrNull() ?: 0
             if (billModel.isAllIncome() || billModel.isAllSpend() || billModel.isTransfer()) {
                 val extraModel = BillExtraModel.newInstance()
-                extraModel.setFlag(flag!!)
+                extraModel.setFlag(flag)
                 billModel.setExtra(extraModel)
             }
 

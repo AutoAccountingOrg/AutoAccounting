@@ -57,7 +57,6 @@ class AmountDisplayComponent(
 
     private var currentBillType: BillType = BillType.Expend
 
-
     private lateinit var billInfoModel: BillInfoModel
 
     /**
@@ -84,6 +83,9 @@ class AmountDisplayComponent(
 
         // 更新费用显示
         setFeeDisplay(billInfoModel.fee)
+
+        // 更新标志位显示
+        updateFlagDisplay()
     }
 
     /**
@@ -100,6 +102,9 @@ class AmountDisplayComponent(
 
         // 设置费用编辑点击监听器  
         setupFeeEditor()
+
+        // 设置标志位芯片点击监听器
+        setupFlagChips()
     }
 
     /**
@@ -188,6 +193,37 @@ class AmountDisplayComponent(
     }
 
     /**
+     * 设置标志位芯片
+     */
+    private fun setupFlagChips() {
+        // 确保芯片可勾选，点击即可切换状态
+        binding.noIncomeExpenseLabel.isCheckable = true
+        binding.noBudgetLabel.isCheckable = true
+
+        binding.noIncomeExpenseLabel.setOnClickListener {
+            if (!::billInfoModel.isInitialized) return@setOnClickListener
+            // 未启用设置时忽略点击，避免与全局开关冲突
+            if (!PrefManager.billFlagNotCount) return@setOnClickListener
+            // 用户点击后同步“不计收支”标志位
+            billInfoModel.setFlag(
+                BillInfoModel.FLAG_NOT_COUNT,
+                binding.noIncomeExpenseLabel.isChecked
+            )
+        }
+
+        binding.noBudgetLabel.setOnClickListener {
+            if (!::billInfoModel.isInitialized) return@setOnClickListener
+            // 未启用设置时忽略点击，避免与全局开关冲突
+            if (!PrefManager.billFlagNotBudget) return@setOnClickListener
+            // 用户点击后同步“不计预算”标志位
+            billInfoModel.setFlag(
+                BillInfoModel.FLAG_NOT_BUDGET,
+                binding.noBudgetLabel.isChecked
+            )
+        }
+    }
+
+    /**
      * 设置金额显示
      *
      * @param amount 金额数值
@@ -234,6 +270,22 @@ class AmountDisplayComponent(
             else -> context.getString(R.string.discounted, fee)
         }
         binding.feeContainer.text = text
+    }
+
+    /**
+     * 更新标志位芯片显示状态
+     */
+    private fun updateFlagDisplay() {
+        if (!::billInfoModel.isInitialized) return
+        // 根据设置开关控制可见性与可用性，确保组件状态与全局配置一致
+        binding.noIncomeExpenseLabel.isVisible = PrefManager.billFlagNotCount
+        binding.noIncomeExpenseLabel.isEnabled = PrefManager.billFlagNotCount
+        binding.noBudgetLabel.isVisible = PrefManager.billFlagNotBudget
+        binding.noBudgetLabel.isEnabled = PrefManager.billFlagNotBudget
+        binding.noIncomeExpenseLabel.isChecked =
+            billInfoModel.hasFlag(BillInfoModel.FLAG_NOT_COUNT)
+        binding.noBudgetLabel.isChecked =
+            billInfoModel.hasFlag(BillInfoModel.FLAG_NOT_BUDGET)
     }
 
 

@@ -67,38 +67,18 @@
         android:id="@+id/tag_labels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:padding="@dimen/float_padding"
         android:visibility="gone"
         app:alignItems="center"
+        app:dividerDrawableHorizontal="@drawable/flex_item_gap"
+
+        app:dividerDrawableVertical="@drawable/flex_item_gap"
         app:flexWrap="wrap"
+        app:showDividerHorizontal="middle"
+        app:showDividerVertical="middle"
         tools:visibility="visible">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="4dp"
-            android:background="@drawable/currency_label_background"
-            android:backgroundTint="?attr/colorSurfaceContainerLow"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="12sp"
-            tools:text="餐饮" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="4dp"
-            android:background="@drawable/currency_label_background"
-            android:backgroundTint="?attr/colorSurfaceContainerLow"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="12sp"
-            tools:text="出差" />
 
     </com.google.android.flexbox.FlexboxLayout>
 

@@ -2,4 +2,6 @@
 <resources>
     <item name="innerView" type="id" />
     <item name="cardView" type="id" />
+    <!-- TagUtils 渲染标签的视图标记 -->
+    <item name="tagLabelMarker" type="id" />
 </resources>

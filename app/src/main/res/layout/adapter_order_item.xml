@@ -95,36 +95,21 @@
             tools:text="中国工商银行储蓄卡中国工商银行储蓄卡中国工商银行储蓄卡" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- 标签行：只展示已绑定的标签，空则隐藏 -->
     <com.google.android.flexbox.FlexboxLayout
-        android:id="@+id/tag_labels"
+        android:id="@+id/flexContainer"
+        android:layout_marginTop="6dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:visibility="gone"
+        android:layout_weight="1"
+
         app:alignItems="center"
+        app:dividerDrawableHorizontal="@drawable/flex_item_gap"
+
+        app:dividerDrawableVertical="@drawable/flex_item_gap"
         app:flexWrap="wrap"
-        tools:visibility="visible">
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="4dp"
-            android:background="@drawable/currency_label_background"
-            android:backgroundTint="?attr/colorSurfaceContainerHighest"
-            android:drawablePadding="6dp"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="10sp"
-
-            tools:text="餐饮" />
-
-
+        app:showDividerHorizontal="middle"
+        app:showDividerVertical="middle">
     </com.google.android.flexbox.FlexboxLayout>
-
     <!-- 第三行：备注（补充信息，保留两行但降低视觉权重，避免与资产抢焦点） -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/remark"
@@ -137,85 +122,131 @@
         android:textSize="13sp"
         tools:text="@tools:sample/lorem/random" />
 
-    <!-- 第四行：元数据区域 -->
+    <!-- 第四行容器：左侧标签流，右侧操作区 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="6dp">
 
-        <!-- 时间标签：最低调，中性信息 -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/currency_label_background"
-            android:backgroundTint="?attr/colorSurfaceContainerHighest"
-            android:maxLines="1"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="11sp"
-            tools:text="11:00" />
-
-        <!-- 账本标签：次要信息，用青色/绿色系 -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/book_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/currency_label_background"
-            android:backgroundTint="?attr/colorSecondaryContainer"
-            android:maxLines="1"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="?attr/colorOnSecondaryContainer"
-            android:textSize="11sp"
-            tools:text="默认账本" />
-
-        <!-- 手续费标签：警告信息（红色）/正面信息（紫色），代码中动态设置 -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/fee"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/currency_label_background"
-            android:backgroundTint="?attr/colorErrorContainer"
-            android:maxLines="1"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="?attr/colorOnErrorContainer"
-            android:textSize="11sp"
-            tools:text="手续费 ¥0.5" />
-
-        <!-- 自动记录标签：状态标签，最突出（主题色） -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/auto_record"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/currency_label_background"
-            android:backgroundTint="?attr/colorPrimaryContainer"
-            android:maxLines="1"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:text="@string/auto_record"
-            android:textColor="?attr/colorOnPrimaryContainer"
-            android:textSize="11sp" />
-
-        <View
+        <!-- 第四行：元数据区域（单层Flexbox） -->
+        <!-- 左侧标签流：占据可用空间，避免挤压右侧按钮 -->
+        <com.google.android.flexbox.FlexboxLayout
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
 
+            app:alignItems="center"
+            app:dividerDrawableHorizontal="@drawable/flex_item_gap"
+
+            app:dividerDrawableVertical="@drawable/flex_item_gap"
+            app:flexWrap="wrap"
+            app:showDividerHorizontal="middle"
+            app:showDividerVertical="middle">
+
+            <!-- 时间标签：最低调，中性信息 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/currency_label_background"
+                android:backgroundTint="?attr/colorSurfaceContainerHighest"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="11sp"
+                tools:text="11:00" />
+
+            <!-- 账本标签：次要信息，用青色/绿色系 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/book_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/currency_label_background"
+                android:backgroundTint="?attr/colorSecondaryContainer"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="?attr/colorOnSecondaryContainer"
+                android:textSize="11sp"
+                tools:text="默认账本" />
+
+            <!-- 手续费标签：警告信息（红色）/正面信息（紫色），代码中动态设置 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/fee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/currency_label_background"
+                android:backgroundTint="?attr/colorErrorContainer"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="?attr/colorOnErrorContainer"
+                android:textSize="11sp"
+                tools:text="手续费 ¥0.5" />
+
+            <!-- 不计收支标记：仅在设置开启且账单命中时显示 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/flagNotCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/currency_label_background"
+                android:backgroundTint="?attr/colorSurfaceContainerHighest"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="@string/bill_flag_not_count"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="11sp"
+                tools:text="@string/bill_flag_not_count" />
+
+            <!-- 不计预算标记：仅在设置开启且账单命中时显示 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/flagNotBudget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/currency_label_background"
+                android:backgroundTint="?attr/colorSurfaceContainerHighest"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="@string/bill_flag_not_budget"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="11sp"
+                tools:text="@string/bill_flag_not_budget" />
+
+            <!-- 自动记录标签：状态标签，最突出（主题色） -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/auto_record"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/currency_label_background"
+                android:backgroundTint="?attr/colorPrimaryContainer"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="@string/auto_record"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                android:textSize="11sp" />
+
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <!-- 右侧操作区：固定尺寸，不参与左侧标签流的换行 -->
         <!-- 同步图标 -->
         <ImageView
             android:id="@+id/sync"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginEnd="4dp"
+            android:layout_gravity="center_vertical"
             android:contentDescription=""
             android:importantForAccessibility="no"
             android:src="@drawable/ic_sync"
@@ -228,6 +259,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="-8dp"
+            android:layout_gravity="center_vertical"
             android:insetLeft="0dp"
             android:insetTop="0dp"
             android:insetRight="0dp"
@@ -237,7 +269,5 @@
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="20dp" />
-
     </LinearLayout>
-
 </LinearLayout>

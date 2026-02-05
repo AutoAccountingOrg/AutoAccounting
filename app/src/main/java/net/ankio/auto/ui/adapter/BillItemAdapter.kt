@@ -285,6 +285,12 @@ class BillItemAdapter(
             }
         }
 
+        // 账单标记：仅在设置开启且账单命中时显示
+        val shouldShowFlagNotCount =
+            PrefManager.billFlagNotCount && data.hasFlag(BillInfoModel.FLAG_NOT_COUNT)
+        val shouldShowFlagNotBudget =
+            PrefManager.billFlagNotBudget && data.hasFlag(BillInfoModel.FLAG_NOT_BUDGET)
+
 
         when (data.state) {
             BillState.Synced -> {
@@ -304,6 +310,8 @@ class BillItemAdapter(
         binding.date.visibility = View.VISIBLE
         binding.bookName.visibility = if (shouldShowBook) View.VISIBLE else View.GONE
         binding.fee.visibility = if (shouldShowFee) View.VISIBLE else View.GONE
+        binding.flagNotCount.visibility = if (shouldShowFlagNotCount) View.VISIBLE else View.GONE
+        binding.flagNotBudget.visibility = if (shouldShowFlagNotBudget) View.VISIBLE else View.GONE
         binding.autoRecord.visibility = if (data.auto) View.VISIBLE else View.GONE
         binding.sync.visibility = View.VISIBLE
         if (PrefManager.autoGroup) {
@@ -327,7 +335,7 @@ class BillItemAdapter(
     private fun renderTags(binding: AdapterOrderItemBinding, data: BillInfoModel) {
         val tagNames = data.getTagList()
         // 统一使用标签工具渲染，保持与基础信息组件一致的风格
-        TagUtils.renderTagLabels(binding.tagLabels, tagNames, textSizeSp = 9f)
+        TagUtils.renderTagLabels(binding.flexContainer, tagNames, textSizeSp = 9f)
     }
 
 

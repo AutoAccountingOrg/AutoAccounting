@@ -34,6 +34,11 @@ import java.io.InputStreamReader
 object TagUtils {
 
     /**
+     * 动态标签视图标记，用于区分自动渲染的标签与其他子视图
+     */
+    private val tagLabelMarkerKey = R.id.tagLabelMarker
+
+    /**
      * JSON标签项数据模型，用于解析default_tags.json
      */
     private data class JsonTagItem(
@@ -101,12 +106,7 @@ object TagUtils {
         emptyPlaceholder: String? = null,
         textSizeSp: Float = 12f
     ) {
-        if (tagNames.isEmpty() && emptyPlaceholder == null) {
-            // 无标签且无需占位时直接隐藏
-            container.visibility = View.GONE
-            container.removeAllViews()
-            return
-        }
+        removeTagLabelViews(container)
 
         // 处理空态占位文本
         val isEmpty = tagNames.isEmpty()
@@ -132,12 +132,13 @@ object TagUtils {
         val emptyTextColor = applyAlpha(defaultTextColor, 0.6f)
         val emptyBackgroundColor = applyAlpha(defaultBackgroundColor, 0.6f)
 
-        container.removeAllViews()
-        container.visibility = View.VISIBLE
+        // 无标签且无需占位时，只隐藏纯标签容器，避免影响其他控件
+        if (isEmpty && emptyPlaceholder == null) {
+            return
+        }
 
         val paddingHorizontal = dpToPx(container, 8)
         val paddingVertical = dpToPx(container, 3)
-        val marginBottom = dpToPx(container, 4)
 
         labelTexts.forEach { text ->
             // 空态弱化显示，非空态使用标签配色
@@ -163,17 +164,44 @@ object TagUtils {
                 setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical)
                 background = container.context.getDrawable(R.drawable.currency_label_background)
                 background?.setTint(backgroundColor)
+                // 标记为工具渲染的标签，便于下次局部清理
+                setTag(tagLabelMarkerKey, true)
             }
             val params = ViewGroup.MarginLayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                // 与基础信息组件一致的边距策略
-                rightMargin = marginBottom
-                bottomMargin = marginBottom
-            }
+            )
             container.addView(label, params)
         }
+    }
+
+
+    /**
+     * 移除当前工具渲染的标签视图，保留其他子视图
+     * @param container 标签容器
+     */
+    private fun removeTagLabelViews(container: ViewGroup) {
+        for (index in container.childCount - 1 downTo 0) {
+            val child = container.getChildAt(index)
+            if (child.getTag(tagLabelMarkerKey) == true) {
+                container.removeViewAt(index)
+            }
+        }
+    }
+
+    /**
+     * 判断容器是否包含非标签子视图
+     * @param container 标签容器
+     * @return true 表示存在非标签子视图
+     */
+    private fun hasNonTagChildren(container: ViewGroup): Boolean {
+        for (index in 0 until container.childCount) {
+            val child = container.getChildAt(index)
+            if (child.getTag(tagLabelMarkerKey) != true) {
+                return true
+            }
+        }
+        return false
     }
 
     /**

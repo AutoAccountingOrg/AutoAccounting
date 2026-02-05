@@ -42,6 +42,30 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
+        <!-- 不计收支标签芯片 -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/no_income_expense_label"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/bill_flag_not_count"
+            app:chipMinTouchTargetSize="0dp"
+            android:textSize="12sp"
+            app:chipStrokeWidth="0dp" />
+
+        <!-- 不计预算标签芯片 -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/no_budget_label"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/bill_flag_not_budget"
+            android:textSize="12sp"
+            app:chipMinTouchTargetSize="0dp"
+            app:chipStrokeWidth="0dp" />
+
         <!-- 类型标签芯片 -->
         <com.google.android.material.chip.Chip
             android:id="@+id/type_label"
