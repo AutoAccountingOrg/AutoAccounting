@@ -35,17 +35,31 @@ class CategoryTool {
         }
     }
 
-    suspend fun execute(data: String): String? {
+    /**
+     * 执行分类识别
+     * @param data 原始账单数据(JSON字符串)
+     * @param app 来源应用
+     * @param dataType 数据来源类型
+     */
+    suspend fun execute(
+        data: String,
+        app: String,
+        dataType: org.ezbook.server.constant.DataType
+    ): String? {
         val prompt = getPrompt()
         // 记录输入摘要，避免日志过长
-        ServerLog.d("分类匹配请求：data=${data.take(120)}")
+        ServerLog.d("分类匹配请求：data=${data.take(120)}, app=$app, dataType=$dataType")
 
         val categories = Db.get().categoryDao().all()
         // 记录分类候选规模
         ServerLog.d("分类候选统计：total=${categories.size}")
         val categoryNames = categories.joinToString(",") { it.name.toString() }
+        // 组装上下文信息，帮助 AI 进行语义分类
         val user = """
 Input:
+- Context:
+  - Source App: $app
+  - Data Type: $dataType
 - Raw Data: 
   ```
   $data

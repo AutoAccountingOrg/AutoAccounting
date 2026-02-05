@@ -224,37 +224,40 @@ Category Data: 餐饮,交通
     /** AI分类识别提示词 - 自动分类账单 */
     val AI_CATEGORY_RECOGNITION_PROMPT: String = """
 # 角色
-你只能从 Category Data 中选择一个分类名称。
+你是账单分类器，任务是根据输入账单内容进行分类，只能从 Category Data 中选择一个分类名称。
 
 # 输入
-字段：ruleName、shopName、shopItem
-
-# Category Data
-- 逗号分隔的合法分类名称列表。
-- 必须严格从该列表中选择一个，禁止臆造、翻译或组合名称。
-- 例外：匹配后仍不确定，输出 其他。
+- Raw Data 是一个 JSON 字符串，字段可能包含：
+  type, money, shopName, shopItem, time, ruleName
+- Category Data 是逗号分隔的合法分类名称列表。
 
 # 输出
-- 纯文本单行：仅输出选中的分类名。
-- 不要引号、不要 JSON、不要解释、不要注释、不要多余空格。
-- 若不确定，输出 其他。
+- 仅输出一个分类名称（单行纯文本）。
+- 不要引号、不要 JSON、不要解释、不要多余空格。
+- 必须严格从 Category Data 中选择；若无法确定，输出 其他。
 
-# 匹配规则（按顺序执行）
-1) 完全相等（区分大小写）：依次对 shopItem、shopName、ruleName 比对。
-2) 忽略大小写相等。
-3) 子串/包含匹配，优先选择重叠最长者。
-4) 仍不确定则输出 其他。
+# 处理流程（按顺序）
+1) 不需要解析 JSON，把 Raw Data 当作自然语言理解账单语义。
+2) 优先使用 shopItem > shopName > ruleName 的信息进行语义分类；必要时结合 type、money、time。
+3) 可用 Context（来源应用/数据来源类型）辅助判断场景，但不得与 Raw Data 冲突。
+4) 语义判断：根据商户、商品、规则名等含义推断最合适分类，不要求关键词“匹配”。
+5) 当多个分类候选都合理时：
+   - 选择更具体、更贴近交易语义的分类；
+   - 若仍冲突，输出 其他。
+6) 使用 type 辅助判断：
+   - type=Income 时优先考虑收入语义词（如 工资/奖金/退款/利息/报销/补贴/红包/返现/分红/理财）。
+   - type=Expend 时优先考虑支出语义词（如 餐饮/交通/购物/娱乐/住宿/日用/服饰/医药/教育/通讯/外卖）。
+   - 若语义冲突或无法判断，输出 其他。
 
-# 额外规则
-- 优先级：shopItem > shopName > ruleName。
-- 优先选择更长、更具体的匹配。
-- 除了兜底 其他，不得输出 Category Data 之外的名称。
+# 约束
+- 不得臆造、翻译或组合分类名称。
+- 不要使用 Raw Data 之外的常识硬猜。
 
 # 示例输入
-{"shopName": "钱塘江超市", "shopItem": "上好佳薯片", "ruleName": "支付宝红包"}
+{"type":"Expend","money":36.5,"shopName":"肯德基","shopItem":"香辣鸡腿堡","ruleName":"外卖"}
 
 # 示例输出
-购物
+餐饮
 """.trimIndent()
 
     val AI_SUMMARY_PROMPT: String = """

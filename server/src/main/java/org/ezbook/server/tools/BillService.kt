@@ -218,7 +218,7 @@ class BillService(
             // 记录资产映射摘要
             ServerLog.d("资产映射完成：from=${billInfo.accountNameFrom}, to=${billInfo.accountNameTo}")
             // 先根据已有的信息进行分类
-            categorize(billInfo)
+            categorize(billInfo, dataType)
             if (billInfo.remark.isEmpty()) {
                 billInfo.remark = BillManager.getRemark(billInfo, context)
             }
@@ -255,7 +255,7 @@ class BillService(
                     billInfo
                 }
                 // 根据合并后的账单重新分类
-                categorize(finalBill)
+                categorize(finalBill, dataType)
                 ServerLog.d("分类完成后的账单：$finalBill")
 
                 // 生成账单备注（在分类之后，因为备注可能依赖分类信息）
@@ -522,7 +522,7 @@ class BillService(
      *
      * @param bill 需要分类的账单信息
      */
-    private suspend fun categorize(bill: BillInfoModel) {
+    private suspend fun categorize(bill: BillInfoModel, dataType: DataType) {
 
         val win = JsonObject().apply {
             addProperty("type", bill.type.name)
@@ -554,7 +554,9 @@ class BillService(
             SettingUtils.aiCategoryRecognition()
         ) {
             bill.cateName = CategoryTool().execute(
-                win.toString()
+                win.toString(),
+                bill.app,
+                dataType
             ).takeUnless { it.isNullOrEmpty() } ?: "其他"
             ServerLog.d("AI分析的账单分类结果：${bill.cateName}")
         }
