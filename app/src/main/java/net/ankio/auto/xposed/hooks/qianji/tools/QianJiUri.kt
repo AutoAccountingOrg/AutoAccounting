@@ -19,6 +19,7 @@ import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.CurrencyModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -50,7 +51,8 @@ object QianJiUri {
         val fee = uri.getQueryParameter("fee")?.toDouble() ?: 0.00
         val extendData = uri.getQueryParameter("extendData") ?: ""
         val id = uri.getQueryParameter("id")?.toLong() ?: 0L
-        val currency = uri.getQueryParameter("currency") ?: "CNY"
+        // 从 URI 获取币种代码，构造 CurrencyModel JSON
+        val rawCurrency = uri.getQueryParameter("currency") ?: "CNY"
         val billInfo = BillInfoModel()
         billInfo.type = QianJiBillType.toAuto(type)
         billInfo.money = amount
@@ -63,7 +65,7 @@ object QianJiUri {
         billInfo.fee = fee
         billInfo.extendData = extendData
         billInfo.id = id
-        billInfo.currency = currency
+        billInfo.currency = CurrencyModel(code = rawCurrency).toJson()
         return billInfo
     }
 }
