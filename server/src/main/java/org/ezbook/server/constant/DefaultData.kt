@@ -58,6 +58,7 @@ object DefaultData {
     // -------- 资产管理 --------
     val SETTING_ASSET_MANAGER = false                               // 资产管理默认关闭
     val SETTING_CURRENCY_MANAGER = false                            // 多币种默认关闭
+    val SETTING_BASE_CURRENCY = "CNY"                              // 本位币默认人民币
     val SETTING_REIMBURSEMENT = false                               // 报销功能默认关闭
     val SETTING_DEBT = false                                        // 债务功能默认关闭
     val AUTO_ASSET_MAPPING: Boolean = false                         // 记住资产映射默认关闭
@@ -243,11 +244,10 @@ Category Data: 餐饮,交通
 4) 语义判断：根据商户、商品、规则名等含义推断最合适分类，不要求关键词“匹配”。
 5) 当多个分类候选都合理时：
    - 选择更具体、更贴近交易语义的分类；
-   - 若仍冲突，输出 其他。
 6) 使用 type 辅助判断：
    - type=Income 时优先考虑收入语义词（如 工资/奖金/退款/利息/报销/补贴/红包/返现/分红/理财）。
    - type=Expend 时优先考虑支出语义词（如 餐饮/交通/购物/娱乐/住宿/日用/服饰/医药/教育/通讯/外卖）。
-   - 若语义冲突或无法判断，输出 其他。
+   - 若无法判断，输出 其他。
 
 # 约束
 - 不得臆造、翻译或组合分类名称。

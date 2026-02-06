@@ -191,6 +191,11 @@ object PrefManager {
         get() = getBoolean(Setting.SETTING_CURRENCY_MANAGER, DefaultData.SETTING_CURRENCY_MANAGER)
         set(value) = putBoolean(Setting.SETTING_CURRENCY_MANAGER, value)
 
+    /** 本位币 - 用户的基准记账币种，默认 CNY */
+    var baseCurrency: String
+        get() = getString(Setting.SETTING_BASE_CURRENCY, DefaultData.SETTING_BASE_CURRENCY)
+        set(value) = putString(Setting.SETTING_BASE_CURRENCY, value)
+
     /** 报销功能开关 - 是否启用报销记录功能 */
     var featureReimbursement: Boolean
         get() = getBoolean(Setting.SETTING_REIMBURSEMENT, DefaultData.SETTING_REIMBURSEMENT)

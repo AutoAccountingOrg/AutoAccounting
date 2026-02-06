@@ -32,7 +32,12 @@ data class BillInfoModel(
     var type: BillType = BillType.Income,
 
     /**
-     * 币种类型
+     * 币种信息（JSON 格式的 CurrencyModel）
+     *
+     * 新格式：{"code":"USD","rate":7.19,"timestamp":1706745600000}
+     * 兼容旧格式：纯币种代码字符串如 "CNY"
+     *
+     * @see CurrencyModel
      */
     var currency: String = "",
 
@@ -252,4 +257,16 @@ data class BillInfoModel(
     }
 
     fun isChild() = this.groupId > 0
+
+    /**
+     * 解析 currency 字段为 CurrencyModel
+     * 兼容旧格式（纯币种代码字符串）和新格式（JSON）
+     */
+    fun currencyModel(): CurrencyModel = CurrencyModel.fromJson(currency)
+
+    /**
+     * 获取币种代码（如 "USD"、"CNY"）
+     * 便捷方法，避免每次都解析完整 CurrencyModel
+     */
+    fun currencyCode(): String = currencyModel().code.ifEmpty { "CNY" }
 }

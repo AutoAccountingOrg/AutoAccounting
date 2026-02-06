@@ -78,6 +78,6 @@ data class BillInfoIntent(
      */
     override fun toString(): String {
         val parentId = parent?.id ?: -1L
-        return "BillInfoIntent(type=$type, t=$t, from='${from}', billId=${billInfoModel.id}, billType=${billInfoModel.type}, money=${billInfoModel.money}, currency='${billInfoModel.currency}', app='${billInfoModel.app}', parentId=${parentId})"
+        return "BillInfoIntent(type=$type, t=$t, from='${from}', billId=${billInfoModel.id}, billType=${billInfoModel.type}, money=${billInfoModel.money}, currency='${billInfoModel.currencyCode()}', app='${billInfoModel.app}', parentId=${parentId})"
     }
 }

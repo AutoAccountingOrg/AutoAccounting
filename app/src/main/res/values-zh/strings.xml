@@ -768,6 +768,8 @@
     <string name="setting_asset_manager_summary">启用资产管理功能</string>
     <string name="setting_currency_manager">多币种支持</string>
     <string name="setting_currency_manager_summary">启用多货币支持</string>
+    <string name="setting_base_currency">本位币</string>
+    <string name="setting_base_currency_summary">当前：%s</string>
     <string name="setting_reimbursement">报销管理</string>
     <string name="setting_reimbursement_summary">启用报销跟踪</string>
     <string name="setting_debt">债务管理</string>

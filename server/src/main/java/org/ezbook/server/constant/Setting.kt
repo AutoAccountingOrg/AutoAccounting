@@ -59,6 +59,7 @@ object Setting {
     // -------- 资产管理 --------
     const val SETTING_ASSET_MANAGER = "setting_asset_manager"       // 资产管理
     const val SETTING_CURRENCY_MANAGER = "setting_multi_currency"   // 多币种
+    const val SETTING_BASE_CURRENCY = "setting_base_currency"      // 本位币
     const val SETTING_REIMBURSEMENT = "setting_reimbursement"      // 报销功能
     const val SETTING_DEBT = "setting_debt"                         // 债务功能
     const val AUTO_ASSET_MAPPING: String = "auto_asset_mapping"     // 记住资产映射（非AI版本）

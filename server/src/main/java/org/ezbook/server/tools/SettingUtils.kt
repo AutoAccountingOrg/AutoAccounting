@@ -277,6 +277,14 @@ object SettingUtils {
     suspend fun autoAssetMap(): Boolean =
         getBoolean(Setting.AUTO_ASSET_MAPPING, DefaultData.AUTO_ASSET_MAPPING)
 
+    /** 本位币（默认 CNY） */
+    suspend fun baseCurrency(): String =
+        getString(Setting.SETTING_BASE_CURRENCY, DefaultData.SETTING_BASE_CURRENCY)
+
+    /** 多币种开关 */
+    suspend fun featureMultiCurrency(): Boolean =
+        getBoolean(Setting.SETTING_CURRENCY_MANAGER, DefaultData.SETTING_CURRENCY_MANAGER)
+
     suspend fun ruleVersion(): String =
         getString(Setting.RULE_VERSION, DefaultData.RULE_VERSION)
 }
