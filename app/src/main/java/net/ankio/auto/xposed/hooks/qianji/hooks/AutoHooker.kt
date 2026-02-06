@@ -169,25 +169,18 @@ class AutoHooker : PartHooker() {
 
 
             billModel.setUpdateTimeInSec(System.currentTimeMillis() / 1000)
-            billModel.setStatus(2)
+            billModel.setStatus(QjBillModel.STATUS_NOT_SYNC)
             BillDbHelper.newInstance().saveOrUpdateBill(billModel)
             it.args[0] = billModel.toObject()
-            // TODO 这里有个时序的问题。自动记账在处理钱迹账单的时候，此时钱迹可能正在进行云端同步。此时若刚好在保存完成后进行同步，云端数据会覆盖本地数据，从而导致记账失败。所以这里延迟5秒重新保存并将账单设置为未同步的状态重新同步，这样会覆盖之前的同步数据。
             CoroutineUtils.withIO {
-                delay(5_000)
-                billModel.setUpdateTimeInSec(System.currentTimeMillis() / 1000)
-                billModel.setStatus(2)
-                BillDbHelper.newInstance().saveOrUpdateBill(billModel)
-                SyncClazz.getInstance().startPush(activity)
+                SyncClazz.getInstance().startPushBill(activity, billModel)
             }
 
 
 
 
             XposedBridge.log(
-                "保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}, extra_flag:${
-                    billModel.getExtra().getFlag()
-                }, extra_tag:${billModel.getExtra().getTagIds()} ,status: ${billModel.getStatus()}"
+                "保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}"
             )
 
 

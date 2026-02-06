@@ -17,7 +17,12 @@ package net.ankio.auto.xposed.hooks.qianji.sync
 
 import android.content.Context
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.auto.xposed.hooks.qianji.helper.BillDbHelper
+import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
@@ -101,6 +106,16 @@ class SyncClazz(private val obj: Any) {
     fun startPush(context: Context) {
         XposedHelpers.callMethod(obj, "startPush", context)
     }
+
+    // TODO 这里有个时序的问题。自动记账在处理钱迹账单的时候，此时钱迹可能正在进行云端同步。此时若刚好在保存完成后进行同步，云端数据会覆盖本地数据，从而导致记账失败。所以这里延迟5秒重新保存并将账单设置为未同步的状态重新同步，这样会覆盖之前的同步数据。
+    suspend fun startPushBill(context: Context, qjBillModel: QjBillModel) =
+        withContext(Dispatchers.IO) {
+            delay(5_000)
+            qjBillModel.setUpdateTimeInSec(System.currentTimeMillis() / 1000)
+            qjBillModel.setStatus(QjBillModel.STATUS_NOT_SYNC)
+            BillDbHelper.newInstance().saveOrUpdateBill(qjBillModel)
+            startPush(context)
+        }
 
     fun isSyncing(): Boolean {
         return XposedHelpers.callMethod(obj, "isSyncing") as Boolean
