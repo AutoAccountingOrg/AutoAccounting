@@ -218,7 +218,7 @@ object BillMerger {
             // 扩展信息
             .replace("【规则名称】", billInfoModel.ruleName)
             .replace("【AI】", getAIProvider(billInfoModel))
-            .replace("【货币类型】", billInfoModel.currency)
+            .replace("【货币类型】", billInfoModel.currencyCode())
             .replace("【手续费】", billInfoModel.fee.toString())
             .replace("【标签】", billInfoModel.tags)
             .replace("【交易类型】", billInfoModel.type.toChineseString())
