@@ -26,6 +26,7 @@ import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.constant.Currency
 import rikka.material.preference.MaterialSwitchPreference
 
 /**
@@ -79,6 +80,12 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
         // 转账合并时间阈值设置
         findPreference<Preference>("autoTransferTimeThreshold")?.setOnPreferenceClickListener {
             showAutoTransferTimeThresholdDialog()
+            true
+        }
+
+        // 本位币设置
+        findPreference<Preference>("baseCurrency")?.setOnPreferenceClickListener {
+            showBaseCurrencyDialog()
             true
         }
 
@@ -152,6 +159,41 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
         findPreference<Preference>("remarkFormat")?.apply {
             summary = PrefManager.noteFormat
         }
+
+        // 本位币
+        updateBaseCurrencySummary()
+    }
+
+    /**
+     * 更新本位币摘要
+     */
+    private fun updateBaseCurrencySummary() {
+        findPreference<Preference>("baseCurrency")?.apply {
+            val code = PrefManager.baseCurrency
+            val currency = runCatching { Currency.valueOf(code) }.getOrDefault(Currency.CNY)
+            summary =
+                getString(R.string.setting_base_currency_summary, currency.name(requireContext()))
+        }
+    }
+
+    /**
+     * 显示本位币选择弹窗
+     */
+    private fun showBaseCurrencyDialog() {
+        val currencyList = Currency.entries.toList()
+        val currentCode = PrefManager.baseCurrency
+        val currentIndex = currencyList.indexOfFirst { it.name == currentCode }.coerceAtLeast(0)
+        val names = currencyList.map { "${it.name} - ${it.name(requireContext())}" }.toTypedArray()
+
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.setting_base_currency))
+            .setSingleChoiceItems(names, currentIndex) { dialog, which ->
+                PrefManager.baseCurrency = currencyList[which].name
+                updateBaseCurrencySummary()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel_msg, null)
+            .show()
     }
 
     /**
