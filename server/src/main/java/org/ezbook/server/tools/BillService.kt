@@ -32,6 +32,7 @@ import org.ezbook.server.db.AppDatabase
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.CurrencyModel
 import org.ezbook.server.engine.JsExecutor
 import org.ezbook.server.engine.RuleGenerator
 import org.ezbook.server.intent.BillInfoIntent
@@ -496,8 +497,23 @@ class BillService(
             shopItem = json.safeGetString("shopItem")
             accountNameFrom = json.safeGetString("accountNameFrom")
             accountNameTo = json.safeGetString("accountNameTo")
-            currency = json.safeGetString("currency")
             channel = json.safeGetString("channel")
+
+            // 构造 CurrencyModel：获取币种代码并查询汇率
+            val rawCurrency = json.safeGetString("currency").uppercase().ifEmpty { "CNY" }
+            val multiCurrency = SettingUtils.featureMultiCurrency()
+            val baseCurrency = SettingUtils.baseCurrency()
+            currency = if (multiCurrency && rawCurrency != baseCurrency) {
+                // 多币种启用且币种不同，获取汇率
+                CurrencyService.buildCurrencyModel(rawCurrency, baseCurrency).toJson()
+            } else {
+                // 未开启多币种或同币种，直接构造默认模型
+                CurrencyModel(
+                    code = rawCurrency,
+                    rate = 1.0,
+                    timestamp = System.currentTimeMillis()
+                ).toJson()
+            }
 
             // 格式化规则名称 - 添加数据类型前缀
             val rawRuleName = json.safeGetString("ruleName")
