@@ -97,6 +97,7 @@ abstract class BaseDebt {
     }
 
     fun saveBill(bill: QjBillModel) {
+        bill.setStatus(QjBillModel.STATUS_NOT_SYNC)
         BillDbHelper.newInstance().saveOrUpdateBill(bill)
     }
 
