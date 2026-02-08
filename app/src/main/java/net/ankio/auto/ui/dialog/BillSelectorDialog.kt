@@ -151,6 +151,8 @@ class BillSelectorDialog internal constructor(
         withContext(Dispatchers.Main) {
             AppAdapterManager.adapter().syncWaitBills(billType, bookName)
         }
+        // 按需求：进入页面先发起请求并显示 loading，2 秒后再开始检查数据
+        delay(2_000)
         val bills = withTimeoutOrNull(timeoutMs) {
             val result: List<BookBillModel>
             while (true) {
