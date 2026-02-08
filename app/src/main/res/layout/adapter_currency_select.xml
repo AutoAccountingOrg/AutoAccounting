@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  币种多选列表项布局：CheckBox + 图标 + 币种代码 + 币种名称
+  -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingVertical="8dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 复选框 -->
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:clickable="false"
+            android:focusable="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 币种图标 -->
+        <ImageView
+            android:id="@+id/currencyIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="4dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/checkbox"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription"
+            tools:src="@tools:sample/avatars" />
+
+        <!-- 币种代码（如 CNY） -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/currencyCode"
+            android:layout_width="56dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/currencyIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="CNY" />
+
+        <!-- 币种名称（如 人民币） -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/currencyName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/currencyCode"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="人民币" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

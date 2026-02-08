@@ -24,6 +24,7 @@
     <string name="tab_data_rules">Data Rules</string>
     <string name="tab_category_rules">Category Rules</string>
     <string name="search_rules">Search rules</string>
+    <string name="search_currency_hint">Search currency code or name</string>
     <string name="title_order">Orders</string>
     <string name="title_setting">Settings</string>
     <string name="description">Local rule-based automatic accounting module.</string>
@@ -857,6 +858,8 @@
     <string name="setting_currency_manager_summary">Enable multi-currency support</string>
     <string name="setting_base_currency">Base Currency</string>
     <string name="setting_base_currency_summary">Current: %s</string>
+    <string name="setting_selected_currencies">Favorite Currencies</string>
+    <string name="setting_selected_currencies_summary">Selected %d currencies for quick access</string>
     <string name="setting_reimbursement">Reimbursement</string>
     <string name="setting_reimbursement_summary">Enable reimbursement tracking</string>
     <string name="setting_debt">Debt Management</string>

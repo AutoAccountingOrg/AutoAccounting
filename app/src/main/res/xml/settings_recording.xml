@@ -164,6 +164,13 @@
             android:summary="@string/setting_base_currency_summary"
             android:title="@string/setting_base_currency" />
 
+        <Preference
+            android:icon="@drawable/float_money"
+            android:key="selectedCurrencies"
+            app:dependency="featureMultiCurrency"
+            android:summary="@string/setting_selected_currencies_summary"
+            android:title="@string/setting_selected_currencies" />
+
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/setting_icon_reimbursement"

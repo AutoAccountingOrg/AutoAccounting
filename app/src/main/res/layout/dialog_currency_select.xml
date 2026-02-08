@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  币种多选对话框布局：搜索框 + 币种列表 + 确认按钮
+  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 搜索框 -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/searchLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/half_padding"
+        app:startIconDrawable="@drawable/menu_icon_search">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search_currency_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 币种列表 -->
+    <net.ankio.auto.ui.components.StatusPage
+        android:id="@+id/statusPage"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_weight="1" />
+
+    <!-- 确认按钮 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/confirmButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height_small"
+        android:layout_marginTop="@dimen/cardPadding"
+        android:text="@string/sure_msg" />
+
+</LinearLayout>

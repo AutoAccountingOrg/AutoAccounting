@@ -196,6 +196,18 @@ object PrefManager {
         get() = getString(Setting.SETTING_BASE_CURRENCY, DefaultData.SETTING_BASE_CURRENCY)
         set(value) = putString(Setting.SETTING_BASE_CURRENCY, value)
 
+    /** 常用币种 - 用户选中的常用币种代码，逗号分隔 */
+    var selectedCurrencies: String
+        get() = getString(
+            Setting.SETTING_SELECTED_CURRENCIES,
+            DefaultData.SETTING_SELECTED_CURRENCIES
+        )
+        set(value) = putString(Setting.SETTING_SELECTED_CURRENCIES, value)
+
+    /** 获取用户选中的常用币种代码集合 */
+    fun getSelectedCurrencySet(): Set<String> =
+        selectedCurrencies.split(",").filter { it.isNotBlank() }.toSet()
+
     /** 报销功能开关 - 是否启用报销记录功能 */
     var featureReimbursement: Boolean
         get() = getBoolean(Setting.SETTING_REIMBURSEMENT, DefaultData.SETTING_REIMBURSEMENT)

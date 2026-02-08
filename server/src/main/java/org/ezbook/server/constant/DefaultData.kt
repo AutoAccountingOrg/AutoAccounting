@@ -59,6 +59,8 @@ object DefaultData {
     val SETTING_ASSET_MANAGER = false                               // 资产管理默认关闭
     val SETTING_CURRENCY_MANAGER = false                            // 多币种默认关闭
     val SETTING_BASE_CURRENCY = "CNY"                              // 本位币默认人民币
+    val SETTING_SELECTED_CURRENCIES =
+        "CNY,USD,EUR,JPY,GBP,CHF,AUD,CAD,NZD,HKD,TWD,MOP,KRW,SGD,THB,MYR,IDR,VND,INR" // 默认常用币种
     val SETTING_REIMBURSEMENT = false                               // 报销功能默认关闭
     val SETTING_DEBT = false                                        // 债务功能默认关闭
     val AUTO_ASSET_MAPPING: Boolean = false                         // 记住资产映射默认关闭

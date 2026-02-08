@@ -25,6 +25,7 @@
     <string name="tab_data_rules">数据规则</string>
     <string name="tab_category_rules">分类规则</string>
     <string name="search_rules">搜索规则</string>
+    <string name="search_currency_hint">搜索币种代码或名称</string>
     <string name="title_order">账单</string>
     <string name="title_setting">设置</string>
     <string name="description">基于本地规则的自动记账模块。</string>
@@ -770,6 +771,8 @@
     <string name="setting_currency_manager_summary">启用多货币支持</string>
     <string name="setting_base_currency">本位币</string>
     <string name="setting_base_currency_summary">当前：%s</string>
+    <string name="setting_selected_currencies">常用币种</string>
+    <string name="setting_selected_currencies_summary">已选择 %d 个常用币种</string>
     <string name="setting_reimbursement">报销管理</string>
     <string name="setting_reimbursement_summary">启用报销跟踪</string>
     <string name="setting_debt">债务管理</string>

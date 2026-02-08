@@ -24,6 +24,7 @@ import net.ankio.auto.ui.api.BasePreferenceFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
+import net.ankio.auto.ui.dialog.CurrencySelectorDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.Currency
@@ -86,6 +87,12 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
         // 本位币设置
         findPreference<Preference>("baseCurrency")?.setOnPreferenceClickListener {
             showBaseCurrencyDialog()
+            true
+        }
+
+        // 常用币种设置
+        findPreference<Preference>("selectedCurrencies")?.setOnPreferenceClickListener {
+            showSelectedCurrenciesDialog()
             true
         }
 
@@ -162,6 +169,9 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
 
         // 本位币
         updateBaseCurrencySummary()
+
+        // 常用币种
+        updateSelectedCurrenciesSummary()
     }
 
     /**
@@ -177,22 +187,44 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
     }
 
     /**
-     * 显示本位币选择弹窗
+     * 显示本位币选择弹窗 —— 复用 CurrencySelectorDialog 单选模式
      */
     private fun showBaseCurrencyDialog() {
-        val currencyList = Currency.entries.toList()
-        val currentCode = PrefManager.baseCurrency
-        val currentIndex = currencyList.indexOfFirst { it.name == currentCode }.coerceAtLeast(0)
-        val names = currencyList.map { "${it.name} - ${it.name(requireContext())}" }.toTypedArray()
-
-        android.app.AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.setting_base_currency))
-            .setSingleChoiceItems(names, currentIndex) { dialog, which ->
-                PrefManager.baseCurrency = currencyList[which].name
+        BaseSheetDialog.create<CurrencySelectorDialog>(requireContext())
+            .setSingleSelectMode(true)
+            .setSelectedCodes(setOf(PrefManager.baseCurrency))
+            .setCallback { selectedCodes ->
+                val code = selectedCodes.firstOrNull() ?: return@setCallback
+                PrefManager.baseCurrency = code
                 updateBaseCurrencySummary()
-                dialog.dismiss()
             }
-            .setNegativeButton(R.string.cancel_msg, null)
+            .show()
+    }
+
+    /**
+     * 更新常用币种摘要
+     */
+    private fun updateSelectedCurrenciesSummary() {
+        findPreference<Preference>("selectedCurrencies")?.apply {
+            val count = PrefManager.getSelectedCurrencySet().size
+            summary = getString(R.string.setting_selected_currencies_summary, count)
+        }
+    }
+
+    /**
+     * 显示常用币种多选弹窗 —— 使用 CurrencySelectorDialog
+     */
+    private fun showSelectedCurrenciesDialog() {
+        BaseSheetDialog.create<CurrencySelectorDialog>(requireContext())
+            .setSelectedCodes(PrefManager.getSelectedCurrencySet())
+            .setCallback { selectedCodes ->
+                // 确保本位币始终在常用列表中
+                val finalCodes = selectedCodes.toMutableSet().apply {
+                    add(PrefManager.baseCurrency)
+                }
+                PrefManager.selectedCurrencies = finalCodes.joinToString(",")
+                updateSelectedCurrenciesSummary()
+            }
             .show()
     }
 
