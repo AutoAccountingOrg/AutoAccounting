@@ -20,6 +20,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.core.net.toUri
+import com.google.gson.Gson
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -49,6 +50,7 @@ import net.ankio.auto.xposed.hooks.qianji.debt.IncomeLendingUtils
 import net.ankio.auto.xposed.hooks.qianji.debt.ExpendRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.debt.IncomeRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.impl.TagRefreshPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.models.CurrencyExtraModel
 import net.ankio.auto.xposed.hooks.qianji.sync.SyncClazz
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
@@ -56,6 +58,7 @@ import net.ankio.auto.xposed.hooks.qianji.utils.BroadcastUtils
 import net.ankio.auto.xposed.hooks.qianji.utils.TimeRecordUtils
 import org.ezbook.server.constant.BillAction
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.CurrencyModel
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 
@@ -127,10 +130,10 @@ class AutoHooker : PartHooker() {
         ) {
             val billModel = QjBillModel.fromObject(it.args[0])
 
+            val fee = uri.getQueryParameter("fee")?.toDoubleOrNull() ?: 0.0
             //处理优惠
-            //传入的是负值表示优惠
-             val discount = uri.getQueryParameter("discount")?.toDoubleOrNull()
-            if (discount != null && discount > 0 && (billModel.isAllSpend() || billModel.isTransfer())) {
+            val discount = uri.getQueryParameter("discount")?.toDoubleOrNull() ?: 0.0
+            if (discount > 0 && (billModel.isAllSpend() || billModel.isTransfer())) {
                  //只有支出或者还款的账户才需要记录优惠
                 val extraModel = billModel.getExtra()
                  extraModel.setTransfee(-discount)
@@ -161,11 +164,48 @@ class AutoHooker : PartHooker() {
                 billModel.setTagList(tagList)
             }
 
+            // 多币种处理
+            val currency = uri.getQueryParameter("currency")
+            XposedLogger.d("currency: $currency")
+            if (currency?.startsWith("{") == true) {
+                runCatching {
+                    val currencyModel = Gson().fromJson(currency, CurrencyModel::class.java)
+                    // 根据账单类型选择对应的币种构建方式
+                    val currencyExtra = when {
+                        billModel.isAllIncome() || billModel.isAllSpend() ->
+                            CurrencyExtraModel.buildCurrencyIncomeSpend(
+                                currencyModel.code,         // 外币代码（如 "USD"）
+                                currencyModel.rate,         // 外币对本位币汇率
+                                currencyModel.baseCurrency, // 目标币种（同本位币）
+                                1.0,                        // 目标汇率（本位币为 1.0）
+                                currencyModel.baseCurrency, // 本位币（如 "CNY"）
+                                billModel.getMoney(),       // 外币金额
+                                if (fee == 0.0) discount else fee
+                            )
 
-            //TODO 对于币种的处理
-             // 先获取本位币
-             // 根据本位币对目的币种的汇率计算本位币的实际支出金额
-             // 给Extra填充汇率等信息
+                        billModel.isTransfer() || billModel.isCreditHuanKuan() ->
+                            CurrencyExtraModel.buildTransferCurrency(
+                                currencyModel.code,         // 转出账户币种
+                                currencyModel.rate,         // 外币对本位币汇率
+                                currencyModel.baseCurrency, // 转入账户币种（本位币）
+                                1.0,                        // 目标汇率（本位币为 1.0）
+                                currencyModel.baseCurrency, // 本位币
+                                billModel.getMoney(),       // 外币金额
+                                fee
+                            )
+
+                        else -> null
+                    }
+                    // 将币种扩展信息写入账单
+                    currencyExtra?.let { extra ->
+                        val billExtra = billModel.getExtra()
+                        billExtra.setCurrencyExtra(extra)
+                        billModel.setExtra(billExtra)
+                    }
+                }.onFailure { e ->
+                    XposedLogger.e(e)
+                }
+            }
 
 
             billModel.setUpdateTimeInSec(System.currentTimeMillis() / 1000)

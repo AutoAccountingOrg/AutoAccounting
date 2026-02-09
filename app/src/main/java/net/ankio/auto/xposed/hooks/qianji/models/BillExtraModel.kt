@@ -145,8 +145,8 @@ class BillExtraModel(private val obj: Any) {
     }
 
     /** 设置货币扩展（原始对象） */
-    fun setCurrencyExtra(value: Any?) {
-        XposedHelpers.callMethod(obj, "setCurrencyExtra", value)
+    fun setCurrencyExtra(value: CurrencyExtraModel) {
+        XposedHelpers.callMethod(obj, "setCurrencyExtra", value.toObject())
     }
 
     /** 设置标志位 */
