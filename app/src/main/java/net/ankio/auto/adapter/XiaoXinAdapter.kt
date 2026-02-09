@@ -182,7 +182,7 @@ class XiaoXinAdapter : IAppAdapter {
 
         // 币种（从 CurrencyModel 提取币种代码）
         val currencyCode = billInfoModel.currencyCode()
-        if (currencyCode.isNotEmpty() && currencyCode != "CNY") {
+        if (currencyCode.isNotEmpty()) {
             params["currency"] = currencyCode
         }
 
