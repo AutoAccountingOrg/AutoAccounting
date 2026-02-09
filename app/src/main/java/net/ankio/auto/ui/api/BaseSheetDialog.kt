@@ -85,7 +85,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
 
 
     protected fun uiReady() =
-        _binding != null && isShowing && window?.decorView?.isAttachedToWindow == true
+        _binding != null && isShowing
 
     /** 宿主生命周期所有者，用于监听宿主销毁 */
     private val hostLifecycleOwner: LifecycleOwner
