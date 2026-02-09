@@ -24,12 +24,14 @@ import com.google.gson.JsonSyntaxException
  * 存储在 BillInfoModel.currency 字段中（JSON 序列化）。
  * 记录账单产生时的汇率快照，确保事后可还原当时金额。
  *
- * @param code 币种代码（ISO 4217），如 "USD"、"CNY"
- * @param rate 相对于本位币的汇率：1 单位本币种 = rate 单位本位币
+ * @param code 账单原始币种代码（ISO 4217），如 "USD"、"JPY"
+ * @param baseCurrency 本位币代码（ISO 4217），如 "CNY"；rate 即相对于此币种
+ * @param rate 相对于本位币的汇率：1 单位 code = rate 单位 baseCurrency
  * @param timestamp 汇率获取时间戳（毫秒）
  */
 data class CurrencyModel(
     val code: String = "CNY",
+    val baseCurrency: String = "CNY",
     val rate: Double = 1.0,
     val timestamp: Long = 0
 ) {

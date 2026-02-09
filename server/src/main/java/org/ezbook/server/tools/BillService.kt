@@ -510,6 +510,7 @@ class BillService(
                 // 未开启多币种或同币种，直接构造默认模型
                 CurrencyModel(
                     code = rawCurrency,
+                    baseCurrency = baseCurrency,
                     rate = 1.0,
                     timestamp = System.currentTimeMillis()
                 ).toJson()

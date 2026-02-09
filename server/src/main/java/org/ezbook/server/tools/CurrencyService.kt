@@ -106,7 +106,7 @@ object CurrencyService {
         // 同币种
         if (code == base) {
             ServerLog.d("CurrencyService getModel: same currency $code, rate=1.0")
-            return CurrencyModel(code = code, rate = 1.0, timestamp = now)
+            return CurrencyModel(code = code, baseCurrency = base, rate = 1.0, timestamp = now)
         }
 
         // 从缓存/API获取
@@ -127,7 +127,7 @@ object CurrencyService {
         }
 
         ServerLog.e("CurrencyService fallback also failed: $code -> CNY, returning rate=0.0")
-        return CurrencyModel(code = code, rate = 0.0, timestamp = now)
+        return CurrencyModel(code = code, baseCurrency = base, rate = 0.0, timestamp = now)
     }
 
     /**
@@ -159,6 +159,7 @@ object CurrencyService {
                 val upperCode = code.uppercase()
                 result[upperCode] = CurrencyModel(
                     code = upperCode,
+                    baseCurrency = baseCurrency,
                     rate = 1.0 / apiRate,
                     timestamp = now
                 )
@@ -168,6 +169,7 @@ object CurrencyService {
         // 本位币自身
         result[baseCurrency] = CurrencyModel(
             code = baseCurrency,
+            baseCurrency = baseCurrency,
             rate = 1.0,
             timestamp = now
         )
