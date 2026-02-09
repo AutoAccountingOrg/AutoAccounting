@@ -17,6 +17,8 @@ package org.ezbook.server.tools
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.ezbook.server.db.model.CurrencyModel
@@ -27,9 +29,11 @@ import java.util.concurrent.TimeUnit
  * 汇率服务
  *
  * 职责：
- * - 从 CDN 获取汇率数据
- * - 内存缓存当天汇率，避免重复请求
- * - 构造 CurrencyModel 供账单使用
+ * - 从 CDN 获取汇率数据（IO 线程安全）
+ * - 缓存当天的 CurrencyModel 表，避免重复请求和重复换算
+ * - 提供单个/全量 CurrencyModel 查询
+ *
+ * 所有公开方法均为 suspend，内部自行切 IO 线程，调用方无需关心线程。
  *
  * 汇率 API：https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/{base}.json
  * 返回格式：{ "date": "2024-01-15", "{base}": { "usd": 0.139, ... } }
@@ -44,8 +48,8 @@ object CurrencyService {
 
     private val gson = Gson()
 
-    /** 缓存：baseCurrency → { targetCurrency → rate } */
-    private var cachedRates: Map<String, Double>? = null
+    /** 缓存：币种代码(大写) → CurrencyModel（rate 含义：1 单位该币种 = rate 单位本位币） */
+    private var cachedModels: Map<String, CurrencyModel>? = null
 
     /** 缓存对应的本位币 */
     private var cachedBaseCurrency: String? = null
@@ -54,84 +58,108 @@ object CurrencyService {
     private var cachedDate: String? = null
 
     /**
-     * 构造 CurrencyModel
+     * 获取所有币种的 CurrencyModel 表（带缓存，按天失效）
+     *
+     * @param baseCurrency 本位币代码（如 "CNY"）
+     * @return Map<币种代码(大写), CurrencyModel>；获取失败返回空 Map
+     */
+    suspend fun getModels(baseCurrency: String): Map<String, CurrencyModel> {
+        val base = baseCurrency.uppercase().trim()
+        val today = todayString()
+
+        // 缓存命中（纯内存读取，无需切线程）
+        cachedModels?.let { models ->
+            if (cachedBaseCurrency == base && cachedDate == today) {
+                return models
+            }
+        }
+
+        // 从 API 构建并缓存（网络 IO）
+        val models = withContext(Dispatchers.IO) {
+            buildModelsFromApi(base)
+        }
+        if (models.isNotEmpty()) {
+            cachedModels = models
+            cachedBaseCurrency = base
+            cachedDate = today
+        }
+        return models
+    }
+
+    /**
+     * 获取单个币种的 CurrencyModel
      *
      * @param currencyCode 账单币种代码（如 "USD"）
      * @param baseCurrency 本位币代码（如 "CNY"）
-     * @return CurrencyModel，rate 为该币种相对于本位币的汇率
+     * @return CurrencyModel，rate 为该币种相对于本位币的汇率；同币种 rate=1.0
+     */
+    suspend fun getModel(currencyCode: String, baseCurrency: String): CurrencyModel {
+        val code = currencyCode.uppercase().trim()
+        val base = baseCurrency.uppercase().trim()
+        val now = System.currentTimeMillis()
+
+        // 同币种
+        if (code == base) {
+            return CurrencyModel(code = code, rate = 1.0, timestamp = now)
+        }
+
+        // 从缓存/API获取
+        val models = getModels(base)
+        models[code]?.let { return it }
+
+        // 回退：尝试用 CNY 作为本位币
+        ServerLog.e("汇率未找到：$code -> $base，回退CNY")
+        if (base != "CNY") {
+            val cnyModels = getModels("CNY")
+            cnyModels[code]?.let { return it }
+        }
+
+        return CurrencyModel(code = code, rate = 0.0, timestamp = now)
+    }
+
+    /**
+     * 向后兼容：构造 CurrencyModel（供 BillService 调用）
      */
     suspend fun buildCurrencyModel(
         currencyCode: String,
         baseCurrency: String
-    ): CurrencyModel {
-        val code = currencyCode.uppercase().trim()
-        val base = baseCurrency.uppercase().trim()
-
-        // 同币种不需要汇率
-        if (code == base) {
-            return CurrencyModel(code = code, rate = 1.0, timestamp = System.currentTimeMillis())
-        }
-
-        // 获取汇率：1 单位 code = ? 单位 base
-        val rate = fetchRate(code, base)
-        return CurrencyModel(code = code, rate = rate, timestamp = System.currentTimeMillis())
-    }
+    ): CurrencyModel = getModel(currencyCode, baseCurrency)
 
     /**
-     * 获取汇率：1 单位 billCurrency = ? 单位 baseCurrency
-     *
-     * API 返回的是 1 base = x target 的格式，
-     * 所以 1 target = 1/x base，即 rate = 1/apiRate
-     *
-     * @return 汇率值；获取失败返回 0.0
+     * 从 API 获取原始汇率并转换为 CurrencyModel 表
+     * 调用方应确保在 IO 线程执行
      */
-    private suspend fun fetchRate(billCurrency: String, baseCurrency: String): Double {
-        val rates = getRates(baseCurrency)
-        val apiRate = rates[billCurrency.lowercase()]
-        if (apiRate == null || apiRate == 0.0) {
-            ServerLog.e("汇率未找到：$billCurrency -> $baseCurrency，回退CNY")
-            // 回退：尝试用 CNY 作为本位币
-            if (baseCurrency != "CNY") {
-                val cnyRates = getRates("CNY")
-                val cnyRate = cnyRates[billCurrency.lowercase()]
-                if (cnyRate != null && cnyRate != 0.0) {
-                    return 1.0 / cnyRate
-                }
+    private fun buildModelsFromApi(baseCurrency: String): Map<String, CurrencyModel> {
+        val rawRates = fetchRatesFromApi(baseCurrency)
+        if (rawRates.isEmpty()) return emptyMap()
+
+        val now = System.currentTimeMillis()
+        val result = mutableMapOf<String, CurrencyModel>()
+
+        rawRates.forEach { (code, apiRate) ->
+            // API: 1 baseCurrency = apiRate targetCurrency
+            // 转换: 1 targetCurrency = 1/apiRate baseCurrency
+            if (apiRate > 0) {
+                val upperCode = code.uppercase()
+                result[upperCode] = CurrencyModel(
+                    code = upperCode,
+                    rate = 1.0 / apiRate,
+                    timestamp = now
+                )
             }
-            return 0.0
         }
-        // API: 1 baseCurrency = apiRate billCurrency
-        // 所以: 1 billCurrency = 1/apiRate baseCurrency
-        return 1.0 / apiRate
+
+        // 本位币自身
+        result[baseCurrency] = CurrencyModel(
+            code = baseCurrency,
+            rate = 1.0,
+            timestamp = now
+        )
+        return result
     }
 
     /**
-     * 获取以 baseCurrency 为基准的全部汇率表（带缓存）
-     */
-    private fun getRates(baseCurrency: String): Map<String, Double> {
-        val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-            .format(java.util.Date())
-
-        // 缓存命中
-        if (cachedRates != null &&
-            cachedBaseCurrency == baseCurrency &&
-            cachedDate == today
-        ) {
-            return cachedRates!!
-        }
-
-        // 从 API 获取
-        val rates = fetchRatesFromApi(baseCurrency)
-        if (rates.isNotEmpty()) {
-            cachedRates = rates
-            cachedBaseCurrency = baseCurrency
-            cachedDate = today
-        }
-        return rates
-    }
-
-    /**
-     * 从 CDN API 获取汇率数据
+     * 从 CDN API 获取原始汇率数据
      */
     private fun fetchRatesFromApi(baseCurrency: String): Map<String, Double> {
         val base = baseCurrency.lowercase()
@@ -165,4 +193,9 @@ object CurrencyService {
             ServerLog.e("获取汇率失败：${it.message}", it)
         }.getOrDefault(emptyMap())
     }
+
+    /** 今天的日期字符串，用于缓存失效判断 */
+    private fun todayString(): String =
+        java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+            .format(java.util.Date())
 }
