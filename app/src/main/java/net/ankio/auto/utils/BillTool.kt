@@ -126,6 +126,25 @@ object BillTool {
         }
     }
 
+    /**
+     * 获取多币种转换提示文本
+     *
+     * 当启用多币种且账单币种与本位币不同时，返回 "≈ 72.30 CNY" 格式的文本；
+     * 否则返回 null。
+     *
+     * @param bill 账单信息
+     * @return 转换文本或 null
+     */
+    fun getConversionText(bill: BillInfoModel): String? {
+        if (!PrefManager.featureMultiCurrency) return null
+        val model = bill.currencyModel()
+        val baseCurrency = PrefManager.baseCurrency
+        if (model.code == baseCurrency || model.code.isEmpty()) return null
+        if (model.rate <= 0) return null
+        val converted = bill.money * model.rate
+        return "≈ ${formatAmount(converted)} $baseCurrency"
+    }
+
     fun getCateName(category1: String, category2: String? = null): String {
 
         if (category2 === null) {
