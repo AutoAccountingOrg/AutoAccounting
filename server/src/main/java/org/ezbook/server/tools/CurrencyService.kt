@@ -70,11 +70,13 @@ object CurrencyService {
         // 缓存命中（纯内存读取，无需切线程）
         cachedModels?.let { models ->
             if (cachedBaseCurrency == base && cachedDate == today) {
+                ServerLog.d("CurrencyService cache hit | base=$base | date=$today | count=${models.size}")
                 return models
             }
         }
 
         // 从 API 构建并缓存（网络 IO）
+        ServerLog.d("CurrencyService cache miss, fetching from API | base=$base")
         val models = withContext(Dispatchers.IO) {
             buildModelsFromApi(base)
         }
@@ -82,6 +84,9 @@ object CurrencyService {
             cachedModels = models
             cachedBaseCurrency = base
             cachedDate = today
+            ServerLog.d("CurrencyService cached ${models.size} models | base=$base | date=$today")
+        } else {
+            ServerLog.e("CurrencyService fetch returned empty | base=$base")
         }
         return models
     }
@@ -100,20 +105,28 @@ object CurrencyService {
 
         // 同币种
         if (code == base) {
+            ServerLog.d("CurrencyService getModel: same currency $code, rate=1.0")
             return CurrencyModel(code = code, rate = 1.0, timestamp = now)
         }
 
         // 从缓存/API获取
         val models = getModels(base)
-        models[code]?.let { return it }
-
-        // 回退：尝试用 CNY 作为本位币
-        ServerLog.e("汇率未找到：$code -> $base，回退CNY")
-        if (base != "CNY") {
-            val cnyModels = getModels("CNY")
-            cnyModels[code]?.let { return it }
+        models[code]?.let {
+            ServerLog.d("CurrencyService getModel: $code -> $base | rate=${it.rate}")
+            return it
         }
 
+        // 回退：尝试用 CNY 作为本位币
+        ServerLog.e("CurrencyService rate not found: $code -> $base, fallback to CNY")
+        if (base != "CNY") {
+            val cnyModels = getModels("CNY")
+            cnyModels[code]?.let {
+                ServerLog.d("CurrencyService fallback success: $code -> CNY | rate=${it.rate}")
+                return it
+            }
+        }
+
+        ServerLog.e("CurrencyService fallback also failed: $code -> CNY, returning rate=0.0")
         return CurrencyModel(code = code, rate = 0.0, timestamp = now)
     }
 
@@ -131,7 +144,10 @@ object CurrencyService {
      */
     private fun buildModelsFromApi(baseCurrency: String): Map<String, CurrencyModel> {
         val rawRates = fetchRatesFromApi(baseCurrency)
-        if (rawRates.isEmpty()) return emptyMap()
+        if (rawRates.isEmpty()) {
+            ServerLog.e("CurrencyService buildModels: raw rates empty for $baseCurrency")
+            return emptyMap()
+        }
 
         val now = System.currentTimeMillis()
         val result = mutableMapOf<String, CurrencyModel>()
@@ -155,6 +171,8 @@ object CurrencyService {
             rate = 1.0,
             timestamp = now
         )
+
+        ServerLog.d("CurrencyService built ${result.size} models from API | base=$baseCurrency")
         return result
     }
 
@@ -166,11 +184,13 @@ object CurrencyService {
         val url =
             "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/$base.json"
 
+        ServerLog.d("CurrencyService fetching: $url")
+
         return runCatching {
             val request = Request.Builder().url(url).get().build()
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    ServerLog.d("汇率API请求失败：${response.code}")
+                    ServerLog.e("CurrencyService API failed: HTTP ${response.code}")
                     return@runCatching emptyMap()
                 }
 
@@ -187,10 +207,12 @@ object CurrencyService {
                         result[key] = value.asDouble
                     }
                 }
+
+                ServerLog.d("CurrencyService API success: ${result.size} rates parsed")
                 result
             }
         }.onFailure {
-            ServerLog.e("获取汇率失败：${it.message}", it)
+            ServerLog.e("CurrencyService fetch error: ${it.message}", it)
         }.getOrDefault(emptyMap())
     }
 
