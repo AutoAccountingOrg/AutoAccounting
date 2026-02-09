@@ -180,9 +180,10 @@ class XiaoXinAdapter : IAppAdapter {
             params["shop"] = billInfoModel.shopName
         }
 
-        // 币种
-        if (billInfoModel.currency.isNotEmpty() && billInfoModel.currency != "CNY") {
-            params["currency"] = billInfoModel.currency
+        // 币种（从 CurrencyModel 提取币种代码）
+        val currencyCode = billInfoModel.currencyCode()
+        if (currencyCode.isNotEmpty() && currencyCode != "CNY") {
+            params["currency"] = currencyCode
         }
 
         // 时间
