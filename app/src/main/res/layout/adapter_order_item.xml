@@ -28,14 +28,35 @@
             app:textColor="?colorPrimary"
             tools:text="理财收益" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/money"
+        <!-- 金额区域：主金额 + 可选的本位币换算 -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/danger"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:text="- 4.0" />
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/danger"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="- 4.0" />
+
+            <!-- 本位币换算金额，多币种时显示 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/convertedAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+                android:textSize="11sp"
+                android:visibility="gone"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="≈ 72.30 CNY"
+                tools:visibility="visible" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

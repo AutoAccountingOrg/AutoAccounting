@@ -243,7 +243,19 @@ class BillItemAdapter(
         }
 
 
-        BillTool.setTextViewPrice(data.money, data.type, binding.money)
+        // 本位币不显示货币单位，仅非本位币时追加币种代码
+        val currencyUnit = data.currencyCode().takeIf { it != PrefManager.baseCurrency }
+        BillTool.setTextViewPrice(data.money, data.type, binding.money, currencyUnit)
+
+        // 多币种换算显示
+        val conversionText = BillTool.getConversionText(data)
+        if (conversionText != null) {
+            binding.convertedAmount.text = conversionText
+            binding.convertedAmount.visibility = View.VISIBLE
+        } else {
+            binding.convertedAmount.visibility = View.GONE
+        }
+
         binding.date.text = DateUtils.stampToDate(data.time, "HH:mm:ss")
 
 

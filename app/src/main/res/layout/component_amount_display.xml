@@ -42,6 +42,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?textAppearanceLabelMedium"
         android:visibility="gone"
+        android:textColor="?attr/colorOnSurfaceVariant"
         tools:text="≈ 72.30 CNY"
         tools:visibility="visible" />
 
