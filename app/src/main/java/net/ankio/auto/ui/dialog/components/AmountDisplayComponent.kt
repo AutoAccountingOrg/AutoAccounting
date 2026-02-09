@@ -17,12 +17,14 @@ package net.ankio.auto.ui.dialog.components
 
 import android.content.res.ColorStateList
 import android.text.InputType
+import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentAmountDisplayBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BillEditorDialog
@@ -77,6 +79,9 @@ class AmountDisplayComponent(
         // 更新金额显示
         setAmount(billInfoModel.money)
 
+        // 更新本位币换算显示
+        updateConversionDisplay()
+
         // 更新账单类型
         currentBillType = BillTool.getType(billInfoModel.type)
         setBillType(currentBillType)
@@ -86,6 +91,19 @@ class AmountDisplayComponent(
 
         // 更新标志位显示
         updateFlagDisplay()
+    }
+
+    /**
+     * 更新本位币换算金额显示
+     */
+    private fun updateConversionDisplay() {
+        val text = BillTool.getConversionText(billInfoModel)
+        if (text != null) {
+            binding.convertedAmount.text = text
+            binding.convertedAmount.visibility = View.VISIBLE
+        } else {
+            binding.convertedAmount.visibility = View.GONE
+        }
     }
 
     /**

@@ -35,6 +35,16 @@
         app:drawableTint="@color/success"
         tools:text="10000000.00" />
 
+    <!-- 本位币换算金额，多币种时显示 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/convertedAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?textAppearanceLabelMedium"
+        android:visibility="gone"
+        tools:text="≈ 72.30 CNY"
+        tools:visibility="visible" />
+
     <!-- 类型标签和手续费信息容器 -->
     <LinearLayout
         android:layout_width="wrap_content"
