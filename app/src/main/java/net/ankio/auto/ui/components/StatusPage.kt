@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import net.ankio.auto.R
 import net.ankio.auto.databinding.StatusPageBinding
+import androidx.core.view.isVisible
 
 /**
  * 统一的状态页组件：加载/空/错误/内容 四种状态切换。
@@ -111,7 +112,7 @@ class StatusPage @JvmOverloads constructor(
 
 
     /** 是否处于加载状态 */
-    fun isLoading(): Boolean = groupLoading.visibility == View.VISIBLE
+    fun isLoading(): Boolean = groupLoading.isVisible
 
     /** 切换四个分组容器的可见性。 */
     private fun setVisibility(
