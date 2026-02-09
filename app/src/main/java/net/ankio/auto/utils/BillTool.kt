@@ -107,21 +107,28 @@ object BillTool {
     }
 
 
-    fun setTextViewPrice(price: Double, type: BillType, view: MaterialTextView) {
+    fun setTextViewPrice(
+        price: Double,
+        type: BillType,
+        view: MaterialTextView,
+        currencyUnit: String? = null
+    ) {
         val t = getType(type)
         val color = ContextCompat.getColor(view.context, getColor(t))
         view.setTextColor(color)
+        // 有货币单位则追加到金额后面，如 "- 100.0 USD"
+        val suffix = if (currencyUnit.isNullOrEmpty()) "" else " $currencyUnit"
         when (t) {
             BillType.Expend, BillType.ExpendReimbursement, BillType.ExpendLending, BillType.ExpendRepayment -> {
-                view.text = "- $price"
+                view.text = "- $price$suffix"
             }
 
             BillType.Income, BillType.IncomeLending, BillType.IncomeRepayment, BillType.IncomeReimbursement -> {
-                view.text = "+ $price"
+                view.text = "+ $price$suffix"
             }
 
             else -> {
-                view.text = "$price"
+                view.text = "$price$suffix"
             }
         }
     }
