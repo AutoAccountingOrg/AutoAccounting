@@ -110,6 +110,9 @@ class StatusPage @JvmOverloads constructor(
     }
 
 
+    /** 是否处于加载状态 */
+    fun isLoading(): Boolean = groupLoading.visibility == View.VISIBLE
+
     /** 切换四个分组容器的可见性。 */
     private fun setVisibility(
         loading: Boolean = false,
