@@ -192,9 +192,10 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
     private fun showBaseCurrencyDialog() {
         BaseSheetDialog.create<CurrencySelectorDialog>(requireContext())
             .setSingleSelectMode(true)
+            .setBaseCurrency(PrefManager.baseCurrency)
             .setSelectedCodes(setOf(PrefManager.baseCurrency))
-            .setCallback { selectedCodes ->
-                val code = selectedCodes.firstOrNull() ?: return@setCallback
+            .setCallback { models ->
+                val code = models.firstOrNull()?.code ?: return@setCallback
                 PrefManager.baseCurrency = code
                 updateBaseCurrencySummary()
             }
@@ -216,13 +217,14 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
      */
     private fun showSelectedCurrenciesDialog() {
         BaseSheetDialog.create<CurrencySelectorDialog>(requireContext())
+            .setBaseCurrency(PrefManager.baseCurrency)
             .setSelectedCodes(PrefManager.getSelectedCurrencySet())
-            .setCallback { selectedCodes ->
+            .setCallback { models ->
                 // 确保本位币始终在常用列表中
-                val finalCodes = selectedCodes.toMutableSet().apply {
+                val codes = models.map { it.code }.toMutableSet().apply {
                     add(PrefManager.baseCurrency)
                 }
-                PrefManager.selectedCurrencies = finalCodes.joinToString(",")
+                PrefManager.selectedCurrencies = codes.joinToString(",")
                 updateSelectedCurrenciesSummary()
             }
             .show()

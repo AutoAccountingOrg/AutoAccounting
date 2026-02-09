@@ -66,10 +66,25 @@
             android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceListItemSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/rateText"
             app:layout_constraintStart_toEndOf="@id/currencyCode"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="人民币" />
+
+        <!-- 汇率（如 ≈ 7.23 CNY），默认隐藏 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/rateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="≈ 7.23 CNY"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
