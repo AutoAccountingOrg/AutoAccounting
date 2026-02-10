@@ -63,6 +63,7 @@ class ActionButtonsComponent(
 
     override fun onComponentCreate() {
         super.onComponentCreate()
+        setupCheckboxes()
         setupClickListeners()
     }
 
@@ -74,16 +75,31 @@ class ActionButtonsComponent(
         if (this.initialCateName.isEmpty()) {
             this.initialCateName = billInfoModel.cateName
         }
-
         refresh()
     }
 
     /**
-     * 刷新显示 - 根据当前账单信息更新UI
+     * 刷新显示
      */
     fun refresh() {
-        // 操作按钮组件通常不需要根据数据刷新UI
-        // 保持方法以维持一致性
+        // 操作按钮组件无需根据数据刷新UI
+    }
+
+    /**
+     * 初始化复选框状态并监听变更，双向同步 PrefManager
+     */
+    private fun setupCheckboxes() {
+        // 初始状态与 PrefManager 同步
+        binding.checkboxRememberCategory.isChecked = PrefManager.rememberCategory
+        binding.checkboxRememberAsset.isChecked = PrefManager.autoAssetMapping
+
+        // 用户切换时写回设置
+        binding.checkboxRememberCategory.setOnCheckedChangeListener { _, isChecked ->
+            PrefManager.rememberCategory = isChecked
+        }
+        binding.checkboxRememberAsset.setOnCheckedChangeListener { _, isChecked ->
+            PrefManager.autoAssetMapping = isChecked
+        }
     }
 
     /**
@@ -114,14 +130,14 @@ class ActionButtonsComponent(
         }
 
         binding.confirmButton.setOnClickListener {
-            if (PrefManager.rememberCategory) {
+            if (binding.checkboxRememberCategory.isChecked) {
                 // 仅当分类被用户明确修改，且当前账单不需要再自动分类时，才执行自动记忆
                 if (initialCateName != billInfoModel.cateName && !billInfoModel.needReCategory()) {
                     rememberCategoryAuto()
                 }
             }
 
-            if (PrefManager.autoAssetMapping) {
+            if (binding.checkboxRememberAsset.isChecked) {
                 rememberAssetMap()
             }
 

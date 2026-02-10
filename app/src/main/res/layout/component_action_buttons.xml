@@ -13,12 +13,42 @@
   ~   limitations under the License.
   -->
 
-<!-- 操作按钮组件 - 取消和确认按钮 -->
+<!-- 操作按钮组件 - 复选框 + 取消/确认按钮 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/btn_height"
-    android:gravity="center"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:padding="@dimen/float_padding">
+
+    <!-- 记忆选项 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- 记住分类 -->
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox_remember_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_auto_create_category" />
+
+        <!-- 记住资产映射 -->
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox_remember_asset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/one_padding"
+            android:text="@string/setting_auto_asset_mapping" />
+
+    </LinearLayout>
+
+    <!-- 操作按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height"
+        android:gravity="center">
 
         <!-- 取消按钮 -->
         <com.google.android.material.button.MaterialButton
@@ -39,5 +69,7 @@
             android:layout_marginStart="@dimen/one_padding"
             android:layout_weight="1"
             android:text="@string/btn_save" />
+
+    </LinearLayout>
 
 </LinearLayout>
