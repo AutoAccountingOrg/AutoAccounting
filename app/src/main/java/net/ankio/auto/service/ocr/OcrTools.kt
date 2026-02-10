@@ -120,16 +120,6 @@ class OcrTools(private val shell: Shell) {
             )
         }
     }
-
-    /**
-     * 请求当前模式的权限（仅 Shizuku 模式有效）
-     */
-    fun requestPermission() {
-        if (PrefManager.ocrAuthMode == "shizuku") {
-            shell.requestShizukuPermission()
-        }
-    }
-
     // ======================== Shell 实现 ========================
 
     /**
