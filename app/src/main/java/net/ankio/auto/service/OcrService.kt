@@ -10,7 +10,6 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Base64
-import java.io.FileOutputStream
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -23,6 +22,7 @@ import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.FlipDetector
+import net.ankio.auto.service.ocr.OcrTools
 import net.ankio.auto.service.ocr.OcrViews
 import net.ankio.auto.service.overlay.SaveProgressView
 import net.ankio.auto.storage.Logger
@@ -34,6 +34,7 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.intent.IntentType
 import org.ezbook.server.models.BillResultModel
+import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
 
@@ -64,11 +65,10 @@ class OcrService : ICoreService() {
 
     private val shell = Shell(BuildConfig.APPLICATION_ID)
 
+    // OCR 工具类：封装 getTopApp + 截图，根据授权方式自动选择实现
+    private val ocrTools = OcrTools(shell)
+
     private val ocrView = OcrViews()
-
-    init {
-
-    }
 
     /**
      * 服务创建时的初始化
@@ -98,6 +98,8 @@ class OcrService : ICoreService() {
             saveProgressView?.show(this)
             Logger.d("Ocr 或 LSPatch模式，使用1px悬浮窗保活")
         }
+
+        OcrTools.checkPermission()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
@@ -181,10 +183,10 @@ class OcrService : ICoreService() {
 
         ocrDoing = true
         triggerVibration()
-
-        // 解析前台应用包名
+        ocrTools.collapseStatusBar()
+        // 通过 OcrTools 获取前台应用包名（根据授权方式分别调用 Root/Shizuku/无障碍）
         val packageName = if (manual) {
-            getTopPackagePostL() ?: run {
+            ocrTools.getTopApp() ?: run {
                 Logger.w("无法获取前台应用")
                 ocrView.showError(
                     coreService,
@@ -194,7 +196,7 @@ class OcrService : ICoreService() {
                 return
             }
         } else {
-            val pkg = getTopPackagePostL() ?: run {
+            val pkg = ocrTools.getTopApp() ?: run {
                 Logger.w("无法获取前台应用")
                 // 自动触发获取失败静默忽略，不打扰用户
                 ocrDoing = false
@@ -248,21 +250,22 @@ class OcrService : ICoreService() {
                 ocrView.updateStatus(coreService.getString(R.string.ocr_status_ai_analyzing))
 
                 // 3. 发送给JS引擎做AI规则识别
-                val billResult = withContext(Dispatchers.IO) {
+                val result = withContext(Dispatchers.IO) {
                     send2JsEngine(captureResult.text, packageName)
                 }
 
                 val totalTime = System.currentTimeMillis() - startTime
                 Logger.d("OCR处理完成，总耗时: ${totalTime}ms")
 
-                // 4. 在横幅上显示最终结果
-                if (billResult != null) {
-                    val moneyText = String.format("¥%.2f", billResult.billInfoModel.money)
+                // 4. 在横幅上显示最终结果（展示服务端返回的具体信息）
+                val billData = result.data
+                if (billData != null) {
+                    val moneyText = String.format("¥%.2f", billData.billInfoModel.money)
                     ocrView.showSuccess(coreService, moneyText) {
                         // 3秒后回调：悬浮窗已由 JsAPI.analysis 内部自动拉起
                     }
                 } else {
-                    ocrView.showError(coreService, coreService.getString(R.string.no_rule_hint))
+                    ocrView.showError(coreService, result.msg)
                 }
 
             } catch (e: Exception) {
@@ -294,17 +297,17 @@ class OcrService : ICoreService() {
         val outFile = File(coreService.externalCacheDir, "screen.png")
         if (outFile.exists()) outFile.delete()
 
-        // 通过 Shell 执行系统截图
+        // 通过 OcrTools 执行截图（根据授权方式分别调用 Root/Shizuku/无障碍）
         runCatchingExceptCancel {
-            shell.exec("service call statusbar 2")
             delay(300)
-            shell.exec("screencap -p ${outFile.absolutePath}")
+            val success = ocrTools.takeScreenshot(outFile)
+            if (!success) throw IllegalStateException("截图失败")
         }.onFailure {
             Logger.e(it.message ?: "", it)
             withContext(Dispatchers.Main) {
                 ocrView.showError(
                     coreService,
-                    coreService.getString(R.string.ocr_error_shell_not_ready)
+                    coreService.getString(R.string.ocr_error_capture_failed)
                 )
             }
             return null
@@ -415,104 +418,27 @@ class OcrService : ICoreService() {
     }
     /**
      * 将识别文本交给 JS 引擎做规则识别。
-     * @return 匹配结果，null 表示未匹配到规则
+     * @return 服务端完整响应（包含 code/msg/data），调用方可据此展示具体失败原因
      */
     private suspend fun send2JsEngine(
         text: String,
         app: String
-    ): BillResultModel? {
+    ): ResultModel<BillResultModel> {
         Logger.d("app=$app, text=$text")
-        val billResult = JsAPI.analysis(
+        val result = JsAPI.analysis(
             DataType.OCR,
             text,
             app,
             fromAppData = false
         )
 
-        if (billResult != null) {
-            Logger.d("识别结果：${billResult.billInfoModel}")
+        if (result.data != null) {
+            Logger.d("识别结果：${result.data?.billInfoModel}")
         } else {
-            Logger.d("未匹配到规则")
+            Logger.d("分析失败(${result.code}): ${result.msg}")
         }
-        return billResult
+        return result
     }
-
-    /**
-     * 获取当前前台应用包名
-     * 支持重试机制，处理应用切换时的不稳定状态
-     * @return 返回最近使用的应用包名
-     */
-    private suspend fun getTopPackagePostL(): String? {
-        // 解析顺序：
-        // 1) topResumedActivity（最准确）
-        // 2) ResumedActivity（其次）
-        // 3) mCurrentFocus（窗口焦点，可能为null）
-        val commands = listOf(
-            "dumpsys activity activities | grep topResumedActivity",
-            "dumpsys activity activities | grep ResumedActivity",
-            "dumpsys window | grep mCurrentFocus"
-        )
-
-        // 重试3次，处理应用切换时的时序问题
-        repeat(3) { attempt ->
-            for (cmd in commands) {
-                val output = runCatchingExceptCancel {
-                    shell.exec(cmd)
-                }.getOrElse {
-                    Logger.w("Shell执行失败[$cmd]: ${it.message}")
-                    null
-                }
-
-                if (output.isNullOrBlank()) {
-                    Logger.d("命令[$cmd]输出为空")
-                    continue
-                }
-
-                Logger.d("命令[$cmd]输出为 $output")
-
-                val pkg = extractPackageFromDumpsys(output)
-                if (!pkg.isNullOrBlank()) {
-                    Logger.d("成功获取包名: $pkg (第${attempt + 1}次尝试)")
-                    return pkg
-                }
-            }
-
-            // 前两次失败后等待100ms再重试
-            if (attempt < 2) {
-                Logger.d("第${attempt + 1}次尝试失败，100ms后重试")
-                delay(100)
-            }
-        }
-
-        Logger.e("所有尝试均失败，无法获取前台应用")
-        return null
-    }
-
-    /**
-     * 从 dumpsys 输出中提取包名（支持多行输出）
-     * 使用正则匹配 "包名/Activity" 格式
-     * @param output dumpsys 命令的完整输出（可能包含多行）
-     * @return 提取到的包名，失败返回null
-     */
-    private fun extractPackageFromDumpsys(output: String): String? {
-        // 正则：匹配标准的包名格式（至少包含一个点，且以字母开头）
-        // 示例：com.android.systemui/MainActivity
-        val regex = Regex(
-            """([a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+)/""",
-            RegexOption.IGNORE_CASE
-        )
-
-        // 逐行扫描，找到第一个有效的包名
-        return output.lineSequence()
-            .mapNotNull { line ->
-                regex.find(line)?.groupValues?.get(1)
-            }
-            .firstOrNull { pkg ->
-                // 过滤明显无效的包名
-                pkg.contains('.') && pkg.length > 3 && !pkg.startsWith(".")
-            }
-    }
-
 
     companion object : IService {
 
@@ -523,6 +449,7 @@ class OcrService : ICoreService() {
          * 检查是否有使用情况访问权限
          */
         override fun hasPermission(): Boolean {
+            OcrTools.checkPermission()
             return true
         }
 

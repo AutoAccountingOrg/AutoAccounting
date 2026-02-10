@@ -21,26 +21,30 @@ import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.models.BillResultModel
+import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.runCatchingExceptCancel
 
 object JsAPI {
 
+    /**
+     * 分析数据（规则匹配 + AI识别）
+     * @return 完整的 ResultModel，调用方可通过 code/msg/data 区分成功和各种失败原因
+     */
     suspend fun analysis(
         type: DataType,
         data: String,
         appPackage: String,
         fromAppData: Boolean = false
-    ): BillResultModel? = withContext(Dispatchers.IO) {
+    ): ResultModel<BillResultModel> = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
-            val resp = LocalNetwork.post<BillResultModel>(
+            LocalNetwork.post<BillResultModel>(
                 "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData",
                 data
             ).getOrThrow()
-            resp.data
         }.getOrElse {
             Logger.e("analysis error: ${it.message}", it)
-            null
+            ResultModel<BillResultModel>(500, it.message ?: "未知错误", null)
         }
     }
 

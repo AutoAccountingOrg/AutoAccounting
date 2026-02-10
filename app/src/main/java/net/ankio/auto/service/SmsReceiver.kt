@@ -81,9 +81,9 @@ class SmsReceiver : BroadcastReceiver() {
             }
 
             App.launch {
-                val billResult =
+                val result =
                     JsAPI.analysis(DataType.DATA, Gson().toJson(json), "com.android.phone")
-                Logger.d("识别结果：${billResult?.billInfoModel}")
+                Logger.d("识别结果：${result.data?.billInfoModel}")
             }
         }
     }

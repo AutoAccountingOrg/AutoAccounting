@@ -59,7 +59,7 @@ object AnalysisUtils {
             }
 
             val result = JsAPI.analysis(type, data, manifestAppPackage)
-            XposedLogger.i("$manifestAppPackage -> 分析结果: $result")
+            XposedLogger.i("$manifestAppPackage -> 分析结果(${result.data}): ${result.data ?: result.msg}")
         }
     }
 }

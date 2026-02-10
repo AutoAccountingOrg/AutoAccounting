@@ -124,9 +124,9 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             val loading = LoadingUtils(requireContext())
             loading.show(R.string.rule_testing)
 
-            val billResultModel = JsAPI.analysis(item.type, item.data, item.app, true)
+            val result = JsAPI.analysis(item.type, item.data, item.app, true)
 
-            billResultModel?.let {
+            result.data?.let { billResultModel ->
                 BaseSheetDialog.create<BillEditorDialog>(requireContext())
                     .setBillInfo(billResultModel.parentInfoModel ?: billResultModel.billInfoModel)
                     .setOnConfirm {
