@@ -82,142 +82,137 @@ class AssetsMap {
             return
         }
 
-        val originalFromAccount = billInfoModel.accountNameFrom
-        val originalToAccount = billInfoModel.accountNameTo
-        ServerLog.d("开始资产映射: type=${billInfoModel.type} from='$originalFromAccount' to='$originalToAccount'")
+        // 始终使用 raw 字段做查找和创建，不可用时回退到当前值（兼容历史数据重映射）
+        val rawFrom = billInfoModel.rawAccountNameFrom.ifBlank { billInfoModel.accountNameFrom }
+        val rawTo = billInfoModel.rawAccountNameTo.ifBlank { billInfoModel.accountNameTo }
+        ServerLog.d("开始资产映射: type=${billInfoModel.type} rawFrom='$rawFrom' rawTo='$rawTo'")
 
         // 处理来源账户映射
-        if (shouldMapFromAccount(billInfoModel)) {
-            mapAccount(
-                billInfoModel.accountNameFrom,
-                billInfoModel,
-                useAi = useAi
-            )?.let { mappedName ->
+        if (shouldMap(rawFrom, billInfoModel.type, isTo = false)) {
+            mapAccount(rawFrom, rawTo, billInfoModel, useAi = useAi)?.let { mappedName ->
                 billInfoModel.accountNameFrom = mappedName
-                ServerLog.d("来源账户映射: '$originalFromAccount' -> '$mappedName'")
+                ServerLog.d("来源账户映射: '$rawFrom' -> '$mappedName'")
             }
         } else {
-            ServerLog.d("跳过来源账户映射: '${billInfoModel.accountNameFrom}' 不需要映射")
+            ServerLog.d("跳过来源账户映射: '$rawFrom'")
         }
 
         // 处理目标账户映射
-        if (shouldMapToAccount(billInfoModel)) {
-            mapAccount(billInfoModel.accountNameTo, billInfoModel, true, useAi)?.let { mappedName ->
+        if (shouldMap(rawTo, billInfoModel.type, isTo = true)) {
+            mapAccount(
+                rawTo,
+                rawFrom,
+                billInfoModel,
+                isAccountName2 = true,
+                useAi = useAi
+            )?.let { mappedName ->
                 billInfoModel.accountNameTo = mappedName
-                ServerLog.d("目标账户映射: '$originalToAccount' -> '$mappedName'")
+                ServerLog.d("目标账户映射: '$rawTo' -> '$mappedName'")
             }
         } else {
-            ServerLog.d("跳过目标账户映射: '${billInfoModel.accountNameTo}' 不需要映射")
+            ServerLog.d("跳过目标账户映射: '$rawTo'")
         }
 
         ServerLog.d("资产映射完成: ${billInfoModel.type} | ${billInfoModel.accountNameFrom} -> ${billInfoModel.accountNameTo}")
     }
 
     /**
-     * 判断是否应该映射来源账户
-     * 跳过收入借贷和收入还款类型
+     * 判断是否需要映射
+     * @param rawName 原始账户名
+     * @param type 账单类型
+     * @param isTo true=目标账户, false=来源账户
      */
-    private fun shouldMapFromAccount(billInfoModel: BillInfoModel): Boolean {
-        return billInfoModel.accountNameFrom.isNotEmpty() &&
-                !listOf(
-                    BillType.IncomeLending,
-                    BillType.IncomeRepayment
-                ).contains(billInfoModel.type)
-    }
-
-    /**
-     * 判断是否应该映射目标账户
-     * 跳过支出借贷和支出还款类型
-     */
-    private fun shouldMapToAccount(billInfoModel: BillInfoModel): Boolean {
-        return billInfoModel.accountNameTo.isNotEmpty() &&
-                !listOf(
-                    BillType.ExpendLending,
-                    BillType.ExpendRepayment
-                ).contains(billInfoModel.type)
+    private fun shouldMap(rawName: String, type: BillType, isTo: Boolean): Boolean {
+        if (rawName.isEmpty()) return false
+        val skipTypes = if (isTo) {
+            listOf(BillType.ExpendLending, BillType.ExpendRepayment)
+        } else {
+            listOf(BillType.IncomeLending, BillType.IncomeRepayment)
+        }
+        return type !in skipTypes
     }
 
     /**
      * 映射单个账户
      *
-     * 使用责任链模式按优先级顺序处理：
+     * 责任链按优先级顺序处理：
      * 1. 直接资产查找 - 在资产表中查找完全匹配
      * 2. 自定义映射查找 - 使用用户定义的映射规则
      * 3. 正则表达式匹配 - 使用模式匹配进行灵活映射
-     * 4. 创建空映射 - 为未知账户创建占位符
+     * 4. 创建空映射占位符
+     * 5. AI映射
+     * 6. 算法匹配
      *
-     * @param accountName 原始账户名称
+     * @param rawName 原始账户名称（映射前）
+     * @param rawOtherName 对方原始账户名称（传给AI做上下文）
      * @param billInfoModel 账单模型，用于判断是否AI生成
      * @param isAccountName2 是否为目标账户名（避免双向AI映射冲突）
      * @param useAi 调用方是否允许AI参与映射
      * @return 映射后的账户名称，null表示无法映射
      */
     private suspend fun mapAccount(
-        accountName: String,
+        rawName: String,
+        rawOtherName: String,
         billInfoModel: BillInfoModel,
         isAccountName2: Boolean = false,
         useAi: Boolean = true
     ): String? {
-        ServerLog.d("映射账户开始: account='$accountName' isAccountName2=$isAccountName2")
-        if (accountName.isBlank() || accountName.endsWith("支付")) {
+        ServerLog.d("映射账户开始: rawName='$rawName' isAccountName2=$isAccountName2")
+        if (rawName.isBlank() || rawName.endsWith("支付")) {
             ServerLog.d("映射账户跳过: 账户名为空或者过于宽泛")
             return null
         }
 
         // 1. 直接资产查找 - 最高优先级
-        getAssets().firstOrNull { it.name == accountName }?.let { asset ->
+        getAssets().firstOrNull { it.name == rawName }?.let { asset ->
             ServerLog.d("直接资产查找命中: '${asset.name}'")
             return asset.name
         }
 
         // 2. 自定义映射查找（若 mapName 为空则跳过继续后续策略）
-        getAssetsMap().firstOrNull { it.name == accountName && it.mapName.isNotBlank() }?.let {
+        getAssetsMap().firstOrNull { it.name == rawName && it.mapName.isNotBlank() }?.let {
             ServerLog.d("自定义映射命中: '${it.name}' -> '${it.mapName}'")
             return it.mapName
         }
 
-        // 3. 正则表达式匹配（简化为 contains 判断；若 mapName 为空则跳过）
+        // 3. 正则表达式匹配（若 mapName 为空则跳过）
         getAssetsMap().filter { it.regex && it.mapName.isNotBlank() }.firstOrNull { mapping ->
-            runCatchingExceptCancel { Regex(mapping.name).containsMatchIn(accountName) }.getOrElse { false }
+            runCatchingExceptCancel { Regex(mapping.name).containsMatchIn(rawName) }.getOrElse { false }
         }?.let { mapping ->
             ServerLog.d("正则映射命中: /${mapping.name}/ -> '${mapping.mapName}'")
             return mapping.mapName
         }
 
-        // 在进入 AI 处理之前，优先创建空白资产映射占位符，避免 AI 不稳定导致错过创建
+        // 4. 创建空白占位符（在 AI 之前，避免 AI 不稳定导致错过创建）
         if (!billInfoModel.generateByAi() && SettingUtils.autoAssetMap()) {
             runCatchingExceptCancel {
                 val emptyMapping = AssetsMapModel().apply {
-                    name = accountName
+                    name = rawName
                     mapName = ""
                 }
-                ServerLog.d("创建空资产映射占位符: '$accountName'")
+                ServerLog.d("创建空资产映射占位符: '$rawName'")
                 Db.get().assetsMapDao().insert(emptyMapping)
             }
         }
 
-        // 3.5 让AI处理
-        // AI资产映射需要总开关与资产映射开关同时开启
+        // 5. AI映射（仅来源账户触发，避免双向冲突）
         if (useAi &&
             SettingUtils.featureAiAvailable() &&
             SettingUtils.aiAssetMapping() &&
             !isAccountName2
         ) {
             ServerLog.d("通过AI进行资产映射")
-            val json =
-                AssetTool().execute(
-                    billInfoModel.accountNameTo,
-                    billInfoModel.accountNameFrom,
-                    billInfoModel.app,
-                    billInfoModel.type
-                )
+            val json = AssetTool().execute(
+                rawOtherName,
+                rawName,
+                billInfoModel.app,
+                billInfoModel.type
+            )
             if (json != null) {
                 val aiTo = json.safeGetString("asset1")
                 val aiFrom = json.safeGetString("asset2")
-                billInfoModel.accountNameTo =
-                    aiTo.ifBlank { billInfoModel.accountNameTo }
-                billInfoModel.accountNameFrom =
-                    aiFrom.ifBlank { billInfoModel.accountNameFrom }
+                billInfoModel.accountNameTo = aiTo.ifBlank { billInfoModel.accountNameTo }
+                billInfoModel.accountNameFrom = aiFrom.ifBlank { billInfoModel.accountNameFrom }
                 ServerLog.d("AI建议: to='$aiTo' from='$aiFrom'")
                 return null
             } else {
@@ -225,10 +220,8 @@ class AssetsMap {
             }
         }
 
-        // 3.5 基于算法的保守匹配（数字优先 → 最长连续相似子串）
-        findByAlgorithm(accountName)?.let { return it }
-
-        // 空映射占位符已在 AI 之前创建
+        // 6. 基于算法的保守匹配（数字优先 → 最长连续相似子串）
+        findByAlgorithm(rawName)?.let { return it }
 
         return null
     }
