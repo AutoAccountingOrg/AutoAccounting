@@ -90,7 +90,7 @@ class DbHooker : PartHooker() {
                 // 插入新关联
                 db.execSQL(
                     "INSERT OR REPLACE INTO $tableName (bill_id, auto_id) VALUES (?, ?)",
-                    arrayOf(bill_id, auto_id)
+                    arrayOf<Any>(bill_id, auto_id)
                 )
                 null
             } catch (e: Exception) {
