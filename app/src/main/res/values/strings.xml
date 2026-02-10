@@ -852,6 +852,16 @@
     <string name="ocr_error_ocr_failed">OCR recognition failed</string>
     <string name="ocr_error_empty_result">No text recognized</string>
     <string name="ocr_error_keyword_filtered">No matching keywords found</string>
+    <string name="setting_ocr_auth_mode">OCR Authorization Method</string>
+    <string name="setting_ocr_auth_mode_summary">Choose how to get foreground app and take screenshots</string>
+    <string name="ocr_auth_root">Root</string>
+    <string name="ocr_auth_shizuku">Shizuku</string>
+    <string name="ocr_auth_accessibility">Accessibility Service</string>
+    <string name="accessibility_service_label">Auto Accounting OCR</string>
+    <string name="accessibility_service_description">Used for OCR screen recognition: detecting foreground app and taking screenshots</string>
+    <string name="ocr_error_root_not_available">Root permission not available</string>
+    <string name="ocr_error_shizuku_not_available">Shizuku not running or not authorized</string>
+    <string name="ocr_error_accessibility_not_ready">Accessibility service not running, please enable it in system settings</string>
     <string name="setting_ocr_flip_trigger">Flip Phone to Trigger Current Page Recognition</string>
     <string name="setting_ocr_flip_trigger_summary">Flip phone to trigger current page recognition (Non-Xposed mode)</string>
 

@@ -25,6 +25,7 @@ import androidx.core.content.edit
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.service.ocr.OcrTools
 import net.ankio.auto.xposed.XposedModule
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -265,6 +266,11 @@ object PrefManager {
         set(value) = putBoolean(Setting.SHOW_DUPLICATED_POPUP, value)
 
     // -------- OCR识别 --------
+    /** OCR授权方式 - root / shizuku / accessibility */
+    var ocrAuthMode: String
+        get() = getString(Setting.OCR_AUTH_MODE, OcrTools.getDefault())
+        set(value) = putString(Setting.OCR_AUTH_MODE, value)
+
     /** 是否启用翻转手机触发当前页面识别（非Xposed模式） */
     var ocrFlipTrigger: Boolean
         get() = getBoolean(Setting.OCR_FLIP_TRIGGER, DefaultData.OCR_FLIP_TRIGGER)

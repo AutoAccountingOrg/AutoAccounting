@@ -36,6 +36,15 @@
 
     <!-- OCR识别 -->
     <PreferenceCategory android:title="@string/setting_category_ocr">
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="root"
+            android:entries="@array/ocr_auth_mode_texts"
+            android:entryValues="@array/ocr_auth_mode_values"
+            android:icon="@drawable/ic_ocr"
+            android:key="ocrAuthMode"
+            android:summary="%s"
+            android:title="@string/setting_ocr_auth_mode" />
+
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
             android:icon="@drawable/ic_ocr"

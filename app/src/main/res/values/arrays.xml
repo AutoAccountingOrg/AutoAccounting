@@ -148,6 +148,19 @@
         <item>bottom</item>
     </string-array>
 
+    <!-- OCR auth mode options -->
+    <string-array name="ocr_auth_mode_texts" translatable="false">
+        <item>@string/ocr_auth_root</item>
+        <item>@string/ocr_auth_shizuku</item>
+        <item>@string/ocr_auth_accessibility</item>
+    </string-array>
+
+    <string-array name="ocr_auth_mode_values" translatable="false">
+        <item>root</item>
+        <item>shizuku</item>
+        <item>accessibility</item>
+    </string-array>
+
     <!-- Update channel options -->
     <string-array name="update_channel_texts" translatable="false">
         <item>@string/version_stable</item>

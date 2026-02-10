@@ -935,6 +935,16 @@
     <string name="ocr_error_ocr_failed">OCR识别失败</string>
     <string name="ocr_error_empty_result">未识别到文字</string>
     <string name="ocr_error_keyword_filtered">未包含识别关键字</string>
+    <string name="setting_ocr_auth_mode">OCR授权方式</string>
+    <string name="setting_ocr_auth_mode_summary">选择获取前台应用和截图的方式</string>
+    <string name="ocr_auth_root">Root</string>
+    <string name="ocr_auth_shizuku">Shizuku</string>
+    <string name="ocr_auth_accessibility">无障碍服务</string>
+    <string name="accessibility_service_label">自动记账OCR</string>
+    <string name="accessibility_service_description">用于OCR屏幕识别：检测前台应用和截取屏幕</string>
+    <string name="ocr_error_root_not_available">设备未获取Root权限</string>
+    <string name="ocr_error_shizuku_not_available">Shizuku未运行或未授权</string>
+    <string name="ocr_error_accessibility_not_ready">无障碍服务未运行，请在系统设置中开启</string>
     <string name="setting_ocr_flip_trigger">翻转手机触发当前页面识别</string>
     <string name="setting_ocr_flip_trigger_summary">需要配置应用白名单避免误触</string>
 

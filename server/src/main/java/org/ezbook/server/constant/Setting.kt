@@ -81,6 +81,8 @@ object Setting {
     const val SHOW_DUPLICATED_POPUP: String = "show_duplicated_popup" // 重复提示弹窗
 
     // -------- OCR识别 --------
+    const val OCR_AUTH_MODE: String =
+        "ocr_auth_mode"              // OCR授权方式（root/shizuku/accessibility）
     const val OCR_FLIP_TRIGGER: String = "ocr_flip_trigger"        // 翻转手机触发当前页面识别（非Xposed模式）
     const val OCR_SHOW_ANIMATION: String = "ocr_show_animation"    // OCR识别时显示动画
 
