@@ -67,6 +67,11 @@ class AppDataModel {
      */
     var version: String = ""
 
+    /**
+     * 关联图片的 Base64 编码数据（如OCR截图），空字符串表示无图片。
+     */
+    var image: String = ""
+
 
     companion object {
         /**
@@ -103,7 +108,7 @@ class AppDataModel {
     }
 
     override fun toString(): String {
-        return "AppDataModel(id=$id, data='', type=$type, app='$app', time=$time, match=$match, rule='$rule', issue=$issue)"
+        return "AppDataModel(id=$id, data='', type=$type, app='$app', time=$time, match=$match, rule='$rule', issue=$issue, image='$image')"
     }
 
 }

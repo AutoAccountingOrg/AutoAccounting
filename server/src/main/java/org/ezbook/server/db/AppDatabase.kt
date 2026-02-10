@@ -64,7 +64,7 @@ import org.ezbook.server.db.model.TagModel
         TagModel::class,
         AnalysisTaskModel::class
     ],
-    version = 20,
+    version = 21,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -433,5 +433,12 @@ val MIGRATION_19_20 = object : Migration(19, 20) {
         // BillInfoModel 添加原始账户名字段，用于"记住资产映射"功能
         database.execSQL("ALTER TABLE BillInfoModel ADD COLUMN rawAccountNameFrom TEXT NOT NULL DEFAULT ''")
         database.execSQL("ALTER TABLE BillInfoModel ADD COLUMN rawAccountNameTo TEXT NOT NULL DEFAULT ''")
+    }
+}
+
+val MIGRATION_20_21 = object : Migration(20, 21) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // AppDataModel 添加 image 字段，存储关联图片的相对路径（如OCR截图）
+        database.execSQL("ALTER TABLE AppDataModel ADD COLUMN image TEXT NOT NULL DEFAULT ''")
     }
 }
