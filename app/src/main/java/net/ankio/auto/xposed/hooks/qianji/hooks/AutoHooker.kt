@@ -166,7 +166,6 @@ class AutoHooker : PartHooker() {
 
             // 多币种处理
             val currency = uri.getQueryParameter("currency")
-            XposedLogger.d("currency: $currency")
             if (currency?.startsWith("{") == true) {
                 runCatching {
                     val currencyModel = Gson().fromJson(currency, CurrencyModel::class.java)
