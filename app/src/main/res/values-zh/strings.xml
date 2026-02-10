@@ -924,8 +924,17 @@
     <string name="float_action_edit">编辑账单</string>
     <string name="float_action_dismiss">关闭</string>
     <string name="float_action_auto_record">自动记录</string>
-    <string name="setting_ocr_show_animation">显示OCR识别动画</string>
-    <string name="setting_ocr_show_animation_summary">进行OCR识别时显示覆盖层动画</string>
+    <string name="setting_ocr_show_animation">显示OCR状态提示</string>
+    <string name="setting_ocr_show_animation_summary">OCR和AI识别期间在顶部显示状态横幅</string>
+    <string name="ocr_status_recognizing">正在OCR识别…</string>
+    <string name="ocr_status_ai_analyzing">正在AI识别…</string>
+    <string name="ocr_error_no_foreground_app">无法获取前台应用</string>
+    <string name="ocr_error_not_in_whitelist">应用不在白名单中</string>
+    <string name="ocr_error_shell_not_ready">Shell未就绪，请检查Root/Shizuku</string>
+    <string name="ocr_error_capture_failed">截图解码失败</string>
+    <string name="ocr_error_ocr_failed">OCR识别失败</string>
+    <string name="ocr_error_empty_result">未识别到文字</string>
+    <string name="ocr_error_keyword_filtered">未包含识别关键字</string>
     <string name="setting_ocr_flip_trigger">翻转手机触发当前页面识别</string>
     <string name="setting_ocr_flip_trigger_summary">需要配置应用白名单避免误触</string>
 

@@ -841,8 +841,17 @@
     <!-- Float action display names -->
     <string name="float_action_dismiss">Dismiss</string>
     <string name="float_action_auto_record">Auto Record</string>
-    <string name="setting_ocr_show_animation">Show OCR animation</string>
-    <string name="setting_ocr_show_animation_summary">Display an overlay animation while OCR is running</string>
+    <string name="setting_ocr_show_animation">Show OCR status banner</string>
+    <string name="setting_ocr_show_animation_summary">Show a top banner during OCR and AI recognition</string>
+    <string name="ocr_status_recognizing">OCR recognizing…</string>
+    <string name="ocr_status_ai_analyzing">AI analyzing…</string>
+    <string name="ocr_error_no_foreground_app">Cannot detect foreground app</string>
+    <string name="ocr_error_not_in_whitelist">App not in whitelist</string>
+    <string name="ocr_error_shell_not_ready">Shell not ready, check Root/Shizuku</string>
+    <string name="ocr_error_capture_failed">Screenshot decode failed</string>
+    <string name="ocr_error_ocr_failed">OCR recognition failed</string>
+    <string name="ocr_error_empty_result">No text recognized</string>
+    <string name="ocr_error_keyword_filtered">No matching keywords found</string>
     <string name="setting_ocr_flip_trigger">Flip Phone to Trigger Current Page Recognition</string>
     <string name="setting_ocr_flip_trigger_summary">Flip phone to trigger current page recognition (Non-Xposed mode)</string>
 
