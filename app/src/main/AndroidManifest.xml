@@ -105,6 +105,20 @@
             </intent-filter>
         </service>
 
+        <!-- OCR无障碍服务：获取前台应用包名 + 截图 -->
+        <service
+            android:name=".service.OcrAccessibilityService"
+            android:exported="true"
+            android:label="@string/accessibility_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
         <!-- OCR快速设置磁贴服务 -->
         <service
             android:name=".service.OcrTileService"

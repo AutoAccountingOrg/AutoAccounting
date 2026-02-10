@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><!-- OCR无障碍服务配置：监听窗口变化事件以跟踪前台应用，支持截图 -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="false"
+    android:canTakeScreenshot="true"
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="100"
+    tools:targetApi="r" />
