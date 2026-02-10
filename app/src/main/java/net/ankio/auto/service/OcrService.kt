@@ -2,13 +2,15 @@ package net.ankio.auto.service
 
 import android.content.Context
 import android.content.Intent
-import android.hardware.SensorManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.util.Base64
+import java.io.FileOutputStream
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,9 +31,9 @@ import net.ankio.auto.utils.PrefManager
 import net.ankio.ocr.OcrProcessor
 import net.ankio.shell.Shell
 import org.ezbook.server.constant.DataType
-import org.ezbook.server.models.BillResultModel
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.intent.IntentType
+import org.ezbook.server.models.BillResultModel
 import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
 
@@ -225,13 +227,13 @@ class OcrService : ICoreService() {
                 Logger.d("开始OCR流程")
 
                 // 1. 先在IO线程截图+OCR（此时屏幕无任何覆盖物，截图干净）
-                val ocrResult = withContext(Dispatchers.IO) { performOcrCapture() }
+                val captureResult = withContext(Dispatchers.IO) { performOcrCapture() }
 
                 // performOcrCapture 内部已通过横幅展示错误，null 直接返回
-                if (ocrResult == null) return@launch
+                if (captureResult == null) return@launch
 
                 // 检查识别关键字过滤
-                if (PrefManager.dataFilter.all { ocrResult.contains(it) }) {
+                if (PrefManager.dataFilter.all { captureResult.text.contains(it) }) {
                     Logger.d("数据信息不在识别关键字里面，忽略")
                     ocrView.showError(
                         coreService,
@@ -240,14 +242,14 @@ class OcrService : ICoreService() {
                     return@launch
                 }
 
-                Logger.d("识别文本长度: ${ocrResult.length}")
+                Logger.d("识别文本长度: ${captureResult.text.length}，图片Base64长度: ${captureResult.imageBase64.length}")
 
                 // 2. 更新横幅：正在AI识别
                 ocrView.updateStatus(coreService.getString(R.string.ocr_status_ai_analyzing))
 
                 // 3. 发送给JS引擎做AI规则识别
                 val billResult = withContext(Dispatchers.IO) {
-                    send2JsEngine(ocrResult, packageName)
+                    send2JsEngine(captureResult.text, packageName)
                 }
 
                 val totalTime = System.currentTimeMillis() - startTime
@@ -274,13 +276,18 @@ class OcrService : ICoreService() {
     }
 
     /**
+     * OCR 捕获结果：识别文本 + 压缩后的截图 Base64（供后续存储使用）
+     */
+    private data class OcrCaptureResult(val text: String, val imageBase64: String)
+
+    /**
      * 执行屏幕截图和OCR识别
      *
-     * 流程：截图 → 弹横幅"正在OCR识别" → OCR → 返回文本
+     * 流程：截图 → 弹横幅"正在OCR识别" → Luban压缩 → OCR → 返回结果
      * 所有错误通过横幅展示。
-     * @return 识别出的文本，失败返回null（横幅已展示错误）
+     * @return 识别结果（文本+压缩图片Base64），失败返回null
      */
-    private suspend fun performOcrCapture(): String? {
+    private suspend fun performOcrCapture(): OcrCaptureResult? {
         val captureStartTime = System.currentTimeMillis()
 
         // 截图输出路径
@@ -330,20 +337,29 @@ class OcrService : ICoreService() {
             if (cropped !== bitmap) bitmap.recycle()
         }
 
-        // OCR识别
+        // 缩小图片加速 OCR（短边缩到 OCR_MAX_SHORT_EDGE，像素量大幅减少）
+        val scaledBitmap = scaleDownForOcr(croppedBitmap).also { scaled ->
+            if (scaled !== croppedBitmap) croppedBitmap.recycle()
+        }
+        Logger.d("图片缩放: ${croppedBitmap.width}x${croppedBitmap.height} → ${scaledBitmap.width}x${scaledBitmap.height}")
+
+        // 将缩小后的图片编码为 JPEG Base64（供后续存储）
+        val imageBase64 = bitmapToBase64(scaledBitmap)
+
+        // OCR 识别（用缩小后的图，速度更快）
         val text = runCatching {
-            ocrProcessor.startProcess(croppedBitmap)
+            ocrProcessor.startProcess(scaledBitmap)
         }.getOrElse {
             Logger.e("OCR 识别失败: ${it.message}")
             outFile.delete()
-            croppedBitmap.recycle()
+            scaledBitmap.recycle()
             withContext(Dispatchers.Main) {
                 ocrView.showError(coreService, coreService.getString(R.string.ocr_error_ocr_failed))
             }
             return null
         }
 
-        croppedBitmap.recycle()
+        scaledBitmap.recycle()
         outFile.delete()
 
         // 识别结果为空
@@ -357,7 +373,33 @@ class OcrService : ICoreService() {
             return null
         }
 
-        return text
+        return OcrCaptureResult(text, imageBase64)
+    }
+
+    /**
+     * 缩小 Bitmap 加速 OCR：短边不超过 [OCR_MAX_SHORT_EDGE]。
+     * 对于 OCR 文字识别，720px 短边足够清晰，像素量比 1440p 减少 75%。
+     * @return 缩小后的 Bitmap，如果已足够小则原样返回
+     */
+    private fun scaleDownForOcr(source: Bitmap): Bitmap {
+        val shortSide = minOf(source.width, source.height)
+        if (shortSide <= OCR_MAX_SHORT_EDGE) return source
+
+        val scale = OCR_MAX_SHORT_EDGE.toFloat() / shortSide
+        val newW = (source.width * scale).toInt()
+        val newH = (source.height * scale).toInt()
+        return Bitmap.createScaledBitmap(source, newW, newH, true)
+    }
+
+    /**
+     * 将 Bitmap 压缩为 JPEG 并编码为 Base64
+     * @param bitmap 位图（不回收，调用方负责）
+     * @return Base64 字符串
+     */
+    private fun bitmapToBase64(bitmap: Bitmap): String {
+        val stream = java.io.ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 60, stream)
+        return Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
     }
 
     /**
@@ -495,6 +537,12 @@ class OcrService : ICoreService() {
          * 无法获取状态栏高度时的默认裁剪高度 (dp)。
          */
         private const val DEFAULT_TOP_CROP_DP = 56
+
+        /**
+         * OCR 识别时图片短边最大值（px）。
+         * 720px 对文字识别足够清晰，像素量比 1440p 减少约 75%，OCR 速度显著提升。
+         */
+        private const val OCR_MAX_SHORT_EDGE = 720
 
     }
 }

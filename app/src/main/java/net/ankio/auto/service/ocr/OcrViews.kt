@@ -205,8 +205,7 @@ class OcrViews {
             binding!!.root.visibility = View.VISIBLE
         }
 
-        // 15秒超时安全网
-        resetTimeout(15_000) { dismiss() }
+        // 加载态不设超时——由业务方通过 showSuccess/showError/dismiss 控制生命周期
     }
 
     /**

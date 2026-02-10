@@ -46,9 +46,6 @@ htmlKtx = "1.1.2"
 # Image Loading
 glide = "4.16.0"
 
-# Image Compression
-luban = "2.0.1"
-
 # Development and Debug Tools
 leakcanaryAndroid = "2.14"
 bugsnagAndroid = "6.12.1"
@@ -111,9 +108,6 @@ html-ktx = { module = "dev.rikka.rikkax.html:html-ktx", version.ref = "htmlKtx" 
 # Image Loading
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 glideCompiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
-
-# Image Compression
-luban = { module = "top.zibin:luban", version.ref = "luban" }
 
 # Development and Debug Tools
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }

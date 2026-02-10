@@ -207,9 +207,6 @@ dependencies {
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
-    // 图片压缩（鲁班算法）
-    implementation(libs.luban)
-
     implementation("com.tencent.bugly:crashreport:latest.release")
     implementation("net.lingala.zip4j:zip4j:2.11.5")
     implementation(kotlin("reflect"))
