@@ -8,7 +8,7 @@ plugins {
 /* ---------- Android config ---------- */
 android {
     namespace = "org.ezbook.server"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -30,7 +30,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions { jvmTarget = "21" }
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
+    }
 
     /* AGP 8.x 新写法：packaging → resources.excludes / jniLibs.excludes */
     packaging {

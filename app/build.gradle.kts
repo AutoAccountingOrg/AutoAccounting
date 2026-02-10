@@ -53,7 +53,7 @@ materialThemeBuilder {
 
 android {
     namespace = "net.ankio.auto"
-    compileSdk = 35
+    compileSdk = 36
 
 
     defaultConfig {
@@ -95,8 +95,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = "21"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
     }
 
     packaging {
@@ -204,6 +206,9 @@ dependencies {
     implementation(libs.about)
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // 图片压缩（鲁班算法）
+    implementation(libs.luban)
 
     implementation("com.tencent.bugly:crashreport:latest.release")
     implementation("net.lingala.zip4j:zip4j:2.11.5")
