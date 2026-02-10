@@ -102,9 +102,9 @@ class NotificationService : NotificationListenerService() {
                 addProperty("t", System.currentTimeMillis())
             }
             App.launch {
-                val billResult =
+                val result =
                     JsAPI.analysis(DataType.DATA, Gson().toJson(json), "com.android.phone")
-                Logger.d("识别结果：${billResult?.billInfoModel}")
+                Logger.d("识别结果：${result.data?.billInfoModel}")
             }
             // Analyze.start(DataType.DATA, Gson().toJson(json), "com.android.phone")
         } else {
@@ -113,9 +113,9 @@ class NotificationService : NotificationListenerService() {
             json.addProperty("text", text)
             json.addProperty("t", System.currentTimeMillis())
             App.launch {
-                val billResult =
+                val result =
                     JsAPI.analysis(DataType.NOTICE, Gson().toJson(json), pkg)
-                Logger.d("识别结果：${billResult?.billInfoModel}")
+                Logger.d("识别结果：${result.data?.billInfoModel}")
             }
             //  Analyze.start(DataType.NOTICE, Gson().toJson(json), pkg)
         }
