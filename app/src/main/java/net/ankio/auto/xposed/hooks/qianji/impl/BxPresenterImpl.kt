@@ -283,7 +283,7 @@ object BxPresenterImpl : HookerClazz() {
             bill.category = billModel.getCategory()?.getName() ?: ""
             bill.type = type
             // 透传账单标志位，用于“不计收支/不计预算”等状态
-            bill.flag = billModel.getExtra().getFlag()
+            //bill.flag = billModel.getExtra().getFlag()
             bills.add(bill)
 
             // 债务账单
