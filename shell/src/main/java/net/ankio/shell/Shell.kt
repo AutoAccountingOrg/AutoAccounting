@@ -90,6 +90,29 @@ class Shell(packageName: String) : Closeable {
         return rootPermission() || shizukuPermission()
     }
 
+    // ======================== 独立模式调用（供 OcrTools 等需要强制指定模式的场景） ========================
+
+    /** 检查 Root 权限是否可用 */
+    fun hasRootPermission(): Boolean = rootPermission()
+
+    /** 检查 Shizuku 权限是否可用（Shizuku 运行中且已授权） */
+    fun hasShizukuPermission(): Boolean = shizukuPermission()
+
+    /** 请求 Shizuku 权限授权 */
+    fun requestShizukuPermission() = shizukuExecutor.requestPermission()
+
+    /**
+     * 强制以 Root 身份执行命令。
+     * 调用前应先通过 [hasRootPermission] 确认可用，否则可能返回空字符串。
+     */
+    suspend fun execAsRoot(command: String): String = rootExecCommand(command)
+
+    /**
+     * 强制以 Shizuku 身份执行命令。
+     * 调用前应先通过 [hasShizukuPermission] 确认可用，否则可能返回空字符串。
+     */
+    suspend fun execAsShizuku(command: String): String = shizukuExecCommand(command)
+
     /**
      * 释放底层资源。
      */
