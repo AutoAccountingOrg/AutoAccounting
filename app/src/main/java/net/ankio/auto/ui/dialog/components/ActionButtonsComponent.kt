@@ -57,7 +57,9 @@ class ActionButtonsComponent(
     private var onConfirmClickListener: (() -> Unit)? = null
 
     private lateinit var billInfoModel: BillInfoModel
-    private lateinit var rawBillInfoModel: BillInfoModel
+
+    /** 对话框打开时的分类名，用于检测用户是否手动修改了分类 */
+    private var initialCateName: String = ""
 
     override fun onComponentCreate() {
         super.onComponentCreate()
@@ -69,7 +71,10 @@ class ActionButtonsComponent(
      */
     fun setBillInfo(billInfoModel: BillInfoModel) {
         this.billInfoModel = billInfoModel
-        this.rawBillInfoModel = billInfoModel.copy()
+        if (this.initialCateName.isEmpty()) {
+            this.initialCateName = billInfoModel.cateName
+        }
+
         refresh()
     }
 
@@ -111,7 +116,7 @@ class ActionButtonsComponent(
         binding.confirmButton.setOnClickListener {
             if (PrefManager.rememberCategory) {
                 // 仅当分类被用户明确修改，且当前账单不需要再自动分类时，才执行自动记忆
-                if (rawBillInfoModel.cateName != billInfoModel.cateName && !billInfoModel.needReCategory()) {
+                if (initialCateName != billInfoModel.cateName && !billInfoModel.needReCategory()) {
                     rememberCategoryAuto()
                 }
             }
@@ -124,46 +129,45 @@ class ActionButtonsComponent(
         }
     }
 
+    /**
+     * 记住资产映射
+     *
+     * 用 rawAccountNameFrom/To（映射前的原始名）作为查询 key，
+     * 与当前 accountNameFrom/To 比较：不同则说明发生了映射或用户修改，
+     * 尝试更新映射表；mapName 已一致时自动跳过，不会重复写入。
+     */
     private fun rememberAssetMap() {
-        // 通过 getMap 接口，使用原始资产名称获取资产映射模型
-        // 如果没有就返回；如果有，则将映射的目的资产替换为当前编辑值，并更新到远程
-        if (!::billInfoModel.isInitialized || !::rawBillInfoModel.isInitialized) return
+        if (!::billInfoModel.isInitialized) return
 
-        // 构建需要处理的“原始资产名 → 当前资产名”对，仅限账户字段（人员字段不参与映射）
+        // 构建 (原始名, 当前资产名) 对，raw == current 说明无需映射，直接过滤
         val pairs: List<Pair<String, String>> = when (billInfoModel.type) {
-            // 单账户：仅来源账户
             BillType.Expend, BillType.Income, BillType.ExpendReimbursement,
             BillType.IncomeRefund, BillType.IncomeReimbursement -> listOf(
-                rawBillInfoModel.accountNameFrom to billInfoModel.accountNameFrom
+                billInfoModel.rawAccountNameFrom to billInfoModel.accountNameFrom
             )
 
-            // 转账：来源与目标账户
             BillType.Transfer -> listOf(
-                rawBillInfoModel.accountNameFrom to billInfoModel.accountNameFrom,
-                rawBillInfoModel.accountNameTo to billInfoModel.accountNameTo
+                billInfoModel.rawAccountNameFrom to billInfoModel.accountNameFrom,
+                billInfoModel.rawAccountNameTo to billInfoModel.accountNameTo
             )
 
-            // 借出/还款：仅来源账户（目标为人员）
             BillType.ExpendLending, BillType.ExpendRepayment -> listOf(
-                rawBillInfoModel.accountNameFrom to billInfoModel.accountNameFrom
+                billInfoModel.rawAccountNameFrom to billInfoModel.accountNameFrom
             )
 
-            // 借入/收款：仅目标账户（来源为人员）
             BillType.IncomeLending, BillType.IncomeRepayment -> listOf(
-                rawBillInfoModel.accountNameTo to billInfoModel.accountNameTo
+                billInfoModel.rawAccountNameTo to billInfoModel.accountNameTo
             )
         }
-            .filter { (orig, curr) -> orig.isNotBlank() && curr.isNotBlank() && orig != curr }
+            .filter { (raw, curr) -> raw.isNotBlank() && curr.isNotBlank() && raw != curr }
 
         if (pairs.isEmpty()) return
 
         App.launchIO {
-            pairs.forEach { (originalName, currentName) ->
-                // 拉取现有映射；按需求：没有则不创建，直接跳过
-                val model: AssetsMapModel = AssetsMapAPI.getByName(originalName) ?: return@forEach
-                // 更新目的资产
-                if (model.mapName != currentName) {
-                    model.mapName = currentName
+            pairs.forEach { (rawName, newName) ->
+                val model: AssetsMapModel = AssetsMapAPI.getByName(rawName) ?: return@forEach
+                if (model.mapName != newName) {
+                    model.mapName = newName
                     runCatchingExceptCancel {
                         AssetsMapAPI.put(model)
                     }.onFailure { e ->
@@ -260,18 +264,20 @@ class ActionButtonsComponent(
     }
 
     /**
-     * 清洗用于分类规则的名称，剔除订单号/流水号等变化标识
-     * 保留短数字（金额、数量等），清理长串标识符
+     * 清洗用于分类规则的名称，剔除所有数字、金额和变化标识，
+     * 只保留稳定的文本特征用于分类匹配。
      */
     private fun sanitizeForRule(inputRaw: String): String {
         if (inputRaw.isEmpty()) return inputRaw
         return inputRaw
-            // 清理长数字串（5位以上视为订单号）
-            .replace(Regex("\\d{5,}"), "")
-            // 清理字母数字混合的长串（通常是订单号）
-            .replace(Regex("\\b[A-Za-z0-9]{8,}\\b"), "")
-            // 清理多余空白
-            .replace(Regex("\\s+"), " ")
+            // 清理金额格式（含货币符号和单位）：¥100.00元、$5.5、100元 等
+            .replace(Regex("[¥$€£￥]?\\d+\\.?\\d*\\s?[元円]?"), "")
+            // 清理所有剩余数字
+            .replace(Regex("\\d+"), "")
+            // 清理纯字母长串（订单号残余）
+            .replace(Regex("[A-Za-z]{6,}"), "")
+            // 清理多余空白和标点残留
+            .replace(Regex("[\\s\\-_/]+"), " ")
             .trim()
     }
 
