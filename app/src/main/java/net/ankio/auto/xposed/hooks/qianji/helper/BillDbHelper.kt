@@ -52,4 +52,15 @@ class BillDbHelper(private val obj: Any) {
     fun update(billModel: QjBillModel) {
         XposedHelpers.callMethod(obj, "update", billModel.toObject())
     }
+
+    fun findByBillId(id: Long): QjBillModel? {
+        val bill = XposedHelpers.callMethod(obj, "findByBillId", id)
+        return bill?.let {
+            QjBillModel.fromObject(it)
+        }
+    }
+
+    fun delete(billModel: QjBillModel) {
+        XposedHelpers.callMethod(obj, "delete", billModel.toObject())
+    }
 }

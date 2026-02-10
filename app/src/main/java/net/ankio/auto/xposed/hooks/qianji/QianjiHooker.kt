@@ -33,6 +33,7 @@ import net.ankio.auto.xposed.hooks.qianji.filter.TypesFilter
 import net.ankio.auto.xposed.hooks.qianji.helper.AssetDbHelper
 import net.ankio.auto.xposed.hooks.qianji.helper.BillDbHelper
 import net.ankio.auto.xposed.hooks.qianji.hooks.AutoHooker
+import net.ankio.auto.xposed.hooks.qianji.hooks.DbHooker
 import net.ankio.auto.xposed.hooks.qianji.hooks.SideBarHooker
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BaseSubmitAssetPresenterImpl
@@ -75,6 +76,7 @@ class QianjiHooker : HookerManifest() {
         get() = mutableListOf(
             SideBarHooker(),
             AutoHooker(),
+            DbHooker()
         )
         set(value) {}
     override var rules: MutableList<Clazz>

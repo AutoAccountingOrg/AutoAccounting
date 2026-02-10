@@ -92,7 +92,7 @@ class AutoHooker : PartHooker() {
 
 
         hookTaskLog()
-
+        hookSaveBill()
         hookView()
 
     }
@@ -120,113 +120,121 @@ class AutoHooker : PartHooker() {
 
     }
 
+    private fun hookSaveBill() {
+
+    }
+
+
+    private fun addBilInfo(billModel: QjBillModel, activity: Activity, uri: Uri): QjBillModel {
+        val fee = uri.getQueryParameter("fee")?.toDoubleOrNull() ?: 0.0
+        //处理优惠
+        val discount = uri.getQueryParameter("discount")?.toDoubleOrNull() ?: 0.0
+        if (discount > 0 && (billModel.isAllSpend() || billModel.isTransfer())) {
+            //只有支出或者还款的账户才需要记录优惠
+            val extraModel = billModel.getExtra()
+            extraModel.setTransfee(-discount)
+
+        }
+
+        //处理标记位置
+        val flag = uri.getQueryParameter("flag")?.toIntOrNull() ?: 0
+        if (billModel.isAllIncome() || billModel.isAllSpend() || billModel.isTransfer()) {
+            billModel.setFlag(flag)
+        }
+
+
+        //处理标签
+        val tags = uri.getQueryParameter("tag")?.split(",") ?: listOf()
+        if (tags.isNotEmpty()) {
+
+            var tagList = runBlocking { TagRefreshPresenterImpl.getTagsByNames(tags) }
+
+            tagList = if (UserModel.isVip()) {
+                tagList.take(8)
+            } else {
+                tagList.take(1)
+            }
+
+            // 更新后tag为生效
+
+            billModel.setTagList(tagList)
+        }
+
+        // 多币种处理
+        val currency = uri.getQueryParameter("currency")
+        if (currency?.startsWith("{") == true) {
+            runCatching {
+                val currencyModel = Gson().fromJson(currency, CurrencyModel::class.java)
+                // 根据账单类型选择对应的币种构建方式
+                val currencyExtra = when {
+                    billModel.isAllIncome() || billModel.isAllSpend() ->
+                        CurrencyExtraModel.buildCurrencyIncomeSpend(
+                            currencyModel.code,         // 外币代码（如 "USD"）
+                            currencyModel.rate,         // 外币对本位币汇率
+                            currencyModel.baseCurrency, // 目标币种（同本位币）
+                            1.0,                        // 目标汇率（本位币为 1.0）
+                            currencyModel.baseCurrency, // 本位币（如 "CNY"）
+                            billModel.getMoney(),       // 外币金额
+                            if (fee == 0.0) discount else fee
+                        )
+
+                    billModel.isTransfer() || billModel.isCreditHuanKuan() ->
+                        CurrencyExtraModel.buildTransferCurrency(
+                            currencyModel.code,         // 转出账户币种
+                            currencyModel.rate,         // 外币对本位币汇率
+                            currencyModel.baseCurrency, // 转入账户币种（本位币）
+                            1.0,                        // 目标汇率（本位币为 1.0）
+                            currencyModel.baseCurrency, // 本位币
+                            billModel.getMoney(),       // 外币金额
+                            fee
+                        )
+
+                    else -> null
+                }
+                // 将币种扩展信息写入账单
+                currencyExtra?.let { extra ->
+                    val billExtra = billModel.getExtra()
+                    billExtra.setCurrencyExtra(extra)
+                    billModel.setExtra(billExtra)
+                }
+            }.onFailure { e ->
+                XposedLogger.e(e)
+            }
+        }
+
+
+        billModel.setUpdateTimeInSec(System.currentTimeMillis() / 1000)
+        billModel.setStatus(QjBillModel.STATUS_NOT_SYNC)
+
+        val id = uri.getQueryParameter("id")?.toIntOrNull() ?: 0
+
+        val rawBillModel = DbHooker.link2Auto(billModel.getBillid(), id)
+
+        if (rawBillModel != null) {
+            billModel.setBillid(rawBillModel.getBillid())
+            billModel.set_id(billModel.get_id())
+
+        }
+
+
+
+        return billModel
+
+
+    }
+
     private fun hookBroadcast(activity: Activity, uri: Uri) {
 
-        Hooker.before(
-            BroadcastUtils.clazz(),
-            "onAddBill",
-            QjBillModel.clazz(),
-            Boolean::class.javaPrimitiveType!!
-        ) {
-            val billModel = QjBillModel.fromObject(it.args[0])
-
-            val fee = uri.getQueryParameter("fee")?.toDoubleOrNull() ?: 0.0
-            //处理优惠
-            val discount = uri.getQueryParameter("discount")?.toDoubleOrNull() ?: 0.0
-            if (discount > 0 && (billModel.isAllSpend() || billModel.isTransfer())) {
-                 //只有支出或者还款的账户才需要记录优惠
-                val extraModel = billModel.getExtra()
-                 extraModel.setTransfee(-discount)
-
+        Hooker.onceBefore(BillDbHelper.clazz(), "saveOrUpdateBill", QjBillModel.clazz()) {
+            if (Throwable().stackTraceToString().contains(AddBillIntentAct.CLAZZ)) {
+                val bill = QjBillModel.fromObject(it.args[0])
+                XposedLogger.d("saveOrUpdateBill: $bill")
+                val billModel = addBilInfo(bill, activity, uri)
+                it.args[0] = billModel.toObject()
+                return@onceBefore true
             }
 
-            //处理标记位置
-            val flag = uri.getQueryParameter("flag")?.toIntOrNull() ?: 0
-            if (billModel.isAllIncome() || billModel.isAllSpend() || billModel.isTransfer()) {
-                billModel.setFlag(flag)
-            }
-
-
-            //处理标签
-            val tags = uri.getQueryParameter("tag")?.split(",") ?: listOf()
-            if (tags.isNotEmpty()) {
-
-                var tagList = runBlocking { TagRefreshPresenterImpl.getTagsByNames(tags) }
-
-                tagList = if (UserModel.isVip()) {
-                    tagList.take(8)
-                } else {
-                    tagList.take(1)
-                }
-
-                // 更新后tag为生效
-
-                billModel.setTagList(tagList)
-            }
-
-            // 多币种处理
-            val currency = uri.getQueryParameter("currency")
-            if (currency?.startsWith("{") == true) {
-                runCatching {
-                    val currencyModel = Gson().fromJson(currency, CurrencyModel::class.java)
-                    // 根据账单类型选择对应的币种构建方式
-                    val currencyExtra = when {
-                        billModel.isAllIncome() || billModel.isAllSpend() ->
-                            CurrencyExtraModel.buildCurrencyIncomeSpend(
-                                currencyModel.code,         // 外币代码（如 "USD"）
-                                currencyModel.rate,         // 外币对本位币汇率
-                                currencyModel.baseCurrency, // 目标币种（同本位币）
-                                1.0,                        // 目标汇率（本位币为 1.0）
-                                currencyModel.baseCurrency, // 本位币（如 "CNY"）
-                                billModel.getMoney(),       // 外币金额
-                                if (fee == 0.0) discount else fee
-                            )
-
-                        billModel.isTransfer() || billModel.isCreditHuanKuan() ->
-                            CurrencyExtraModel.buildTransferCurrency(
-                                currencyModel.code,         // 转出账户币种
-                                currencyModel.rate,         // 外币对本位币汇率
-                                currencyModel.baseCurrency, // 转入账户币种（本位币）
-                                1.0,                        // 目标汇率（本位币为 1.0）
-                                currencyModel.baseCurrency, // 本位币
-                                billModel.getMoney(),       // 外币金额
-                                fee
-                            )
-
-                        else -> null
-                    }
-                    // 将币种扩展信息写入账单
-                    currencyExtra?.let { extra ->
-                        val billExtra = billModel.getExtra()
-                        billExtra.setCurrencyExtra(extra)
-                        billModel.setExtra(billExtra)
-                    }
-                }.onFailure { e ->
-                    XposedLogger.e(e)
-                }
-            }
-
-
-            billModel.setUpdateTimeInSec(System.currentTimeMillis() / 1000)
-            billModel.setStatus(QjBillModel.STATUS_NOT_SYNC)
-            BillDbHelper.newInstance().saveOrUpdateBill(billModel)
-            it.args[0] = billModel.toObject()
-            CoroutineUtils.withIO {
-                SyncClazz.getInstance().startPushBill(activity, billModel)
-            }
-
-
-
-
-            XposedBridge.log(
-                "保存的自动记账账单：${it.args[0]}, 当前的URi: ${uri}"
-            )
-
-
-
-
-
-            true
+            return@onceBefore false
         }
     }
 
