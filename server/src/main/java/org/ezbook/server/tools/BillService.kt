@@ -214,6 +214,9 @@ class BillService(
                 appDataModel.version = SettingUtils.ruleVersion()
                 Db.get().dataDao().update(appDataModel)
             }
+            // 保存映射前的原始账户名，供编辑器"记住资产映射"使用
+            billInfo.rawAccountNameFrom = billInfo.accountNameFrom
+            billInfo.rawAccountNameTo = billInfo.accountNameTo
             // 设置资产映射
             AssetsMap().setAssetsMap(billInfo)
             // 记录资产映射摘要

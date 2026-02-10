@@ -140,7 +140,19 @@ data class BillInfoModel(
     /**
      * 标志位集合：默认无，可通过位运算组合多个标志
      */
-    var flag: Int = 0
+    var flag: Int = 0,
+
+    /**
+     * 映射前的原始来源账户名。
+     * 由 BillService 在执行资产映射前设置，
+     * 用于"记住资产映射"时以原始名查询映射表。
+     */
+    var rawAccountNameFrom: String = "",
+
+    /**
+     * 映射前的原始目标账户名。
+     */
+    var rawAccountNameTo: String = ""
 ) {
     companion object {
         /** 标志位：无 */
