@@ -456,6 +456,13 @@
         无需 Root。捕获截图或通知并运行 OCR/AI 提取账单详情——易于在任何设备上部署，适合日常用户和广泛兼容性场景。
     </string>
 
+    <!-- OCR Auth Mode Selection -->
+    <string name="select_ocr_auth_mode">选择OCR授权方式</string>
+    <string name="select_ocr_auth_mode_subtitle">选择获取前台应用和截图的方式</string>
+    <string name="ocr_auth_root_description">使用Root权限获取前台应用和截图，需要设备已Root</string>
+    <string name="ocr_auth_shizuku_description">使用Shizuku授权获取前台应用和截图，无需Root但需要安装Shizuku</string>
+    <string name="ocr_auth_accessibility_description">使用无障碍服务获取前台应用和截图，无需Root，适合大多数用户</string>
+
     <!-- OCR Tile -->
     <string name="ocr_tile_title">OCR识别</string>
 
@@ -478,6 +485,10 @@
 
     <string name="perm_overlay_title">悬浮窗权限</string>
     <string name="perm_overlay_desc">允许显示悬浮窗以快速提取工具。</string>
+
+    <string name="perm_ocr_perm_root">OCR识别（Root）</string>
+    <string name="perm_ocr_perm_shizuku">OCR识别（Shizuku）</string>
+    <string name="perm_ocr_perm_accessibility">OCR识别（无障碍）</string>
     <string name="perm_network_title">网络访问</string>
     <string name="perm_network_desc">
     允许应用访问互联网进行 AI 分析和数据同步。

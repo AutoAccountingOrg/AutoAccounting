@@ -32,6 +32,6 @@ class IntroPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activ
         SUCCESS({ IntroPageSuccessFragment(); })
         ;
 
-        fun create(): Fragment = factory()         // 每次都拿到“全新”实例
+        fun create(): Fragment = factory()         // 每次都拿到"全新"实例
     }
 }

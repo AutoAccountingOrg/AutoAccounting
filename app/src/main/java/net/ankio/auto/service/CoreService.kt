@@ -259,18 +259,21 @@ class CoreService : LifecycleService() {
 
         /**
          * 重启核心服务
-         * 如果服务正在运行则先停止，然后启动
+         * 如果服务正在运行则先停止，然后启动。
+         * 等待与启动在后台线程执行，避免阻塞主线程导致页面切换卡顿。
          */
         fun restart(activity: Activity, intent: Intent? = null): Boolean {
             return try {
                 if (isRunning(activity)) {
                     Logger.i("服务正在运行，先停止服务")
                     stop(activity)
-                    // 等待服务完全停止
-                    Thread.sleep(1000)
                 }
+
                 Logger.i("启动服务")
                 start(activity, intent)
+
+                true
+
             } catch (e: Exception) {
                 Logger.e("重启服务时异常: ${e.message}", e)
                 false

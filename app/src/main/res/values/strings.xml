@@ -476,6 +476,13 @@
         No root needed. Captures screenshots or notifications and runs OCR/AI to extract bill details—easy to deploy on any device, perfect for everyday users and broad-compatibility scenarios.
     </string>
 
+    <!-- OCR Auth Mode Selection -->
+    <string name="select_ocr_auth_mode">Select OCR Authorization Method</string>
+    <string name="select_ocr_auth_mode_subtitle">Choose how to get foreground app and take screenshots</string>
+    <string name="ocr_auth_root_description">Use Root permission to get foreground app and take screenshots. Requires rooted device.</string>
+    <string name="ocr_auth_shizuku_description">Use Shizuku authorization to get foreground app and take screenshots. No root needed but requires Shizuku installed.</string>
+    <string name="ocr_auth_accessibility_description">Use Accessibility Service to get foreground app and take screenshots. No root needed, suitable for most users.</string>
+
     <!-- OCR Tile -->
     <string name="ocr_tile_title">OCR Recognition</string>
 
@@ -501,6 +508,10 @@
 
     <string name="perm_overlay_title">Overlay Permission</string>
     <string name="perm_overlay_desc">Allows displaying floating windows for quick extraction tools.</string>
+
+    <string name="perm_ocr_perm_root">OCR Recognition (Root)</string>
+    <string name="perm_ocr_perm_shizuku">OCR Recognition (Shizuku)</string>
+    <string name="perm_ocr_perm_accessibility">OCR Recognition (Accessibility)</string>
 
 
     <string name="perm_network_title">Network Access</string>
