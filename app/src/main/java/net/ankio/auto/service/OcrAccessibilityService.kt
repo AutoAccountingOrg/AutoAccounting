@@ -16,6 +16,7 @@
 package net.ankio.auto.service
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import net.ankio.auto.storage.Logger
 
@@ -48,6 +49,11 @@ class OcrAccessibilityService : AccessibilityService() {
         super.onServiceConnected()
         instance = this
         Logger.d("OCR无障碍服务已连接")
+        // 授权后自动返回应用主界面
+        packageManager.getLaunchIntentForPackage(packageName)?.let { intent ->
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
     }
 
     /**
@@ -58,10 +64,12 @@ class OcrAccessibilityService : AccessibilityService() {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
         val pkg = event.packageName?.toString() ?: return
-        // 过滤自身包名和系统UI、无效包名
-        if (pkg == packageName || !pkg.contains('.')) return
+        // 过滤自身包名、系统UI、无效包名（不含.的包名如 android）
+        if (pkg == packageName || pkg == "com.android.systemui" || !pkg.contains('.')) return
 
         topPackage = pkg
+
+        Logger.d("topPackage:${topPackage}")
     }
 
     override fun onInterrupt() {
