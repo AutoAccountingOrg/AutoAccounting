@@ -46,6 +46,7 @@
     <string name="cancel_select_all">取消全选</string>
     <string name="add">添加</string>
     <string name="content_title">数据视图</string>
+    <string name="image_preview_title">图片预览</string>
     <string name="if_condition_true">如果满足 </string>
     <string name="condition_result_book">。则账本为</string>
     <string name="condition_result_category">。分类为</string>

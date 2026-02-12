@@ -23,6 +23,7 @@ import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.theme.DynamicColors
+import net.ankio.auto.ui.utils.load
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.getAppInfoFromPackageName
 import org.ezbook.server.constant.DataType
@@ -38,6 +39,9 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
     var onTestRuleClick: ((AppDataModel) -> Unit)? = null
     var onTestRuleLongClick: ((AppDataModel) -> Unit)? = null
     var onContentClick: ((AppDataModel) -> Unit)? = null
+
+    /** 图片内容点击，仅当 data.image 非空时触发 */
+    var onImageClick: ((AppDataModel) -> Unit)? = null
     var onCreateRuleClick: ((AppDataModel) -> Unit)? = null
     var onUploadDataClick: ((AppDataModel) -> Unit)? = null
     var onDeleteClick: ((AppDataModel) -> Unit)? = null
@@ -66,6 +70,9 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
 
         binding.content.setOnClickListener {
             holder.item?.let { onContentClick?.invoke(it) }
+        }
+        binding.contentImage.setOnClickListener {
+            holder.item?.let { onImageClick?.invoke(it) }
         }
 
         binding.createRule.setOnClickListener {
@@ -114,8 +121,17 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
             DataType.OCR -> context.getString(R.string.data_type_ocr)
         }
 
-        // 内容
-        binding.content.text = data.data
+        // 内容：有图片时展示图片，否则展示文本
+        val hasImage = data.image.isNotBlank()
+        binding.content.isVisible = !hasImage
+        binding.contentImage.isVisible = hasImage
+        if (hasImage) {
+            val imgSrc =
+                if (data.image.startsWith("data:image")) data.image else "data:image/png;base64,${data.image}"
+            binding.contentImage.load(imgSrc)
+        } else {
+            binding.content.text = data.data
+        }
 
         // 规则相关UI状态
         val hasRule = data.isMatched()

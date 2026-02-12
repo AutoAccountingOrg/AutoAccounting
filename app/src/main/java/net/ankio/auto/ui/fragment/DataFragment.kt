@@ -42,6 +42,7 @@ import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.http.Pastebin
 import net.ankio.auto.ui.components.MaterialSearchView
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.load
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CustomTabsHelper
@@ -110,6 +111,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
         return AppDataAdapter().apply {
             onTestRuleClick = ::handleTestRuleClick
             onContentClick = ::handleContentClick
+            onImageClick = ::handleImageClick
             onCreateRuleClick = ::handleCreateRuleClick
             onUploadDataClick = ::handleUploadDataClick
             onDeleteClick = ::handleDeleteClick
@@ -143,7 +145,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     }
 
     /**
-     * 处理内容点击事件
+     * 处理文本内容点击事件
      */
     private fun handleContentClick(item: AppDataModel) {
         BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
@@ -154,6 +156,31 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                 SystemUtils.copyToClipboard(item.data)
                 ToastUtils.info(R.string.copy_command_success)
             }
+            .show()
+    }
+
+    /**
+     * 处理图片内容点击事件，单独弹窗展示大图
+     */
+    private fun handleImageClick(item: AppDataModel) {
+        val imageView =
+            com.google.android.material.imageview.ShapeableImageView(requireContext()).apply {
+                layoutParams = android.widget.FrameLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = resources.getDimensionPixelSize(R.dimen.padding)
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.padding)
+                }
+                maxHeight = resources.getDimensionPixelSize(R.dimen.image_preview_max_height)
+                adjustViewBounds = true
+                scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+            }
+        imageView.load(item.image)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle(getString(R.string.image_preview_title))
+            .addCustomView(imageView)
+            .setNegativeButton(getString(R.string.cancel_msg)) { _, _ -> }
             .show()
     }
 

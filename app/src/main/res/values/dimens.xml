@@ -33,6 +33,7 @@
     <dimen name="image_size_large_medium">52dp</dimen>
     <dimen name="image_size_large_max">58dp</dimen>
     <dimen name="image_size_large_max_2">88dp</dimen>
+    <dimen name="image_preview_max_height">480dp</dimen>
     <dimen name="state_padding">28dp</dimen>
     <dimen name="radius">24dp</dimen>
     <dimen name="radius_medium">18dp</dimen>

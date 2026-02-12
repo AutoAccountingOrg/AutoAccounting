@@ -45,6 +45,7 @@
     <string name="cancel_select_all">Deselect all</string>
     <string name="add">Add</string>
     <string name="content_title">Data view</string>
+    <string name="image_preview_title">Image preview</string>
     <string name="if_condition_true">If satisfied </string>
     <string name="condition_result_book">. Then book is</string>
     <string name="condition_result_category">. Category is</string>

@@ -26,13 +26,26 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="@dimen/one_padding">
 
-            <!-- 应用图标 -->
-            <io.github.xiaofeidev.round.RoundImageView
-                android:id="@+id/appIcon"
+            <io.github.xiaofeidev.round.RoundFrameLayout
+                android:id="@+id/logo"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:scaleType="centerCrop"
-                tools:src="@drawable/wechat" />
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="0dp"
+                app:layout_constraintDimensionRatio="1"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:rd_radius="30dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    android:id="@+id/appIcon"
+                    android:src="@mipmap/ic_launcher"
+                    app:srcCompat="@mipmap/ic_launcher_round" />
+            </io.github.xiaofeidev.round.RoundFrameLayout>
 
             <!-- 应用名称和时间 -->
             <LinearLayout
@@ -78,18 +91,35 @@
 
         </LinearLayout>
 
-        <!-- 内容 -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/content"
+        <!-- 内容：文本或图片二选一展示 -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/TextAppearance.AppCompat.Body2"
-            android:maxLines="3"
-            android:ellipsize="end"
             android:paddingTop="@dimen/one_padding"
-            android:paddingBottom="@dimen/one_padding"
-            android:textColor="?colorOnSurface"
-            tools:text="这是一个规则内容xxx这是一个规则内容xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+            android:paddingBottom="@dimen/one_padding">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.AppCompat.Body2"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:textColor="?colorOnSurface"
+                tools:text="这是一个规则内容xxx这是一个规则内容xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/contentImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:maxHeight="200dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
+
+                tools:visibility="visible" />
+        </FrameLayout>
 
         <!-- 规则名称行 -->
         <net.ankio.auto.ui.components.IconView
