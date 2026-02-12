@@ -65,7 +65,7 @@ class OcrAccessibilityService : AccessibilityService() {
 
         val pkg = event.packageName?.toString() ?: return
         // 过滤自身包名、系统UI、无效包名（不含.的包名如 android）
-        if (pkg == packageName || pkg == "com.android.systemui" || !pkg.contains('.')) return
+        if (pkg == packageName || pkg.startsWith("com.android.") || !pkg.contains('.')) return
 
         topPackage = pkg
 
