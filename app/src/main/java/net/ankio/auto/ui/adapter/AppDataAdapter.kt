@@ -20,6 +20,7 @@ import androidx.core.view.isVisible
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.theme.DynamicColors
@@ -120,14 +121,12 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
             DataType.DATA -> context.getString(R.string.data_type_app)
             DataType.OCR -> context.getString(R.string.data_type_ocr)
         }
-
         // 内容：有图片时展示图片，否则展示文本
         val hasImage = data.image.isNotBlank()
         binding.content.isVisible = !hasImage
         binding.contentImage.isVisible = hasImage
         if (hasImage) {
-            val imgSrc =
-                if (data.image.startsWith("data:image")) data.image else "data:image/png;base64,${data.image}"
+            val imgSrc = data.image
             binding.contentImage.load(imgSrc)
         } else {
             binding.content.text = data.data

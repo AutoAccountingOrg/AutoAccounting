@@ -167,8 +167,8 @@ class BillService(
                     app = analysisParams.app
                     type = dataType
                     time = System.currentTimeMillis()
+                    image = analysisParams.image  // 必须在 insert 前设置，否则入库时 image 为空
                     id = Db.get().dataDao().insert(this)
-                    image = analysisParams.image
                     // 记录原始数据持久化的主键与摘要，方便追溯
                     ServerLog.d("原始数据持久化成功：id=$id, app=$app, type=$type")
                 }
