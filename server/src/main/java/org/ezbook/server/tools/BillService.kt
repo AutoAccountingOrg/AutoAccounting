@@ -194,22 +194,20 @@ class BillService(
                     null
                 )
             }
-            val billInfo: BillInfoModel =
-                ruleMatchResult.billInfo
-                    ?: analyzeWithAI(
-                        analysisParams.app,
-                        analysisParams.data,
-                        dataType,
-                        analysisParams.image
-                    )
-                    ?: run {
-                        ServerLog.d("AI和规则的解析结果都为NULL\n==============账单分析结束===============")
-                        return@withContext ResultModel<BillResultModel>(
-                            404,
-                            "未分析到有效账单。",
-                            null
-                        )
-                    }
+            val (aiBill, aiError) = analyzeWithAI(
+                analysisParams.app,
+                analysisParams.data,
+                dataType,
+                analysisParams.image
+            )
+            val billInfo: BillInfoModel = ruleMatchResult.billInfo ?: aiBill ?: run {
+                ServerLog.d("AI和规则的解析结果都为NULL\n==============账单分析结束===============")
+                return@withContext ResultModel<BillResultModel>(
+                    404,
+                    aiError ?: "未分析到有效账单。",
+                    null
+                )
+            }
             ServerLog.d("初步解析的账单结果 $billInfo")
             //这里也不加bookName, bookName在分类里面处理
             if (appDataModel != null) {
@@ -409,37 +407,44 @@ class BillService(
     /**
      * 使用AI分析账单数据
      * 当 aiVisionRecognition 开启且 image 非空时，将图片直接发给大模型进行视觉识别。
+     * @return 成功时返回 BillInfoModel，失败时返回 null 且 errorMsg 会反映 AI 错误信息
      */
     private suspend fun analyzeWithAI(
         app: String,
         data: String,
         dataType: DataType,
         image: String = ""
-    ): BillInfoModel? {
-
+    ): Pair<BillInfoModel?, String?> {
         if (!SettingUtils.featureAiAvailable()) {
             ServerLog.d("AI功能总开关关闭，跳过账单AI分析")
-            return null
+            return null to null
         }
         if (!SettingUtils.aiBillRecognition()) {
             ServerLog.d("AI识别账单已关闭，跳过账单分析")
-            return null
+            return null to null
         }
         val useVision = SettingUtils.aiVisionRecognition() && image.isNotBlank()
         ServerLog.d("AI分析中，data=${data.take(80)}..., useVision=$useVision")
-        val result = BillTool().execute(data, app, dataType, if (useVision) image else "") ?: run {
-            // 记录AI未返回有效结果
-            ServerLog.d("AI未返回有效账单结果")
-            return null
-        }
-        return result.apply {
-            // 设置AI分析的标识信息
-            ruleName = "${SettingUtils.apiProvider()} 生成"
-            state = BillState.Wait2Edit
-            this.app = app
-            // 记录AI解析成功的关键信息
-            ServerLog.d("AI解析成功：type=$type, money=$money, shop=$shopName")
-        }
+        val result = BillTool().execute(data, app, dataType, if (useVision) image else "")
+        return result.fold(
+            onSuccess = { bill ->
+                if (bill == null) {
+                    ServerLog.d("AI未返回有效账单结果")
+                    null to null
+                } else {
+                    bill.apply {
+                        ruleName = "${SettingUtils.apiProvider()} 生成"
+                        state = BillState.Wait2Edit
+                        this.app = app
+                        ServerLog.d("AI解析成功：type=$type, money=$money, shop=$shopName")
+                    } to null
+                }
+            },
+            onFailure = { e ->
+                ServerLog.e("AI分析失败: ${e.message}", e)
+                null to (e.message ?: "未知错误")
+            }
+        )
     }
 
     /**

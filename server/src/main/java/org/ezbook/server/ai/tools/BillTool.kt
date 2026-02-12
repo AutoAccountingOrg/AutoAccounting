@@ -42,12 +42,16 @@ class BillTool {
         }
     }
 
+    /**
+     * 执行 AI 账单识别
+     * @return Result.success(bill) 成功，Result.success(null) 未解析到有效账单，Result.failure 时保留 AI 错误信息供上层展示
+     */
     suspend fun execute(
         data: String,
         app: String,
         dataType: DataType,
         image: String = ""
-    ): BillInfoModel? {
+    ): Result<BillInfoModel?> {
         val prompt = getPrompt()
         val categories = Db.get().categoryDao().all()
         val expendCategoryNames = categories
@@ -97,10 +101,10 @@ $rawDataBlock
             val billInfoModel = Gson().fromJson(bill, BillInfoModel::class.java)
             if (ts > 0) billInfoModel.time = ts
             if (billInfoModel.money < 0) billInfoModel.money = -billInfoModel.money
-            if (billInfoModel.money == 0.0) return null
+            if (billInfoModel.money == 0.0) return@runCatchingExceptCancel null
             billInfoModel
         }.onFailure {
             ServerLog.e("AI分析结果解析失败: $it", it)
-        }.getOrNull()
+        }
     }
 }

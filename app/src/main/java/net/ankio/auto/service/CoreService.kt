@@ -201,8 +201,6 @@ class CoreService : LifecycleService() {
             }
 
             Logger.i("服务销毁完成: 成功 $successCount 个，失败 $failureCount 个")
-        } else {
-            Logger.w("服务未初始化，跳过销毁")
         }
         
         super.onDestroy()

@@ -159,8 +159,6 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                         ?: error("Empty choices content")
                 }
             }
-        }.onFailure {
-            ServerLog.e("AI Provider(Result): 请求失败：${it.message}", it)
         }
     }
 
