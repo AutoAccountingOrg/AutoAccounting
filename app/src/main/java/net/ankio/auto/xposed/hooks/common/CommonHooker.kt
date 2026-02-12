@@ -63,6 +63,7 @@ object CommonHooker {
             Server.versionName = BuildConfig.VERSION_NAME
             Server.packageName = BuildConfig.APPLICATION_ID
             Server.versionCode = BuildConfig.VERSION_CODE
+            Server.debugPackage = BuildConfig.DEBUG
             server.startServer()
             AppInstaller.init(AppRuntime.application!!, server)
             UnLockScreen.init()

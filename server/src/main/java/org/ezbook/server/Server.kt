@@ -72,6 +72,7 @@ class Server(private val context: Application) {
         var versionName = "1.0.0"
         var versionCode = 1
         var packageName = "net.ankio.auto"
+        var debugPackage = false
         lateinit var application: Application
 
         /**
