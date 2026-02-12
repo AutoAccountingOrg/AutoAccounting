@@ -112,6 +112,7 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
     private fun updateAiFeatureDependencies(isAvailable: Boolean = PrefManager.featureAiAvailable) {
         // AI能力不可用时，禁用AI功能与提示词入口，避免误操作
         findPreference<MaterialSwitchPreference>("aiBillRecognition")?.isEnabled = isAvailable
+        findPreference<MaterialSwitchPreference>("aiVisionRecognition")?.isEnabled = isAvailable
         findPreference<MaterialSwitchPreference>("aiCategoryRecognition")?.isEnabled = isAvailable
         findPreference<MaterialSwitchPreference>("aiAssetMapping")?.isEnabled = isAvailable
         findPreference<MaterialSwitchPreference>("aiMonthlySummary")?.isEnabled = isAvailable
@@ -230,6 +231,7 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
                 // AI功能
                 "featureAiAvailable" -> PrefManager.featureAiAvailable
                 "aiBillRecognition" -> PrefManager.aiBillRecognition
+                "aiVisionRecognition" -> PrefManager.aiVisionRecognition
                 "aiCategoryRecognition" -> PrefManager.aiCategoryRecognition
                 "aiAssetMapping" -> PrefManager.aiAssetMapping
                 "aiMonthlySummary" -> PrefManager.aiMonthlySummary
@@ -242,6 +244,7 @@ class AIAssistantPreferenceFragment : BasePreferenceFragment() {
                 // AI功能
                 "featureAiAvailable" -> PrefManager.featureAiAvailable = value
                 "aiBillRecognition" -> PrefManager.aiBillRecognition = value
+                "aiVisionRecognition" -> PrefManager.aiVisionRecognition = value
                 "aiCategoryRecognition" -> PrefManager.aiCategoryRecognition = value
                 "aiAssetMapping" -> PrefManager.aiAssetMapping = value
                 "aiMonthlySummary" -> PrefManager.aiMonthlySummary = value

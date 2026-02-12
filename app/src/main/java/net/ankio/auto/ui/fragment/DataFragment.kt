@@ -124,7 +124,9 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             val loading = LoadingUtils(requireContext())
             loading.show(R.string.rule_testing)
 
-            val result = JsAPI.analysis(item.type, item.data, item.app, true)
+            val image =
+                if (PrefManager.aiVisionRecognition && item.image.isNotBlank()) item.image else item.data
+            val result = JsAPI.analysis(item.type, image, item.app, fromAppData = true)
 
             result.data?.let { billResultModel ->
                 BaseSheetDialog.create<BillEditorDialog>(requireContext())

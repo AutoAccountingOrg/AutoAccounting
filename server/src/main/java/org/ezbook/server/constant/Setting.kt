@@ -41,6 +41,7 @@ object Setting {
     const val AUTO_TRANSFER_RECOGNITION = "setting_auto_transfer_recognition" // 自动识别转账账单
     const val AUTO_TRANSFER_TIME_THRESHOLD = "setting_auto_transfer_time_threshold" // 转账账单合并时间阈值（秒）
     const val AI_BILL_RECOGNITION: String = "ai_bill_recognition"   // 使用AI识别账单
+    const val AI_VISION_RECOGNITION: String = "ai_vision_recognition" // 直接将图片发给大模型识别（需选择支持视觉的模型）
 
     // -------- 账单管理 --------
     const val SHOW_RULE_NAME = "setting_show_rule_name"              // 显示规则名称

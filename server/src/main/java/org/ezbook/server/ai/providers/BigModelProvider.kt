@@ -73,17 +73,29 @@ class BigModelProvider : BaseAIProvider() {
     override suspend fun request(
         system: String,
         user: String,
+        image: String,
         onChunk: ((String) -> Unit)?
     ): Result<String> {
-        // 日志：避免过度输出，仅记录关键信息
-        ServerLog.d("BigModel: 发起请求，model=${getModel()}, stream=${onChunk != null}")
+        ServerLog.d("BigModel: 发起请求，model=${getModel()}, stream=${onChunk != null}, hasImage=${image.isNotBlank()}")
 
-        // 1) 组装 messages
-        val messages = mutableListOf<Map<String, String>>()
+        val messages = mutableListOf<Any>()
         if (system.isNotEmpty()) {
             messages.add(mapOf("role" to "system", "content" to system))
         }
-        messages.add(mapOf("role" to "user", "content" to user))
+        val userContent = if (image.isNotBlank()) {
+            val dataUrl =
+                if (image.startsWith("data:image")) image else "data:image/jpeg;base64,$image"
+            mapOf(
+                "role" to "user",
+                "content" to listOf(
+                    mapOf("type" to "text", "text" to user),
+                    mapOf("type" to "image_url", "image_url" to mapOf("url" to dataUrl))
+                )
+            )
+        } else {
+            mapOf("role" to "user", "content" to user)
+        }
+        messages.add(userContent)
 
         // 2) 组装请求体
         val bodyMap = mutableMapOf(

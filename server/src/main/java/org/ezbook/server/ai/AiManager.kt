@@ -81,33 +81,28 @@ class AiManager {
     }
     /**
      * 发送请求到当前AI服务
-     * @param system 系统提示
-     * @param user 用户提示
-     * @return AI响应
+     * @param image 可选，图片 Base64 或 data:image/xxx;base64,xxx，非空时以视觉模式调用
      */
     suspend fun request(
         system: String,
         user: String,
-        provider: BaseAIProvider? = null
+        provider: BaseAIProvider? = null,
+        image: String = ""
     ): Result<String> {
-        return (provider ?: getCurrentProvider()).request(system, user)
+        return (provider ?: getCurrentProvider()).request(system, user, image, null)
     }
-
 
     /**
      * 发送流式请求到当前AI服务
-     * @param system 系统提示
-     * @param user 用户提示
-     * @param onChunk 接收到数据块时的回调函数
-     * @return 是否成功开始流式请求
      */
     suspend fun requestStream(
         system: String,
         user: String,
         provider: BaseAIProvider? = null,
+        image: String = "",
         onChunk: (String) -> Unit
     ) {
-        (provider ?: getCurrentProvider()).request(system, user, onChunk)
+        (provider ?: getCurrentProvider()).request(system, user, image, onChunk)
     }
 
     companion object {

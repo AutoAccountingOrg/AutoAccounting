@@ -42,26 +42,33 @@ class BillTool {
         }
     }
 
-    suspend fun execute(data: String, app: String, dataType: DataType): BillInfoModel? {
+    suspend fun execute(
+        data: String,
+        app: String,
+        dataType: DataType,
+        image: String = ""
+    ): BillInfoModel? {
         val prompt = getPrompt()
         val categories = Db.get().categoryDao().all()
-        // 按收支类型拆分分类列表，避免 AI 混用分类
         val expendCategoryNames = categories
             .filter { it.type.name.startsWith(BillType.Expend.name) }
             .joinToString(",") { it.name.toString() }
         val incomeCategoryNames = categories
             .filter { it.type.name.startsWith(BillType.Income.name) }
             .joinToString(",") { it.name.toString() }
-        // 组装上下文信息，帮助提示词做更准确的场景判断
+        val rawDataBlock = if (image.isNotBlank()) {
+            if (data.isNotBlank()) "OCR 辅助文本：\n  ```\n  $data\n  ```"
+            else "见下方图片，请直接识别图片中的账单信息。"
+        } else {
+            "  ```\n  $data\n  ```"
+        }
         val user = """
 Input:
 - Context:
   - Source App: $app
   - Data Type: $dataType
 - Raw Data: 
-  ```
-  $data
-  ```
+$rawDataBlock
 - Category Data:
   - Expend:
     ```
@@ -74,7 +81,8 @@ Input:
         """.trimIndent()
 
         return runCatchingExceptCancel {
-            val data = AiManager.getInstance().request(prompt, user).getOrThrow()
+            val resp = AiManager.getInstance().request(prompt, user, image = image)
+            val data = resp.getOrThrow()
 
             val bill = data.removeMarkdown()
             ServerLog.d("AI分析结果: $bill")

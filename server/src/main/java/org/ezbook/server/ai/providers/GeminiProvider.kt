@@ -55,30 +55,36 @@ class GeminiProvider : BaseAIProvider() {
     }
 
     /**
-     * 发送聊天请求
+     * 发送聊天请求（支持视觉识别）
      */
     override suspend fun request(
         system: String,
         user: String,
+        image: String,
         onChunk: ((String) -> Unit)?
     ): Result<String> =
         withContext(Dispatchers.IO) {
             val path = if (onChunk === null) "generateContent" else "streamGenerateContent?alt=sse"
             val url = "${base()}/${getModel()}:$path"
-            val requestBody = mapOf(
-                "contents" to listOf(
+            val secondParts = mutableListOf<Map<String, Any>>()
+            secondParts.add(mapOf("text" to user))
+            if (image.isNotBlank()) {
+                val base64Data = if (image.startsWith("data:image")) {
+                    image.substringAfter("base64,").ifBlank { image }
+                } else image
+                secondParts.add(
                     mapOf(
-                        "role" to "user",
-                        "parts" to listOf(
-                            mapOf("text" to system)
-                        )
-                    ),
-                    mapOf(
-                        "role" to "user",
-                        "parts" to listOf(
-                            mapOf("text" to user)
+                        "inlineData" to mapOf(
+                            "mimeType" to "image/jpeg",
+                            "data" to base64Data
                         )
                     )
+                )
+            }
+            val requestBody = mapOf(
+                "contents" to listOf(
+                    mapOf("role" to "user", "parts" to listOf(mapOf("text" to system))),
+                    mapOf("role" to "user", "parts" to secondParts)
                 )
             )
             val request = Request.Builder()

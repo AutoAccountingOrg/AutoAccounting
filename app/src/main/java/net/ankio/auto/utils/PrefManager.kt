@@ -138,6 +138,11 @@ object PrefManager {
         get() = getBoolean(Setting.AI_BILL_RECOGNITION, DefaultData.AI_BILL_RECOGNITION)
         set(value) = putBoolean(Setting.AI_BILL_RECOGNITION, value)
 
+    /** 直接将图片发给大模型识别 - 需选择支持视觉的模型（如 gpt-4o、gemini-pro-vision、qwen-vl 等） */
+    var aiVisionRecognition: Boolean
+        get() = getBoolean(Setting.AI_VISION_RECOGNITION, DefaultData.AI_VISION_RECOGNITION)
+        set(value) = putBoolean(Setting.AI_VISION_RECOGNITION, value)
+
     // -------- 账单管理 --------
     /** 显示规则名称开关 - 记账时是否显示匹配的规则名 */
     var showRuleName: Boolean

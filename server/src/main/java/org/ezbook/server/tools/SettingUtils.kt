@@ -132,6 +132,14 @@ object SettingUtils {
     suspend fun setAiBillRecognition(value: Boolean) =
         setBoolean(Setting.AI_BILL_RECOGNITION, value)
 
+    /** 直接将图片发给大模型识别（需选择支持视觉的模型，如 gpt-4o、gemini-pro-vision、qwen-vl 等） */
+    suspend fun aiVisionRecognition(): Boolean =
+        getBoolean(Setting.AI_VISION_RECOGNITION, DefaultData.AI_VISION_RECOGNITION)
+
+    /** 设置：直接将图片发给大模型识别 */
+    suspend fun setAiVisionRecognition(value: Boolean) =
+        setBoolean(Setting.AI_VISION_RECOGNITION, value)
+
     /** 使用AI识别分类 */
     suspend fun aiCategoryRecognition(): Boolean =
         getBoolean(Setting.AI_CATEGORY_RECOGNITION, DefaultData.AI_CATEGORY_RECOGNITION)

@@ -16,6 +16,7 @@
 package org.ezbook.server.tools
 
 import com.google.gson.GsonBuilder
+import java.util.Base64
 
 object DataConvert {
 
@@ -141,4 +142,19 @@ object DataConvert {
  */
 fun String.removeMarkdown(): String {
     return with(DataConvert) { removeCodeBlock() }
+}
+
+/**
+ * 判断 data:image/xxx;base64,xxx 格式的图片是否有效
+ * 仅校验 Base64 解码后的文件头魔数（JPEG/PNG/GIF/WebP）
+ */
+fun String.isBase64Image(): Boolean {
+    return startsWith("data:image")
+}
+
+/**
+ * 移除 data:image/xxx;base64, 前缀，返回纯 Base64 字符串；无前缀则原样返回
+ */
+fun String.removeBase64Prefix(): String {
+    return if (startsWith("data:image")) substringAfter("base64,", this) else this
 }

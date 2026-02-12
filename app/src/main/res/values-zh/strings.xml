@@ -813,6 +813,8 @@
     <string name="setting_landscape_dnd_summary">当设备处于横屏状态时不会弹窗干扰</string><!-- AI Features -->
     <string name="setting_ai_bill_recognition">使用AI识别账单</string>
     <string name="setting_ai_bill_recognition_summary">从原始数据自动提取账单信息</string>
+    <string name="setting_ai_vision_recognition">直接将图片发给大模型识别</string>
+    <string name="setting_ai_vision_recognition_summary">跳过 OCR，将截图直接发给大模型。请选择具有视觉能力的模型（如 gpt-4o、gemini-pro-vision、qwen-vl 等）</string>
     <string name="setting_rule_match_include_disabled">允许禁用规则参与匹配</string>
     <string name="setting_rule_match_include_disabled_summary">命中禁用规则时直接丢弃，避免调用AI</string>
     <string name="setting_ai_category_recognition">使用AI进行分类识别</string>
@@ -937,6 +939,7 @@
     <string name="float_action_auto_record">自动记录</string>
     <string name="setting_ocr_show_animation">显示OCR状态提示</string>
     <string name="setting_ocr_show_animation_summary">OCR和AI识别期间在顶部显示状态横幅</string>
+    <string name="ocr_status_processing_screenshot">正在处理截图…</string>
     <string name="ocr_status_recognizing">正在OCR识别…</string>
     <string name="ocr_status_ai_analyzing">正在AI识别…</string>
     <string name="ocr_error_no_foreground_app">无法获取前台应用</string>

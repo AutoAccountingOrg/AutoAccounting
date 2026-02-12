@@ -106,7 +106,6 @@ class OcrService : ICoreService() {
 
         if (intent?.getStringExtra("intentType") == IntentType.OCR.name) {
             Logger.d("收到Intent启动OCR请求")
-            //延迟1秒启动，等activity退出
             coreService.lifecycleScope.launch {
                 val manual = intent.getBooleanExtra("manual", false)
                 triggerOcr(manual)
@@ -228,14 +227,13 @@ class OcrService : ICoreService() {
             try {
                 Logger.d("开始OCR流程")
 
-                // 1. 先在IO线程截图+OCR（此时屏幕无任何覆盖物，截图干净）
-                val captureResult = withContext(Dispatchers.IO) { performOcrCapture() }
+                // 1. 先在IO线程截图（视觉模式返回图片Base64，规则模式返回OCR文本）
+                val useVision = PrefManager.aiVisionRecognition
+                val data = withContext(Dispatchers.IO) { performOcrCapture(useVision) }
+                    ?: return@launch  // performOcrCapture 内部已通过横幅展示错误
 
-                // performOcrCapture 内部已通过横幅展示错误，null 直接返回
-                if (captureResult == null) return@launch
-
-                // 检查识别关键字过滤
-                if (PrefManager.dataFilter.all { captureResult.text.contains(it) }) {
+                // 检查识别关键字过滤（仅规则模式：有文本时按关键字过滤）
+                if (!useVision && PrefManager.dataFilter.all { data.contains(it) }) {
                     Logger.d("数据信息不在识别关键字里面，忽略")
                     ocrView.showError(
                         coreService,
@@ -244,14 +242,14 @@ class OcrService : ICoreService() {
                     return@launch
                 }
 
-                Logger.d("识别文本长度: ${captureResult.text.length}，图片Base64长度: ${captureResult.imageBase64.length}")
+                Logger.d("识别数据长度: ${data.length}")
 
                 // 2. 更新横幅：正在AI识别
                 ocrView.updateStatus(coreService.getString(R.string.ocr_status_ai_analyzing))
 
-                // 3. 发送给JS引擎做AI规则识别
+                // 3. 发送给JS引擎（视觉模式传图，规则模式传文本）
                 val result = withContext(Dispatchers.IO) {
-                    send2JsEngine(captureResult.text, packageName)
+                    send2JsEngine(data, packageName)
                 }
 
                 val totalTime = System.currentTimeMillis() - startTime
@@ -279,18 +277,13 @@ class OcrService : ICoreService() {
     }
 
     /**
-     * OCR 捕获结果：识别文本 + 压缩后的截图 Base64（供后续存储使用）
-     */
-    private data class OcrCaptureResult(val text: String, val imageBase64: String)
-
-    /**
-     * 执行屏幕截图和OCR识别
+     * 执行屏幕截图，可选 OCR 识别
      *
-     * 流程：截图 → 弹横幅"正在OCR识别" → Luban压缩 → OCR → 返回结果
-     * 所有错误通过横幅展示。
-     * @return 识别结果（文本+压缩图片Base64），失败返回null
+     * 流程：截图 → 弹横幅 → 压缩 → [useVision=false 时 OCR] → 返回结果
+     * @param useVision 为 true 时跳过 OCR，仅返回图片 Base64；否则返回 OCR 文本
+     * @return 视觉模式返回图片 Base64，规则模式返回 OCR 文本，失败返回 null
      */
-    private suspend fun performOcrCapture(): OcrCaptureResult? {
+    private suspend fun performOcrCapture(useVision: Boolean): String? {
         val captureStartTime = System.currentTimeMillis()
 
         // 截图输出路径
@@ -316,9 +309,11 @@ class OcrService : ICoreService() {
         val captureTime = System.currentTimeMillis() - captureStartTime
         Logger.d("截图耗时: ${captureTime}ms")
 
-        // 截图完成，显示顶部横幅"正在OCR识别"（截图干净，不会被污染）
         withContext(Dispatchers.Main) {
-            ocrView.show(coreService, coreService.getString(R.string.ocr_status_recognizing))
+            ocrView.show(
+                coreService,
+                coreService.getString(R.string.ocr_status_processing_screenshot)
+            )
         }
 
         // 解码截图
@@ -341,42 +336,57 @@ class OcrService : ICoreService() {
         }
 
         // 缩小图片加速 OCR（短边缩到 OCR_MAX_SHORT_EDGE，像素量大幅减少）
+        val (srcW, srcH) = croppedBitmap.width to croppedBitmap.height
         val scaledBitmap = scaleDownForOcr(croppedBitmap).also { scaled ->
             if (scaled !== croppedBitmap) croppedBitmap.recycle()
         }
-        Logger.d("图片缩放: ${croppedBitmap.width}x${croppedBitmap.height} → ${scaledBitmap.width}x${scaledBitmap.height}")
+        Logger.d("图片缩放: ${srcW}x${srcH} → ${scaledBitmap.width}x${scaledBitmap.height}")
 
-        // 将缩小后的图片编码为 JPEG Base64（供后续存储）
+        // 将缩小后的图片编码为 JPEG Base64（供后续存储/发AI）
         val imageBase64 = bitmapToBase64(scaledBitmap)
 
-        // OCR 识别（用缩小后的图，速度更快）
-        val text = runCatching {
-            ocrProcessor.startProcess(scaledBitmap)
-        }.getOrElse {
-            Logger.e("OCR 识别失败: ${it.message}")
-            outFile.delete()
-            scaledBitmap.recycle()
+        val text = if (useVision) {
+            // AI 视觉模式：直接看图，跳过 OCR（避免本地 OCR 耗时与 OpenMP 兼容问题）
+            Logger.d("AI 视觉模式，跳过 OCR，直接发图")
+            ""
+        } else {
+            // 截图完成，显示顶部横幅"正在OCR识别"（截图干净，不会被污染）
             withContext(Dispatchers.Main) {
-                ocrView.showError(coreService, coreService.getString(R.string.ocr_error_ocr_failed))
+                ocrView.show(coreService, coreService.getString(R.string.ocr_status_recognizing))
             }
-            return null
+            // 规则模式：需 OCR 文本做规则匹配
+            runCatching {
+                ocrProcessor.startProcess(scaledBitmap)
+            }.getOrElse {
+                Logger.e("OCR 识别失败: ${it.message}")
+                outFile.delete()
+                scaledBitmap.recycle()
+                withContext(Dispatchers.Main) {
+                    ocrView.showError(
+                        coreService,
+                        coreService.getString(R.string.ocr_error_ocr_failed)
+                    )
+                }
+                return null
+            }.also {
+                // 识别结果为空
+                if (it.isBlank()) {
+                    withContext(Dispatchers.Main) {
+                        ocrView.showError(
+                            coreService,
+                            coreService.getString(R.string.ocr_error_empty_result)
+                        )
+                    }
+                    outFile.delete()
+                    return null
+                }
+            }
         }
 
         scaledBitmap.recycle()
         outFile.delete()
 
-        // 识别结果为空
-        if (text.isBlank()) {
-            withContext(Dispatchers.Main) {
-                ocrView.showError(
-                    coreService,
-                    coreService.getString(R.string.ocr_error_empty_result)
-                )
-            }
-            return null
-        }
-
-        return OcrCaptureResult(text, imageBase64)
+        return if (useVision) "data:image/png;base64,${imageBase64}" else text
     }
 
     /**
@@ -417,19 +427,20 @@ class OcrService : ICoreService() {
         return Bitmap.createBitmap(source, 0, cropHeight, source.width, source.height - cropHeight)
     }
     /**
-     * 将识别文本交给 JS 引擎做规则识别。
-     * @return 服务端完整响应（包含 code/msg/data），调用方可据此展示具体失败原因
+     * 将识别结果交给 JS 引擎做规则/AI 识别。
+     * 开启视觉识别时传 image，body 为 data:image/xxx;base64,xxx，服务端据此识别为图片。
      */
     private suspend fun send2JsEngine(
         text: String,
         app: String
     ): ResultModel<BillResultModel> {
-        Logger.d("app=$app, text=$text")
+        val useVision = PrefManager.aiVisionRecognition
+        Logger.d("app=$app, text=${text.take(80)}..., useVision=$useVision")
         val result = JsAPI.analysis(
             DataType.OCR,
             text,
             app,
-            fromAppData = false
+            fromAppData = false,
         )
 
         if (result.data != null) {

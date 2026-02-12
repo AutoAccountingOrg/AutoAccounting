@@ -854,6 +854,7 @@
     <string name="float_action_auto_record">Auto Record</string>
     <string name="setting_ocr_show_animation">Show OCR status banner</string>
     <string name="setting_ocr_show_animation_summary">Show a top banner during OCR and AI recognition</string>
+    <string name="ocr_status_processing_screenshot">Processing screenshot…</string>
     <string name="ocr_status_recognizing">OCR recognizing…</string>
     <string name="ocr_status_ai_analyzing">AI analyzing…</string>
     <string name="ocr_error_no_foreground_app">Cannot detect foreground app</string>
@@ -921,6 +922,8 @@
     <string name="setting_landscape_dnd_summary">Disable auto recording in landscape mode</string><!-- AI Features -->
     <string name="setting_ai_bill_recognition">Automatically use AI for bill recognition</string>
     <string name="setting_ai_bill_recognition_summary">Automatically extract bill information from raw data</string>
+    <string name="setting_ai_vision_recognition">Send image directly to AI for recognition</string>
+    <string name="setting_ai_vision_recognition_summary">Skip OCR and send screenshot to the model. Select a vision-capable model (e.g. gpt-4o, gemini-pro-vision, qwen-vl)</string>
     <string name="setting_rule_match_include_disabled">Allow matching with disabled rules</string>
     <string name="setting_rule_match_include_disabled_summary">If a disabled rule matches, skip AI and discard the bill</string>
     <string name="setting_ai_category_recognition">AI Category Recognition</string>

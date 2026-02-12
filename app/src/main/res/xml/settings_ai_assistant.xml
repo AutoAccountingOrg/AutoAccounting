@@ -28,6 +28,13 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
+            android:icon="@drawable/ic_ai"
+            android:key="aiVisionRecognition"
+            android:summary="@string/setting_ai_vision_recognition_summary"
+            android:title="@string/setting_ai_vision_recognition" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
             android:icon="@drawable/setting2_icon_category"
             android:key="aiCategoryRecognition"
             android:summary="@string/setting_ai_category_recognition_summary"

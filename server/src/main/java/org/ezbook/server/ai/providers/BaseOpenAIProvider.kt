@@ -67,38 +67,33 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
 
 
     /**
-     * 发送请求到AI并获取响应（支持流式输出）
-     * @param system 系统角色提示词
-     * @param user 用户输入
-     * @param onChunk 流式输出时的数据块回调函数
-     * @return AI响应内容（非流式）或null（流式）
+     * 发送请求到AI并获取响应（支持流式输出、视觉识别）
      */
     override suspend fun request(
         system: String,
         user: String,
+        image: String,
         onChunk: ((String) -> Unit)?
     ): Result<String> {
-        // 日志：请求发起（不打印内容与密钥）
-        ServerLog.d("AI Provider: 发起请求，model=${getModel()}, stream=${onChunk != null}")
-        val messages = mutableListOf<Map<String, String>>()
-
-        // 添加系统消息
+        ServerLog.d("AI Provider: 发起请求，model=${getModel()}, stream=${onChunk != null}, hasImage=${image.isNotBlank()}")
+        val messages = mutableListOf<Any>()
         if (system.isNotEmpty()) {
-            messages.add(
-                mapOf(
-                    "role" to "system",
-                    "content" to system
-                )
-            )
+            messages.add(mapOf("role" to "system", "content" to system))
         }
-
-        // 添加用户消息
-        messages.add(
+        val userContent = if (image.isNotBlank()) {
+            val dataUrl =
+                if (image.startsWith("data:image")) image else "data:image/jpeg;base64,$image"
             mapOf(
                 "role" to "user",
-                "content" to user
+                "content" to listOf(
+                    mapOf("type" to "text", "text" to user),
+                    mapOf("type" to "image_url", "image_url" to mapOf("url" to dataUrl))
+                )
             )
-        )
+        } else {
+            mapOf("role" to "user", "content" to user)
+        }
+        messages.add(userContent)
 
         val requestBody = mutableMapOf(
             "model" to getModel(),
@@ -144,8 +139,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                                 )
                             }"
                         )
-                        val jsonObject = JsonParser.parseString(body).asJsonObject
-                        val message = jsonObject.get("error").asJsonObject.get("message").asString
+                        val message = parseErrorMessage(body)
                         error(message)
                     }
 
@@ -168,6 +162,19 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
         }.onFailure {
             ServerLog.e("AI Provider(Result): 请求失败：${it.message}", it)
         }
+    }
+
+    /**
+     * 解析错误响应中的消息文本
+     * 兼容 OpenAI 格式 {"error":{"message":"..."}} 及通用格式 {"message":"...","code":xxx}
+     */
+    private fun parseErrorMessage(body: String): String {
+        return runCatching {
+            val json = JsonParser.parseString(body).asJsonObject
+            json.getAsJsonObject("error")?.get("message")?.asString
+                ?: json.get("message")?.asString
+                ?: body
+        }.getOrElse { body }
     }
 
     /**

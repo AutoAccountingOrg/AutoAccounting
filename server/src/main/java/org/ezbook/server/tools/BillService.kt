@@ -168,6 +168,7 @@ class BillService(
                     type = dataType
                     time = System.currentTimeMillis()
                     id = Db.get().dataDao().insert(this)
+                    image = analysisParams.image
                     // 记录原始数据持久化的主键与摘要，方便追溯
                     ServerLog.d("原始数据持久化成功：id=$id, app=$app, type=$type")
                 }
@@ -198,7 +199,8 @@ class BillService(
                     ?: analyzeWithAI(
                         analysisParams.app,
                         analysisParams.data,
-                        dataType
+                        dataType,
+                        analysisParams.image
                     )
                     ?: run {
                         ServerLog.d("AI和规则的解析结果都为NULL\n==============账单分析结束===============")
@@ -406,34 +408,26 @@ class BillService(
 
     /**
      * 使用AI分析账单数据
-     *
-     * 调用AI管理器的账单工具来分析数据，并将结果转换为账单信息对象。
-     * 只有当分析结果有效时才会返回账单信息。
-     *
-     * @param app 应用名称
-     * @param data 要分析的原始数据
-     * @param dataType 数据来源类型
-     * @return 分析得到的账单信息，如果分析失败则返回null
+     * 当 aiVisionRecognition 开启且 image 非空时，将图片直接发给大模型进行视觉识别。
      */
     private suspend fun analyzeWithAI(
         app: String,
         data: String,
-        dataType: DataType
+        dataType: DataType,
+        image: String = ""
     ): BillInfoModel? {
 
-        // AI功能总开关关闭时，直接跳过AI分析
         if (!SettingUtils.featureAiAvailable()) {
             ServerLog.d("AI功能总开关关闭，跳过账单AI分析")
             return null
         }
-
-        // AI识别账单开关关闭时不调用 AI
         if (!SettingUtils.aiBillRecognition()) {
             ServerLog.d("AI识别账单已关闭，跳过账单分析")
             return null
         }
-        ServerLog.d("AI分析中，$data")
-        val result = BillTool().execute(data, app, dataType) ?: run {
+        val useVision = SettingUtils.aiVisionRecognition() && image.isNotBlank()
+        ServerLog.d("AI分析中，data=${data.take(80)}..., useVision=$useVision")
+        val result = BillTool().execute(data, app, dataType, if (useVision) image else "") ?: run {
             // 记录AI未返回有效结果
             ServerLog.d("AI未返回有效账单结果")
             return null

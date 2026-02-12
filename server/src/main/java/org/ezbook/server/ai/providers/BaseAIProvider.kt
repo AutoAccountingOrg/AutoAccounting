@@ -52,10 +52,12 @@ abstract class BaseAIProvider {
 
     /**
      * 发送请求到AI服务（返回 Result）。
+     * @param image 可选，图片 Base64，非空时以视觉模式调用（需模型支持 vision）
      */
     abstract suspend fun request(
         system: String,
         user: String,
+        image: String = "",
         onChunk: ((String) -> Unit)? = null
     ): Result<String>
 

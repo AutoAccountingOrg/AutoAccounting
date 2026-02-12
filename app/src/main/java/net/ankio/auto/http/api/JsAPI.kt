@@ -28,13 +28,14 @@ object JsAPI {
 
     /**
      * 分析数据（规则匹配 + AI识别）
+     * @param image 非空时作为 body，格式为 data:image/xxx;base64,xxx，服务端据此识别为图片
      * @return 完整的 ResultModel，调用方可通过 code/msg/data 区分成功和各种失败原因
      */
     suspend fun analysis(
         type: DataType,
         data: String,
         appPackage: String,
-        fromAppData: Boolean = false
+        fromAppData: Boolean = false,
     ): ResultModel<BillResultModel> = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
