@@ -18,6 +18,7 @@ package net.ankio.auto.ui.fragment.components
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
+import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentAssetBinding
 import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.ui.adapter.AssetSelectorAdapter
@@ -87,15 +88,22 @@ class AssetComponent(
         recyclerView.layoutManager = LinearLayoutManager(context)
         (recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
-        // 初始化适配器
+        // 初始化适配器，设置类型名称映射以显示本地化中文
         adapter = AssetSelectorAdapter()
+            .setTypeNameMapper { type ->
+                when (type) {
+                    AssetsType.NORMAL -> context.getString(R.string.type_normal)
+                    AssetsType.CREDIT -> context.getString(R.string.type_credit)
+                    AssetsType.BORROWER -> context.getString(R.string.type_borrower)
+                    AssetsType.CREDITOR -> context.getString(R.string.type_creditor)
+                }
+            }
             .setOnItemClickListener { asset, _ ->
                 onAssetSelected?.invoke(asset)
             }
             .setOnItemLongClickListener { asset, view ->
                 onAssetLongClick?.invoke(asset, view)
             }
-
 
         recyclerView.adapter = adapter
     }
