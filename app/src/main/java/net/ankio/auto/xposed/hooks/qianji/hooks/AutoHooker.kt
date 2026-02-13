@@ -92,7 +92,7 @@ class AutoHooker : PartHooker() {
 
 
         hookTaskLog()
-        hookSaveBill()
+
         hookView()
 
     }
@@ -117,10 +117,6 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("未登录的用户无法进行自动记账（钱迹限制）")
             }
         }
-
-    }
-
-    private fun hookSaveBill() {
 
     }
 
@@ -234,13 +230,13 @@ class AutoHooker : PartHooker() {
                 val bill = QjBillModel.fromObject(it.args[0])
                 XposedLogger.d(
                     "saveOrUpdateBill before: $bill，extra: ${
-                        bill.getExtra()?.toObject()
+                        bill.getExtra().toObject()
                     }"
                 )
                 val billModel = addBilInfo(bill, activity, uri)
                 XposedLogger.d(
                     "saveOrUpdateBill after: $bill，extra: ${
-                        bill.getExtra()?.toObject()
+                        bill.getExtra().toObject()
                     }"
                 )
                 it.args[0] = billModel.toObject()
