@@ -371,15 +371,9 @@ class PaymentInfoComponent(
         // 使用BaseSheetDialog工厂方法创建对话框
         val dialog = BaseSheetDialog.create<AssetsSelectorDialog>(context)
 
-        // 根据账单类型设置资产过滤
-        val filter = when (billInfoModel.type) {
-            BillType.ExpendReimbursement,
-            BillType.IncomeRefund, BillType.IncomeReimbursement ->
-                listOf(AssetsType.CREDIT, AssetsType.NORMAL)  // 限制为信用卡和普通账户
-
-            else -> emptyList()  // 其他类型不限制资产类型
-        }
-
+        // 根据账单类型设置资产过滤：资金账户选择限制为普通资产+信用账户
+        // 欠款人/债主通过下拉选择，不在资产选择器中
+        val filter = listOf(AssetsType.NORMAL, AssetsType.CREDIT)
         dialog.setFilter(filter)
             .setCallback { selectedAsset ->
                 // 更新账户名称
