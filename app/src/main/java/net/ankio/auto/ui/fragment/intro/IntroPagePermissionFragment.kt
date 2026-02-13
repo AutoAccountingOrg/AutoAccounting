@@ -102,6 +102,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
             )
 
             // OCR识别（权限）：3种卡片，按模式只显示对应的一种
+            // OCR 权限（可选）：用户可跳过，后续在设置中配置
             if (WorkMode.isXposed()) {
                 // Xposed 模式：Root 卡片
                 add(
@@ -116,7 +117,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                                 false
                             }
                         },
-                        onClick = { OcrTools.reqRoot() }
+                        onClick = { OcrTools.reqRoot() },
+                        isRequired = false
                     )
                 )
             } else if (WorkMode.isLSPatch()) {
@@ -133,7 +135,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                                 false
                             }
                         },
-                        onClick = { OcrTools.reqShizuku() }
+                        onClick = { OcrTools.reqShizuku() },
+                        isRequired = false
                     )
                 )
             } else {
@@ -144,7 +147,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         titleRes = R.string.perm_ocr_perm_accessibility,
                         descRes = R.string.ocr_auth_accessibility_description,
                         checkGranted = { OcrAccessibilityService.instance != null },
-                        onClick = { OcrTools.reqAccessibility() }
+                        onClick = { OcrTools.reqAccessibility() },
+                        isRequired = false
                     )
                 )
             }
