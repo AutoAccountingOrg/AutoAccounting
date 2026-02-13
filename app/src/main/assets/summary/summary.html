@@ -626,10 +626,11 @@
     let currentCategoryType = 'expense';
 
     /**
-     * 格式化金额
+     * 格式化金额（统一保留 2 位小数）
      */
     function formatMoney(amount) {
-        return '¥' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        const n = Number(amount) || 0;
+        return '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
     /**
@@ -640,7 +641,7 @@
         const summary = overview || {};
 
         const totalTransactions = summary.totalTransactions || 0;
-        const netIncome = summary.netIncome ?? (basicStats.totalIncome - basicStats.totalExpense);
+        const netIncome = Number((summary.netIncome ?? (basicStats.totalIncome - basicStats.totalExpense)).toFixed(2));
         const savingsRate = summary.savingsRate ?? 0;
 
         const incomeChange = summary.incomeChange || "0%";
@@ -691,14 +692,14 @@
                 <div class="stat-label">日均支出</div>
                 <div class="stat-value expense">${formatMoney(basicStats.avgExpensePerDay || 0)}</div>
                 <div class="stat-compare">
-                    月均 ${formatMoney((basicStats.avgExpensePerDay || 0) * 30)}
+                    月均 ${formatMoney(Number(((basicStats.avgExpensePerDay || 0) * 30).toFixed(2)))}
                 </div>
             </div>
             <div class="stat-item">
                 <div class="stat-label">日均收入</div>
                 <div class="stat-value income">${formatMoney(basicStats.avgIncomePerDay || 0)}</div>
                 <div class="stat-compare">
-                    月均 ${formatMoney((basicStats.avgIncomePerDay || 0) * 30)}
+                    月均 ${formatMoney(Number(((basicStats.avgIncomePerDay || 0) * 30).toFixed(2)))}
                 </div>
             </div>
             <div class="stat-item">
@@ -763,7 +764,7 @@
             yAxis: {
                 type: 'value',
                 axisLabel: {
-                    formatter: (value) => '¥' + value,
+                    formatter: (value) => '¥' + Number(value).toFixed(2),
                     color: '#64748b'
                 },
                 axisLine: { lineStyle: { color: '#e2e8f0' } },
@@ -836,7 +837,7 @@
         const option = {
             tooltip: {
                 trigger: 'item',
-                formatter: '{b}<br/>金额: ¥{c}<br/>占比: {d}%',
+                formatter: (params) => params.name + '<br/>金额: ¥' + Number(params.value).toFixed(2) + '<br/>占比: ' + params.percent + '%',
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 borderColor: '#e2e8f0',
                 textStyle: { color: '#1e293b' }
@@ -967,7 +968,7 @@
                     type: 'value',
                     name: '金额(¥)',
                     axisLabel: {
-                        formatter: (value) => '¥' + value,
+                        formatter: (value) => '¥' + Number(value).toFixed(2),
                         color: '#64748b'
                     },
                     axisLine: { lineStyle: { color: '#e2e8f0' } },
@@ -1315,7 +1316,7 @@
                 nameTextStyle: { color: '#64748b' },
                 type: 'value',
                 axisLabel: {
-                    formatter: (value) => '¥' + value.toFixed(0),
+                    formatter: (value) => '¥' + Number(value).toFixed(2),
                     color: '#64748b'
                 },
                 axisLine: { lineStyle: { color: '#e2e8f0' } },
