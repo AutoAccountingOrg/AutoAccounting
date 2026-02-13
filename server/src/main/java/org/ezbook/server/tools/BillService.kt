@@ -229,8 +229,10 @@ class BillService(
             // 🔒 关键区间：账单入库+去重+分类+保存+拉起悬浮窗全流程串行执行
             // 防止并发竞态：确保账单处理的完整生命周期严格按序执行，避免悬浮窗乱序
             val parent = deduplicationMutex.withLock {
-                // 如果不是来自应用数据，则保存到数据库
+                // 如果不是来自应用数据，则保存到数据库（保存前统一金额 2 位小数）
                 if (!analysisParams.fromAppData) {
+                    billInfo.money = billInfo.money.roundAmount()
+                    billInfo.fee = billInfo.fee.roundAmount()
                     billInfo.id = db.billInfoDao().insert(billInfo)
                     // 记录账单入库主键
                     ServerLog.d("账单入库成功：billId=${billInfo.id}")
@@ -269,8 +271,9 @@ class BillService(
                 }
 
 
-
-                // 保存最终账单（包含分类、备注等完整信息）
+                // 保存最终账单（包含分类、备注等完整信息，保存前统一金额 2 位小数）
+                finalBill.money = finalBill.money.roundAmount()
+                finalBill.fee = finalBill.fee.roundAmount()
                 db.billInfoDao().update(finalBill)
 
                 // 如果有父账单，需要额外更新子账单状态
@@ -278,6 +281,8 @@ class BillService(
                     // 确保子账单的groupId正确指向父账单（防御性编程，避免被覆盖）
                     billInfo.groupId = parentBill.id
                     billInfo.state = BillState.Edited
+                    billInfo.money = billInfo.money.roundAmount()
+                    billInfo.fee = billInfo.fee.roundAmount()
                     db.billInfoDao().update(billInfo)
                     ServerLog.d("子账单状态更新为已编辑：billId=${billInfo.id}, groupId=${billInfo.groupId}")
                 } else {
@@ -493,8 +498,8 @@ class BillService(
             //  DateUtils.toEpochMillis(timeText)
 
 
-            money = json.safeGetDouble("money", 0.0)
-            fee = json.safeGetDouble("fee", 0.0)
+            money = json.safeGetDouble("money", 0.0).roundAmount()
+            fee = json.safeGetDouble("fee", 0.0).roundAmount()
             shopName = json.safeGetString("shopName")
             shopItem = json.safeGetString("shopItem")
             accountNameFrom = json.safeGetString("accountNameFrom")

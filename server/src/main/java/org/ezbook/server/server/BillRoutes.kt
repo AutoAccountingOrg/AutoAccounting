@@ -30,6 +30,7 @@ import org.ezbook.server.models.OrderGroupDto
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.StatisticsService
+import org.ezbook.server.tools.roundAmount
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -124,6 +125,9 @@ fun Route.billRoutes() {
          */
         post("/put") {
             val bill = call.receive(BillInfoModel::class)
+            // 保存前统一金额为 2 位小数
+            bill.money = bill.money.roundAmount()
+            bill.fee = bill.fee.roundAmount()
             val existingBill = Db.get().billInfoDao().queryId(bill.id)
 
             val id = if (existingBill != null) {

@@ -101,3 +101,6 @@ fun JsonObject.safeGetInt(key: String, defaultValue: Int = 0): Int {
         runCatching { element.asInt }.getOrDefault(defaultValue)
     }
 }
+
+/** 金额保留 2 位小数，用于保存前统一格式 */
+fun Double.roundAmount(): Double = kotlin.math.round(this * 100) / 100.0
