@@ -31,7 +31,6 @@ import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
@@ -56,9 +55,13 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
     /** 拖拽排序助手 */
     private lateinit var itemTouchHelper: ItemTouchHelper
 
+    /** 类型筛选：null 表示全部，非空则只显示指定类型 */
+    private var selectedTypes: Set<AssetsType>? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViews()
+        setupTypeFilter()
         setupRecyclerView()
         loadData()
     }
@@ -87,6 +90,25 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
         binding.statusPage.swipeRefreshLayout?.setOnRefreshListener {
             loadData()
             binding.statusPage.swipeRefreshLayout?.isRefreshing = false
+        }
+    }
+
+    /**
+     * 设置类型筛选
+     * 单行 ChipGroup，单选：全部/普通/信用/借出方/债权人
+     */
+    private fun setupTypeFilter() {
+        val chipToTypes = mapOf(
+            R.id.chip_all to null as Set<AssetsType>?,
+            R.id.chip_normal to setOf(AssetsType.NORMAL),
+            R.id.chip_credit to setOf(AssetsType.CREDIT),
+            R.id.chip_borrower to setOf(AssetsType.BORROWER),
+            R.id.chip_creditor to setOf(AssetsType.CREDITOR)
+        )
+        binding.typeFilterChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            val chipId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
+            selectedTypes = chipToTypes[chipId]
+            loadData()
         }
     }
 
@@ -206,13 +228,19 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
 
     /**
      * 加载资产数据
+     * 根据 selectedTypes 筛选：null 显示全部，非空则只显示指定类型
      */
     private fun loadData() {
         binding.statusPage.showLoading()
 
         launch {
             try {
-                val assets = AssetsAPI.list()
+                var assets = AssetsAPI.list()
+
+                // 按类型筛选
+                selectedTypes?.let { types ->
+                    assets = assets.filter { it.type in types }
+                }
 
                 if (assets.isEmpty()) {
                     binding.statusPage.showEmpty()
