@@ -135,7 +135,7 @@
         /* 统计网格 */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 16px;
         }
 
@@ -145,6 +145,8 @@
             padding: 20px;
             border-radius: 12px;
             transition: all 0.3s;
+            min-width: 0; /* 允许在 grid 中收缩，防止溢出 */
+            overflow: hidden;
         }
 
         /* 统计块悬浮（主色描边） */
@@ -161,10 +163,13 @@
         }
 
         .stat-value {
-            font-size: 28px;
+            font-size: clamp(16px, 4vw, 28px);
             font-weight: 700;
             margin-bottom: 8px;
             line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .stat-value.income {
@@ -185,6 +190,9 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .stat-compare.up {
