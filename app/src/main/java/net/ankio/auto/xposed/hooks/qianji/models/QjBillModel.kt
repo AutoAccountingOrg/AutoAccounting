@@ -1167,7 +1167,7 @@ class QjBillModel {
         val extra = XposedHelpers.getObjectField(
             billObj,
             "extra"
-        )
+        ) ?: return BillExtraModel.newInstance()
         return BillExtraModel(extra)
     }
 

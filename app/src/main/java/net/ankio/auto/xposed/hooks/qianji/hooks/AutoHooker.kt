@@ -129,11 +129,14 @@ class AutoHooker : PartHooker() {
         val fee = uri.getQueryParameter("fee")?.toDoubleOrNull() ?: 0.0
         //处理优惠
         val discount = uri.getQueryParameter("discount")?.toDoubleOrNull() ?: 0.0
-        if (discount > 0 && (billModel.isAllSpend() || billModel.isTransfer())) {
+
+
+
+        if (discount > 0) {
             //只有支出或者还款的账户才需要记录优惠
             val extraModel = billModel.getExtra()
             extraModel.setTransfee(-discount)
-
+            billModel.setExtra(extraModel)
         }
 
         //处理标记位置
@@ -226,10 +229,20 @@ class AutoHooker : PartHooker() {
     private fun hookBroadcast(activity: Activity, uri: Uri) {
 
         Hooker.onceBefore(BillDbHelper.clazz(), "saveOrUpdateBill", QjBillModel.clazz()) {
-            if (Throwable().stackTraceToString().contains(AddBillIntentAct.CLAZZ)) {
+            val trace = Throwable().stackTraceToString()
+            if (trace.contains(AddBillIntentAct.CLAZZ)) {
                 val bill = QjBillModel.fromObject(it.args[0])
-                XposedLogger.d("saveOrUpdateBill: $bill")
+                XposedLogger.d(
+                    "saveOrUpdateBill before: $bill，extra: ${
+                        bill.getExtra()?.toObject()
+                    }"
+                )
                 val billModel = addBilInfo(bill, activity, uri)
+                XposedLogger.d(
+                    "saveOrUpdateBill after: $bill，extra: ${
+                        bill.getExtra()?.toObject()
+                    }"
+                )
                 it.args[0] = billModel.toObject()
                 return@onceBefore true
             }
