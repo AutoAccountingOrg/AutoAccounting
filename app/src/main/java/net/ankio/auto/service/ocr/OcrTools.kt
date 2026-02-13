@@ -64,8 +64,8 @@ class OcrTools(private val shell: Shell) {
      * @return true 权限可用
      */
     fun hasPermission(): Boolean = when (PrefManager.ocrAuthMode) {
-        "root" -> shell.hasRootPermission()
-        "shizuku" -> shell.hasShizukuPermission()
+        "root" -> shell.rootPermission()
+        "shizuku" -> shell.shizukuPermission()
         "accessibility" -> OcrAccessibilityService.instance != null
         else -> false
     }
@@ -76,8 +76,8 @@ class OcrTools(private val shell: Shell) {
      * @throws PermissionException 权限不足时抛出
      */
     suspend fun getTopApp(): String? = when (PrefManager.ocrAuthMode) {
-        "root" -> getTopAppByShell { shell.execAsRoot(it) }
-        "shizuku" -> getTopAppByShell { shell.execAsShizuku(it) }
+        "root" -> getTopAppByShell { shell.runAsRoot(it) }
+        "shizuku" -> getTopAppByShell { shell.runAsShizuku(it) }
         "accessibility" -> getTopAppByAccessibility()
         else -> throw PermissionException(PrefManager.ocrAuthMode)
     }
@@ -89,8 +89,8 @@ class OcrTools(private val shell: Shell) {
      * @throws PermissionException 权限不足时抛出
      */
     suspend fun takeScreenshot(outFile: File): Boolean = when (PrefManager.ocrAuthMode) {
-        "root" -> takeScreenshotByShell(outFile) { shell.execAsRoot(it) }
-        "shizuku" -> takeScreenshotByShell(outFile) { shell.execAsShizuku(it) }
+        "root" -> takeScreenshotByShell(outFile) { shell.runAsRoot(it) }
+        "shizuku" -> takeScreenshotByShell(outFile) { shell.runAsShizuku(it) }
         "accessibility" -> takeScreenshotByAccessibility(outFile)
         else -> throw PermissionException(PrefManager.ocrAuthMode)
     }
@@ -101,15 +101,15 @@ class OcrTools(private val shell: Shell) {
      */
     suspend fun collapseStatusBar() {
         Logger.d("收起通知栏")
-        Logger.d(PrefManager.ocrAuthMode)
+        Logger.d("OCR 授权方式：${PrefManager.ocrAuthMode}")
         when (PrefManager.ocrAuthMode) {
-            "root" -> runCatchingExceptCancel { shell.execAsRoot("service call statusbar 2") }.onFailure {
+            "root" -> runCatchingExceptCancel { shell.runAsRoot("service call statusbar 2") }.onFailure {
                 Logger.e(
                     it
                 )
             }
 
-            "shizuku" -> runCatchingExceptCancel { shell.execAsShizuku("service call statusbar 2") }.onFailure {
+            "shizuku" -> runCatchingExceptCancel { shell.runAsShizuku("service call statusbar 2") }.onFailure {
                 Logger.e(
                     it
                 )
@@ -140,9 +140,10 @@ class OcrTools(private val shell: Shell) {
                     Logger.w("Shell执行失败[$cmd]: ${it.message}")
                     null
                 }
-
-                if (output.isNullOrBlank()) continue
-
+                if (output == null) {
+                    Logger.w("Shell执行失败[$cmd]")
+                    continue
+                }
                 Logger.d("命令[$cmd]输出为 $output")
                 val pkg = extractPackageFromDumpsys(output)
                 if (!pkg.isNullOrBlank()) {
@@ -261,7 +262,7 @@ class OcrTools(private val shell: Shell) {
         private val shell by lazy { Shell(BuildConfig.APPLICATION_ID) }
 
         fun reqShizuku() {
-            if (!shell.hasShizukuPermission()) {
+            if (!shell.shizukuPermission()) {
                 // 请求 Shizuku 授权
                 shell.requestShizukuPermission()
                 ToastUtils.warn(R.string.ocr_error_shizuku_not_available)
@@ -269,7 +270,7 @@ class OcrTools(private val shell: Shell) {
         }
 
         fun reqRoot() {
-            if (!shell.hasRootPermission()) {
+            if (!shell.rootPermission()) {
                 ToastUtils.error(R.string.ocr_error_root_not_available)
             }
         }

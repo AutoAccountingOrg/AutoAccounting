@@ -112,7 +112,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         descRes = R.string.ocr_auth_root_description,
                         checkGranted = {
                             try {
-                                Shell(ctx.packageName).use { it.hasRootPermission() }
+                                Shell(ctx.packageName).use { it.rootPermission() }
                             } catch (_: Throwable) {
                                 false
                             }
@@ -130,7 +130,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         descRes = R.string.ocr_auth_shizuku_description,
                         checkGranted = {
                             try {
-                                Shell(ctx.packageName).use { it.hasShizukuPermission() }
+                                Shell(ctx.packageName).use { it.shizukuPermission() }
                             } catch (_: Throwable) {
                                 false
                             }
