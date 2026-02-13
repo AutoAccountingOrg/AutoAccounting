@@ -1,9 +1,7 @@
 name: Stable Build
 
 on:
-  push:
-    tags:
-      - 'v*'  # 仅在以 'v' 开头的标签被推送时触发
+  workflow_dispatch:  # 手动触发
 
 permissions: write-all
 
@@ -26,16 +24,17 @@ jobs:
           distribution: 'temurin'
       - name: 编译安卓
         run: |
-          pip install requests md2tgmd && python .github/workflows/main.py
+          pip install requests md2tgmd Markdown && python .github/workflows/main.py
         env:
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
           ALIST_TOKEN: ${{ secrets.ALIST_TOKEN }}
-          FORUMS_API_KEY: ${{ secrets.FORUMS_API_KEY }}
           BUILD_TOOLS_VERSION: 34.0.0
           SIGN_ALIAS: ${{ secrets.SIGN_ALIAS }}
           SIGN_PASSWORD: ${{ secrets.SIGN_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          BOT_URL: ${{ secrets.BOT_URL }}
+          BOT_GROUP_ID: ${{ secrets.BOT_GROUP_ID }}
           CHANNEL: Stable
 
 

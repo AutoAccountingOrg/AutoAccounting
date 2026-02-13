@@ -30,7 +30,6 @@ jobs:
         env:
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
           ALIST_TOKEN: ${{ secrets.ALIST_TOKEN }}
-          FORUMS_API_KEY: ${{ secrets.FORUMS_API_KEY }}
           BUILD_TOOLS_VERSION: 34.0.0
           SIGN_ALIAS: ${{ secrets.SIGN_ALIAS }}
           SIGN_PASSWORD: ${{ secrets.SIGN_PASSWORD }}

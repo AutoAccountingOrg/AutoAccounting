@@ -513,45 +513,48 @@ def send_apk_with_changelog(workspace, title):
             print("警告: Telegram 通知完全失败，但不影响发布流程")
 
 
-def send_forums( title, channel,workspace):
-    if channel != 'Stable':
-        print("非正式版，不发送到论坛")
+def send_qq_bot_notification(tag, log_data, repo, commit_count):
+    """
+    稳定版发布时通过 QQ 机器人推送通知（参考 AutoRuleSubmit release.js）。
+    使用 BOT_URL 和 BOT_GROUP_ID 环境变量，未配置时静默跳过。
+    """
+    bot_url = os.getenv("BOT_URL")
+    group_id = os.getenv("BOT_GROUP_ID")
+    if not bot_url or not group_id:
+        print("⚠️ 未提供 BOT_URL 或 BOT_GROUP_ID，跳过 QQ 通知")
         return
-    with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
-        content = file.read()
-    url = "https://forum.ez-book.org/api/discussions"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Token " + os.getenv("FORUMS_API_TOKEN"),
-    }
+    print("📢 正在发送 QQ 机器人通知...")
+    try:
+        # 日志过长时截断，避免 QQ 消息超限
+        max_log_len = 800
+        log_text = log_data[:max_log_len] + "..." if len(log_data) > max_log_len else log_data
+        msg = (
+            f"🎉 自动记账新版本发布: {tag}\n\n"
+            f"📦 仓库: {repo}\n"
+            f"📊 提交数: {commit_count}\n\n"
+            f"{log_text}"
+        )
+        data = {"msg": msg, "group_id": group_id}
+        resp = requests.post(
+            bot_url,
+            data=data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            timeout=30
+        )
+        if not resp.ok:
+            raise RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
+        print("✅ QQ 机器人通知发送成功")
+    except Exception as e:
+        print(f"⚠️ QQ 机器人通知发送失败: {e}，不影响发布流程")
 
-    data = {
-        "data": {
-            "type": "discussions",
-            "attributes": {
-                "title": title,
-                "content": content
-            },
-            "relationships": {
-                "tags": {
-                    "data": [
-                        {
-                            "type": "tags",
-                            "id": "5"
-                        }
-                    ]
-                }
-            }
-        }
-    }
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    print(response.json())
+
 """
 通知
 """
-def notify(title,channel,workspace):
-    send_forums( title,channel,workspace)
-    send_apk_with_changelog( workspace,title)
+def notify(title, channel, workspace, log_data, commits, repo):
+    send_apk_with_changelog(workspace, title)
+    if channel == "Stable":
+        send_qq_bot_notification(title, log_data, repo, len(commits))
 
 
 def main(repo):
@@ -576,8 +579,8 @@ def main(repo):
     # 1. GitHub发布（最重要，用户主要下载源）
     publish_apk(repo, tagVersionName,workspace,log_data,channel)
     
-    # 2. 通知服务（Telegram、论坛 - 用户需要及时知道更新）
-    notify(tagVersionName, channel, workspace)
+    # 2. 通知服务（Telegram、QQ 机器人 - 用户需要及时知道更新）
+    notify(tagVersionName, channel, workspace, log_data, commits, repo)
     
     # 3. 网盘上传（备用下载源，失败不影响主要流程）
     print("开始网盘上传（备用下载源）...")
