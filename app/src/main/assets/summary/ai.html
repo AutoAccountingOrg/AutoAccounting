@@ -870,12 +870,13 @@
     };
 
     /**
-     * 格式化金额为中文货币格式
+     * 格式化金额为中文货币格式（统一保留 2 位小数）
      * @param {number} amount - 金额数值
-     * @returns {string} 格式化后的金额字符串（如 "¥ 1,234.56"）
+     * @returns {string} 格式化后的金额字符串（如 "¥1,234.56"）
      */
     function formatMoney(amount) {
-        return "¥ " + amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const n = Number(amount) || 0;
+        return '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
     /**
