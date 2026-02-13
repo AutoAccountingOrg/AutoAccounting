@@ -25,7 +25,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/float_padding">
 
         <!-- 记住分类 -->
         <com.google.android.material.checkbox.MaterialCheckBox
@@ -47,7 +48,7 @@
     <!-- 操作按钮 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/btn_height"
+        android:layout_height="@dimen/btn_height_small"
         android:gravity="center">
 
         <!-- 取消按钮 -->
