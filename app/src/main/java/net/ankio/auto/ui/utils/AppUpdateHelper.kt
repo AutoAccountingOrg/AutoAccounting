@@ -33,11 +33,12 @@ object AppUpdateHelper {
 
     /**
      * 构建 APK 下载链接（遵循现有云端路径规范）。
+     * 云端目录使用首字母大写的渠道名（如 Stable、Beta、Alpha）。
      *
      * @param version 云端返回的新版本号
      */
     fun buildApkUrl(version: String): String {
-        val channel = PrefManager.appChannel
+        val channel = PrefManager.appChannel.replaceFirstChar { it.uppercase() }
         return "https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/$channel/$version.apk"
     }
 
