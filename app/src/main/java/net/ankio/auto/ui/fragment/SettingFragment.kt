@@ -143,6 +143,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
         if (result == null) {
             ToastUtils.info(R.string.pro_activate_success)
             // 激活成功后重新加载信息
+            ActivateAPI.clearInfoCache()
             loadActivateInfo()
         } else {
             ToastUtils.error(getString(R.string.pro_activate_failed, result))
