@@ -303,8 +303,11 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
             putExtra(Intent.EXTRA_STREAM, uri)
             putExtra(Intent.EXTRA_TEXT, "我的财务分析报告")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            clipData = android.content.ClipData.newRawUri("", uri)
         }
-        startActivity(Intent.createChooser(intent, getString(R.string.analysis_share_title)))
+        val chooser = Intent.createChooser(intent, getString(R.string.analysis_share_title))
+        chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startActivity(chooser)
     }
 
     private fun getAppLogoBase64(): String {
