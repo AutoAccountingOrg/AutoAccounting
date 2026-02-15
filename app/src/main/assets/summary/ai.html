@@ -998,19 +998,29 @@
         };
 
         /**
+         * 消费结构名称优化：含 "-" 时取最后一个分段（如 "餐饮-美食" -> "美食"）
+         */
+        function formatTreeName(name) {
+            if (!name || typeof name !== 'string') return name;
+            return name.includes('-') ? name.split('-').pop().trim() : name;
+        }
+
+        /**
          * 1. 消费结构树图（Treemap）
          * 展示各类消费的占比和金额
          */
         const treeOption = {
             tooltip: {
                 formatter: function(params) {
-                    return params.name + '<br/>' + formatMoney(params.value);
+                    var label = params.data.originalName || params.name;
+                    return label + '<br/>' + formatMoney(params.value);
                 }
             },
             series: [{
                 type: 'treemap',
                 data: data.treeData.map((item, idx) => ({
-                    name: item.name,
+                    name: formatTreeName(item.name),
+                    originalName: item.name,
                     value: item.value,
                     itemStyle: { 
                         color: [chartColors.primary, chartColors.success, chartColors.primaryDark, 
