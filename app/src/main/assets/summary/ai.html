@@ -1023,12 +1023,18 @@
 
         /**
          * 2. 财务性格雷达图
-         * 展示节俭、稳定、多元、投资、安全等维度
+         * "节俭 (Frugality)" 在括号前换行显示，保留完整内容
          */
         const radarOption1 = {
             radar: {
-                indicator: data.radar1Data.indicators,
-                axisName: { color: chartColors.secondary }
+                center: ['50%', '50%'],
+                radius: '55%',
+                indicator: data.radar1Data.indicators.map(function(ind) {
+                    var n = ind.name;
+                    var i = n.indexOf(' (');
+                    return { name: i > 0 ? n.substring(0, i) + '\n' + n.substring(i + 1) : n, max: ind.max };
+                }),
+                axisName: { color: chartColors.secondary, fontSize: 11 }
             },
             series: [{
                 type: 'radar',
@@ -1045,14 +1051,14 @@
 
         /**
          * 3. 财务画像雷达图
-         * 展示省钱指数、支出稳定、投资自己等维度
+         * "省钱指数" 四字中间换行，保留完整内容
          */
         const radarOption3 = {
             radar: {
                 indicator: data.radar3Data.indicators,
                 shape: 'circle',
                 splitNumber: 4,
-                axisName: { color: chartColors.textSubtle },
+                axisName: { color: chartColors.textSubtle, fontSize: 11 },
                 splitLine: { lineStyle: { color: 'rgba(99, 102, 241, 0.1)' } },
                 splitArea: { show: false }
             },
