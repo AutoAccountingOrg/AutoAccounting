@@ -20,6 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 财务报告风格整合</title>
     <script src="./echarts.min.js"></script>
+    <script src="./html2canvas.min.js"></script>
     <style>
         /**
          * CSS 变量定义 - Material 3 主题色系统
@@ -1171,10 +1172,39 @@
         });
     }
 
+    /**
+     * ========================================
+     * 导出为图片（解决 WebView.draw 无法捕获 Canvas 的问题）
+     * Android WebView.draw(Canvas) 无法正确捕获 ECharts 等 HTML5 Canvas 内容，
+     * 使用 html2canvas 在页面内渲染为图片，通过 JS Bridge 回传 base64
+     * ========================================
+     */
+    function captureForExport() {
+        if (typeof html2canvas !== 'function') {
+            if (window.AndroidExport) window.AndroidExport.onCaptureFailed('html2canvas 未加载');
+            return;
+        }
+        const target = document.querySelector('.page') || document.body;
+        html2canvas(target, {
+            useCORS: true,
+            allowTaint: true,
+            scale: 2,
+            logging: false
+        }).then(function(canvas) {
+            const dataUrl = canvas.toDataURL('image/png');
+            if (window.AndroidExport) {
+                window.AndroidExport.onImageCaptured(dataUrl);
+            }
+        }).catch(function(err) {
+            if (window.AndroidExport) window.AndroidExport.onCaptureFailed(String(err));
+        });
+    }
+
     // 暴露接口到全局
     window.setJson = setJson;
     window.setThemeColors = setThemeColors;
     window.togglePrivacyMode = togglePrivacyMode;
+    window.captureForExport = captureForExport;
 </script>
 </body>
 </html>

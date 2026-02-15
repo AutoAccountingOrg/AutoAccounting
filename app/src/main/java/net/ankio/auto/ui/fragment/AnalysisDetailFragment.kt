@@ -15,12 +15,14 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Base64
 import android.view.LayoutInflater
+import android.webkit.JavascriptInterface
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
@@ -54,6 +56,9 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
     private var taskModel: AnalysisTaskModel? = null
     private var isPrivacyMode = false
 
+    /** JSON 模式导出时由 JS 回调，需在此关闭 loading */
+    private var exportLoading: LoadingUtils? = null
+
     companion object {
         private const val ARG_TASK_ID = "task_id"
     }
@@ -81,7 +86,11 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
         loadTaskDetail()
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun setupUI() {
+        // 注册导出桥接：WebView.draw() 无法捕获 ECharts Canvas，需通过 html2canvas + JS 回传
+        binding.webView.addJavascriptInterface(ExportBridge(), "AndroidExport")
+
         binding.topAppBar.apply {
             setTitle(R.string.analysis_detail_title)
             setNavigationOnClickListener { findNavController().popBackStack() }
@@ -98,6 +107,50 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
             }
         }
         binding.btnShare.setOnClickListener { shareAsImage() }
+    }
+
+    /**
+     * JS Bridge：接收 html2canvas 导出的 base64 图片
+     * 注意：@JavascriptInterface 方法在 WebView 线程调用，需 post 到主线程执行 UI
+     */
+    private inner class ExportBridge {
+        @JavascriptInterface
+        fun onImageCaptured(dataUrl: String) {
+            view?.post { handleCapturedImage(dataUrl) }
+        }
+
+        @JavascriptInterface
+        fun onCaptureFailed(msg: String) {
+            view?.post {
+                Logger.e("导出失败: $msg")
+                ToastUtils.error(getString(R.string.analysis_generating_image) + ": $msg")
+                exportLoading?.close()
+                exportLoading = null
+            }
+        }
+    }
+
+    private fun handleCapturedImage(dataUrl: String) {
+        launch {
+            try {
+                val base64 = dataUrl.removePrefix("data:image/png;base64,")
+                val bytes = Base64.decode(base64, Base64.DEFAULT)
+                val file = File(
+                    File(requireContext().cacheDir, "ai").apply { if (!exists()) mkdirs() },
+                    "analysis_${taskId}_${System.currentTimeMillis()}.png"
+                )
+                withContext(Dispatchers.IO) {
+                    file.writeBytes(bytes)
+                }
+                shareImageFile(file)
+            } catch (e: Exception) {
+                Logger.e("分享失败", e)
+                ToastUtils.error(getString(R.string.analysis_generating_image) + ": ${e.message}")
+            } finally {
+                exportLoading?.close()
+                exportLoading = null
+            }
+        }
     }
 
     private fun togglePrivacyMode(item: android.view.MenuItem) {
@@ -250,6 +303,19 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
     }
 
     private fun shareAsImage() {
+        val isJsonMode = taskModel?.resultHtml?.trimStart()?.startsWith("{") == true
+        if (isJsonMode) {
+            // ai.html 含 ECharts Canvas，WebView.draw() 无法捕获，改用 html2canvas + JS Bridge
+            val loading = LoadingUtils(requireActivity())
+            exportLoading = loading
+            loading.show(getString(R.string.analysis_generating_image))
+            binding.webView.evaluateJavascript(
+                "if(typeof captureForExport==='function')captureForExport();else if(window.AndroidExport)window.AndroidExport.onCaptureFailed('captureForExport 未定义');",
+                null
+            )
+            return
+        }
+        // 旧版 HTML 无图表，可直接用 draw 截屏
         val loading = LoadingUtils(requireActivity())
         launch {
             loading.show(getString(R.string.analysis_generating_image))
