@@ -159,7 +159,18 @@
     <fragment
         android:id="@+id/interactionPreferenceFragment"
         android:name="net.ankio.auto.ui.fragment.settings.InteractionPreferenceFragment"
-        android:label="@string/setting_title_interaction" />
+        android:label="@string/setting_title_interaction">
+
+        <action
+            android:id="@+id/action_interactionPreferenceFragment_to_pageSignaturesFragment"
+            app:destination="@id/pageSignaturesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pageSignaturesFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.PageSignaturesFragment"
+        android:label="@string/setting_page_signatures"
+        tools:layout="@layout/fragment_page_signatures" />
 
     <fragment
         android:id="@+id/aiAssistantPreferenceFragment"

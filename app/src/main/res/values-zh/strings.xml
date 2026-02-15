@@ -960,8 +960,18 @@
     <string name="ocr_error_root_not_available">设备未获取Root权限</string>
     <string name="ocr_error_shizuku_not_available">Shizuku未运行或未授权</string>
     <string name="ocr_error_accessibility_not_ready">无障碍服务未运行，请在系统设置中开启</string>
+    <string name="ocr_remember_page_title">记住此页面？</string>
+    <string name="ocr_remember_page_message">是否记住此页面（%s）以便下次自动识别？</string>
+    <string name="ocr_remember_page_activity_unknown">未知页面</string>
+    <string name="ocr_remember_page_confirm">记住</string>
+    <string name="ocr_remember_page_success">已记住此页面</string>
+    <string name="setting_page_signatures">已记住的页面</string>
+    <string name="setting_page_signatures_summary">管理自动触发 OCR 的页面（Activity + 内容特征）</string>
+    <string name="page_signatures_empty">暂无已记住的页面。在账单页手动触发识别，成功后点击「记住」即可。</string>
     <string name="setting_ocr_flip_trigger">翻转手机触发当前页面识别</string>
     <string name="setting_ocr_flip_trigger_summary">需要配置应用白名单避免误触</string>
+    <string name="setting_ocr_accessibility_auto_trigger">页面切换自动触发OCR</string>
+    <string name="setting_ocr_accessibility_auto_trigger_summary">OCR模式使用无障碍授权时，切换到已记住页面时自动触发识别</string>
 
     <!-- 资产与账单相关补全 -->
     <string name="expend_reimbursement">支出报销</string>

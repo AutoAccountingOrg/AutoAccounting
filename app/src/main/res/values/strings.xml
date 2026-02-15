@@ -875,8 +875,18 @@
     <string name="ocr_error_root_not_available">Root permission not available</string>
     <string name="ocr_error_shizuku_not_available">Shizuku not running or not authorized</string>
     <string name="ocr_error_accessibility_not_ready">Accessibility service not running, please enable it in system settings</string>
+    <string name="ocr_remember_page_title">Remember this page?</string>
+    <string name="ocr_remember_page_message">Remember this page (%s) for automatic recognition next time?</string>
+    <string name="ocr_remember_page_activity_unknown">unknown activity</string>
+    <string name="ocr_remember_page_confirm">Remember</string>
+    <string name="ocr_remember_page_success">Page remembered</string>
+    <string name="setting_page_signatures">Remembered Pages</string>
+    <string name="setting_page_signatures_summary">Manage pages for automatic OCR trigger (Activity + content fingerprint)</string>
+    <string name="page_signatures_empty">No remembered pages. Manually trigger OCR on a bill page, then tap \"Remember\" when prompted.</string>
     <string name="setting_ocr_flip_trigger">Flip Phone to Trigger Current Page Recognition</string>
     <string name="setting_ocr_flip_trigger_summary">Flip phone to trigger current page recognition (Non-Xposed mode)</string>
+    <string name="setting_ocr_accessibility_auto_trigger">Auto-trigger OCR on page switch</string>
+    <string name="setting_ocr_accessibility_auto_trigger_summary">When OCR mode uses accessibility authorization, auto-trigger OCR when switching to remembered pages</string>
 
     <!-- Common strings -->
     <string name="clearing">Clearing...</string>

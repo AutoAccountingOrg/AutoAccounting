@@ -15,12 +15,10 @@
 
 package net.ankio.auto.ui.fragment.settings
 
-import android.content.Intent
-import android.provider.Settings
 import android.text.InputType
+import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.service.CoreService
@@ -28,9 +26,7 @@ import net.ankio.auto.service.ocr.OcrTools
 import net.ankio.auto.ui.api.BasePreferenceFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
-import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
-import net.ankio.shell.Shell
 import rikka.material.preference.MaterialSwitchPreference
 
 /**
@@ -99,6 +95,12 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 }
                 true
             }
+        }
+
+        // 已记住的页面管理
+        findPreference<Preference>("pageSignatures")?.setOnPreferenceClickListener {
+            findNavController().navigate(R.id.action_interactionPreferenceFragment_to_pageSignaturesFragment)
+            true
         }
     }
 
@@ -190,9 +192,6 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
         }
     }
 
-    /** 用于权限检查的 Shell 实例（懒加载，避免无用开销） */
-    private val shell by lazy { Shell(BuildConfig.APPLICATION_ID) }
-
     /**
      * 处理 OCR 授权方式切换
      * 检查目标模式的权限，无权限则提示并跳转对应设置页面。
@@ -244,6 +243,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup
                 // OCR识别
                 "ocrFlipTrigger" -> PrefManager.ocrFlipTrigger
+                "ocrAccessibilityAutoTrigger" -> PrefManager.ocrAccessibilityAutoTrigger
                 "ocrShowAnimation" -> PrefManager.ocrShowAnimation
                 // 弹窗风格
                 "roundStyle" -> PrefManager.uiRoundStyle
@@ -265,6 +265,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup = value
                 // OCR识别
                 "ocrFlipTrigger" -> PrefManager.ocrFlipTrigger = value
+                "ocrAccessibilityAutoTrigger" -> PrefManager.ocrAccessibilityAutoTrigger = value
                 "ocrShowAnimation" -> PrefManager.ocrShowAnimation = value
                 // 弹窗风格
                 "roundStyle" -> PrefManager.uiRoundStyle = value

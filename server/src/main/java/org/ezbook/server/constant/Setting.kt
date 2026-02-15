@@ -85,6 +85,8 @@ object Setting {
     const val OCR_AUTH_MODE: String =
         "ocr_auth_mode"              // OCR授权方式（root/shizuku/accessibility）
     const val OCR_FLIP_TRIGGER: String = "ocr_flip_trigger"        // 翻转手机触发当前页面识别（非Xposed模式）
+    const val OCR_ACCESSIBILITY_AUTO_TRIGGER: String =
+        "ocr_accessibility_auto_trigger"  // 无障碍模式下页面切换自动触发
     const val OCR_SHOW_ANIMATION: String = "ocr_show_animation"    // OCR识别时显示动画
 
     // -------- 弹窗风格 --------
@@ -173,6 +175,7 @@ object Setting {
     const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"            // 自动记账提示
     const val SETTING_REMIND_BOOK: String = "setting_remind_book"   // 记账提醒
     const val LISTENER_APP_LIST = "setting_listener_app_list"       // 监听应用列表
+    const val PAGE_SIGNATURES = "setting_page_signatures"           // 记住的页面特征（JSON 数组）
     const val PROACTIVELY_MODEL: String = "proactively_model"       // 主动模式
     const val DATA_FILTER: String = "setting_data_filter"           // 数据关键词过滤（白名单），逗号分隔
     const val DATA_FILTER_BLACKLIST: String = "setting_data_filter_blacklist" // 数据关键词过滤（黑名单），逗号分隔

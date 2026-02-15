@@ -23,7 +23,9 @@ import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.FlipDetector
 import net.ankio.auto.service.ocr.OcrTools
+import net.ankio.auto.service.ocr.PageSignatureManager
 import net.ankio.auto.service.ocr.OcrViews
+import net.ankio.auto.ui.dialog.RememberPageDialog
 import net.ankio.auto.service.overlay.SaveProgressView
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
@@ -211,7 +213,7 @@ class OcrService : ICoreService() {
         }
 
         Logger.d("检测到应用 [$packageName]，开始OCR")
-        executeOcrFlow(packageName)
+        executeOcrFlow(packageName, manual)
     }
 
     /**
@@ -219,8 +221,9 @@ class OcrService : ICoreService() {
      *
      * 关键顺序：先截图（屏幕干净），再弹横幅告知用户进度。
      * 所有错误和结果均通过横幅展示，不使用 Toast。
+     * @param manual 是否手动触发，手动且识别成功时弹窗询问是否记住此页面
      */
-    private fun executeOcrFlow(packageName: String) {
+    private fun executeOcrFlow(packageName: String, manual: Boolean = false) {
 
         coreService.lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
@@ -259,8 +262,14 @@ class OcrService : ICoreService() {
                 val billData = result.data
                 if (billData != null) {
                     val moneyText = String.format("¥%.2f", billData.billInfoModel.money)
+
                     ocrView.showSuccess(coreService, moneyText) {
-                        // 3秒后回调：悬浮窗已由 JsAPI.analysis 内部自动拉起
+                        if (PrefManager.ocrAccessibilityAutoTrigger) {
+                            val activityName = OcrAccessibilityService.topActivity ?: ""
+                            val contentFingerprint =
+                                OcrAccessibilityService.lastContentFingerprint ?: ""
+                            showRememberPageDialog(packageName, activityName, contentFingerprint)
+                        }
                     }
                 } else {
                     ocrView.showError(coreService, result.msg)
@@ -274,6 +283,28 @@ class OcrService : ICoreService() {
             }
         }
 
+    }
+
+    /**
+     * 展示记住页面弹窗
+     * 若已有匹配规则则不再弹窗。Service 环境下 BaseSheetDialog 自动使用悬浮窗模式
+     */
+    private fun showRememberPageDialog(
+        packageName: String,
+        activityName: String,
+        contentFingerprint: String,
+    ) {
+        if (PageSignatureManager.matches(packageName, activityName, contentFingerprint)) return
+        coreService.lifecycleScope.launch {
+            withContext(Dispatchers.Main) {
+                RememberPageDialog.show(
+                    context = coreService,
+                    packageName = packageName,
+                    activityName = activityName,
+                    contentFingerprint = contentFingerprint,
+                )
+            }
+        }
     }
 
     /**

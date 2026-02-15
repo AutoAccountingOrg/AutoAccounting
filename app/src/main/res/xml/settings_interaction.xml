@@ -55,9 +55,22 @@
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
             android:icon="@drawable/ic_ocr"
+            android:key="ocrAccessibilityAutoTrigger"
+            android:summary="@string/setting_ocr_accessibility_auto_trigger_summary"
+            android:title="@string/setting_ocr_accessibility_auto_trigger" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_ocr"
             android:key="ocrShowAnimation"
             android:summary="@string/setting_ocr_show_animation_summary"
             android:title="@string/setting_ocr_show_animation" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_ocr"
+            android:key="pageSignatures"
+            android:summary="@string/setting_page_signatures_summary"
+            android:title="@string/setting_page_signatures" />
     </PreferenceCategory>
 
     <!-- 弹窗风格 -->

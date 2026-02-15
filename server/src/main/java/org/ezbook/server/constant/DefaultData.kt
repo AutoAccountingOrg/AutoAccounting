@@ -83,6 +83,7 @@ object DefaultData {
 
     // -------- OCR识别 --------
     val OCR_FLIP_TRIGGER: Boolean = true                            // 翻转手机触发默认开启
+    val OCR_ACCESSIBILITY_AUTO_TRIGGER: Boolean = true               // 无障碍模式下页面切换自动触发默认开启
     val OCR_SHOW_ANIMATION: Boolean = true                          // OCR识别时显示动画默认开启
 
     // -------- 弹窗风格 --------

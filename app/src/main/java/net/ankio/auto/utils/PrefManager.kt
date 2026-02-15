@@ -281,6 +281,14 @@ object PrefManager {
         get() = getBoolean(Setting.OCR_FLIP_TRIGGER, DefaultData.OCR_FLIP_TRIGGER)
         set(value) = putBoolean(Setting.OCR_FLIP_TRIGGER, value)
 
+    /** 无障碍模式下页面切换时是否自动触发OCR（需 ocrAuthMode=accessibility） */
+    var ocrAccessibilityAutoTrigger: Boolean
+        get() = getBoolean(
+            Setting.OCR_ACCESSIBILITY_AUTO_TRIGGER,
+            DefaultData.OCR_ACCESSIBILITY_AUTO_TRIGGER
+        )
+        set(value) = putBoolean(Setting.OCR_ACCESSIBILITY_AUTO_TRIGGER, value)
+
     /** 是否在OCR识别期间显示动画悬浮窗 */
     var ocrShowAnimation: Boolean
         get() = getBoolean(Setting.OCR_SHOW_ANIMATION, DefaultData.OCR_SHOW_ANIMATION)
@@ -557,6 +565,11 @@ object PrefManager {
     var settingRemindBook: Boolean
         get() = getBoolean(Setting.SETTING_REMIND_BOOK, DefaultData.SETTING_REMIND_BOOK)
         set(value) = putBoolean(Setting.SETTING_REMIND_BOOK, value)
+
+    /** 记住的页面特征（JSON 数组）- 用于 OCR 精准触发 */
+    var pageSignatures: String
+        get() = getString(Setting.PAGE_SIGNATURES, "[]")
+        set(value) = putString(Setting.PAGE_SIGNATURES, value)
 
     /** 监听应用白名单 - 允许自动记账的应用包名列表（CSV 格式存储） */
     var appWhiteList: MutableList<String>
