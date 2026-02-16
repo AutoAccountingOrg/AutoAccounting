@@ -1,4 +1,4 @@
-![AutoAccounting](https://socialify.git.ci/AutoAccountingOrg/AutoAccounting/image?description=1&font=Bitter&forks=1&issues=1&logo=https%3A%2F%2Fpic.dreamn.cn%2FuPic%2Fapple-touch-icon.png&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Auto)
+![AutoAccounting](https://socialify.git.ci/AutoAccountingOrg/AutoAccounting/image?description=1&font=Bitter&forks=1&issues=1&logo=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2FAutoAccountingOrg%2FAutoAccounting%404.0.1-Stable.20260216_0950%2Flogo%2Fapple-touch-icon.png&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Auto)
 
 <p align="center">
   <b>基于 <a href="https://github.com/LSPosed/LSPosed">Xposed API</a> 开发的自动化记账模块，通过高度灵活的本地规则配置与 AI 智能辅助，帮助用户轻松养成记账习惯、告别手动繁琐操作。</b>
