@@ -17,6 +17,9 @@ except Exception:
 
 flavors = ['release']  # 项目只有一个标准构建版本
 
+# 所有 HTTP 请求的统一请求头
+DEFAULT_HEADERS = {"x-cf-user": "ankio"}
+
 def get_latest_tag_with_prefix(prefix):
     print(f"获取最新的 tag: {prefix}")
 
@@ -258,6 +261,7 @@ def upload_single_attempt(filename, filename_new, channel, timeout=300):
     url2 = "https://cloud.ankio.net/api/fs/put"
     filename_new = quote('/自动记账/自动记账/版本更新/' + channel + "/" + filename_new, 'utf-8')
     headers = {
+        **DEFAULT_HEADERS,
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/58.0.3029.110 Safari/537.3',
         'Authorization': os.getenv("ALIST_TOKEN"),
@@ -331,6 +335,7 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
     # 创建 release
     create_release_url = f"https://api.github.com/repos/{repo}/releases"
     headers = {
+        **DEFAULT_HEADERS,
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json"
     }
@@ -360,6 +365,7 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
         upload_response = requests.post(
             upload_url + f"?name={file_name}",
             headers={
+                **DEFAULT_HEADERS,
                 "Authorization": f"token {token}",
                 "Accept": "application/vnd.github.v3+json",
                 "Content-Type": "application/octet-stream"  # 明确指定上传内容类型
@@ -448,7 +454,8 @@ def send_apk_with_changelog(workspace, title):
                     "chat_id": "@ezbook_archives",
                     "caption": "" # 空的说明文本
                 },
-                files={"document": (new_name, apk_file)}
+                files={"document": (new_name, apk_file)},
+                headers=DEFAULT_HEADERS
             )
             response.raise_for_status()
             file_id = response.json()['result']['document']['file_id']
@@ -482,7 +489,8 @@ def send_apk_with_changelog(workspace, title):
                 json={
                     "chat_id": channel_id,
                     "media": media
-                }
+                },
+                headers=DEFAULT_HEADERS
             )
             response.raise_for_status()
             message_sent = True
@@ -502,7 +510,8 @@ def send_apk_with_changelog(workspace, title):
                     "text": truncate_content(content),
                     "parse_mode": "MarkdownV2",
                     "disable_web_page_preview": True
-                }
+                },
+                headers=DEFAULT_HEADERS
             )
             response.raise_for_status()
             print("成功发送纯文本更新通知（降级方案）")
@@ -538,7 +547,7 @@ def send_qq_bot_notification(tag, log_data, repo, commit_count):
         resp = requests.post(
             bot_url,
             data=data,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            headers={**DEFAULT_HEADERS, "Content-Type": "application/x-www-form-urlencoded"},
             timeout=30
         )
         if not resp.ok:
