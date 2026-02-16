@@ -79,7 +79,14 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            ndk {
+                abiFilters.clear()
+                abiFilters.addAll(listOf("arm64-v8a", "x86_64"))
+            }
+        }
         getByName("release") {
+            // 开启代码压缩以启用R8优化，但通过proguard规则禁用混淆
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
