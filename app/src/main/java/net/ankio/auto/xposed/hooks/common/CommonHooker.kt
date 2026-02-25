@@ -23,15 +23,6 @@ import java.io.File
 import java.net.ServerSocket
 
 object CommonHooker {
-    fun runServerInAndroid(): Boolean {
-        val file = File("/sdcard/Download/Bluetooth/auto_server")
-        if (file.exists()) {
-            XposedLogger.d("server file exist...")
-        } else {
-            XposedLogger.d("server file not exist...")
-        }
-        return file.exists()
-    }
     /**
      * 检查端口是否被占用。
      * 占用则返回 true；未占用则返回 false。
@@ -44,21 +35,13 @@ object CommonHooker {
         }
     }
     fun init() {
-        XposedLogger.d("Start server...: ${AppRuntime.manifest.packageName}")
-        // 端口占用检查：最前置，未通过则直接返回，避免后续初始化浪费
+        XposedLogger.d("CommonHooker: start server for ${AppRuntime.manifest.packageName}")
         if (isPortOccupied(Server.PORT)) {
-            XposedLogger.d("Server port ${Server.PORT} is occupied, skip start")
+            XposedLogger.d("CommonHooker: port ${Server.PORT} occupied, skip")
             return
         }
-        XposedLogger.d("Start server...: ${AppRuntime.manifest.packageName}")
         try {
-            /**
-             * js引擎
-             */
             JsEngine.init()
-            /**
-             * 启动自动记账服务
-             */
             val server = Server(AppRuntime.application!!)
             Server.versionName = BuildConfig.VERSION_NAME
             Server.packageName = BuildConfig.APPLICATION_ID
@@ -67,9 +50,9 @@ object CommonHooker {
             server.startServer()
             AppInstaller.init(AppRuntime.application!!, server)
             UnLockScreen.init()
-            XposedLogger.d("Server start success")
+            XposedLogger.d("CommonHooker: server started")
         } catch (e: Throwable) {
-            XposedLogger.d(e.message ?: "")
+            XposedLogger.e("CommonHooker: init failed", e)
         }
     }
 }

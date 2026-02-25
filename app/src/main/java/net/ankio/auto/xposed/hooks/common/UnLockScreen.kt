@@ -30,7 +30,7 @@ object UnLockScreen {
     suspend fun launchUnEditedBills() {
         delay(3000)
         val list = BillAPI.edit()
-        XposedLogger.d("BillAPI.edit()：$list")
+        XposedLogger.d("UnLockScreen: pending bills=${list.size}")
         list.forEach { billInfoModel ->
             delay(1000)
             val floatIntent =
@@ -39,7 +39,7 @@ object UnLockScreen {
             try {
                 AppRuntime.application!!.baseContext.startActivity(panelIntent)
             } catch (t: Throwable) {
-                XposedLogger.e("Failed to start auto server：$t", t)
+                XposedLogger.e("UnLockScreen: failed to start bill activity", t)
             }
         }
     }
@@ -54,10 +54,7 @@ object UnLockScreen {
                 App.launch {
                     try {
                         if (intent.action == Intent.ACTION_USER_PRESENT) {
-                            XposedLogger.d(
-
-                                "User unlocked the device and entered the home screen."
-                            )
+                            XposedLogger.d("UnLockScreen: user present, launch pending bills")
                             launchUnEditedBills()
                         }
                     } finally {

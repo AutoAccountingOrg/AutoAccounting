@@ -38,13 +38,17 @@ object AppInstaller {
                             when (it.action) {
                                 Intent.ACTION_PACKAGE_ADDED,
                                 Intent.ACTION_PACKAGE_REPLACED -> {
+                                    XposedLogger.d("AppInstaller: detected $packageName ${it.action}, stopping server and restarting")
                                     runCatching {
                                         server.stopServer()
                                     }
                                     runCatching {
                                         AppRuntime.restart()
+                                    }.onSuccess {
+                                        XposedLogger.d("AppInstaller: restart triggered")
                                     }.onFailure { e ->
                                         XposedLogger.e("AppInstaller", e)
+                                        XposedLogger.d("AppInstaller: restart failed, fallback to killProcess")
                                         Process.killProcess(Process.myPid())
                                     }
                                 }

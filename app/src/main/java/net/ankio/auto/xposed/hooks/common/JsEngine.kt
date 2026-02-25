@@ -30,16 +30,15 @@ object JsEngine {
             else -> "unsupported"
         }
 
-        // 如果架构不支持，则记录日志并返回
         if (framework == "unsupported") {
-            XposedLogger.d("Unsupported architecture")
+            XposedLogger.d("JsEngine: unsupported arch, ABIs=${Build.SUPPORTED_64_BIT_ABIS.toList() + Build.SUPPORTED_32_BIT_ABIS.toList()}")
             return
         }
 
         AppRuntime.moduleSoPath =
             AppRuntime.modulePath.replace("/base.apk", "") + "/lib/$framework/"
 
-        XposedLogger.d("Module so path: ${AppRuntime.moduleSoPath}")
+        XposedLogger.d("JsEngine: so path=$framework")
     }
 
     fun init() {
