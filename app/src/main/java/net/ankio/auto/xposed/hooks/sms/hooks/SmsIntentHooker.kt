@@ -73,6 +73,7 @@ class SmsIntentHooker : PartHooker() {
                 addProperty("t", System.currentTimeMillis())
             }
 
+            d("SMS received: sender=$sender, body=${body.take(50)}${if (body.length > 50) "..." else ""}")
             analysisData(DataType.DATA, Gson().toJson(json))
             return@allMethodsEqBefore null
         }
