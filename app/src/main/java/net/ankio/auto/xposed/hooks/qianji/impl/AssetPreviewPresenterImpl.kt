@@ -24,6 +24,7 @@ import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.http.api.SettingAPI
 import net.ankio.auto.xposed.core.api.HookerClazz
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MessageUtils
@@ -127,7 +128,7 @@ class AssetPreviewPresenterImpl private constructor() {
                 !assetAccount.isVisible()  //不可见
                 || assetAccount.isZhaiWuFinished() //债务结束
             ) {
-                AppRuntime.manifest.d("隐藏的资产不同步:${assetAccount.getName()}")
+                XposedLogger.d(" skip hidden asset ${assetAccount.getName()}")
                 return@forEach
             }
 
@@ -159,10 +160,10 @@ class AssetPreviewPresenterImpl private constructor() {
         val server = SettingAPI.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
         if (server == md5 || assets.isEmpty()) { //资产为空也不同步
-            AppRuntime.manifest.i("No need to sync Assets, server md5:${server} local md5:${md5}")
+            AppRuntime.manifest.i(" skip sync, MD5 matched")
             return@withContext
         }
-        AppRuntime.manifest.i("Sync Assets:${Gson().toJson(assets)}")
+        AppRuntime.manifest.i(" sync assets, count=${assets.size}")
         AssetsAPI.put(assets, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步资产信息到自动记账")
@@ -194,7 +195,7 @@ class AssetPreviewPresenterImpl private constructor() {
                 }
                 account = findAssetInList(name, sType)
                 if (account == null) {
-                    AppRuntime.manifest.i("未找到资产:$name")
+                    XposedLogger.w(" asset not found, name=$name")
                 }
             }
 

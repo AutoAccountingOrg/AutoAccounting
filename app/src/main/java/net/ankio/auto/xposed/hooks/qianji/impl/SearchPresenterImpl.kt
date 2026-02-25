@@ -41,6 +41,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import net.ankio.auto.http.api.BookBillAPI
 import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.xposed.core.logger.XposedLogger
 
 object SearchPresenterImpl : HookerClazz() {
     private const val CLAZZ = "com.mutangtech.qianji.bill.search.SearchPresenterImpl"
@@ -173,7 +174,7 @@ object SearchPresenterImpl : HookerClazz() {
                 runCatching {
                     getLast10DayLists(bookName)
                 }.onFailure {
-                    AppRuntime.manifest.e(it)
+                    XposedLogger.e(" get bills failed", it)
                 }.getOrDefault(emptyList<Any>())
             }
 
@@ -182,10 +183,10 @@ object SearchPresenterImpl : HookerClazz() {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_BILL, "")
         if (server == md5) {
-            AppRuntime.manifest.i("No need to sync bill Data, server md5:${server} local md5:${md5}")
+            XposedLogger.d(" skip sync, MD5 matched")
             return@withContext
         }
-        AppRuntime.manifest.d("Sync bills:$sync")
+        XposedLogger.d(" sync bills, count=${bills.size}")
         BookBillAPI.put(bills, md5, Setting.HASH_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步支出账单到自动记账")

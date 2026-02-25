@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.http.api.SettingAPI
 import net.ankio.auto.http.api.TagAPI
 import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.models.QjTagGroupModel
@@ -278,7 +279,7 @@ object TagRefreshPresenterImpl : HookerClazz() {
         }
         val tagModels = buildTagModels(result.list)
         if (tagModels.isEmpty()) {
-            AppRuntime.manifest.i("No tags to sync, skip.")
+            XposedLogger.w("no tags to sync")
             return@withContext
         }
         // 幂等：内容哈希一致则跳过同步
@@ -286,7 +287,7 @@ object TagRefreshPresenterImpl : HookerClazz() {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_TAG, "")
         if (server == md5) {
-            AppRuntime.manifest.i("Skip tag sync, MD5 matched (server=$server, local=$md5)")
+            XposedLogger.i("skip sync, MD5 matched")
             return@withContext
         }
         // 同步时携带 md5 供服务端写入设置项

@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.http.api.CategoryAPI
 import net.ankio.auto.http.api.SettingAPI
 import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.models.QjCategoryModel
@@ -95,10 +96,10 @@ object CateInitPresenterImpl : HookerClazz() {
         val md5 = MD5HashTable.md5(sync)
         val server = SettingAPI.get(Setting.HASH_CATEGORY, "")
         if (server == md5) {
-            AppRuntime.manifest.i("No need to sync categories, Server md5:${server} local md5:${md5}")
+            XposedLogger.i(" skip sync, MD5 matched")
             return@withContext
         }
-        AppRuntime.manifest.d("Sync categories:$sync")
+        XposedLogger.d(" sync categories, count=${arrayList.size}")
         CategoryAPI.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步分类信息到自动记账")

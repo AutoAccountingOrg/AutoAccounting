@@ -27,6 +27,7 @@ import net.ankio.auto.xposed.hooks.qianji.models.QjBookModel
 import org.ezbook.server.constant.Setting
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import org.ezbook.server.db.model.BookNameModel
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzMethod
@@ -137,10 +138,10 @@ object BookManagerImpl : HookerClazz() {
             val md5 = MD5HashTable.md5(sync)
             val server = SettingAPI.get(Setting.HASH_BOOK, "")
             if (server == md5) {
-                AppRuntime.manifest.i("跳过账本同步，MD5 一致（server=${server}, local=${md5}）")
+                XposedLogger.i(" skip sync, MD5 matched")
                 return@withContext bookList
             }
-            AppRuntime.manifest.i("同步账本数据: $sync")
+            XposedLogger.i(" sync books, count=${bookList.size}")
             BookNameAPI.put(bookList, md5)
             withContext(Dispatchers.Main) {
                 MessageUtils.toast("已同步账本信息到自动记账")

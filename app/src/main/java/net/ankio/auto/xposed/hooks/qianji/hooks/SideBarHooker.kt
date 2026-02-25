@@ -79,8 +79,8 @@ class SideBarHooker : PartHooker() {
             runCatching {
                 AppRuntime.attachResource(activity)
                 addSettingMenu(linearLayout, activity)
-            }.onFailure { item ->
-                AppRuntime.manifest.e(item)
+            }.onFailure { e ->
+                e("add menu failed", e)
             }
             true
         }

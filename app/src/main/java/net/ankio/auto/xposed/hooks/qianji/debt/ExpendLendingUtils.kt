@@ -17,6 +17,7 @@ package net.ankio.auto.xposed.hooks.qianji.debt/*
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
@@ -39,7 +40,7 @@ class ExpendLendingUtils :
         val isNewAssets = isNewAssets(accountTo)
         val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        AppRuntime.manifest.d("借出: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
+        XposedLogger.d("lending ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
 
         // 更新loan
         updateLoan(billModel, accountTo, isNewAssets)

@@ -19,6 +19,7 @@ import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.api.HookerClazz
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.qianji.helper.AssetDbHelper
 import net.ankio.auto.xposed.hooks.qianji.models.QjBillModel
@@ -49,18 +50,18 @@ object RefundPresenterImpl : HookerClazz() {
             .split(Regex("\\s*,\\s*"))
             .firstOrNull()
         if (billId.isNullOrBlank()) {
-            AppRuntime.manifest.i("refund: 退款账单id缺失 extendData=${billInfo.extendData}")
+            XposedLogger.i(" refund bill id missing, extendData=${billInfo.extendData}")
             return@withContext
         }
         // 先获取账单列表
         val bills = SearchPresenterImpl.getLast10DayLists(billInfo.bookName)
-        AppRuntime.manifest.i("bills: $bills")
+        XposedLogger.d(" get bills, count=${bills.size}")
         //查找退款的账单
         val bill = bills.firstOrNull {
             it != null && QjBillModel.fromObject(it).getBillid() == billId.toLong()
         }?.let { QjBillModel.fromObject(it) }
         if (bill == null) {
-            AppRuntime.manifest.i("refund: 找不到退款的账单 id=$billId")
+            XposedLogger.i(" refund bill not found, id=$billId")
             return@withContext
         }
         bill.set_id(null)

@@ -17,7 +17,6 @@ package net.ankio.auto.xposed.hooks.qianji.hooks
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.logger.XposedLogger
@@ -94,7 +93,7 @@ class DbHooker : PartHooker() {
                 )
                 null
             } catch (e: Exception) {
-                XposedBridge.log("关联失败: ${e.message}")
+                XposedLogger.e("DbHooker: link failed", e)
                 null
             }
         }
@@ -113,7 +112,7 @@ class DbHooker : PartHooker() {
                     if (cursor.moveToFirst()) cursor.getLong(0) else null
                 }
             } catch (e: Exception) {
-                XposedBridge.log("查询失败: ${e.message}")
+                XposedLogger.e("DbHooker: query failed", e)
                 null
             } ?: return null
             return BillDbHelper.newInstance().findByBillId(billId)
@@ -130,7 +129,7 @@ class DbHooker : PartHooker() {
         try {
             db.execSQL(sql)
         } catch (e: Exception) {
-            XposedBridge.log("执行失败: ${e.message}")
+            XposedLogger.e("DbHooker: execute SQL failed", e)
         }
     }
 }

@@ -17,6 +17,7 @@ package net.ankio.auto.xposed.hooks.qianji.debt
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
@@ -39,7 +40,7 @@ class IncomeLendingUtils :
         val isNewAssets = isNewAssets(accountFrom)
         val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        AppRuntime.manifest.d("借入: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
+        XposedLogger.d(" lending ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
 
         // 更新loan
         updateLoan(billModel, accountFrom, isNewAssets)
@@ -50,7 +51,7 @@ class IncomeLendingUtils :
             // 构建账单
             val bill = updateBill(billModel, 6, book, accountFrom, accountTo)
 
-            AppRuntime.manifest.d("bill: $bill")
+            XposedLogger.d(" bill id=${bill.getBillid()}")
 
             saveBill(bill)
         }
@@ -90,7 +91,7 @@ class IncomeLendingUtils :
     ) = withContext(Dispatchers.IO) {
         // 债务
         val loan = if (isNewAssets) createLoan(billModel.time) else accountFrom.getLoanInfo()
-        AppRuntime.manifest.d("LoanInfo: ${loan}")
+        XposedLogger.d(" loan created")
         // {"a":0,"b":"2024-07-17","c":"","e":-12.0,"f":0.0}
         // f=TotalPay 已还金额
         // e=money 待还金额

@@ -21,14 +21,12 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.core.net.toUri
 import com.google.gson.Gson
-import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.CoroutineUtils
@@ -197,7 +195,7 @@ class AutoHooker : PartHooker() {
                     billModel.setExtra(billExtra)
                 }
             }.onFailure { e ->
-                XposedLogger.e(e)
+                e(e)
             }
         }
 
@@ -228,17 +226,9 @@ class AutoHooker : PartHooker() {
             val trace = Throwable().stackTraceToString()
             if (trace.contains(AddBillIntentAct.CLAZZ)) {
                 val bill = QjBillModel.fromObject(it.args[0])
-                XposedLogger.d(
-                    "saveOrUpdateBill before: $bill，extra: ${
-                        bill.getExtra().toObject()
-                    }"
-                )
+                d("saveOrUpdateBill before, billId=${bill.getBillid()}")
                 val billModel = addBilInfo(bill, activity, uri)
-                XposedLogger.d(
-                    "saveOrUpdateBill after: $bill，extra: ${
-                        bill.getExtra().toObject()
-                    }"
-                )
+                d("saveOrUpdateBill after, billId=${billModel.getBillid()}")
                 it.args[0] = billModel.toObject()
                 return@onceBefore true
             }
@@ -319,7 +309,7 @@ class AutoHooker : PartHooker() {
             param.args[1] = autoTaskLog.toObject()
             val value = autoTaskLog.getValue()
             val uri = value?.toUri()
-            manifest.i("hookTaskLog: $value")
+            i("task log uri=$value")
             val addBillIntentAct = AddBillIntentAct.fromObj(param.thisObject)
             if (uri == null) {
                 addBillIntentAct.finishAffinity()
@@ -342,7 +332,7 @@ class AutoHooker : PartHooker() {
                 QianJiBillType.Income.value,
                 QianJiBillType.ExpendReimbursement.value
                     -> {
-                    manifest.i("Qianji Error: $msg")
+                    i("task type=${uri.getQueryParameter("type")}, msg=$msg")
 
                 }
 
@@ -386,7 +376,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("报销成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.e("报销失败 ${it.message}", it)
+                            e("reimbursement failed", it)
                             MessageUtils.toast("报销失败 ${it.message ?: ""}")
                         }
                         addBillIntentAct.finishAffinity()
@@ -403,7 +393,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("退款成功")
                             BillAPI.status(billInfo.id, true)
                         }.onFailure {
-                            manifest.e("退款失败 ${it.message}", it)
+                            e("refund failed", it)
                             MessageUtils.toast("退款失败 ${it.message ?: ""}")
                         }
                         AddBillIntentAct.fromObj(param.thisObject).finishAffinity()
@@ -424,8 +414,8 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("借出成功")
                 BillAPI.status(billModel.id, true)
             }.onFailure {
-                manifest.d("借出失败 ${it.message}")
-                manifest.e(it)
+                d("lending failed")
+                e(it)
                 MessageUtils.toast("借出失败 ${it.message ?: ""}")
             }
             act.finishAffinity()
@@ -441,8 +431,8 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("收款成功")
                 BillAPI.status(billModel.id, true)
             }.onFailure {
-                manifest.e(it)
-                manifest.d("收款失败 ${it.message}")
+                e(it)
+                d("repayment failed")
                 MessageUtils.toast("收款失败 ${it.message ?: ""}")
             }
             act.finishAffinity()
@@ -458,8 +448,8 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("还款成功")
                 BillAPI.status(billModel.id, true)
             }.onFailure {
-                manifest.e(it)
-                manifest.d("还款失败 ${it.message}")
+                e(it)
+                d("expend repayment failed")
                 MessageUtils.toast("还款失败 ${it.message ?: ""}")
             }
             act.finishAffinity()
@@ -482,8 +472,8 @@ class AutoHooker : PartHooker() {
                 MessageUtils.toast("借入成功")
                 BillAPI.status(billModel.id, true)
             }.onFailure {
-                manifest.e(it)
-                manifest.d("借入失败 ${it.message}")
+                e(it)
+                d("income lending failed")
                 MessageUtils.toast("借入失败 ${it.message ?: ""}")
             }
             act.finishAffinity()
@@ -505,7 +495,7 @@ class AutoHooker : PartHooker() {
             val prop = param.args[0] as String
             val timeout = param.args[1] as Long
             if (prop == "auto_task_last_time") {
-                manifest.d("hookTimeout: $prop $timeout")
+                d("timeout bypass, prop=$prop")
                 param.result = true
             }
         }
