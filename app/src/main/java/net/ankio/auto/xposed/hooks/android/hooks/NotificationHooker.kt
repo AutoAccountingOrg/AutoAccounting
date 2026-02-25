@@ -122,7 +122,10 @@ class NotificationHooker : PartHooker() {
             ?: "").toString()
 
         val hash = MD5HashTable.md5("$pkg$title$text")
-        if (hashTable.contains(hash)) return
+        if (hashTable.contains(hash)) {
+            d(" skip duplicate content, hash=$hash, pkg=$pkg")
+            return
+        }
         hashTable.put(hash)
 
         d("Notification: app=$pkg, title=$title, text=$text")
