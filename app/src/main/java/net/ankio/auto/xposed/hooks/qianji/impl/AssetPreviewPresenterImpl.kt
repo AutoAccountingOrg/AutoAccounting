@@ -160,10 +160,10 @@ class AssetPreviewPresenterImpl private constructor() {
         val server = SettingAPI.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
         if (server == md5 || assets.isEmpty()) { //资产为空也不同步
-            AppRuntime.manifest.i(" skip sync, MD5 matched")
+            XposedLogger.i(" skip sync, MD5 matched")
             return@withContext
         }
-        AppRuntime.manifest.i(" sync assets, count=${assets.size}")
+        XposedLogger.i(" sync assets, count=${assets.size}")
         AssetsAPI.put(assets, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步资产信息到自动记账")

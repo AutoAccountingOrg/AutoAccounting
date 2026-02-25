@@ -67,7 +67,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
             // 默认 Application，直接获取
             manifest.applicationName.isEmpty() -> {
-                XposedLogger.d("使用默认 Application: ${manifest.appName}")
+                XposedLogger.d("Using default Application: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
 
@@ -102,14 +102,14 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 hookedApplication = true
 
                 val application = param.args[0] as Application
-                XposedLogger.d("Hook Application 成功: ${manifest.applicationName} -> ${application.javaClass.name}")
+                XposedLogger.d("Hook Application success: ${manifest.applicationName} -> ${application.javaClass.name}")
                 callback(application)
             }
 
 
 
         } catch (e: Exception) {
-            XposedLogger.i("Hook Application 失败: ${manifest.applicationName}, 错误: ${e.message}")
+            XposedLogger.i("Hook Application failed: ${manifest.applicationName}, error: ${e.message}")
             XposedLogger.e(e)
         }
     }
@@ -124,7 +124,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             if (it.packageName == pkg) {
                 if (processName == null || process == processName) return it
                 else {
-                    XposedLogger.d("Process name not pair: excepted ${process}, but provide ${processName}")
+                    XposedLogger.d("Process name mismatch: expected ${process}, got ${processName}")
                 }
             }
         }
@@ -150,14 +150,14 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         hookAppContext(targetApp) { application ->
             val classLoader = application?.classLoader ?: lpparam.classLoader
             AppRuntime.init(application, classLoader, targetApp)
-            XposedLogger.i("初始化Hook: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}")
+            XposedLogger.i("Init hook: ${AppRuntime.name}, version: ${BuildConfig.VERSION_NAME}, app path: ${AppRuntime.application?.applicationInfo?.sourceDir}")
             // 设置允许明文
             NetSecurityUtils.allowCleartextTraffic()
             // 初始化Toast
             application?.let { Toaster.init(it) }
             //
             if (!AdaptationUtils.autoAdaption(targetApp)) {
-                XposedLogger.i("自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook")
+                XposedLogger.w("Auto adaptation failed, ${AppRuntime.manifest.appName} will not be hooked")
                 return@hookAppContext
             }
 
@@ -176,24 +176,24 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         try {
             manifest.hookLoadPackage()
         } catch (e: Exception) {
-            AppRuntime.manifest.e(e)
+            XposedLogger.e(e)
         }
 
         manifest.partHookers.forEach { hooker ->
             val hookerName = hooker.javaClass.simpleName
-            AppRuntime.manifest.d("初始化部分Hook器: $hookerName")
+            XposedLogger.d("Init part hooker: $hookerName")
 
             try {
                 hooker.hook()
-                AppRuntime.manifest.d("部分Hook器初始化成功: $hookerName")
+                XposedLogger.d("Part hooker init success: $hookerName")
             } catch (e: Exception) {
-                AppRuntime.manifest.d("部分Hook器错误: ${e.message}")
-                AppRuntime.manifest.e(e)
+                XposedLogger.d("Part hooker error: ${e.message}")
+                XposedLogger.e(e)
                 set("adaptation_version", "0")
             }
         }
 
-        AppRuntime.manifest.d("Hook器初始化成功, ${AppRuntime.manifest.appName}")
+        XposedLogger.d("Hook init success, ${AppRuntime.manifest.appName}")
 
         // 成功通知
         if (!manifest.systemApp &&

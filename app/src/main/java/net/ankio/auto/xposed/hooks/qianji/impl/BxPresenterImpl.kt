@@ -145,7 +145,7 @@ object BxPresenterImpl : HookerClazz() {
             XposedLogger.i(" skip sync, MD5 matched")
             return@withContext
         }
-        AppRuntime.manifest.d(" sync reimbursement, count=${bills.size}")
+        XposedLogger.d(" sync reimbursement, count=${bills.size}")
         BookBillAPI.put(bills, md5, Setting.HASH_BAOXIAO_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步报销账单到自动记账")

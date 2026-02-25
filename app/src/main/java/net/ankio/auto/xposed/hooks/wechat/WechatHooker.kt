@@ -18,6 +18,7 @@ package net.ankio.auto.xposed.hooks.wechat
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.hooks.wechat.hooks.ChatUserHooker
@@ -48,7 +49,7 @@ class WechatHooker : HookerManifest() {
         val tinkerDir = File(application!!.dataDir, "tinker")
 
         if (tinkerDir.exists()) {
-            d("tinkerDir: ${tinkerDir.absolutePath}")
+            XposedLogger.d("tinkerDir: ${tinkerDir.absolutePath}")
             closeTinker(classLoader)
         }
 

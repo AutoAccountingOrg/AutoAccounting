@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
 import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.DataUtils.get
 import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils.toast
@@ -67,7 +68,7 @@ object AdaptationUtils {
 
         val savedVersion = get(KEY_ADAPT_VERSION, "").toLongOrNull() ?: 0L
         val savedRulesHash = get(KEY_RULES_HASH, "")
-        manifest.d("适配版本: $savedVersion, 规则哈希: $savedRulesHash")
+        XposedLogger.d("savedVersion=$savedVersion, rulesHash=$savedRulesHash")
 
         if (savedVersion == code && savedRulesHash == currentRulesHash) {
             runCatching {
@@ -78,11 +79,11 @@ object AdaptationUtils {
                 require(manifest.clazz.size == manifest.rules.size) {
                     "适配失败: 缓存大小不匹配"
                 }
-                manifest.i("从缓存加载适配信息: ${manifest.clazz}")
+                XposedLogger.i("load from cache, clazz ${manifest.clazz}")
                 return true
             }.onFailure { e ->
                 clearCache()
-                manifest.e(e)
+                XposedLogger.e("cache load failed", e)
             }
         }
 
@@ -102,7 +103,7 @@ object AdaptationUtils {
 
                 val appInfo = AppRuntime.application!!.applicationInfo
                 val path = appInfo.sourceDir
-                manifest.d("应用包路径: $path")
+                XposedLogger.d("app path=$path")
 
                 val hashMap = Dex.findClazz(
                     path,
@@ -110,27 +111,27 @@ object AdaptationUtils {
                     rules
                 ) { found, total, ruleName ->
                     toast("适配进度 $found/$total: 找到 $ruleName")
-                    manifest.d("适配进度: $found/$total, 找到规则: $ruleName")
+                    XposedLogger.d("progress $found/$total, rule=$ruleName")
                 }
-                manifest.i("hashMap.size( ${hashMap.size} ) == rules.size( ${rules.size} )")
+                XposedLogger.i("found ${hashMap.size}/${rules.size} rules")
                 if (hashMap.size == rules.size) {
                     saveCache(code, currentRulesHash, hashMap)
                     manifest.clazz = hashMap
-                    manifest.i("适配成功: $hashMap")
+                    XposedLogger.i("adaptation success, ${hashMap}")
                     toast("适配成功，即将重启应用...")
                     delay(2000L)
                     AppRuntime.restart()
                 } else {
-                    manifest.i("适配失败: $hashMap")
-                    rules.forEachIndexed { index, rule ->
-                        if (!hashMap.containsKey(rule.name)) manifest.i("未能适配规则: ${rule.name}")
+                    XposedLogger.i("adaptation failed, found ${hashMap.size}/${rules.size}")
+                    rules.forEach { rule ->
+                        if (!hashMap.containsKey(rule.name)) XposedLogger.i("rule not found: ${rule.name}")
                     }
 
                     set(KEY_ADAPT_VERSION, "0")
                     toast("适配失败，请更新自动记账或在Github反馈。")
                 }
             }.onFailure { e ->
-                manifest.e(e)
+                XposedLogger.e("adaptation error", e)
                 toast("适配过程发生错误: ${e.message}")
             }
         }

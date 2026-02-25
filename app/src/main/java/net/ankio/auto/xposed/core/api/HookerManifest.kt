@@ -77,13 +77,4 @@ abstract class HookerManifest {
      */
     open var clazz = HashMap<String, ClazzResult>()
 
-    fun d(msg: String, tr: Throwable? = null) = XposedLogger.d(msg, tr)
-
-    fun i(msg: String, tr: Throwable? = null) = XposedLogger.i(msg, tr)
-
-    fun w(msg: String, tr: Throwable? = null) = XposedLogger.w(msg, tr)
-
-    fun e(msg: String, tr: Throwable? = null) = XposedLogger.e(msg, tr)
-
-    fun e(tr: Throwable) = XposedLogger.e(tr)
 }

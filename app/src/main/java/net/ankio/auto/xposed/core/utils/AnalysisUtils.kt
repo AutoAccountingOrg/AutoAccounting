@@ -33,33 +33,33 @@ object AnalysisUtils {
 
     fun analysisData(manifestAppPackage: String, type: DataType, data: String) {
         CoroutineUtils.withIO {
-
             val hash = MD5HashTable.md5(data)
             if (mD5HashTable.contains(hash)) {
+                XposedLogger.d("AnalysisUtils: duplicate skip, pkg=$manifestAppPackage, type=$type")
                 return@withIO
             }
-
             mD5HashTable.put(data)
 
-            // 白名单过滤：数据必须包含至少一个白名单关键词
             val whitelist = DataUtils.configString(Setting.DATA_FILTER, DefaultData.DATA_FILTER)
                 .split(",").filter { it.isNotEmpty() }
             if (whitelist.all { !data.contains(it) }) {
+                XposedLogger.d("AnalysisUtils: whitelist filter, pkg=$manifestAppPackage, type=$type, data=${data}")
                 return@withIO
             }
 
-            // 黑名单过滤：数据不能包含任何黑名单关键词
             val blacklist = DataUtils.configString(
                 Setting.DATA_FILTER_BLACKLIST,
                 DefaultData.DATA_FILTER_BLACKLIST
             )
                 .split(",").filter { it.isNotEmpty() }
             if (blacklist.any { data.contains(it) }) {
+                XposedLogger.d("AnalysisUtils: blacklist filter, pkg=$manifestAppPackage, type=$type, data=${data}")
                 return@withIO
             }
 
+            XposedLogger.d("AnalysisUtils: submit, pkg=$manifestAppPackage, type=$type, data=${data}")
             val result = JsAPI.analysis(type, data, manifestAppPackage)
-            XposedLogger.i("$manifestAppPackage -> 分析结果(${result.data}): ${result.data ?: result.msg}")
+            XposedLogger.i("AnalysisUtils: result pkg=$manifestAppPackage, type=$type, ok=${result.data != null}, msg=${result.msg} , result=${result.data}")
         }
     }
 }
