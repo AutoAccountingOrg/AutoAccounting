@@ -48,7 +48,7 @@ class WechatHooker : HookerManifest() {
         val tinkerDir = File(application!!.dataDir, "tinker")
 
         if (tinkerDir.exists()) {
-            i("tinkerDir: ${tinkerDir.absolutePath}")
+            d("tinkerDir: ${tinkerDir.absolutePath}")
             closeTinker(classLoader)
         }
 

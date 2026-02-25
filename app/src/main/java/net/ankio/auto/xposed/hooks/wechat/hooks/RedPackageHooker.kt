@@ -17,7 +17,6 @@ package net.ankio.auto.xposed.hooks.wechat.hooks
 
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.wechat.models.LuckMoneyModel
 import net.ankio.auto.xposed.hooks.wechat.models.WechatUserModel
 import org.ezbook.server.constant.DataType
@@ -41,7 +40,7 @@ class RedPackageHooker: PartHooker() {
             JSONObject::class.java
         ){ param ->
             val json = param.args[2] as JSONObject
-            d("hooked red package: $json")
+            d("Red package hooked: $json")
             json.put(WechatUserModel.CHAT_USER, WechatUserModel.get(json.getString("sendUserName")))
             analysisData(DataType.DATA, json.toString())
         }

@@ -19,7 +19,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.tools.MD5HashTable
 import org.ezbook.server.constant.DataType
 
@@ -45,16 +44,15 @@ class WebViewHooker:PartHooker() {
                   __json.remove("entrances")
                   __json.remove("service_module")
                   val md5 = MD5HashTable.md5(__json.toString())
-                  AppRuntime.manifest.d("")
-                  if (md5HashTable.contains(md5)){
-                      AppRuntime.manifest.d("Wechat WebViewHooker exist： $__json")
-                     return@runCatching
+                  if (md5HashTable.contains(md5)) {
+                      d("Wechat WebViewHooker exist: $__json")
+                      return@runCatching
                   }
                   md5HashTable.put(md5)
-                  AppRuntime.manifest.d("Wechat WebViewHooker hook： $__json")
+                  d("Wechat WebViewHooker hook: $__json")
                   analysisData(DataType.DATA, __json.toString())
               }.onFailure { e ->
-                    AppRuntime.manifest.e(e)
+                  e(e)
               }
            }
        }

@@ -40,18 +40,18 @@ class PayToolsHooker : PartHooker() {
         ){ param ->
             val text = param.args[0] as String
             d("Text: $text")
-            // 这里的数据只缓存2分钟，超过2分钟自动失效
+            // Data cached for 2 minutes, auto-expires after
             when {
                 Regex(".*(卡|零钱|经营账户).*").matches(text) -> {
-                    d("支付方式Hook: $text")
+                    d("Payment method hook: $text")
                     MemoryCache.put(PAY_TOOLS, text, DURATION_SECONDS)
                 }
                 Regex(".*([￥$]).*").matches(text) -> {
-                    d("支付金额Hook: $text")
+                    d("Payment amount hook: $text")
                     MemoryCache.put(PAY_MONEY, text, DURATION_SECONDS)
                 }
                 Regex(".*(转账|红包|付款给).*").matches(text) -> {
-                    d("支付对象hook: $text")
+                    d("Payment target hook: $text")
                     MemoryCache.put(PAY_SHOP, text, DURATION_SECONDS)
                 }
             }
