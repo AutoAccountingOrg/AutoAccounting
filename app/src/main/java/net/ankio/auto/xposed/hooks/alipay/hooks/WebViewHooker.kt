@@ -16,15 +16,12 @@
 package net.ankio.auto.xposed.hooks.alipay.hooks
 
 import android.webkit.ValueCallback
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.CoroutineUtils
 import org.ezbook.server.constant.DataType
 
@@ -50,8 +47,8 @@ class WebViewHooker : PartHooker() {
             val urlObj = XposedHelpers.callMethod(obj, "getUrl") ?: return@after
             val url = urlObj as String
             if (!url.contains("tradeNo=")) return@after
-            // XposedBridge.log(script)
             if (script.contains("(function(){window.ALIPAYVIEWAPPEARED=1})()")) {
+                d("WebViewHooker: Alipay bill page detected, inject JSBridge hook")
                 // 一次性、幂等式注入，避免重复覆盖与页面抖动
                 val inject = (
                     """
@@ -91,22 +88,28 @@ class WebViewHooker : PartHooker() {
                         if (result.isNullOrEmpty() || result == "{}" || result == "null") {
                             return@ValueCallback
                         }
-
                         needWait = false
-                        d("Hooked Alipay Bill List Data：$result")
+                        d("WebViewHooker: Alipay bill data received")
                         analysisData(DataType.DATA, result)
                     }
-                // TODO 这里原本计划直接注入JSBridge,但是一直注入失败（没有反应），所以使用一个懒办法
                 CoroutineUtils.withIO {
-                    withTimeout(MAX_WAIT_MS) {
-                        while (needWait) {
-                            XposedHelpers.callMethod(
-                                obj,
-                                "evaluateJavascript",
-                                "javascript:window.ankioResults",
-                                resultCallback,
-                            )
-                            delay(WAIT_TIME)
+                    runCatching {
+                        withTimeout(MAX_WAIT_MS) {
+                            while (needWait) {
+                                XposedHelpers.callMethod(
+                                    obj,
+                                    "evaluateJavascript",
+                                    "javascript:window.ankioResults",
+                                    resultCallback,
+                                )
+                                delay(WAIT_TIME)
+                            }
+                        }
+                    }.onFailure { e ->
+                        when (e) {
+                            is TimeoutCancellationException ->
+                                if (needWait) d("WebViewHooker: Alipay bill poll timeout")
+                            else -> e(e)
                         }
                     }
                 }

@@ -51,16 +51,10 @@ class MessageBoxHooker : PartHooker() {
                 return@after
             }
             mD5HashTable.put(md5)
-            // 收到的是数组，拆分为单条逐一分析
-            gson.fromJson(result, JsonArray::class.java).forEach { jsonObject ->
-
-                val jsonArray =
-                    JsonArray().apply {
-                        add(jsonObject)
-                    }
-
-                this.d("Hooked Alipay Message Box：$jsonArray")
-                // 调用分析服务进行数据分析
+            val array = gson.fromJson(result, JsonArray::class.java)
+            d("MessageBoxHooker: Alipay sync message : ${result.take(200)}")
+            array.forEach { jsonObject ->
+                val jsonArray = JsonArray().apply { add(jsonObject) }
                 analysisData(DataType.DATA, gson.toJson(jsonArray))
             }
         }
