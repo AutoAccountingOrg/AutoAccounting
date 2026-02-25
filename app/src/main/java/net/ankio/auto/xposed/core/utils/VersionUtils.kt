@@ -38,7 +38,7 @@ object VersionUtils {
 
     fun check(manifest: HookerManifest): Boolean {
         val (code, name) = version()
-        XposedLogger.i("应用版本号: $code, 版本名: $name")
+        XposedLogger.i("app version code=$code, name=$name")
         if (manifest.minVersion == 0L) return true
         // 检查App版本是否过低，过低无法使用
         return code >= manifest.minVersion

@@ -17,18 +17,12 @@ package net.ankio.auto.xposed.hooks.alipay.hooks
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.utils.AnalysisUtils
 import org.ezbook.server.constant.DataType
-import org.ezbook.server.tools.MD5HashTable
 
 class MessageBoxHooker : PartHooker() {
-    // 基于内容哈希的短时去重，默认 TTL=60s，避免对象级别的膨胀
-    private val mD5HashTable by lazy { MD5HashTable() }
     override fun hook() {
 
         val syncMessage =
@@ -45,12 +39,7 @@ class MessageBoxHooker : PartHooker() {
             // 拦截 getData 获取原始同步消息内容，避免与 toString 造成的二次触发
             val result = methodHookParam.result as String
             val gson = Gson()
-            // 基于内容指纹进行去重
-            val md5 = MD5HashTable.md5(result)
-            if (mD5HashTable.contains(md5)) {
-                return@after
-            }
-            mD5HashTable.put(md5)
+
             val array = gson.fromJson(result, JsonArray::class.java)
             d("MessageBoxHooker: Alipay sync message : ${result.take(200)}")
             array.forEach { jsonObject ->
