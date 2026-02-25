@@ -41,24 +41,24 @@ abstract class HookerClazz {
      * 若名称为空或未命中映射，将抛出异常。
      */
     fun clazz(): Class<*> {
-        val name = this::class.java.name ?: error("类名不允许为空")
+        val name = this::class.java.name ?: error("Class name cannot be null")
         return clazz(name)
     }
 
     fun method(name: String): String {
-        val clazz = this::class.java.name ?: error("类名不允许为空")
+        val clazz = this::class.java.name ?: error("Class name cannot be null")
         return method(clazz, name)
     }
 
     fun clazz(name: String): Class<*> {
         return clazzOrNull(name)
-            ?: throw IllegalStateException("找不到类: $name for ${manifest.packageName}")
+            ?: error("Class not found: $name for ${manifest.packageName}")
     }
 
     fun method(clazzName: String, methodName: String): String {
-        val clazzResult = manifest.clazz[clazzName] ?: error("找不到指定方法，类不存在：$clazzName")
+        val clazzResult = manifest.clazz[clazzName] ?: error("Class not found: $clazzName")
         val method = clazzResult.methodResults[methodName]
-            ?: error("找不到指定方法, $clazzName->$methodName")
+            ?: error("Method not found: $clazzName->$methodName")
         return method.methodName
     }
 }
