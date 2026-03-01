@@ -85,6 +85,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 paddleocr4android = { module = "com.github.equationl.paddleocr4android:paddleocr4android", version.ref = "paddleocr4android" }
 preferenceKtx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
+fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 
 # UI Components
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
