@@ -28,7 +28,6 @@ import org.json.JSONObject
 data class PageSignature(
     val packageName: String,
     val activityName: String,
-    val contentFingerprint: String,
     val addedAt: Long = System.currentTimeMillis()
 ) {
     /** 唯一标识：包名:Activity，Activity 为空时仅包名 */
@@ -37,7 +36,6 @@ data class PageSignature(
     fun toJson(): JSONObject = JSONObject().apply {
         put("packageName", packageName)
         put("activityName", activityName)
-        put("contentFingerprint", contentFingerprint)
         put("addedAt", addedAt)
     }
 
@@ -45,7 +43,6 @@ data class PageSignature(
         fun fromJson(obj: JSONObject): PageSignature = PageSignature(
             packageName = obj.optString("packageName", ""),
             activityName = obj.optString("activityName", ""),
-            contentFingerprint = obj.optString("contentFingerprint", ""),
             addedAt = obj.optLong("addedAt", System.currentTimeMillis())
         )
     }

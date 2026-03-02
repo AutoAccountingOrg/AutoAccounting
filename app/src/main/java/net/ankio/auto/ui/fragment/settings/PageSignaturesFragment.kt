@@ -81,7 +81,6 @@ class PageSignaturesFragment : BaseFragment<FragmentPageSignaturesBinding>() {
             val sig = items[position]
             holder.binding.packageName.text = sig.packageName
             holder.binding.activityName.text = sig.activityName.ifBlank { "-" }
-            holder.binding.fingerprint.text = sig.contentFingerprint.ifBlank { "-" }.take(80)
             holder.binding.deleteBtn.setOnClickListener { onDelete(sig) }
         }
 

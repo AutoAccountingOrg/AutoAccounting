@@ -12,22 +12,22 @@ import android.os.VibratorManager
 import android.util.Base64
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.JsAPI
+import net.ankio.auto.service.OcrService.Companion.OCR_MAX_SHORT_EDGE
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.FlipDetector
 import net.ankio.auto.service.ocr.OcrTools
-import net.ankio.auto.service.ocr.PageSignatureManager
 import net.ankio.auto.service.ocr.OcrViews
-import net.ankio.auto.ui.dialog.RememberPageDialog
+import net.ankio.auto.service.ocr.PageSignatureManager
 import net.ankio.auto.service.overlay.SaveProgressView
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.dialog.RememberPageDialog
 import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.utils.PrefManager
 import net.ankio.ocr.OcrProcessor
@@ -230,8 +230,7 @@ class OcrService : ICoreService() {
                 val data = withContext(Dispatchers.IO) { performOcrCapture(useVision) }
                     ?: return@launch  // performOcrCapture 内部已通过横幅展示错误
 
-                // 检查识别关键字过滤（仅规则模式：有文本时按关键字过滤）
-                if (!useVision && PrefManager.dataFilter.all { data.contains(it) }) {
+                if (!useVision && !AnalysisUtils.inWhitelist(data)) {
                     Logger.d("OCR text filtered by keyword rules")
                     ocrView.showError(
                         coreService,
@@ -261,9 +260,7 @@ class OcrService : ICoreService() {
                     ocrView.showSuccess(coreService, moneyText) {
                         if (PrefManager.ocrAccessibilityAutoTrigger) {
                             val activityName = OcrAccessibilityService.topActivity ?: ""
-                            val contentFingerprint =
-                                OcrAccessibilityService.lastContentFingerprint ?: ""
-                            showRememberPageDialog(packageName, activityName, contentFingerprint)
+                            showRememberPageDialog(packageName, activityName)
                         }
                     }
                 } else {
@@ -279,7 +276,6 @@ class OcrService : ICoreService() {
         }
 
     }
-
     /**
      * 展示记住页面弹窗
      * 若已有匹配规则则不再弹窗。Service 环境下 BaseSheetDialog 自动使用悬浮窗模式
@@ -287,20 +283,19 @@ class OcrService : ICoreService() {
     private fun showRememberPageDialog(
         packageName: String,
         activityName: String,
-        contentFingerprint: String,
     ) {
-        if (PageSignatureManager.matches(packageName, activityName, contentFingerprint)) return
+        if (PageSignatureManager.matches(packageName, activityName)) return
         coreService.lifecycleScope.launch {
             withContext(Dispatchers.Main) {
                 RememberPageDialog.show(
                     context = coreService,
                     packageName = packageName,
-                    activityName = activityName,
-                    contentFingerprint = contentFingerprint,
+                    activityName = activityName
                 )
             }
         }
     }
+
 
     /**
      * 执行屏幕截图，可选 OCR 识别
@@ -318,7 +313,6 @@ class OcrService : ICoreService() {
 
         // 通过 OcrTools 执行截图（根据授权方式分别调用 Root/Shizuku/无障碍）
         runCatchingExceptCancel {
-            delay(300)
             val success = ocrTools.takeScreenshot(outFile)
             if (!success) throw IllegalStateException("Screenshot failed")
         }.onFailure {

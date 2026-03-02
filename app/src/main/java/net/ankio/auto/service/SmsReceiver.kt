@@ -48,7 +48,6 @@ class SmsReceiver : BroadcastReceiver() {
             return
         }
 
-        if (WorkMode.isXposed()) return
         val bundle: Bundle? = intent.extras
         if (bundle != null) {
             val pdus = when {

@@ -36,14 +36,12 @@ object RememberPageDialog {
      * @param context 上下文（Activity/Service 均可，Service 时自动悬浮窗）
      * @param packageName 包名
      * @param activityName Activity 类名
-     * @param contentFingerprint 内容指纹
      * @param ruleName 匹配规则名
      */
     fun show(
         context: Context,
         packageName: String,
         activityName: String,
-        contentFingerprint: String,
     ) {
         if (packageName.isBlank()) return
 
@@ -59,7 +57,6 @@ object RememberPageDialog {
                     PageSignature(
                         packageName = packageName,
                         activityName = activityName,
-                        contentFingerprint = contentFingerprint,
                     )
                 )
                 ToastUtils.info(context.getString(R.string.ocr_remember_page_success))

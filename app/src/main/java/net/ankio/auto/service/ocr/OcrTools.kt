@@ -100,8 +100,6 @@ class OcrTools(private val shell: Shell) {
      * 截图前调用，避免通知栏遮挡内容。
      */
     suspend fun collapseStatusBar() {
-        Logger.d("收起通知栏")
-        Logger.d("OCR 授权方式：${PrefManager.ocrAuthMode}")
         when (PrefManager.ocrAuthMode) {
             "root" -> runCatchingExceptCancel { shell.runAsRoot("service call statusbar 2") }.onFailure {
                 Logger.e(
@@ -119,6 +117,7 @@ class OcrTools(private val shell: Shell) {
                 AccessibilityService.GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE
             )
         }
+        delay(500)
     }
     // ======================== Shell 实现 ========================
 
