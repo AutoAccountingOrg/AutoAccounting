@@ -51,14 +51,20 @@ class CoreService : LifecycleService() {
 
     private fun startForegroundNotification() {
         createNotificationChannel()
-        // Android 14+ 要求前台服务在启动后尽快调用带类型的 startForeground
-        // 这里根据清单声明的类型 dataSync | mediaProjection 传入匹配的类型掩码，避免系统认为类型不明确而超时
         val notification = buildNotification()
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            val fgsType = android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-            startForeground(notificationId, notification, fgsType)
-        } else {
-            startForeground(notificationId, notification)
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                // Android 14+ 要求前台服务指定类型掩码，与清单中 foregroundServiceType="specialUse" 匹配
+                startForeground(
+                    notificationId,
+                    notification,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            } else {
+                startForeground(notificationId, notification)
+            }
+        } catch (e: SecurityException) {
+            Logger.e("前台服务 specialUse 类型启动失败: ${e.message}", e)
         }
     }
 

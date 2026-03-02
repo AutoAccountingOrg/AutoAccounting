@@ -85,8 +85,11 @@
             android:name=".service.CoreService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="specialUse"
-            android:permission="android.permission.FOREGROUND_SERVICE" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Core background service for auto-accounting: notification listening, SMS processing, OCR and overlay management" />
+        </service>
 
         <receiver
             android:name=".service.SmsReceiver"
