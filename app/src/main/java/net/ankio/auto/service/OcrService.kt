@@ -86,19 +86,18 @@ class OcrService : ICoreService() {
         if (WorkMode.isOcr() && PrefManager.ocrFlipTrigger) {
             // 启动翻转检测
             if (!detector.start()) {
-                Logger.e("设备不支持重力/加速度传感器")
+                Logger.e("Gravity/accelerometer sensor not available")
             } else {
-                Logger.d("翻转检测已启动（非Xposed模式）")
+                Logger.d("Flip detector started")
             }
         }
 
         serverStarted = true
-        Logger.d("OCR服务初始化成功，等待触发")
+        Logger.i("OCR service initialized")
 
         if (WorkMode.isOcrOrLSPatch()) {
             saveProgressView = SaveProgressView()
             saveProgressView?.show(this)
-            Logger.d("Ocr 或 LSPatch模式，使用1px悬浮窗保活")
         }
 
         OcrTools.checkPermission()
@@ -107,7 +106,6 @@ class OcrService : ICoreService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
 
         if (intent?.getStringExtra("intentType") == IntentType.OCR.name) {
-            Logger.d("收到Intent启动OCR请求")
             coreService.lifecycleScope.launch {
                 val manual = intent.getBooleanExtra("manual", false)
                 triggerOcr(manual)
@@ -153,21 +151,16 @@ class OcrService : ICoreService() {
                 coreService.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             }
 
-            // 检查设备是否支持振动
             if (!vibrator.hasVibrator()) {
-                Logger.d("设备不支持振动功能")
+                Logger.w("Device does not support vibration")
                 return
             }
 
-            // 创建振动效果
-            // Android 8.0+ 使用VibrationEffect
             val vibrationEffect =
                 VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE)
             vibrator.vibrate(vibrationEffect)
-
-            Logger.d("振动反馈已触发")
         } catch (e: Exception) {
-            Logger.e("振动反馈失败: ${e.message}")
+            Logger.e("Vibration failed", e)
         }
     }
 
@@ -178,17 +171,22 @@ class OcrService : ICoreService() {
      */
     private suspend fun triggerOcr(manual: Boolean) {
         if (ocrDoing) {
-            Logger.d("OCR正在处理中，跳过本次请求")
+            Logger.d("OCR busy, skipped")
+            return
+        }
+
+        val keyguardManager =
+            coreService.getSystemService(Context.KEYGUARD_SERVICE) as android.app.KeyguardManager
+        if (keyguardManager.isKeyguardLocked) {
+            Logger.d("Screen locked, skipped")
             return
         }
 
         ocrDoing = true
-        triggerVibration()
         ocrTools.collapseStatusBar()
-        // 通过 OcrTools 获取前台应用包名（根据授权方式分别调用 Root/Shizuku/无障碍）
         val packageName = if (manual) {
             ocrTools.getTopApp() ?: run {
-                Logger.w("无法获取前台应用")
+                Logger.w("Failed to get foreground app")
                 ocrView.showError(
                     coreService,
                     coreService.getString(R.string.ocr_error_no_foreground_app)
@@ -198,21 +196,20 @@ class OcrService : ICoreService() {
             }
         } else {
             val pkg = ocrTools.getTopApp() ?: run {
-                Logger.w("无法获取前台应用")
-                // 自动触发获取失败静默忽略，不打扰用户
+                Logger.w("Failed to get foreground app (auto)")
                 ocrDoing = false
                 return
             }
             if (pkg !in PrefManager.appWhiteList) {
-                Logger.d("前台应用 $pkg 不在监控白名单")
-                // 自动触发不在白名单静默忽略
+                Logger.d("App $pkg not in whitelist, skipped")
                 ocrDoing = false
                 return
             }
             pkg
         }
 
-        Logger.d("检测到应用 [$packageName]，开始OCR")
+        triggerVibration()
+        Logger.i("OCR triggered for [$packageName], manual=$manual")
         executeOcrFlow(packageName, manual)
     }
 
@@ -228,8 +225,6 @@ class OcrService : ICoreService() {
         coreService.lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
             try {
-                Logger.d("开始OCR流程")
-
                 // 1. 先在IO线程截图（视觉模式返回图片Base64，规则模式返回OCR文本）
                 val useVision = PrefManager.aiVisionRecognition
                 val data = withContext(Dispatchers.IO) { performOcrCapture(useVision) }
@@ -237,7 +232,7 @@ class OcrService : ICoreService() {
 
                 // 检查识别关键字过滤（仅规则模式：有文本时按关键字过滤）
                 if (!useVision && PrefManager.dataFilter.all { data.contains(it) }) {
-                    Logger.d("数据信息不在识别关键字里面，忽略")
+                    Logger.d("OCR text filtered by keyword rules")
                     ocrView.showError(
                         coreService,
                         coreService.getString(R.string.ocr_error_keyword_filtered)
@@ -245,7 +240,7 @@ class OcrService : ICoreService() {
                     return@launch
                 }
 
-                Logger.d("识别数据长度: ${data.length}")
+                Logger.d("OCR data length: ${data.length}")
 
                 // 2. 更新横幅：正在AI识别
                 ocrView.updateStatus(coreService.getString(R.string.ocr_status_ai_analyzing))
@@ -256,7 +251,7 @@ class OcrService : ICoreService() {
                 }
 
                 val totalTime = System.currentTimeMillis() - startTime
-                Logger.d("OCR处理完成，总耗时: ${totalTime}ms")
+                Logger.d("OCR completed in ${totalTime}ms")
 
                 // 4. 在横幅上显示最终结果（展示服务端返回的具体信息）
                 val billData = result.data
@@ -276,7 +271,7 @@ class OcrService : ICoreService() {
                 }
 
             } catch (e: Exception) {
-                Logger.e("OCR处理异常: ${e.message}")
+                Logger.e("OCR flow error", e)
                 ocrView.dismiss()
             } finally {
                 ocrDoing = false
@@ -325,7 +320,7 @@ class OcrService : ICoreService() {
         runCatchingExceptCancel {
             delay(300)
             val success = ocrTools.takeScreenshot(outFile)
-            if (!success) throw IllegalStateException("截图失败")
+            if (!success) throw IllegalStateException("Screenshot failed")
         }.onFailure {
             Logger.e(it.message ?: "", it)
             withContext(Dispatchers.Main) {
@@ -338,7 +333,7 @@ class OcrService : ICoreService() {
         }
 
         val captureTime = System.currentTimeMillis() - captureStartTime
-        Logger.d("截图耗时: ${captureTime}ms")
+        Logger.d("Screenshot captured in ${captureTime}ms")
 
         withContext(Dispatchers.Main) {
             ocrView.show(
@@ -350,7 +345,7 @@ class OcrService : ICoreService() {
         // 解码截图
         val bitmap = BitmapFactory.decodeFile(outFile.absolutePath)
         if (bitmap == null) {
-            Logger.e("截图解码失败")
+            Logger.e("Failed to decode screenshot")
             outFile.delete()
             withContext(Dispatchers.Main) {
                 ocrView.showError(
@@ -371,14 +366,12 @@ class OcrService : ICoreService() {
         val scaledBitmap = scaleDownForOcr(croppedBitmap).also { scaled ->
             if (scaled !== croppedBitmap) croppedBitmap.recycle()
         }
-        Logger.d("图片缩放: ${srcW}x${srcH} → ${scaledBitmap.width}x${scaledBitmap.height}")
+        Logger.d("Image scaled: ${srcW}x${srcH} -> ${scaledBitmap.width}x${scaledBitmap.height}")
 
         // 将缩小后的图片编码为 JPEG Base64（供后续存储/发AI）
         val imageBase64 = bitmapToBase64(scaledBitmap)
 
         val text = if (useVision) {
-            // AI 视觉模式：直接看图，跳过 OCR（避免本地 OCR 耗时与 OpenMP 兼容问题）
-            Logger.d("AI 视觉模式，跳过 OCR，直接发图")
             ""
         } else {
             // 截图完成，显示顶部横幅"正在OCR识别"（截图干净，不会被污染）
@@ -389,7 +382,7 @@ class OcrService : ICoreService() {
             runCatching {
                 ocrProcessor.startProcess(scaledBitmap)
             }.getOrElse {
-                Logger.e("OCR 识别失败: ${it.message}")
+                Logger.e("OCR recognition failed: ${it.message}")
                 outFile.delete()
                 scaledBitmap.recycle()
                 withContext(Dispatchers.Main) {
@@ -475,9 +468,9 @@ class OcrService : ICoreService() {
         )
 
         if (result.data != null) {
-            Logger.d("识别结果：${result.data?.billInfoModel}")
+            Logger.i("Bill recognized: ${result.data?.billInfoModel}")
         } else {
-            Logger.d("分析失败(${result.code}): ${result.msg}")
+            Logger.w("Analysis failed(${result.code}): ${result.msg}")
         }
         return result
     }
