@@ -36,13 +36,29 @@
                 app:tint="?colorPrimary"
                 android:alpha="0.3"
                 android:contentDescription="@null" />
-
+            <!-- 调试标签：固定在状态卡右上角 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/debug_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="@dimen/cardPadding2"
+                android:layout_marginEnd="@dimen/cardPadding2"
+                android:background="@drawable/bg_debug_tag"
+                android:paddingHorizontal="@dimen/one_padding"
+                android:paddingVertical="@dimen/mini_padding"
+                android:text="@string/debug_tag"
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                android:textColor="?colorOnTertiaryContainer"
+                android:visibility="gone"
+                tools:text="调试"
+                tools:visibility="visible" />
             <!-- 前景内容 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:gravity="center_vertical"
+                android:orientation="vertical"
                 android:padding="@dimen/cardPadding2">
 
                 <com.google.android.material.textview.MaterialTextView
@@ -50,21 +66,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/one_padding"
+                    android:layout_marginBottom="@dimen/one_padding"
                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                     android:textColor="?colorOnPrimaryContainer"
-                    android:layout_marginBottom="@dimen/one_padding"
                     tools:text="工作中" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/mode_text"
+                <!-- 模式标签行：Xposed/OCR + 调试标签（与 mode_text 风格统一） -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_mode_tag"
-                    android:paddingHorizontal="@dimen/one_padding"
-                    android:paddingVertical="@dimen/mini_padding"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                    android:textColor="?colorOnPrimary"
-                    tools:text="Xposed" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/mode_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_mode_tag"
+                        android:paddingHorizontal="@dimen/one_padding"
+                        android:paddingVertical="@dimen/mini_padding"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                        android:textColor="?colorOnPrimary"
+                        tools:text="Xposed" />
+
+                </LinearLayout>
+
+
             </LinearLayout>
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>

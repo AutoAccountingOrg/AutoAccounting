@@ -107,6 +107,9 @@ class StatusCardComponent(binding: CardStatusBinding) :
         binding.titleText.text = statusText
 
         binding.modeText.text = PrefManager.workMode.name.uppercase()
+        // 调试模式时显示小标签，与 mode 标签风格统一
+        binding.debugTag.visibility =
+            if (PrefManager.debugMode) android.view.View.VISIBLE else android.view.View.GONE
 
         if (isActive) {
             setActive(

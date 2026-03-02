@@ -929,6 +929,7 @@
     <string name="setting_local_backup_path_summary">Local backup storage path</string>
     <string name="setting_debug_mode">Debug Mode</string>
     <string name="setting_debug_mode_summary">Enable debug logging and features</string>
+    <string name="debug_tag">DEBUG</string>
     <string name="setting_send_error_report">Error Reporting</string>
     <string name="setting_send_error_report_summary">Automatically send crash reports</string>
     <string name="setting_landscape_dnd_summary">Disable auto recording in landscape mode</string><!-- AI Features -->

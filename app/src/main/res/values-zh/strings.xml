@@ -809,6 +809,7 @@
     <string name="setting_webdav_password_summary">WebDAV 密码</string>
     <string name="setting_debug_mode">调试模式</string>
     <string name="setting_debug_mode_summary">启用调试日志和功能</string>
+    <string name="debug_tag">调试</string>
     <string name="setting_send_error_report">错误报告</string>
     <string name="setting_send_error_report_summary">自动发送崩溃报告</string>
     <string name="setting_landscape_dnd_summary">当设备处于横屏状态时不会弹窗干扰</string><!-- AI Features -->
