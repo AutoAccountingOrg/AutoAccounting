@@ -199,7 +199,8 @@ class BillService(
                 analysisParams.app,
                 analysisParams.data,
                 dataType,
-                analysisParams.image
+                analysisParams.image,
+                analysisParams.manual
             )
             val billInfo: BillInfoModel = ruleMatchResult.billInfo ?: aiBill ?: run {
                 ServerLog.d("AI和规则的解析结果都为NULL\n==============账单分析结束===============")
@@ -419,13 +420,15 @@ class BillService(
         app: String,
         data: String,
         dataType: DataType,
-        image: String = ""
+        image: String = "",
+        manual: Boolean = false
     ): Pair<BillInfoModel?, String?> {
         if (!SettingUtils.featureAiAvailable()) {
             ServerLog.d("AI功能总开关关闭，跳过账单AI分析")
             return null to null
         }
-        if (!SettingUtils.aiBillRecognition()) {
+        // 手动触发时跳过 AI 识别开关检查，用户主动发起的请求应尽力返回结果
+        if (!manual && !SettingUtils.aiBillRecognition()) {
             ServerLog.d("AI识别账单已关闭，跳过账单分析")
             return null to null
         }

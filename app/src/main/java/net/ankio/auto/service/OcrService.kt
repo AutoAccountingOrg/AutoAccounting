@@ -247,7 +247,7 @@ class OcrService : ICoreService() {
 
                 // 3. 发送给JS引擎（视觉模式传图，规则模式传文本）
                 val result = withContext(Dispatchers.IO) {
-                    send2JsEngine(data, packageName)
+                    send2JsEngine(data, packageName, manual)
                 }
 
                 val totalTime = System.currentTimeMillis() - startTime
@@ -456,15 +456,17 @@ class OcrService : ICoreService() {
      */
     private suspend fun send2JsEngine(
         text: String,
-        app: String
+        app: String,
+        manual: Boolean = false
     ): ResultModel<BillResultModel> {
         val useVision = PrefManager.aiVisionRecognition
-        Logger.d("app=$app, text=${text.take(80)}..., useVision=$useVision")
+        Logger.d("app=$app, text=${text.take(80)}..., useVision=$useVision, manual=$manual")
         val result = JsAPI.analysis(
             DataType.OCR,
             text,
             app,
             fromAppData = false,
+            manual = manual,
         )
 
         if (result.data != null) {

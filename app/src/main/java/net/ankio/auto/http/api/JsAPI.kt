@@ -36,11 +36,12 @@ object JsAPI {
         data: String,
         appPackage: String,
         fromAppData: Boolean = false,
+        manual: Boolean = false,
     ): ResultModel<BillResultModel> = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
             LocalNetwork.post<BillResultModel>(
-                "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData",
+                "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData&manual=$manual",
                 data
             ).getOrThrow()
         }.getOrElse {

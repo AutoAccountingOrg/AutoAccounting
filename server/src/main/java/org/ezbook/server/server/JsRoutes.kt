@@ -47,7 +47,8 @@ private suspend fun ApplicationCall.toAnalysisParams(): AnalysisParams {
         type = request.queryParameters["type"].orEmpty(),
         fromAppData = request.queryParameters["fromAppData"].toBoolean(),
         data = data,
-        image = image
+        image = image,
+        manual = request.queryParameters["manual"].toBoolean()
     )
 }
 
@@ -59,5 +60,7 @@ data class AnalysisParams(
     val type: String,
     val fromAppData: Boolean,
     val data: String,
-    val image: String = ""
+    val image: String = "",
+    /** 手动触发（如 OCR 手动触发）时为 true，此时 AI 识别不受开关限制 */
+    val manual: Boolean = false
 )
