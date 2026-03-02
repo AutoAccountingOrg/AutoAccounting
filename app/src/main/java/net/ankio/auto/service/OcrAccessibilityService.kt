@@ -58,14 +58,9 @@ class OcrAccessibilityService : AccessibilityService() {
 
         var lastContentFingerprint: String? = null
 
+        var structFp: String? = null
 
-        /** 同一页面防抖：关闭账单弹窗后焦点回到原页面会再次触发事件，需较长间隔避免重复记账 */
-        private const val SAME_PAGE_DEBOUNCE_MS = 5_000L
     }
-
-    /** 上次自动触发的页面 key 及时间，用于防抖 */
-    private var lastAutoTriggerKey = ""
-    private var lastAutoTriggerTime = 0L
 
     /** 内容变化节流：500ms 内只处理一次 */
     private val contentChangeThrottle = Throttle<Unit>(intervalMs = 500) {
@@ -105,35 +100,32 @@ class OcrAccessibilityService : AccessibilityService() {
         }
     }
 
-    /** 节流后的实际处理：收集指纹，签名不变则忽略 */
+    /** 节流后的实际处理：收集结构指纹进行匹配，内容指纹去重 */
     private fun processContentChange() {
-        Logger.d("OCR auto trigger: pkg=$topPackage activity=$topActivity")
         val pkg = topPackage ?: return
-        Logger.d(
-            "OCR auto trigger: pkg=$pkg activity=$topActivity, match:" + PageSignatureManager.matches(
-                pkg,
-                topActivity ?: ""
-            )
-        )
+        val activity = topActivity ?: ""
 
-        if (!PageSignatureManager.matches(pkg, topActivity ?: "")) return
+        // 收集视图结构指纹用于精确匹配页面
+        val structFp = collectStructureFingerprint()
+        Logger.d("structFp: $structFp")
+        if (!PageSignatureManager.matches(pkg, activity, structFp)) return
 
+        // 收集文本内容指纹用于去重（同一页面内容没变就不重复触发）
         val rawText = collectPageText(maxDepth = 50)
         if (rawText.isBlank()) return
-        val contentFingerprint = generateFingerprint(rawText)
-        if (contentFingerprint == lastContentFingerprint) return
-        lastContentFingerprint = contentFingerprint
+        val contentFp = generateFingerprint(rawText)
+        if (contentFp == lastContentFingerprint) return
+        lastContentFingerprint = contentFp
 
-        Logger.d("Page content:pkg=$topPackage activity=$topActivity, fp=${contentFingerprint}")
+        Logger.d("Page matched: pkg=$pkg, activity=$activity, structFp=$structFp")
 
-        if (AnalysisUtils.inWhitelist(contentFingerprint)) {
+        if (AnalysisUtils.inWhitelist(contentFp)) {
             val intent = Intent(this, CoreService::class.java).apply {
                 putExtra("intentType", IntentType.OCR.name)
                 putExtra("manual", true)
             }
             startService(intent)
         }
-
     }
 
     /**
@@ -149,6 +141,34 @@ class OcrAccessibilityService : AccessibilityService() {
             .replace(Regex("\\s+"), " ")
             .trim()
             .take(300)
+    }
+
+    /**
+     * 收集页面视图结构指纹：取前 2 层类名骨架。
+     * 不含文本，不受数据变化影响；同一页面布局始终产生近似结果。
+     */
+    fun collectStructureFingerprint(): String {
+        val root = rootInActiveWindow ?: return ""
+        val skeleton = buildStructureSkeleton(root, 0, 3)
+        root.recycle()
+        return skeleton
+    }
+
+    /** 递归构建类名骨架，每层最多取前 10 个子节点 */
+    private fun buildStructureSkeleton(
+        node: AccessibilityNodeInfo,
+        depth: Int,
+        maxDepth: Int
+    ): String {
+        if (depth > maxDepth) return ""
+        val cls = node.className?.toString()?.substringAfterLast('.') ?: "?"
+        val childCount = minOf(node.childCount, 10)
+        val children = (0 until childCount).mapNotNull { i ->
+            node.getChild(i)?.let { child ->
+                buildStructureSkeleton(child, depth + 1, maxDepth).also { child.recycle() }
+            }
+        }.filter { it.isNotEmpty() }
+        return if (children.isEmpty()) cls else "$cls[${children.joinToString(",")}]"
     }
 
     /**

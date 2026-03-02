@@ -42,6 +42,7 @@ object RememberPageDialog {
         context: Context,
         packageName: String,
         activityName: String,
+        structureFingerprint: String = "",
     ) {
         if (packageName.isBlank()) return
 
@@ -57,6 +58,7 @@ object RememberPageDialog {
                     PageSignature(
                         packageName = packageName,
                         activityName = activityName,
+                        structureFingerprint = structureFingerprint,
                     )
                 )
                 ToastUtils.info(context.getString(R.string.ocr_remember_page_success))

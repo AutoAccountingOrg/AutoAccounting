@@ -209,6 +209,8 @@ class OcrTools(private val shell: Shell) {
         val service = OcrAccessibilityService.instance
             ?: throw PermissionException("accessibility")
 
+        OcrAccessibilityService.structFp = service.collectStructureFingerprint()
+
         return suspendCancellableCoroutine { cont ->
             service.takeScreenshot(
                 android.view.Display.DEFAULT_DISPLAY,

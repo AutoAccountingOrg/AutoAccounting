@@ -28,14 +28,20 @@ import org.json.JSONObject
 data class PageSignature(
     val packageName: String,
     val activityName: String,
+    /** 页面视图结构指纹：类名骨架的哈希，同一布局始终相同，不同页面不同 */
+    val structureFingerprint: String = "",
     val addedAt: Long = System.currentTimeMillis()
 ) {
-    /** 唯一标识：包名:Activity，Activity 为空时仅包名 */
-    fun key(): String = if (activityName.isBlank()) packageName else "$packageName:$activityName"
+    /** 唯一标识：包名:Activity:结构指纹 */
+    fun key(): String {
+        val base = if (activityName.isBlank()) packageName else "$packageName:$activityName"
+        return if (structureFingerprint.isBlank()) base else "$base:$structureFingerprint"
+    }
 
     fun toJson(): JSONObject = JSONObject().apply {
         put("packageName", packageName)
         put("activityName", activityName)
+        put("structureFingerprint", structureFingerprint)
         put("addedAt", addedAt)
     }
 
@@ -43,6 +49,7 @@ data class PageSignature(
         fun fromJson(obj: JSONObject): PageSignature = PageSignature(
             packageName = obj.optString("packageName", ""),
             activityName = obj.optString("activityName", ""),
+            structureFingerprint = obj.optString("structureFingerprint", ""),
             addedAt = obj.optLong("addedAt", System.currentTimeMillis())
         )
     }

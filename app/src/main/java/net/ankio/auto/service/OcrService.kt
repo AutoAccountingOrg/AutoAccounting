@@ -284,13 +284,15 @@ class OcrService : ICoreService() {
         packageName: String,
         activityName: String,
     ) {
-        if (PageSignatureManager.matches(packageName, activityName)) return
+        val structFp = OcrAccessibilityService.structFp ?: ""
+        if (PageSignatureManager.matches(packageName, activityName, structFp)) return
         coreService.lifecycleScope.launch {
             withContext(Dispatchers.Main) {
                 RememberPageDialog.show(
                     context = coreService,
                     packageName = packageName,
-                    activityName = activityName
+                    activityName = activityName,
+                    structureFingerprint = structFp,
                 )
             }
         }

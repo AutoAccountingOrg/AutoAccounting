@@ -58,19 +58,17 @@ object PageSignatureManager {
     }
 
     /**
-     * 检查当前页面是否在已记住列表中
-     *
-     * @param packageName 包名
-     * @param activityName Activity 类名（可为空）
-     */
-    /**
-     * 匹配条件：1 包名 2 activity（空=任意） 3 指纹（空=不校验，否则相似度阈值）
+     * 匹配条件：包名 + activity + 结构指纹
+     * 签名中 structureFingerprint 为空时退化为 pkg+activity 匹配（兼容旧数据）
      */
     fun matches(
         packageName: String,
         activityName: String,
+        structureFingerprint: String = "",
     ): Boolean = getAll().any { sig ->
-        sig.packageName == packageName && sig.activityName == activityName
+        sig.packageName == packageName &&
+                sig.activityName == activityName &&
+                (sig.structureFingerprint.isBlank() || sig.structureFingerprint == structureFingerprint)
     }
 
 
