@@ -965,6 +965,7 @@
     <string name="ocr_remember_page_activity_unknown">未知页面</string>
     <string name="ocr_remember_page_confirm">记住</string>
     <string name="ocr_remember_page_success">已记住此页面</string>
+    <string name="ocr_delete_page_confirm">确定移除 %s 的已记住页面？</string>
     <string name="setting_page_signatures">已记住的页面</string>
     <string name="setting_page_signatures_summary">管理自动触发 OCR 的页面（Activity + 内容特征）</string>
     <string name="page_signatures_empty">暂无已记住的页面。在账单页手动触发识别，成功后点击「记住」即可。</string>

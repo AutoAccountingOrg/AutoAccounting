@@ -880,6 +880,7 @@
     <string name="ocr_remember_page_activity_unknown">unknown activity</string>
     <string name="ocr_remember_page_confirm">Remember</string>
     <string name="ocr_remember_page_success">Page remembered</string>
+    <string name="ocr_delete_page_confirm">Remove remembered page for %s?</string>
     <string name="setting_page_signatures">Remembered Pages</string>
     <string name="setting_page_signatures_summary">Manage pages for automatic OCR trigger (Activity + content fingerprint)</string>
     <string name="page_signatures_empty">No remembered pages. Manually trigger OCR on a bill page, then tap \"Remember\" when prompted.</string>

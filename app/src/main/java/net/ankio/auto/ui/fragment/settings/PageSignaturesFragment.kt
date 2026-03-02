@@ -20,11 +20,15 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPageSignaturesBinding
 import net.ankio.auto.databinding.ItemPageSignatureBinding
 import net.ankio.auto.service.ocr.PageSignature
 import net.ankio.auto.service.ocr.PageSignatureManager
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.utils.getAppInfoFromPackageName
 
 /**
  * 已记住页面管理 Fragment
@@ -40,7 +44,7 @@ class PageSignaturesFragment : BaseFragment<FragmentPageSignaturesBinding>() {
         binding.toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
         adapter = Adapter(
-            onDelete = { sig -> PageSignatureManager.remove(sig.key()); refreshList() }
+            onDelete = { sig -> confirmDelete(sig) }
         )
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
@@ -51,6 +55,19 @@ class PageSignaturesFragment : BaseFragment<FragmentPageSignaturesBinding>() {
     override fun onResume() {
         super.onResume()
         refreshList()
+    }
+
+    private fun confirmDelete(sig: PageSignature) {
+        val appName = getAppInfoFromPackageName(sig.packageName)?.name ?: sig.packageName
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle(getString(R.string.delete_data))
+            .setMessage(getString(R.string.ocr_delete_page_confirm, appName))
+            .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
+                PageSignatureManager.remove(sig.key())
+                refreshList()
+            }
+            .setNegativeButton(getString(R.string.cancel_msg)) { _, _ -> }
+            .show()
     }
 
     private fun refreshList() {
@@ -79,9 +96,17 @@ class PageSignaturesFragment : BaseFragment<FragmentPageSignaturesBinding>() {
 
         override fun onBindViewHolder(holder: VH, position: Int) {
             val sig = items[position]
-            holder.binding.packageName.text = sig.packageName
+            val appInfo = getAppInfoFromPackageName(sig.packageName)
+            holder.binding.appIcon.setImageDrawable(appInfo?.icon)
+            holder.binding.appName.text = appInfo?.name ?: sig.packageName
             holder.binding.activityName.text = sig.activityName.ifBlank { "-" }
-            holder.binding.deleteBtn.setOnClickListener { onDelete(sig) }
+            holder.binding.structureFingerprint.apply {
+                text = sig.structureFingerprint.ifBlank { "-" }
+                visibility =
+                    if (sig.structureFingerprint.isBlank()) android.view.View.GONE
+                    else android.view.View.VISIBLE
+            }
+            holder.itemView.setOnLongClickListener { onDelete(sig); true }
         }
 
         override fun getItemCount(): Int = items.size
