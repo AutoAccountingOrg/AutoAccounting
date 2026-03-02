@@ -36,6 +36,7 @@ import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.BillAction
+import org.ezbook.server.constant.DefaultData
 
 class QianJiAdapter : IAppAdapter {
     override val pkg: String
@@ -140,12 +141,8 @@ class QianJiAdapter : IAppAdapter {
         // 6) 分类选择模式：0表示自动选择
         uriBuilder.append("&catechoose=0")
 
-        // 7) 账本（可选）- 排除默认账本名称
-        if (billInfoModel.bookName.isNotEmpty() &&
-            billInfoModel.bookName != "默认账本" &&
-            billInfoModel.bookName != "日常账本" &&
-            PrefManager.featureMultiBook
-        ) {
+        // 7) 账本（可选）- bookName 已在 BillService.categorize() 中解析为真实名称
+        if (PrefManager.featureMultiBook && billInfoModel.bookName.isNotEmpty() && billInfoModel.bookName != DefaultData.DEFAULT_BOOK_NAME) {
             uriBuilder.append("&bookname=")
                 .append(Uri.encode(billInfoModel.bookName))
         }

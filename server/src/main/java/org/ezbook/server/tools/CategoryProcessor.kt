@@ -38,9 +38,10 @@ class CategoryProcessor {
             val typeName = billInfoModel.type.name
             // 按名称+类型查询（book 传 null，避免因 remoteBookId 不可得而漏判）
             val model = runCatchingExceptCancel {
-                val book =
-                    org.ezbook.server.server.resolveBookByNameOrDefault(billInfoModel.bookName)
-                Db.get().categoryDao().getByName(book.remoteId, typeName, parent)
+                // bookName 已在 BillService.categorize() 中解析为真实名称，直接查找
+                val book = Db.get().bookNameDao().load()
+                    .firstOrNull { it.name == billInfoModel.bookName }
+                Db.get().categoryDao().getByName(book?.remoteId ?: "", typeName, parent)
             }.getOrNull()
 
             if (model != null && model.isChild()) {

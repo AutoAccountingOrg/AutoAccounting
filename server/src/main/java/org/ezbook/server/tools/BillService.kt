@@ -39,6 +39,7 @@ import org.ezbook.server.intent.BillInfoIntent
 import org.ezbook.server.models.BillResultModel
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.server.AnalysisParams
+import org.ezbook.server.server.resolveBookByNameOrDefault
 import java.io.Closeable
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -568,7 +569,9 @@ class BillService(
         }.getOrNull()
         ServerLog.d("规则分类结果：$categoryJson")
         // 设置账本名称与分类（优先规则结果，否则默认值）
-        bill.bookName = categoryJson.safeGetStringNonBlank("bookName", SettingUtils.bookName())
+        // 将账本指针（如"默认账本"）解析为数据库中真实存在的账本名称
+        val rawBookName = categoryJson.safeGetStringNonBlank("bookName", SettingUtils.bookName())
+        bill.bookName = resolveBookByNameOrDefault(rawBookName).name
         bill.cateName = categoryJson.safeGetStringNonBlank("category", "其他")
         bill.remark = categoryJson.safeGetStringNonBlank("remark", "")
         ServerLog.d("规则处理后的账单信息：$bill")
