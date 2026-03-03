@@ -86,7 +86,6 @@ class BillWindowManager(
     private val floatingTip: FloatingTip by lazy { FloatingTip(themedContext, windowManager) }
 
     init {
-        Logger.i("账单窗口管理器已初始化")
         processNextBill()
     }
 
@@ -107,20 +106,12 @@ class BillWindowManager(
      * 4. 清空队列
      */
     fun destroy() {
-        Logger.d("正在销毁账单窗口管理器...")
-
-        // 关闭浮动窗口
         floatingTip.destroy()
-
-        // 关闭编辑对话框
         currentDialog?.dismiss()
         currentDialog = null
-
-        // 关闭通道并清理状态
         billChannel.close()
         currentBill = null
         parentBills.clear()
-        Logger.d("账单窗口管理器已销毁")
     }
 
     /**
@@ -129,14 +120,12 @@ class BillWindowManager(
      * @param bill 要处理的账单信息
      */
     fun addBill(bill: BillInfoModel) {
-        Logger.d("添加账单到处理通道: ${bill.id}")
         if (billChannel.isClosedForSend) {
-            Logger.w("通道已关闭，丢弃账单: ${bill.id}")
+            Logger.w("Bill dropped: channel closed, id=${bill.id}")
             return
         }
-        val result = billChannel.trySend(bill)
-        if (result.isFailure) {
-            Logger.e("发送失败: closed=${billChannel.isClosedForSend} cause=${result.exceptionOrNull()}")
+        billChannel.trySend(bill).also { r ->
+            if (r.isFailure) Logger.e("Bill enqueue failed: id=${bill.id}", r.exceptionOrNull())
         }
     }
 
@@ -148,14 +137,10 @@ class BillWindowManager(
      * @param parentBill 父账单信息，用于重复账单的情况
      */
     fun updateCurrentBill(parentBill: BillInfoModel) {
-        Logger.d("使用父账单更新：$parentBill")
         if (currentBill != null && currentBill?.id == parentBill.id) {
             currentBill = parentBill
             currentDialog?.setBillInfo(parentBill)
-            // 浮动小窗口仍在显示时，自动更新内容
-            if (floatingTip.isVisible()) {
-                floatingTip.updateContent(parentBill)
-            }
+            if (floatingTip.isVisible()) floatingTip.updateContent(parentBill)
         } else {
             parentBills[parentBill.id] = parentBill
         }
@@ -177,24 +162,17 @@ class BillWindowManager(
         // 只有在tipBinding已经初始化的情况下才尝试移除窗口
         launch {
             try {
-                Logger.d("等待接收下一个账单...")
-                // 阻塞等待下一个账单
                 var bill = billChannel.receive()
                 parentBills.remove(bill.id)?.let { bill = it }
-                Logger.d("成功接收到账单: ${bill.id}")
                 if (hashTable.contains(bill.id.toString())) {
-                    Logger.d("账单数据 ${bill.id} 已经处理")
                     processNextBill()
                 } else {
                     val bill2 = BillAPI.get(bill.id)
-                    Logger.d("服务端状态: ${bill2}")
                     if (bill2 == null || bill2.state != BillState.Wait2Edit) {
-                        Logger.d("账单数据 ${bill.id} 已经删除或已经处理")
                         processNextBill()
                     } else {
                         hashTable.put(bill.id.toString())
                         if (bill.auto || PrefManager.autoRecordBill) {
-                            Logger.d("自动记录账单")
                             val saveProgress = SaveProgressView()
                             saveProgress.show(service)
 
@@ -211,11 +189,8 @@ class BillWindowManager(
 
 
             } catch (e: Exception) {
-                Logger.e("从通道接收账单时出错", e)
-                // 如果通道未关闭，继续等待下一个账单
-                if (!billChannel.isClosedForReceive) {
-                    processNextBill()
-                }
+                Logger.e("Error receiving bill from channel", e)
+                if (!billChannel.isClosedForReceive) processNextBill()
             }
         }
     }
@@ -233,12 +208,9 @@ class BillWindowManager(
      */
     private fun processBill(bill: BillInfoModel) {
         currentBill = bill
-        Logger.i("正在处理账单: ${bill.id}, 金额: ${bill.money}")
         if (PrefManager.floatTimeoutOff == 0) {
-            Logger.d("超时时间为0，直接显示编辑器")
             handleBillAction(Setting.FLOAT_TIMEOUT_ACTION)
         } else {
-            Logger.d("显示浮动提示窗口")
             showFloatingTip()
         }
     }
@@ -259,13 +231,17 @@ class BillWindowManager(
      * @param bill 要显示的账单信息
      */
     private fun showFloatingTip() {
-        currentBill?.let {
-            floatingTip.show(it) { event ->
-                when (event) {
-                    is FloatingTip.Event.Click -> handleBillAction(Setting.FLOAT_CLICK)
-                    is FloatingTip.Event.LongClick -> handleBillAction(Setting.FLOAT_LONG_CLICK)
-                    is FloatingTip.Event.Timeout -> handleBillAction(Setting.FLOAT_TIMEOUT_ACTION)
-                }
+        val bill = currentBill
+        if (bill == null) {
+            Logger.w("showFloatingTip: currentBill is null")
+            processNextBill()
+            return
+        }
+        floatingTip.show(bill) { event ->
+            when (event) {
+                is FloatingTip.Event.Click -> handleBillAction(Setting.FLOAT_CLICK)
+                is FloatingTip.Event.LongClick -> handleBillAction(Setting.FLOAT_LONG_CLICK)
+                is FloatingTip.Event.Timeout -> handleBillAction(Setting.FLOAT_TIMEOUT_ACTION)
             }
         }
     }
@@ -287,26 +263,17 @@ class BillWindowManager(
         }
 
         val action = runCatching { FloatEvent.valueOf(actionStr) }.getOrElse {
-            Logger.w("事件类型错误: $configKey => $actionStr")
+            Logger.w("Invalid float event: $configKey=$actionStr")
             FloatEvent.POP_EDIT_WINDOW
         }
 
         when (action) {
             FloatEvent.AUTO_ACCOUNT -> {
-                Logger.d("用户操作: 自动记账")
                 currentBill?.let { BillTool.saveBill(it) }
                 processNextBill()
             }
-
-            FloatEvent.POP_EDIT_WINDOW -> {
-                Logger.d("用户操作: 显示编辑窗口")
-                currentBill?.let { showEditDialog() }
-            }
-
-            FloatEvent.NO_ACCOUNT -> {
-                Logger.d("用户操作: 不记账")
-                currentBill?.let { deleteBill() }
-            }
+            FloatEvent.POP_EDIT_WINDOW -> currentBill?.let { showEditDialog() }
+            FloatEvent.NO_ACCOUNT -> currentBill?.let { deleteBill() }
         }
     }
 
@@ -314,21 +281,20 @@ class BillWindowManager(
      * 显示编辑对话框
      */
     private fun showEditDialog() {
-        // 确保只有一个对话框
         currentDialog?.dismiss()
 
-        currentDialog = BaseSheetDialog.create<BillEditorDialog>(service.service())
-        currentBill?.let {
-            currentDialog?.setBillInfo(it)
-                ?.setOnCancel {
-                    Logger.d("编辑对话框已取消，删除账单")
-                    deleteBill()
-                }
-                ?.setOnConfirm { billInfo ->
-                    Logger.d("编辑对话框已确认，处理下一个账单")
-                    processNextBill()
-                }?.show(false)
+        val bill = currentBill
+        if (bill == null) {
+            Logger.w("showEditDialog: currentBill is null")
+            processNextBill()
+            return
         }
+
+        currentDialog = BaseSheetDialog.create<BillEditorDialog>(service.service())
+        currentDialog?.setBillInfo(bill)
+            ?.setOnCancel { deleteBill() }
+            ?.setOnConfirm { processNextBill() }
+            ?.show(false)
     }
 
     /**
@@ -337,30 +303,27 @@ class BillWindowManager(
      * @param bill 要删除的账单
      */
     private fun deleteBill() {
-        if (!PrefManager.confirmDeleteBill) {
-            Logger.d("直接删除账单: ${currentBill?.id}")
-            launch { BillAPI.remove(currentBill?.id ?: 0) }
+        val billId = currentBill?.id ?: 0
+        if (billId == 0L) {
+            Logger.w("deleteBill: currentBill is null")
             processNextBill()
             return
         }
 
-        // 二次确认：防止误删
+        if (!PrefManager.confirmDeleteBill) {
+            launch { BillAPI.remove(billId) }
+            processNextBill()
+            return
+        }
+
         BaseSheetDialog.create<BottomSheetDialogBuilder>(service.service())
             .setTitleInt(R.string.delete_title)
             .setMessage(R.string.delete_bill_message)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
-                Logger.d("确认删除账单: ${currentBill?.id}")
-                launch {
-                    BillAPI.remove(currentBill?.id ?: 0)
-                }
-                processNextBill()
-
-            }
-            .setNegativeButton(R.string.cancel_msg) { _, _ ->
-                Logger.d("取消删除账单: ${currentBill?.id}")
-                // 返回编辑对话框，避免流程卡住
+                launch { BillAPI.remove(billId) }
                 processNextBill()
             }
+            .setNegativeButton(R.string.cancel_msg) { _, _ -> processNextBill() }
             .show(false)
     }
 

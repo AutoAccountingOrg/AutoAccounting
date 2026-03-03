@@ -102,10 +102,9 @@ class OverlayService : ICoreService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
         if (intent == null) return
         val floatIntent = BillInfoIntent.parse(intent) ?: return
-        Logger.d("收到账单请求：$floatIntent")
-
         val parent = floatIntent.parent
-        Logger.d("处理账单：ID=${floatIntent.billInfoModel.id}")
+        Logger.d("Bill received: id=${floatIntent.billInfoModel.id}, merge=${parent != null}")
+
         if (parent != null) {
             if (PrefManager.showDuplicatedPopup) {
                 // 说明是重复账单：显示悬浮 Toast（5 秒自动消失）。
@@ -123,7 +122,6 @@ class OverlayService : ICoreService() {
             }
             // 用户未点击或未开启提示：保持默认行为，合并处理
             billWindowManager.updateCurrentBill(parent)
-            Logger.d("Repeat Bill, Parent: $parent")
         } else {
             billWindowManager.addBill(floatIntent.billInfoModel)
 
