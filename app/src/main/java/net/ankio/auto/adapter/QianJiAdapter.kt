@@ -142,7 +142,7 @@ class QianJiAdapter : IAppAdapter {
         uriBuilder.append("&catechoose=0")
 
         // 7) 账本（可选）- bookName 已在 BillService.categorize() 中解析为真实名称
-        if (PrefManager.featureMultiBook && billInfoModel.bookName.isNotEmpty() && billInfoModel.bookName != DefaultData.DEFAULT_BOOK_NAME) {
+        if (PrefManager.featureMultiBook && billInfoModel.bookName.isNotEmpty() && billInfoModel.bookName != DefaultData.DEFAULT_BOOK_NAME && billInfoModel.bookName != "日常账本") {
             uriBuilder.append("&bookname=")
                 .append(Uri.encode(billInfoModel.bookName))
         }
