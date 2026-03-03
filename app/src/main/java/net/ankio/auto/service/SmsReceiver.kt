@@ -69,8 +69,16 @@ class SmsReceiver : BroadcastReceiver() {
                 sender = smsMessage.displayOriginatingAddress
                 messageBody += smsMessage.messageBody
             }
-            if (PrefManager.dataFilter.all { !messageBody.contains(it) }) {
-                Logger.d("数据信息不在识别关键字里面，忽略")
+            if (messageBody.isBlank()) {
+                Logger.d("SMS skipped: body empty")
+                return
+            }
+            if (!AnalysisUtils.inWhitelist(messageBody)) {
+                Logger.d("SMS skipped: no keyword matched, sender=$sender")
+                return
+            }
+            if (AnalysisUtils.inBlackList(messageBody)) {
+                Logger.d("SMS skipped: blacklist matched, sender=$sender")
                 return
             }
             val json = JsonObject().apply {
@@ -82,7 +90,7 @@ class SmsReceiver : BroadcastReceiver() {
             App.launch {
                 val result =
                     JsAPI.analysis(DataType.DATA, Gson().toJson(json), "com.android.phone")
-                Logger.d("识别结果：${result.data?.billInfoModel}")
+                Logger.d("SMS analysis result: sender=$sender, bill=${result.data?.billInfoModel}")
             }
         }
     }
