@@ -143,6 +143,8 @@ class BillWindowManager(
     /**
      * 更新当前编辑对话框中的账单信息
      *
+     * 重复账单合并时：若浮动小窗口仍在显示，自动刷新其内容。
+     *
      * @param parentBill 父账单信息，用于重复账单的情况
      */
     fun updateCurrentBill(parentBill: BillInfoModel) {
@@ -150,6 +152,10 @@ class BillWindowManager(
         if (currentBill != null && currentBill?.id == parentBill.id) {
             currentBill = parentBill
             currentDialog?.setBillInfo(parentBill)
+            // 浮动小窗口仍在显示时，自动更新内容
+            if (floatingTip.isVisible()) {
+                floatingTip.updateContent(parentBill)
+            }
         } else {
             parentBills[parentBill.id] = parentBill
         }

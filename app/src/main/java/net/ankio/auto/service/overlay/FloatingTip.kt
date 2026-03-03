@@ -27,6 +27,8 @@ import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import java.util.Locale
 import net.ankio.auto.App
 import net.ankio.auto.databinding.FloatTipBinding
@@ -35,7 +37,6 @@ import net.ankio.auto.databinding.FloatTipTopBinding
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.components.IconView
-import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.ui.utils.setAssetIconByName
 import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.utils.BillTool
@@ -77,10 +78,12 @@ class FloatingTip(
         val root: View,
         val logo: View,
         val moneyView: android.widget.TextView,
-        val timeView: android.widget.TextView,
-        val categoryView: android.widget.TextView? = null,  // 分类名称（仅顶部布局）
-        val remarkView: android.widget.TextView? = null,    // 备注（仅顶部布局）
-        val assetView: IconView? = null,                   // 资产视图（仅顶部布局）
+        val timeView: android.widget.TextView? = null,           // 倒计时文字（仅顶部布局）
+        val countdownProgress: CircularProgressIndicator? = null, // 红线环进度（仅左右布局）
+        val logoContainer: View? = null,                         // logo 容器（左右布局用于宽度计算）
+        val categoryView: android.widget.TextView? = null,       // 分类名称（仅顶部布局）
+        val remarkView: android.widget.TextView? = null,         // 备注（仅顶部布局）
+        val assetView: IconView? = null,                         // 资产视图（仅顶部布局）
     )
 
     /**
@@ -93,11 +96,11 @@ class FloatingTip(
                 root = rightBinding.root,
                 logo = rightBinding.logo,
                 moneyView = rightBinding.money,
-                timeView = rightBinding.time,
+                countdownProgress = rightBinding.countdownProgress,
+                logoContainer = rightBinding.logoContainer,
             )
 
             "top" -> BindingAdapter(
-                // 顶部位置使用通知样式布局
                 root = topBinding.root,
                 logo = topBinding.logo,
                 moneyView = topBinding.money,
@@ -108,11 +111,11 @@ class FloatingTip(
             )
 
             else -> BindingAdapter(
-                // 默认左侧
                 root = leftBinding.root,
                 logo = leftBinding.logo,
                 moneyView = leftBinding.money,
-                timeView = leftBinding.time,
+                countdownProgress = leftBinding.countdownProgress,
+                logoContainer = leftBinding.logoContainer,
             )
         }
     }
@@ -133,45 +136,45 @@ class FloatingTip(
     }
 
     /**
-     * 展示浮窗
-     *
-     * @param bill 账单信息
-     * @param onEvent 事件回调（点击、长按、超时）
+     * 浮窗是否正在显示（任一布局已附加到窗口）
      */
-    fun show(
-        bill: BillInfoModel,
-        onEvent: (Event) -> Unit
-    ) {
-        Logger.d("为账单显示浮动提示: ${bill.id}")
+    fun isVisible(): Boolean =
+        rightBinding.root.isAttachedToWindow ||
+                leftBinding.root.isAttachedToWindow ||
+                topBinding.root.isAttachedToWindow
 
-        // 使用当前侧的绑定
-        val b = currentBinding()
+    /**
+     * 更新浮窗展示内容（用于重复账单合并时刷新显示）
+     *
+     * @param bill 更新后的账单信息
+     */
+    fun updateContent(bill: BillInfoModel) {
+        if (!isVisible()) return
+        Logger.d("更新浮动提示内容: ${bill.id}")
+        bindBillData(currentBinding(), bill)
+    }
 
-        // 1) 填充展示数据
+    /**
+     * 将账单数据绑定到视图
+     */
+    private fun bindBillData(b: BindingAdapter, bill: BillInfoModel) {
         val colorRes = BillTool.getColor(bill.type)
         val color = ContextCompat.getColor(context, colorRes)
 
-        // 金额显示：顶部布局显示货币符号，左右布局只显示数字
+        // 金额显示
         val moneyText = if (b.categoryView != null) {
-            // 顶部布局：显示货币符号
             String.format(Locale.getDefault(), "¥%.2f", bill.money)
         } else {
-            // 左右布局：只显示数字
             String.format(Locale.getDefault(), "%.2f", bill.money)
         }
         b.moneyView.text = moneyText
         b.moneyView.setTextColor(color)
 
-        // 倒计时显示
-        b.timeView.text = String.format("%ss", PrefManager.floatTimeoutOff)
-        b.root.visibility = View.INVISIBLE
-
-        // 顶部布局特有：分类名称和备注
+        // 顶部布局特有
         b.categoryView?.text = bill.cateName.ifEmpty { "未分类" }
         b.remarkView?.text = bill.remark.ifEmpty { "无备注" }
         b.remarkView?.visibility = if (bill.remark.isNotEmpty()) View.VISIBLE else View.GONE
 
-        // 顶部布局特有：资产信息（如果开启了资产管理且资产名称不为空）
         b.assetView?.let { assetView ->
             if (PrefManager.featureAssetManage && bill.accountNameFrom.isNotEmpty()) {
                 assetView.visibility = View.VISIBLE
@@ -184,9 +187,16 @@ class FloatingTip(
             }
         }
 
-        // 加载分类图标：从 logo (RoundFrameLayout) 中获取 ImageView 并设置分类图标
+        // 分类图标：左右布局按账单类型着色，顶部布局使用 XML 中的 colorOnPrimary
         val logoImageView = (b.logo as? ViewGroup)?.getChildAt(0) as? ImageView
         if (logoImageView != null && bill.cateName.isNotEmpty()) {
+            if (b.categoryView == null) {
+                // 左右布局：按支出/收入类型着色
+                ImageViewCompat.setImageTintList(
+                    logoImageView,
+                    android.content.res.ColorStateList.valueOf(color)
+                )
+            }
             App.launch {
                 val book = BookNameAPI.getBook(bill.bookName)
                 logoImageView.setCategoryIcon(
@@ -196,13 +206,40 @@ class FloatingTip(
                 )
             }
         }
+    }
+
+    /**
+     * 展示浮窗
+     *
+     * @param bill 账单信息
+     * @param onEvent 事件回调（点击、长按、超时）
+     */
+    fun show(
+        bill: BillInfoModel,
+        onEvent: (Event) -> Unit
+    ) {
+        Logger.d("为账单显示浮动提示: ${bill.id}")
+
+        val b = currentBinding()
+
+        // 1) 填充展示数据
+        bindBillData(b, bill)
+        val totalMillis = PrefManager.floatTimeoutOff * 1000L
+        // 顶部：显示倒计时文字；左右：红线环从满到空
+        b.timeView?.text = String.format("%ss", PrefManager.floatTimeoutOff)
+        b.countdownProgress?.apply {
+            max = 100
+            progress = 100
+        }
+        b.root.visibility = View.INVISIBLE
 
         // 2) 准备计时器
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(PrefManager.floatTimeoutOff * 1000L, 1000) {
+        countDownTimer = object : CountDownTimer(totalMillis, 100) {
             override fun onTick(millisUntilFinished: Long) {
-                val secondsLeft = (millisUntilFinished / 1000).toInt()
-                b.timeView.text = String.format("%ss", secondsLeft)
+                b.timeView?.text = String.format("%ss", (millisUntilFinished / 1000).toInt())
+                // 红线环：剩余时间占比，从 100 逐渐减到 0
+                b.countdownProgress?.progress = (millisUntilFinished * 100 / totalMillis).toInt()
             }
 
             override fun onFinish() {
@@ -257,9 +294,10 @@ class FloatingTip(
                     params.width = WindowManager.LayoutParams.MATCH_PARENT
                     params.height = WindowManager.LayoutParams.WRAP_CONTENT
                 } else {
-                    // 左右布局：基于内容计算尺寸
-                    val width = b.logo.width + b.moneyView.width + b.timeView.width + 150
-                    val height = b.logo.height + 60
+                    // 左右布局：基于内容计算尺寸（logo 容器 + 金额）
+                    val logoW = b.logoContainer?.width ?: b.logo.width
+                    val width = logoW + b.moneyView.width + 120
+                    val height = (b.logoContainer?.height ?: b.logo.height) + 60
                     params.width = width
                     params.height = height
                 }
