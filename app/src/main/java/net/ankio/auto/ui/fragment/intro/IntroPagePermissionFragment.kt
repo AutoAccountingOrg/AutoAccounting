@@ -25,6 +25,7 @@ import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.xposed.XposedModule
 import net.ankio.shell.Shell
 import net.ankio.auto.service.OverlayService
@@ -146,7 +147,11 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         iconRes = R.drawable.icon_proactive,
                         titleRes = R.string.perm_ocr_perm_accessibility,
                         descRes = R.string.ocr_auth_accessibility_description,
-                        checkGranted = { SelectToSpeakService.instance != null },
+                        checkGranted = {
+                            SystemUtils.isAccessibilityServiceEnabled(
+                                SelectToSpeakService::class.java
+                            )
+                        },
                         onClick = { OcrTools.reqAccessibility() },
                         isRequired = false
                     )

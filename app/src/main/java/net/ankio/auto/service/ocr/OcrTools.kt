@@ -29,6 +29,7 @@ import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.SystemUtils.isAccessibilityServiceEnabled
 import net.ankio.auto.utils.SystemUtils.startActivity
 import net.ankio.shell.Shell
 import org.ezbook.server.tools.runCatchingExceptCancel
@@ -277,8 +278,7 @@ class OcrTools(private val shell: Shell) {
         }
 
         fun reqAccessibility() {
-            if (SelectToSpeakService.instance == null) {
-                // 跳转到系统无障碍设置
+            if (!isAccessibilityServiceEnabled(SelectToSpeakService::class.java)) {
                 ToastUtils.warn(R.string.ocr_error_accessibility_not_ready)
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

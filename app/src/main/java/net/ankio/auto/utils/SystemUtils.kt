@@ -17,6 +17,7 @@ package net.ankio.auto.utils
 
 import android.app.Application
 import android.content.ClipData
+import android.provider.Settings
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.ContextWrapper
@@ -47,6 +48,18 @@ object SystemUtils {
      */
     fun init(app: Application) {
         application = app
+    }
+
+    /**
+     * 检查指定无障碍服务是否已在系统设置中启用
+     * 与 Service.instance 不同：此方法检查用户是否在设置中开启，而非服务是否已连接
+     */
+    fun isAccessibilityServiceEnabled(serviceClass: Class<*>): Boolean {
+        val prefString = Settings.Secure.getString(
+            application.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+        return prefString.contains("${application.packageName}/${serviceClass.name}")
     }
     
 
