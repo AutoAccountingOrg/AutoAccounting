@@ -3,6 +3,7 @@ package net.ankio.auto.service
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.Notification
+import android.app.PendingIntent
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -11,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
+import org.ezbook.server.intent.IntentType
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
@@ -42,7 +44,7 @@ class CoreService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         startForegroundNotification()
-        Logger.i("服务创建，工作模式 = ${PrefManager.workMode}")
+        Logger.i("CoreService created, workMode=${PrefManager.workMode}")
         // 根据工作模式初始化服务列表
         initializeServices()
         // 初始化所有子服务
@@ -64,7 +66,7 @@ class CoreService : LifecycleService() {
                 startForeground(notificationId, notification)
             }
         } catch (e: SecurityException) {
-            Logger.e("前台服务 specialUse 类型启动失败: ${e.message}", e)
+            Logger.e("Foreground service (specialUse) start failed: ${e.message}", e)
         }
     }
 
@@ -101,10 +103,11 @@ class CoreService : LifecycleService() {
                 service.onCreate(this)
                 successCount++
             } catch (e: Exception) {
-                Logger.e("初始化服务 ${service.javaClass.simpleName} 失败: ${e.message}", e)
+                Logger.e("Service init failed: ${service.javaClass.simpleName}, ${e.message}", e)
                 failureCount++
             }
         }
+        Logger.d("Child services initialized: success=$successCount, failure=$failureCount")
     }
 
     /**
@@ -136,13 +139,21 @@ class CoreService : LifecycleService() {
 
     /**
      * 构建前台服务通知
-     * 创建一个低优先级、静默的通知
-     * @return 配置好的通知对象
+     * 创建一个低优先级、静默的通知，点击触发手动 OCR（通知不清除）
      */
     private fun buildNotification(): Notification {
+        val ocrIntent = Intent(this, CoreService::class.java).apply {
+            putExtra("intentType", IntentType.OCR.name)
+            putExtra("manual", true)
+        }
+        val pendingIntent = PendingIntent.getService(
+            this, 0, ocrIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.icon_auto)
             .setContentTitle(getString(R.string.service_notification_title))
+            .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setShowWhen(false)
             .setSilent(true)
@@ -168,7 +179,7 @@ class CoreService : LifecycleService() {
                 service.onStartCommand(intent, flags, startId)
             } catch (e: Exception) {
                 Logger.e(
-                    "服务 ${service.javaClass.simpleName} 处理启动命令失败: ${e.message}",
+                    "Service onStartCommand failed: ${service.javaClass.simpleName}, ${e.message}",
                     e
                 )
             }
@@ -181,13 +192,13 @@ class CoreService : LifecycleService() {
      * 停止前台服务并销毁所有子服务
      */
     override fun onDestroy() {
-        Logger.i("服务销毁，正在清理子服务")
+        Logger.i("CoreService destroying, cleaning up child services")
 
         // 停止前台服务
         try {
             stopForeground(STOP_FOREGROUND_REMOVE)
         } catch (e: Exception) {
-            Logger.e("停止前台服务失败: ${e.message}", e)
+            Logger.e("Stop foreground failed: ${e.message}", e)
         }
 
         // 销毁所有子服务
@@ -197,16 +208,19 @@ class CoreService : LifecycleService() {
 
             services.forEach { service ->
                 try {
-                    Logger.i("正在销毁服务: ${service.javaClass.simpleName}")
+                    Logger.d("Destroying service: ${service.javaClass.simpleName}")
                     service.onDestroy()
                     successCount++
                 } catch (e: Exception) {
-                    Logger.e("销毁服务 ${service.javaClass.simpleName} 失败: ${e.message}", e)
+                    Logger.e(
+                        "Service destroy failed: ${service.javaClass.simpleName}, ${e.message}",
+                        e
+                    )
                     failureCount++
                 }
             }
 
-            Logger.i("服务销毁完成: 成功 $successCount 个，失败 $failureCount 个")
+            Logger.i("CoreService destroyed: success=$successCount, failure=$failureCount")
         }
         
         super.onDestroy()
@@ -233,10 +247,10 @@ class CoreService : LifecycleService() {
             return try {
                 val intent = Intent(context, CoreService::class.java)
                 context.stopService(intent)
-                Logger.i("核心服务已停止")
+                Logger.i("CoreService stopped")
                 true
             } catch (e: Exception) {
-                Logger.e("停止服务时异常: ${e.message}", e)
+                Logger.e("Stop service failed: ${e.message}", e)
                 false
             }
         }
@@ -256,7 +270,7 @@ class CoreService : LifecycleService() {
                 true
 
             } catch (e: Exception) {
-                Logger.e("启动服务时未知异常: ${e.message}", e)
+                Logger.e("Start service failed: ${e.message}", e)
                 false
             }
         }
@@ -269,17 +283,17 @@ class CoreService : LifecycleService() {
         fun restart(activity: Activity, intent: Intent? = null): Boolean {
             return try {
                 if (isRunning(activity)) {
-                    Logger.i("服务正在运行，先停止服务")
+                    Logger.i("CoreService running, stopping first")
                     stop(activity)
                 }
 
-                Logger.i("启动服务")
+                Logger.i("Starting CoreService")
                 start(activity, intent)
 
                 true
 
             } catch (e: Exception) {
-                Logger.e("重启服务时异常: ${e.message}", e)
+                Logger.e("Restart service failed: ${e.message}", e)
                 false
             }
         }
