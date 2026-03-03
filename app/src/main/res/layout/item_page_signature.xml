@@ -7,6 +7,7 @@
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardCornerRadius="@dimen/radius"
     app:cardElevation="0dp"
+    android:layout_marginBottom="@dimen/padding"
     style="?attr/materialCardViewElevatedStyle">
 
     <LinearLayout
