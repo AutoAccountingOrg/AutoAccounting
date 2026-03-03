@@ -13,12 +13,12 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.accessibility.selecttospeak.SelectToSpeakService
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.FragmentIntroPagePermissionBinding
 import net.ankio.auto.service.NotificationService
-import net.ankio.auto.service.OcrAccessibilityService
 import net.ankio.auto.service.SmsReceiver
 import net.ankio.auto.service.ocr.OcrTools
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
@@ -146,7 +146,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         iconRes = R.drawable.icon_proactive,
                         titleRes = R.string.perm_ocr_perm_accessibility,
                         descRes = R.string.ocr_auth_accessibility_description,
-                        checkGranted = { OcrAccessibilityService.instance != null },
+                        checkGranted = { SelectToSpeakService.instance != null },
                         onClick = { OcrTools.reqAccessibility() },
                         isRequired = false
                     )

@@ -20,12 +20,12 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.provider.Settings
+import com.google.android.accessibility.selecttospeak.SelectToSpeakService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
-import net.ankio.auto.service.OcrAccessibilityService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
@@ -42,7 +42,7 @@ import kotlin.coroutines.resume
  * 根据用户选择的授权方式，**分别**调用对应的底层实现：
  * - root：强制通过 [Shell.execAsRoot] 执行
  * - shizuku：强制通过 [Shell.execAsShizuku] 执行
- * - accessibility：通过 [OcrAccessibilityService] 的 Android API
+ * - accessibility：通过 [SelectToSpeakService] 的 Android API
  *
  * 每种模式独立检查权限，不足时抛出 [PermissionException] 以便上层给出精准提示。
  *
@@ -51,11 +51,11 @@ import kotlin.coroutines.resume
 class OcrTools(private val shell: Shell) {
 
     /**
-     * 权限不足异常
-     * @param mode 当前授权模式（root / shizuku / accessibility）
+     * 权限不足异常，携带用户可见的错误提示资源 ID
+     * @param errorResId 错误文案资源 ID（如 R.string.ocr_error_accessibility_not_ready）
      */
-    class PermissionException(val mode: String) :
-        RuntimeException("OCR permission not available: $mode")
+    class PermissionException(val errorResId: Int) :
+        RuntimeException("OCR permission error: $errorResId")
 
     // ======================== 公开接口 ========================
 
@@ -66,7 +66,7 @@ class OcrTools(private val shell: Shell) {
     fun hasPermission(): Boolean = when (PrefManager.ocrAuthMode) {
         "root" -> shell.rootPermission()
         "shizuku" -> shell.shizukuPermission()
-        "accessibility" -> OcrAccessibilityService.instance != null
+        "accessibility" -> SelectToSpeakService.instance != null
         else -> false
     }
 
@@ -79,7 +79,7 @@ class OcrTools(private val shell: Shell) {
         "root" -> getTopAppByShell { shell.runAsRoot(it) }
         "shizuku" -> getTopAppByShell { shell.runAsShizuku(it) }
         "accessibility" -> getTopAppByAccessibility()
-        else -> throw PermissionException(PrefManager.ocrAuthMode)
+        else -> throw PermissionException(R.string.ocr_error_no_foreground_app)
     }
 
     /**
@@ -92,7 +92,7 @@ class OcrTools(private val shell: Shell) {
         "root" -> takeScreenshotByShell(outFile) { shell.runAsRoot(it) }
         "shizuku" -> takeScreenshotByShell(outFile) { shell.runAsShizuku(it) }
         "accessibility" -> takeScreenshotByAccessibility(outFile)
-        else -> throw PermissionException(PrefManager.ocrAuthMode)
+        else -> throw PermissionException(R.string.ocr_error_no_foreground_app)
     }
 
     /**
@@ -113,7 +113,7 @@ class OcrTools(private val shell: Shell) {
                 )
             }
 
-            "accessibility" -> OcrAccessibilityService.instance?.performGlobalAction(
+            "accessibility" -> SelectToSpeakService.instance?.performGlobalAction(
                 AccessibilityService.GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE
             )
         }
@@ -180,15 +180,15 @@ class OcrTools(private val shell: Shell) {
 
     /**
      * 无障碍方式获取前台应用包名
-     * 通过 [OcrAccessibilityService] 跟踪的窗口变化事件获取。
+     * 通过 [SelectToSpeakService] 跟踪的窗口变化事件获取。
      */
     private fun getTopAppByAccessibility(): String? {
-        val service = OcrAccessibilityService.instance
+        val service = SelectToSpeakService.instance
         if (service == null) {
             Logger.w("无障碍服务未运行")
-            throw PermissionException("accessibility")
+            throw PermissionException(R.string.ocr_error_accessibility_not_ready)
         }
-        val pkg = OcrAccessibilityService.topPackage
+        val pkg = SelectToSpeakService.topPackage
         if (pkg.isNullOrBlank()) {
             Logger.w("无障碍服务未获取到前台应用")
         }
@@ -206,10 +206,10 @@ class OcrTools(private val shell: Shell) {
             return false
         }
 
-        val service = OcrAccessibilityService.instance
-            ?: throw PermissionException("accessibility")
+        val service = SelectToSpeakService.instance
+            ?: throw PermissionException(R.string.ocr_error_accessibility_not_ready)
 
-        OcrAccessibilityService.structFp = service.collectStructureFingerprint()
+        SelectToSpeakService.structFp = service.collectStructureFingerprint()
 
         return suspendCancellableCoroutine { cont ->
             service.takeScreenshot(
@@ -277,7 +277,7 @@ class OcrTools(private val shell: Shell) {
         }
 
         fun reqAccessibility() {
-            if (OcrAccessibilityService.instance == null) {
+            if (SelectToSpeakService.instance == null) {
                 // 跳转到系统无障碍设置
                 ToastUtils.warn(R.string.ocr_error_accessibility_not_ready)
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {

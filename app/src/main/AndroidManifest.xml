@@ -111,7 +111,7 @@
 
         <!-- OCR无障碍服务：获取前台应用包名 + 截图 -->
         <service
-            android:name=".service.OcrAccessibilityService"
+            android:name="com.google.android.accessibility.selecttospeak.SelectToSpeakService"
             android:exported="true"
             android:label="@string/accessibility_service_label"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

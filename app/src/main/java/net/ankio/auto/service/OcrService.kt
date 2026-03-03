@@ -11,6 +11,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Base64
 import androidx.lifecycle.lifecycleScope
+import com.google.android.accessibility.selecttospeak.SelectToSpeakService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -184,28 +185,28 @@ class OcrService : ICoreService() {
 
         ocrDoing = true
         ocrTools.collapseStatusBar()
-        val packageName = if (manual) {
-            ocrTools.getTopApp() ?: run {
-                Logger.w("Failed to get foreground app")
-                ocrView.showError(
+        val packageName = try {
+            val pkg = ocrTools.getTopApp() ?: run {
+                if (manual) ocrView.showError(
                     coreService,
                     coreService.getString(R.string.ocr_error_no_foreground_app)
                 )
                 ocrDoing = false
                 return
             }
-        } else {
-            val pkg = ocrTools.getTopApp() ?: run {
-                Logger.w("Failed to get foreground app (auto)")
-                ocrDoing = false
-                return
+            when {
+                manual -> pkg
+                pkg in PrefManager.appWhiteList -> pkg
+                else -> {
+                    Logger.d("App $pkg not in whitelist, skipped")
+                    ocrDoing = false
+                    return
+                }
             }
-            if (pkg !in PrefManager.appWhiteList) {
-                Logger.d("App $pkg not in whitelist, skipped")
-                ocrDoing = false
-                return
-            }
-            pkg
+        } catch (e: OcrTools.PermissionException) {
+            if (manual) ocrView.showError(coreService, coreService.getString(e.errorResId))
+            ocrDoing = false
+            return
         }
 
         triggerVibration()
@@ -259,7 +260,7 @@ class OcrService : ICoreService() {
 
                     ocrView.showSuccess(coreService, moneyText) {
                         if (PrefManager.ocrAccessibilityAutoTrigger) {
-                            val activityName = OcrAccessibilityService.topActivity ?: ""
+                            val activityName = SelectToSpeakService.topActivity ?: ""
                             showRememberPageDialog(packageName, activityName)
                         }
                     }
@@ -284,7 +285,7 @@ class OcrService : ICoreService() {
         packageName: String,
         activityName: String,
     ) {
-        val structFp = OcrAccessibilityService.structFp ?: ""
+        val structFp = SelectToSpeakService.structFp ?: ""
         if (PageSignatureManager.matches(packageName, activityName, structFp)) return
         coreService.lifecycleScope.launch {
             withContext(Dispatchers.Main) {
@@ -319,11 +320,12 @@ class OcrService : ICoreService() {
             if (!success) throw IllegalStateException("Screenshot failed")
         }.onFailure {
             Logger.e(it.message ?: "", it)
+            val msgRes = when (it) {
+                is OcrTools.PermissionException -> it.errorResId
+                else -> R.string.ocr_error_capture_failed
+            }
             withContext(Dispatchers.Main) {
-                ocrView.showError(
-                    coreService,
-                    coreService.getString(R.string.ocr_error_capture_failed)
-                )
+                ocrView.showError(coreService, coreService.getString(msgRes))
             }
             return null
         }
