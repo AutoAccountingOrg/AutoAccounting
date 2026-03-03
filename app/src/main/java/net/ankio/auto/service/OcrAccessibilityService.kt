@@ -62,7 +62,7 @@ class OcrAccessibilityService : AccessibilityService() {
     }
 
     /** 内容变化节流：500ms 内只处理一次 */
-    private val contentChangeThrottle = Throttle<Unit>(intervalMs = 500) {
+    private val contentChangeThrottle = Throttle<Unit>(intervalMs = 100) {
         processContentChange()
     }
 
