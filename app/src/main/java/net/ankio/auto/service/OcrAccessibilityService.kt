@@ -19,7 +19,6 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import net.ankio.auto.service.OcrAccessibilityService.Companion.instance
 import net.ankio.auto.service.ocr.PageSignatureManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
@@ -86,7 +85,6 @@ class OcrAccessibilityService : AccessibilityService() {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 topPackage = pkg
                 topActivity = event.className?.toString()?.takeIf { it.isNotBlank() }
-                Logger.d("Window changed: pkg=$topPackage, activity=$topActivity")
             }
 
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
@@ -107,8 +105,10 @@ class OcrAccessibilityService : AccessibilityService() {
 
         // 收集视图结构指纹用于精确匹配页面
         val structFp = collectStructureFingerprint()
-        Logger.d("structFp: $structFp")
-        if (!PageSignatureManager.matches(pkg, activity, structFp)) return
+        if (!PageSignatureManager.matches(pkg, activity, structFp)) {
+            if (PrefManager.debugMode) Logger.d("structFp: pkg=$pkg, activity=$activity, structFp=$structFp")
+            return
+        }
 
         // 收集文本内容指纹用于去重（同一页面内容没变就不重复触发）
         val rawText = collectPageText(maxDepth = 50)
@@ -116,8 +116,6 @@ class OcrAccessibilityService : AccessibilityService() {
         val contentFp = generateFingerprint(rawText)
         if (contentFp == lastContentFingerprint) return
         lastContentFingerprint = contentFp
-
-        Logger.d("Page matched: pkg=$pkg, activity=$activity, structFp=$structFp")
 
         if (AnalysisUtils.inWhitelist(contentFp)) {
             val intent = Intent(this, CoreService::class.java).apply {
@@ -208,6 +206,5 @@ class OcrAccessibilityService : AccessibilityService() {
         instance = null
         topPackage = null
         topActivity = null
-        Logger.d("OCR无障碍服务已销毁")
     }
 }
