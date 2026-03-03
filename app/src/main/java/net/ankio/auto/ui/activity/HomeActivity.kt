@@ -28,15 +28,36 @@ import net.ankio.auto.storage.backup.BackupManager
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.AppUpdateHelper
 import net.ankio.auto.ui.utils.RuleUpdateHelper
-import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.slideDown
 import net.ankio.auto.ui.utils.slideUp
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.Throttle
 
 class HomeActivity : BaseActivity() {
 
-    /** 检查更新节流间隔：30 分钟 */
-    private val updateCheckThrottleMs = 30 * 60 * 1000L
+    /** Pref 全量同步节流：5 分钟，持久化以支持进程重启后节流 */
+    private val prefSyncThrottle = Throttle.asFunction(
+        intervalMs = 5 * 60 * 1000L,
+        persistKey = "pref_sync"
+    ) { App.launch { PrefManager.syncAllToBackend() } }
+
+    /** 自动检查更新节流：30 分钟，持久化以支持进程重启后节流 */
+    private val updateCheckThrottle = Throttle.asFunction(
+        intervalMs = 30 * 60 * 1000L,
+        persistKey = "auto_update_check"
+    ) {
+        App.launch {
+            runCatching {
+                if (RuleUpdateHelper.isAutoCheckEnabled()) {
+                    RuleUpdateHelper.checkAndShow(this@HomeActivity, false)
+                }
+                if (AppUpdateHelper.isAutoCheckEnabled()) {
+                    AppUpdateHelper.checkAndShow(this@HomeActivity, false)
+                }
+            }
+        }
+    }
+
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -77,30 +98,8 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        // 全量同步 Pref 到后端（节流 5 分钟）
-        App.launch { PrefManager.syncAllToBackend() }
-        // 自动检查更新（节流 30 分钟）
-        autoCheckUpdateIfNeeded()
-    }
-
-    /**
-     * 自动检查应用与规则更新，节流控制。
-     */
-    private fun autoCheckUpdateIfNeeded() {
-        val now = System.currentTimeMillis()
-        if (now - PrefManager.lastUpdateCheckTime < updateCheckThrottleMs) return
-
-        App.launch {
-            runCatching {
-                if (RuleUpdateHelper.isAutoCheckEnabled()) {
-                    RuleUpdateHelper.checkAndShow(this@HomeActivity, false)
-                }
-                if (AppUpdateHelper.isAutoCheckEnabled()) {
-                    AppUpdateHelper.checkAndShow(this@HomeActivity, false)
-                }
-            }
-            PrefManager.lastUpdateCheckTime = System.currentTimeMillis()
-        }
+        prefSyncThrottle()
+        updateCheckThrottle()
     }
 
     override fun onStop() {
