@@ -26,11 +26,17 @@ import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.backup.BackupManager
 import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.utils.AppUpdateHelper
+import net.ankio.auto.ui.utils.RuleUpdateHelper
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.slideDown
 import net.ankio.auto.ui.utils.slideUp
+import net.ankio.auto.utils.PrefManager
 
 class HomeActivity : BaseActivity() {
+
+    /** 检查更新节流间隔：30 分钟 */
+    private val updateCheckThrottleMs = 30 * 60 * 1000L
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -67,15 +73,38 @@ class HomeActivity : BaseActivity() {
                 NavigationUI.onNavDestinationSelected(item, navController)
             }
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
+        // 全量同步 Pref 到后端（节流 5 分钟）
+        App.launch { PrefManager.syncAllToBackend() }
+        // 自动检查更新（节流 30 分钟）
+        autoCheckUpdateIfNeeded()
+    }
 
+    /**
+     * 自动检查应用与规则更新，节流控制。
+     */
+    private fun autoCheckUpdateIfNeeded() {
+        val now = System.currentTimeMillis()
+        if (now - PrefManager.lastUpdateCheckTime < updateCheckThrottleMs) return
+
+        App.launch {
+            runCatching {
+                if (RuleUpdateHelper.isAutoCheckEnabled()) {
+                    RuleUpdateHelper.checkAndShow(this@HomeActivity, false)
+                }
+                if (AppUpdateHelper.isAutoCheckEnabled()) {
+                    AppUpdateHelper.checkAndShow(this@HomeActivity, false)
+                }
+            }
+            PrefManager.lastUpdateCheckTime = System.currentTimeMillis()
+        }
     }
 
     override fun onStop() {
         super.onStop()
-
-        Logger.d("HomeActivity onStop - 触发自动备份检查")
-
         // 使用全局协程作用域执行备份，避免阻塞UI线程
         App.launch {
             BackupManager.autoBackup()

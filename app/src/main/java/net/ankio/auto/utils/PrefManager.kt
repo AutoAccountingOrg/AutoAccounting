@@ -22,9 +22,12 @@ import androidx.appcompat.app.AppCompatDelegate
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.WorkMode
 import androidx.core.content.edit
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.service.ocr.OcrTools
 import net.ankio.auto.xposed.XposedModule
 import org.ezbook.server.constant.DefaultData
@@ -77,6 +80,45 @@ object PrefManager {
 
     /** SharedPreferences 实例 - 存储所有配置项 */
     private val pref = autoApp.getSharedPreferences("settings", MODE_PRIVATE)
+
+    /** 全量同步节流间隔：5 分钟 */
+    private const val PREF_SYNC_THROTTLE_MS = 5 * 60 * 1000L
+
+    /** 全量同步时排除的 key（服务端维护或本地专用） */
+    private val SYNC_EXCLUDE_KEYS = setOf(
+        Setting.HASH_ASSET, Setting.HASH_BILL, Setting.HASH_BOOK, Setting.HASH_CATEGORY,
+        Setting.HASH_BAOXIAO_BILL, Setting.HASH_TAG,
+        Setting.LAST_SYNC_TIME, Setting.LAST_BACKUP_TIME,
+        Setting.RULE_VERSION, Setting.RULE_UPDATE_TIME,
+        Setting.JS_COMMON, Setting.JS_CATEGORY,
+        "last_pref_sync_time", "canary_warning_version"
+    )
+
+    /**
+     * 全量同步本地 Pref 到后端。
+     * 节流：距上次同步不足 [PREF_SYNC_THROTTLE_MS] 时跳过。
+     */
+    suspend fun syncAllToBackend() = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        val last = pref.getLong("last_pref_sync_time", 0L)
+        if (now - last < PREF_SYNC_THROTTLE_MS) return@withContext
+
+        pref.edit { putLong("last_pref_sync_time", now) }
+        val keys = pref.all.keys.filter { it !in SYNC_EXCLUDE_KEYS }
+        keys.forEach { key ->
+            runCatching {
+                when (val value = pref.all[key]) {
+                    is String -> SettingAPI.set(key, value)
+                    is Boolean -> SettingAPI.set(key, value.toString())
+                    is Int -> SettingAPI.set(key, value.toString())
+                    is Long -> SettingAPI.set(key, value.toString())
+                    is Float -> SettingAPI.set(key, value.toString())
+                    else -> { /* 忽略其他类型 */
+                    }
+                }
+            }.onFailure { Logger.e("syncAllToBackend set error: $key", it) }
+        }
+    }
 
     // ===================================================================
     // 记账设置 (settings_recording.xml)

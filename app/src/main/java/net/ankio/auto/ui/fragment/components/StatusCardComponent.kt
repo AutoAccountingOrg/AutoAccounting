@@ -77,7 +77,6 @@ class StatusCardComponent(binding: CardStatusBinding) :
         super.onComponentResume()
         updateActiveStatus()
         updateRuleTexts()
-        autoCheckUpdateIfNeeded()
     }
 
     /**
@@ -159,18 +158,5 @@ class StatusCardComponent(binding: CardStatusBinding) :
 
     }
 
-    /**
-     * 自动检查更新：规则 + 应用
-     */
-    private fun autoCheckUpdateIfNeeded() {
-        // 规则自动检查
-        if (RuleUpdateHelper.isAutoCheckEnabled()) {
-            launch { RuleUpdateHelper.checkAndShow(context, false) { updateRuleTexts() } }
-        }
-        // 应用自动检查
-        if (AppUpdateHelper.isAutoCheckEnabled()) {
-            launch { AppUpdateHelper.checkAndShow(context, false) }
-        }
-    }
 }
 
