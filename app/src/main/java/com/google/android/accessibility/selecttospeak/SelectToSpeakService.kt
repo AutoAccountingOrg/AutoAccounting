@@ -73,6 +73,7 @@ class SelectToSpeakService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
+        Logger.d("Accessibility service connected")
         // 设置 FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY，使 WebView 子节点可被遍历（findAccessibilityNodeInfosByText 对 WebView 无效，需先找 WebView 再遍历其子节点）
         @Suppress("DEPRECATION")
         serviceInfo?.let { info ->
@@ -116,19 +117,24 @@ class SelectToSpeakService : AccessibilityService() {
         // 收集视图结构指纹用于精确匹配页面
         val structFp = collectStructureFingerprint()
         if (!PageSignatureManager.matches(pkg, activity, structFp)) {
-            Logger.d("structFp: pkg=$pkg, activity=$activity, structFp=$structFp")
+            Logger.d("Page not matched: pkg=$pkg, activity=$activity, structFp=$structFp")
             return
         }
 
-        // 收集文本内容指纹用于去重（同一页面内容没变就不重复触发）
         val rawText = collectPageText(maxDepth = 50)
-        if (rawText.isBlank()) return
+        if (rawText.isBlank()) {
+            Logger.d("Page text empty, skip: pkg=$pkg")
+            return
+        }
         val contentFp = generateFingerprint(rawText)
-        if (contentFp == lastContentFingerprint) return
+        if (contentFp == lastContentFingerprint) {
+            Logger.d("Content unchanged, skip: pkg=$pkg")
+            return
+        }
         lastContentFingerprint = contentFp
 
         if (AnalysisUtils.inWhitelist(contentFp)) {
-            Logger.d("inWhitelist: contentFp=$contentFp")
+            Logger.i("OCR auto-trigger: pkg=$pkg, activity=$activity")
             val intent = Intent(this, CoreService::class.java).apply {
                 putExtra("intentType", IntentType.OCR.name)
                 putExtra("manual", true)
@@ -157,7 +163,11 @@ class SelectToSpeakService : AccessibilityService() {
      * 不含文本，不受数据变化影响；同一页面布局始终产生近似结果。
      */
     fun collectStructureFingerprint(): String {
-        val root = rootInActiveWindow ?: return ""
+        val root = rootInActiveWindow
+        if (root == null) {
+            Logger.d("rootInActiveWindow is null, cannot collect structure")
+            return ""
+        }
         val skeleton = buildStructureSkeleton(root, 0, 5)
         root.recycle()
         return skeleton
@@ -219,7 +229,11 @@ class SelectToSpeakService : AccessibilityService() {
      * 3. WebView 子控件无 ID，只能获取 contentDescription 等有限信息；加载完成后可获取包括屏幕外在内的全部内容
      */
     private fun collectPageText(maxDepth: Int): String {
-        val root = rootInActiveWindow ?: return ""
+        val root = rootInActiveWindow
+        if (root == null) {
+            Logger.d("rootInActiveWindow is null, cannot collect page text")
+            return ""
+        }
         return collectTextFromNodeWithWebView(root, 0, maxDepth).also { root.recycle() }
     }
 
@@ -290,11 +304,12 @@ class SelectToSpeakService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        Logger.w("OCR无障碍服务被中断")
+        Logger.w("Accessibility service interrupted")
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        Logger.d("Accessibility service destroyed")
         instance = null
         topPackage = null
         topActivity = null

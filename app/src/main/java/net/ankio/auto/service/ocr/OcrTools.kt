@@ -103,15 +103,11 @@ class OcrTools(private val shell: Shell) {
     suspend fun collapseStatusBar() {
         when (PrefManager.ocrAuthMode) {
             "root" -> runCatchingExceptCancel { shell.runAsRoot("service call statusbar 2") }.onFailure {
-                Logger.e(
-                    it
-                )
+                Logger.e("Status bar collapse failed (root)", it)
             }
 
             "shizuku" -> runCatchingExceptCancel { shell.runAsShizuku("service call statusbar 2") }.onFailure {
-                Logger.e(
-                    it
-                )
+                Logger.e("Status bar collapse failed (shizuku)", it)
             }
 
             "accessibility" -> SelectToSpeakService.instance?.performGlobalAction(
@@ -137,25 +133,24 @@ class OcrTools(private val shell: Shell) {
         repeat(3) { attempt ->
             for (cmd in commands) {
                 val output = runCatchingExceptCancel { exec(cmd) }.getOrElse {
-                    Logger.w("Shell执行失败[$cmd]: ${it.message}")
+                    Logger.w("Shell exec failed [$cmd]: ${it.message}")
                     null
                 }
                 if (output == null) {
-                    Logger.w("Shell执行失败[$cmd]")
+                    Logger.w("Shell exec failed [$cmd]")
                     continue
                 }
-                Logger.d("命令[$cmd]输出为 $output")
+                Logger.d("Shell output [$cmd]: $output")
                 val pkg = extractPackageFromDumpsys(output)
                 if (!pkg.isNullOrBlank()) {
-                    Logger.d("成功获取包名: $pkg (第${attempt + 1}次尝试)")
+                    Logger.d("Got top app: $pkg (attempt ${attempt + 1})")
                     return pkg
                 }
             }
-            // 前两次失败后等待100ms再重试
             if (attempt < 2) delay(100)
         }
 
-        Logger.e("所有尝试均失败，无法获取前台应用")
+        Logger.e("All attempts failed, cannot get foreground app")
         return null
     }
 
@@ -172,7 +167,7 @@ class OcrTools(private val shell: Shell) {
             exec("screencap -p ${outFile.absolutePath}")
             outFile.exists() && outFile.length() > 0
         }.getOrElse {
-            Logger.e("Shell截图失败: ${it.message}")
+            Logger.e("Shell screenshot failed: ${it.message}")
             false
         }
     }
@@ -186,12 +181,12 @@ class OcrTools(private val shell: Shell) {
     private fun getTopAppByAccessibility(): String? {
         val service = SelectToSpeakService.instance
         if (service == null) {
-            Logger.w("无障碍服务未运行")
+            Logger.w("Accessibility service not running")
             throw PermissionException(R.string.ocr_error_accessibility_not_ready)
         }
         val pkg = SelectToSpeakService.topPackage
         if (pkg.isNullOrBlank()) {
-            Logger.w("无障碍服务未获取到前台应用")
+            Logger.w("Accessibility service: no foreground app detected")
         }
         return pkg
     }
@@ -203,7 +198,7 @@ class OcrTools(private val shell: Shell) {
     private suspend fun takeScreenshotByAccessibility(outFile: File): Boolean {
         // takeScreenshot API 需要 Android 11 (API 30)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            Logger.e("无障碍截图需要 Android 11+")
+            Logger.e("Accessibility screenshot requires Android 11+")
             return false
         }
 
@@ -235,7 +230,7 @@ class OcrTools(private val shell: Shell) {
                     }
 
                     override fun onFailure(errorCode: Int) {
-                        Logger.e("无障碍截图失败，错误码: $errorCode")
+                        Logger.e("Accessibility screenshot failed, errorCode: $errorCode")
                         cont.resume(false)
                     }
                 }
