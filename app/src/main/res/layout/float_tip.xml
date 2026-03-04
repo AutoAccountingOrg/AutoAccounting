@@ -52,7 +52,7 @@
             android:layout_gravity="center"
             android:background="?attr/colorSurfaceContainer"
             android:padding="6dp"
-            app:rd_radius="@dimen/radius_small">
+            app:rd_radius="@dimen/radius">
 
             <ImageView
                 android:layout_width="match_parent"
