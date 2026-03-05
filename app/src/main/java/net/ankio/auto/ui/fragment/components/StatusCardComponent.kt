@@ -17,100 +17,82 @@ package net.ankio.auto.ui.fragment.components
 
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
-import net.ankio.auto.BuildConfig
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import net.ankio.auto.R
-import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.CardStatusBinding
-import net.ankio.auto.service.CoreService
-import net.ankio.auto.service.OcrService
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.theme.DynamicColors
-import net.ankio.auto.update.AppUpdateHelper
-import net.ankio.auto.update.RuleUpdateHelper
 import net.ankio.auto.ui.utils.toDrawable
+import net.ankio.auto.ui.vm.HomeActivityVm
+import net.ankio.auto.ui.vm.StatusData
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.xposed.XposedModule
 import java.util.Locale
 
+/**
+ * 状态卡组件，展示工作状态、规则/应用版本，点击检查更新。
+ * 需通过 [setVm] 注入 [HomeActivityVm]，UI 数据与点击逻辑均走 VM。
+ */
 class StatusCardComponent(binding: CardStatusBinding) :
     BaseComponent<CardStatusBinding>(binding) {
 
+    private var vm: HomeActivityVm? = null
+
+    /** 注入 ViewModel，必须在 [onComponentCreate] 之后由宿主调用 */
+    fun setVm(vm: HomeActivityVm) {
+        this.vm = vm
+        setupVm()
+    }
+
     override fun onComponentCreate() {
         super.onComponentCreate()
+        binding.cardContentRule.setBackgroundColor(DynamicColors.SurfaceColor3)
+        binding.cardContentApp.setBackgroundColor(DynamicColors.SurfaceColor3)
 
-        // 整卡点击：检查规则更新
+        // 点击：检查更新（走 VM）
         binding.cardContentRule.setOnClickListener {
-            launch {
-                RuleUpdateHelper.checkAndShow(context, true) { updateRuleTexts() }
-            }
+            vm?.checkRuleUpdate(fromUser = true)
         }
-
         binding.cardContentApp.setOnClickListener {
-            launch {
-                AppUpdateHelper.checkAndShow(context, true)
-            }
+            vm?.checkAppUpdate(fromUser = true)
         }
 
-        // 长按：强制规则更新
+        // 长按：强制规则更新后检查
         binding.cardContentRule.setOnLongClickListener {
             PrefManager.ruleVersion = ""
-            launch {
-                RuleUpdateHelper.checkAndShow(context, true) { updateRuleTexts() }
-            }
+            vm?.checkRuleUpdate(fromUser = true)
             true
         }
         binding.cardContentApp.setOnLongClickListener {
-            launch {
-                AppUpdateHelper.checkAndShow(context, true)
-            }
+            vm?.checkAppUpdate(fromUser = true)
             true
         }
-
-        binding.cardContentRule.setBackgroundColor(DynamicColors.SurfaceColor3)
-        binding.cardContentApp.setBackgroundColor(DynamicColors.SurfaceColor3)
-        // 初始化状态显示
-        updateActiveStatus()
-        updateRuleTexts()
     }
 
     override fun onComponentResume() {
         super.onComponentResume()
-        updateActiveStatus()
-        updateRuleTexts()
+        vm?.refreshStatus(context)
     }
 
-    /**
-     * 当前模式是否处于"工作中"
-     */
-    private fun isCurrentModeActive(): Boolean {
-        return when (PrefManager.workMode) {
-            WorkMode.Ocr -> OcrService.serverStarted
-            WorkMode.LSPatch -> CoreService.isRunning(context)
-            WorkMode.Xposed -> XposedModule.active()
+    /** 绑定 VM 后调用：注册观察、首次刷新 */
+    private fun setupVm() {
+        val v = vm ?: return
+        val owner = binding.root.findViewTreeLifecycleOwner() ?: return
+        v.refreshStatus(context)
+        v.statusData.observe(owner) { data ->
+            applyStatusData(data)
         }
     }
 
-    /**
-     * 统一更新激活状态显示（第一行：工作状态 + 模式标签）
-     */
-    private fun updateActiveStatus() {
-        val isActive = isCurrentModeActive()
-        val versionName = BuildConfig.VERSION_NAME
-
-        // 工作状态文本
-        val statusText = if (isActive) {
-            context.getString(R.string.status_working)
-        } else {
-            context.getString(R.string.status_inactive)
-        }
-        binding.titleText.text = statusText
-
-        binding.modeText.text = PrefManager.workMode.name.uppercase()
-        // 调试模式时显示小标签，与 mode 标签风格统一
+    /** 根据 [StatusData] 更新 UI */
+    private fun applyStatusData(data: StatusData) {
+        binding.titleText.text =
+            if (data.isActive) context.getString(R.string.status_working)
+            else context.getString(R.string.status_inactive)
+        binding.modeText.text = data.workMode.name.uppercase(Locale.getDefault())
         binding.debugTag.visibility =
-            if (PrefManager.debugMode) android.view.View.VISIBLE else android.view.View.GONE
+            if (data.debugMode) android.view.View.VISIBLE else android.view.View.GONE
 
-        if (isActive) {
+        if (data.isActive) {
             setActive(
                 backgroundColor = DynamicColors.SecondaryContainer,
                 textColor = DynamicColors.OnPrimaryContainer,
@@ -123,21 +105,15 @@ class StatusCardComponent(binding: CardStatusBinding) :
                 drawable = R.drawable.home_active_error
             )
         }
-        binding.subtitleText.text = "v$versionName"
-        val channelValue = PrefManager.appChannel.lowercase(Locale.getDefault())
+        binding.subtitleText.text = "v${data.versionName}"
+        binding.ruleVersionText.text = data.ruleVersion
+        binding.ruleUpdateText.text = data.ruleUpdate
+
         val values = context.resources.getStringArray(R.array.update_channel_values)
         val texts = context.resources.getStringArray(R.array.update_channel_texts)
-        val channelIndex = values.indexOf(channelValue).coerceAtLeast(0)
+        val channelIndex = values.indexOf(data.channelValue).coerceAtLeast(0)
         binding.channelText.text =
-            texts.getOrElse(channelIndex) { texts.firstOrNull() ?: channelValue }
-    }
-
-    /**
-     * 更新第三、四行：规则版本与规则更新时间
-     */
-    private fun updateRuleTexts() {
-        binding.ruleVersionText.text = PrefManager.ruleVersion
-        binding.ruleUpdateText.text = PrefManager.ruleUpdate
+            texts.getOrElse(channelIndex) { texts.firstOrNull() ?: data.channelValue }
     }
 
     private fun setActive(

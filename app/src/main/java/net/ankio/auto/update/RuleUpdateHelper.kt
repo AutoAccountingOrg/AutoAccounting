@@ -39,6 +39,7 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.db.model.RuleModel
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
 
 /**
@@ -53,6 +54,21 @@ object RuleUpdateHelper {
 
     /** 是否允许自动检查规则更新 */
     fun isAutoCheckEnabled(): Boolean = PrefManager.autoCheckRuleUpdate
+
+    suspend fun check(): UpdateModel? {
+        return runCatchingExceptCancel {
+            val json = RuleAPI.lastVer(PrefManager.ruleVersion.isEmpty())
+            val model = VersionUtils.fromJSON(json) ?: return null
+            if (VersionUtils.isCloudVersionNewer(
+                    PrefManager.ruleVersion,
+                    model.version
+                )
+            ) model else null
+        }.onFailure {
+            val channel = PrefManager.appChannel
+            CacheManager.remove("app_version_${channel}")
+        }.getOrNull()
+    }
 
     /**
      * 检查规则更新，如有更新则弹窗并在用户确认后执行更新。
@@ -104,7 +120,7 @@ object RuleUpdateHelper {
     /**
      * 执行规则更新：下载、解压、落库并更新本地版本信息。
      */
-    private suspend fun updateRule(context: Context, updateModel: UpdateModel) =
+    suspend fun updateRule(context: Context, updateModel: UpdateModel) =
         withContext(Dispatchers.IO) {
             var loading: LoadingUtils? = null
             withMain {

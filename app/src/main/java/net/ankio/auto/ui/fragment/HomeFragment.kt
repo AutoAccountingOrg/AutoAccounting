@@ -18,6 +18,7 @@ package net.ankio.auto.ui.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import net.ankio.auto.BuildConfig
@@ -36,15 +37,18 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.components.BookCardComponent
 import net.ankio.auto.ui.fragment.components.MonthlyCardComponent
 import net.ankio.auto.ui.fragment.components.StatusCardComponent
+import net.ankio.auto.ui.vm.HomeActivityVm
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.intent.BillInfoIntent
 
 class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
     private val gson = Gson()
+    private val vm: HomeActivityVm by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val statusCard: StatusCardComponent = binding.activeCard.bindAs()
+        statusCard.setVm(vm)
 
 
         val monthlyCard: MonthlyCardComponent = binding.monthlyCard.bindAs()

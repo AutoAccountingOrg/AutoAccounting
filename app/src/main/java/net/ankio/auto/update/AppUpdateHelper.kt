@@ -58,6 +58,29 @@ object AppUpdateHelper {
     }
 
     /**
+     * 检查是否有新版本可用（仅做网络请求与版本比较，不涉及 UI）。
+     *
+     * @return 有新版本时返回 [UpdateModel]，否则返回 null
+     */
+    suspend fun check(): UpdateModel? {
+        val update = withIO {
+            val json = AppAPI.lastVer()
+            try {
+                VersionUtils.fromJSON(json)
+            } catch (_: NullPointerException) {
+                val channel = PrefManager.appChannel
+                CacheManager.remove("app_version_${channel}")
+                null
+            }
+        } ?: return null
+        return if (VersionUtils.isCloudVersionNewer(
+                BuildConfig.VERSION_NAME,
+                update.version
+            )
+        ) update else null
+    }
+
+    /**
      * 检查应用更新并根据结果向用户反馈。
      *
      * @param context 用于展示 UI 的上下文

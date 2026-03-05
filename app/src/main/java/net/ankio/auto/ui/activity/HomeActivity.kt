@@ -17,53 +17,68 @@ package net.ankio.auto.ui.activity
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
+import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.backup.BackupManager
 import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.update.AppUpdateHelper
-import net.ankio.auto.update.RuleUpdateHelper
+import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.utils.slideDown
 import net.ankio.auto.ui.utils.slideUp
-import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.Throttle
+import net.ankio.auto.ui.vm.HomeActivityVm
+import net.ankio.auto.update.AppUpdateHelper
+import net.ankio.auto.update.RuleUpdateHelper
+import net.ankio.auto.utils.CustomTabsHelper
 
 class HomeActivity : BaseActivity() {
-
-    /** Pref 全量同步节流：5 分钟，持久化以支持进程重启后节流 */
-    private val prefSyncThrottle = Throttle.asFunction(
-        intervalMs = 5 * 60 * 1000L,
-        persistKey = "pref_sync"
-    ) { App.launch { PrefManager.syncAllToBackend() } }
-
-    /** 自动检查更新节流：30 分钟，持久化以支持进程重启后节流 */
-    private val updateCheckThrottle = Throttle.asFunction(
-        intervalMs = 30 * 60 * 1000L,
-        persistKey = "auto_update_check"
-    ) {
-        App.launch {
-            runCatching {
-                if (RuleUpdateHelper.isAutoCheckEnabled()) {
-                    RuleUpdateHelper.checkAndShow(this@HomeActivity, false)
-                }
-                if (AppUpdateHelper.isAutoCheckEnabled()) {
-                    AppUpdateHelper.checkAndShow(this@HomeActivity, false)
-                }
-            }
-        }
-    }
+    private val vm: HomeActivityVm by viewModels()
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    /** 注册 VM 的 LiveData 观察，用于展示规则/应用更新弹窗 */
+    private fun setupUpdateListeners() {
+        vm.appUpdateModel.observe(this) { model ->
+            if (model == null) return@observe
+            vm.consumeAppUpdate()
+            BaseSheetDialog.create<UpdateDialog>(this)
+                .setUpdateModel(model)
+                .setRuleTitle(getString(R.string.app))
+                .setOnClickUpdate {
+                    CustomTabsHelper.launchUrl(AppUpdateHelper.buildApkUrl(model.version).toUri())
+                }
+                .show()
+        }
+
+        vm.ruleUpdateModel.observe(this) { model ->
+            if (model == null) return@observe
+            vm.consumeRuleUpdate()
+            BaseSheetDialog.create<UpdateDialog>(this)
+                .setUpdateModel(model)
+                .setRuleTitle(getString(R.string.rule))
+                .setOnClickUpdate {
+                    lifecycleScope.launch {
+                        RuleUpdateHelper.updateRule(this@HomeActivity, model)
+                        vm.refreshStatus(this@HomeActivity)
+                    }
+                }
+                .show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        setupUpdateListeners()
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment?
             ?: throw IllegalStateException("NavHostFragment not found")
@@ -97,16 +112,12 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        prefSyncThrottle()
-        updateCheckThrottle()
+        vm.startSyncUpdateTask()
     }
 
     override fun onStop() {
         super.onStop()
-        // 使用全局协程作用域执行备份，避免阻塞UI线程
-        App.launch {
-            BackupManager.autoBackup()
-        }
+        vm.startAutoBackup()
     }
 
     override fun onDestroy() {
