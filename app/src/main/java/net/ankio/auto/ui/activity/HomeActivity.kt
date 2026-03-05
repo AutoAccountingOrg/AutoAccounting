@@ -23,11 +23,10 @@ import androidx.navigation.ui.setupWithNavController
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.backup.BackupManager
 import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.ui.utils.AppUpdateHelper
-import net.ankio.auto.ui.utils.RuleUpdateHelper
+import net.ankio.auto.update.AppUpdateHelper
+import net.ankio.auto.update.RuleUpdateHelper
 import net.ankio.auto.ui.utils.slideDown
 import net.ankio.auto.ui.utils.slideUp
 import net.ankio.auto.utils.PrefManager

@@ -15,15 +15,11 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleService
 import net.ankio.auto.databinding.DialogUpdateBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.utils.UpdateModel
+import net.ankio.auto.update.UpdateModel
 import rikka.html.text.toHtml
 
 /**

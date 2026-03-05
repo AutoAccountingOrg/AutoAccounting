@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 ankio(ankio@ankio.net)
+ * Copyright (C) 2026 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,10 +13,9 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.update
 
 import com.google.gson.JsonObject
-import net.ankio.auto.storage.Logger
 
 object VersionUtils {
     const val CHANNEL_CANARY = "Canary"
@@ -55,21 +54,9 @@ object VersionUtils {
         return false  // 版本完全相同
     }
 
-    /**
-     * 检查两个版本号哪个大（保持向后兼容）
-     * @deprecated 使用 isCloudVersionNewer 替代，命名更清晰
-     */
-    @Deprecated(
-        "Use isCloudVersionNewer instead",
-        ReplaceWith("isCloudVersionNewer(localVersion, cloudVersion)")
-    )
-    fun checkVersionLarge(localVersion: String, cloudVersion: String): Boolean {
-        return isCloudVersionNewer(localVersion, cloudVersion)
-    }
 
     fun fromJSON(jsonObject: JsonObject?): UpdateModel? {
         if (jsonObject == null) return null
-        Logger.i("尝试解析的json数据：$jsonObject")
         return UpdateModel(
             jsonObject.get("log").asString,
             jsonObject.get("date").asString,
@@ -77,5 +64,3 @@ object VersionUtils {
         )
     }
 }
-
-data class UpdateModel(val log: String, val date: String, val version: String)

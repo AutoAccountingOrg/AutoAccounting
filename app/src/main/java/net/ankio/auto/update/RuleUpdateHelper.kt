@@ -1,4 +1,19 @@
-package net.ankio.auto.ui.utils
+/*
+ * Copyright (C) 2026 ankio(ankio@ankio.net)
+ * Licensed under the Apache License, Version 3.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-3.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package net.ankio.auto.update
 
 import android.content.Context
 import com.google.gson.Gson
@@ -15,15 +30,16 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ZipUtils
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CoroutineUtils.launchOnMain
 import net.ankio.auto.utils.CoroutineUtils.withMain
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.UpdateModel
-import net.ankio.auto.utils.VersionUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.db.model.RuleModel
+import java.io.File
 
 /**
  * 规则更新工具类：负责检查并执行规则更新。
@@ -138,7 +154,7 @@ object RuleUpdateHelper {
 
     /** 从 dist 目录写入规则到数据库 */
     private suspend fun updateRulesFromDist(
-        distDir: java.io.File,
+        distDir: File,
         loading: LoadingUtils?,
         context: Context
     ) {
@@ -192,7 +208,7 @@ object RuleUpdateHelper {
 
     /** 从 dist 目录同步分类映射 */
     private suspend fun updateCategoriesFromDist(
-        distDir: java.io.File,
+        distDir: File,
         loading: LoadingUtils?,
         context: Context
     ) {

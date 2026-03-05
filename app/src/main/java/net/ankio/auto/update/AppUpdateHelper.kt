@@ -1,4 +1,19 @@
-package net.ankio.auto.ui.utils
+/*
+ * Copyright (C) 2026 ankio(ankio@ankio.net)
+ * Licensed under the Apache License, Version 3.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-3.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package net.ankio.auto.update
 
 import android.content.Context
 import androidx.core.net.toUri
@@ -8,11 +23,11 @@ import net.ankio.auto.http.license.AppAPI
 import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CoroutineUtils.withIO
 import net.ankio.auto.utils.CoroutineUtils.withMain
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.VersionUtils
 
 /**
  * 应用更新工具类：负责检查并展示应用升级信息。

@@ -25,8 +25,8 @@ import net.ankio.auto.service.CoreService
 import net.ankio.auto.service.OcrService
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.theme.DynamicColors
-import net.ankio.auto.ui.utils.AppUpdateHelper
-import net.ankio.auto.ui.utils.RuleUpdateHelper
+import net.ankio.auto.update.AppUpdateHelper
+import net.ankio.auto.update.RuleUpdateHelper
 import net.ankio.auto.ui.utils.toDrawable
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
