@@ -159,8 +159,11 @@ class SelectToSpeakService : AccessibilityService() {
     }
 
     /**
-     * 收集页面视图结构指纹：取前 2 层类名骨架。
+     * 收集页面视图结构指纹：类名 + id + name 骨架。
      * 不含文本，不受数据变化影响；同一页面布局始终产生近似结果。
+     * - class: 节点类名（短名）
+     * - id: viewIdResourceName 最后一段（如 btn_submit）
+     * - name: contentDescription 归一化后（数字替换为 #，截断 30 字符）
      */
     fun collectStructureFingerprint(): String {
         val root = rootInActiveWindow
@@ -175,21 +178,21 @@ class SelectToSpeakService : AccessibilityService() {
 
 
     /**
-     * 打印Tree的层次结构
+     * 打印 Tree 层次结构（含 class、id、name），用于调试
      *
      * @param root view
-     * @param deep 层级  用于缩进的
+     * @param deep 层级，用于缩进
      */
     private fun getViewTreeStr(root: AccessibilityNodeInfo?, deep: Int): String {
         val builder = StringBuilder()
         if (root != null) {
-            builder.append(getSpace(deep)).append("<").append(root.className)
-            builder.append(">\n")
+            val tag = buildNodeDescriptor(root)
+            builder.append(getSpace(deep)).append("<").append(tag).append(">\n")
             val childCount = root.childCount
             for (i in 0..<childCount) {
                 builder.append(getViewTreeStr(root.getChild(i), deep + 1))
             }
-            builder.append(getSpace(deep)).append("</").append(root.className).append(">\n")
+            builder.append(getSpace(deep)).append("</").append(tag).append(">\n")
         }
         return builder.toString()
     }
@@ -202,21 +205,46 @@ class SelectToSpeakService : AccessibilityService() {
         return s.toString()
     }
 
-    /** 递归构建类名骨架，每层最多取前 10 个子节点 */
+    /**
+     * 递归构建结构骨架：class + id + name，每层最多取前 10 个子节点。
+     * 格式：cls / cls#id / cls@name / cls#id@name
+     */
     private fun buildStructureSkeleton(
         node: AccessibilityNodeInfo,
         depth: Int,
         maxDepth: Int
     ): String {
         if (depth > maxDepth) return ""
-        val cls = node.className?.toString()?.substringAfterLast('.') ?: "?"
+        val descriptor = buildNodeDescriptor(node)
         val childCount = minOf(node.childCount, 10)
         val children = (0 until childCount).mapNotNull { i ->
             node.getChild(i)?.let { child ->
                 buildStructureSkeleton(child, depth + 1, maxDepth).also { child.recycle() }
             }
         }.filter { it.isNotEmpty() }
-        return if (children.isEmpty()) cls else "$cls[${children.joinToString(",")}]"
+        return if (children.isEmpty()) descriptor else "$descriptor[${children.joinToString(",")}]"
+    }
+
+    /**
+     * 构建单节点描述符：class + id(viewIdResourceName) + name(contentDescription)
+     * - id: 取 viewIdResourceName 最后一段，如 "com.xx:id/btn_ok" -> "btn_ok"
+     * - name: contentDescription 归一化（数字->#，空白归一，截断 30 字符）
+     */
+    private fun buildNodeDescriptor(node: AccessibilityNodeInfo): String {
+        val cls = node.className?.toString()?.substringAfterLast('.') ?: "?"
+        val id =
+            node.viewIdResourceName?.toString()?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
+        val name = node.contentDescription?.toString()
+            ?.replace(Regex("\\d+(\\.\\d+)?"), "#")
+            ?.replace(Regex("\\s+"), " ")
+            ?.trim()
+            ?.take(30)
+            ?.takeIf { it.isNotBlank() }
+        return buildString {
+            append(cls)
+            id?.let { append("#$it") }
+            name?.let { append("@$it") }
+        }
     }
 
     /**
