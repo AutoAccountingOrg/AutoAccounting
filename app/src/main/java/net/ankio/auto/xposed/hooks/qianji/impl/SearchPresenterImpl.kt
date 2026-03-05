@@ -181,11 +181,6 @@ object SearchPresenterImpl : HookerClazz() {
         val bills = convert2Bill(bxList, Setting.HASH_BILL)
         val sync = Gson().toJson(bills)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingAPI.get(Setting.HASH_BILL, "")
-        if (server == md5) {
-            XposedLogger.d(" skip sync, MD5 matched")
-            return@withContext
-        }
         XposedLogger.d(" sync bills, count=${bills.size}")
         BookBillAPI.put(bills, md5, Setting.HASH_BILL)
         withContext(Dispatchers.Main) {

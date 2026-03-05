@@ -136,11 +136,6 @@ object BookManagerImpl : HookerClazz() {
             // 幂等：内容哈希一致且非调试模式则跳过同步
             val sync = Gson().toJson(bookList)
             val md5 = MD5HashTable.md5(sync)
-            val server = SettingAPI.get(Setting.HASH_BOOK, "")
-            if (server == md5) {
-                XposedLogger.i(" skip sync, MD5 matched")
-                return@withContext bookList
-            }
             XposedLogger.i(" sync books, count=${bookList.size}")
             BookNameAPI.put(bookList, md5)
             withContext(Dispatchers.Main) {

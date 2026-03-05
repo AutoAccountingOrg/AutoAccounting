@@ -94,11 +94,6 @@ object CateInitPresenterImpl : HookerClazz() {
         }
         val sync = Gson().toJson(arrayList)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingAPI.get(Setting.HASH_CATEGORY, "")
-        if (server == md5) {
-            XposedLogger.i(" skip sync, MD5 matched")
-            return@withContext
-        }
         XposedLogger.d(" sync categories, count=${arrayList.size}")
         CategoryAPI.put(arrayList, md5)
         withContext(Dispatchers.Main) {

@@ -157,10 +157,9 @@ class AssetPreviewPresenterImpl private constructor() {
         }
         val sync = Gson().toJson(assets)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingAPI.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
-        if (server == md5 || assets.isEmpty()) { //资产为空也不同步
-            XposedLogger.i(" skip sync, MD5 matched")
+        if (assets.isEmpty()) { //资产为空也不同步
+            XposedLogger.i(" skip sync, assets is empty")
             return@withContext
         }
         XposedLogger.i(" sync assets, count=${assets.size}")

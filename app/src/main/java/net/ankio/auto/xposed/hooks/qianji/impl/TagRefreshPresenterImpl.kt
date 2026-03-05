@@ -285,11 +285,6 @@ object TagRefreshPresenterImpl : HookerClazz() {
         // 幂等：内容哈希一致则跳过同步
         val sync = Gson().toJson(tagModels)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingAPI.get(Setting.HASH_TAG, "")
-        if (server == md5) {
-            XposedLogger.i("skip sync, MD5 matched")
-            return@withContext
-        }
         // 同步时携带 md5 供服务端写入设置项
         TagAPI.batchInsert(tagModels, md5)
         withContext(Dispatchers.Main) {
