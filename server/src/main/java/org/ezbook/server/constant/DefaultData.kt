@@ -35,7 +35,7 @@ object DefaultData {
     val LANDSCAPE_DND: Boolean = true                                // 横屏勿扰模式默认开启
 
     // -------- 账单识别 --------
-    val AUTO_GROUP = false                                          // 自动去重默认关闭
+    val AUTO_GROUP = true                                          // 自动去重
     val AUTO_GROUP_TIME_THRESHOLD = 180                             // 自动去重时间阈值（秒），默认180秒
     val AUTO_TRANSFER_RECOGNITION = false                           // 自动识别转账账单默认关闭
     val AUTO_TRANSFER_TIME_THRESHOLD = 120                          // 转账账单合并时间阈值（秒），默认120秒
@@ -85,7 +85,7 @@ object DefaultData {
     val OCR_FLIP_TRIGGER: Boolean = true                            // 翻转手机触发默认开启
     val OCR_ACCESSIBILITY_AUTO_TRIGGER: Boolean = true               // 无障碍模式下页面切换自动触发默认开启
     val OCR_SHOW_ANIMATION: Boolean = true                          // OCR识别时显示动画默认开启
-    val OCR_ACCESSIBILITY_KEEP_ALIVE: Boolean = true             // 常驻后台识别默认开启
+    val OCR_ACCESSIBILITY_KEEP_ALIVE: Boolean = false             // 常驻后台识别默认开启
 
     // -------- 弹窗风格 --------
     val USE_ROUND_STYLE = true                                      // 圆角风格默认开启
