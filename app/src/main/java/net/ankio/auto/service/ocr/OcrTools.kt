@@ -76,12 +76,6 @@ object OcrTools {
 
     fun hasPermission() = SystemUtils.isAccessibilityServiceEnabled(SERVICE_CLASS)
 
-    /** 请求无障碍权限（可从非协程调用，内部启动协程） */
-    fun reqAccessibility() {
-        App.launchIO {
-            requestPermission()
-        }
-    }
 
     /** 尝试开启无障碍：有 Root 用 Root，没 Root 弹设置 */
     suspend fun requestPermission(): Boolean {

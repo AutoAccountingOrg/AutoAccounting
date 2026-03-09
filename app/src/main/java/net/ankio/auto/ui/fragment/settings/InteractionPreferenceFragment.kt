@@ -74,12 +74,6 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
             }
         }
 
-        // OCR 无障碍权限：点击请求/跳转
-        findPreference<Preference>("ocrAccessibility")?.setOnPreferenceClickListener {
-            OcrTools.reqAccessibility()
-            true
-        }
-
         // OCR 翻转触发开关变化时重启服务，使配置即时生效
         findPreference<MaterialSwitchPreference>("ocrFlipTrigger")?.apply {
             setOnPreferenceChangeListener { _, newValue ->
