@@ -192,7 +192,6 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 "ocrAccessibilityAutoTrigger" -> PrefManager.ocrAccessibilityAutoTrigger
                 "ocrShowAnimation" -> PrefManager.ocrShowAnimation
                 "ocrAccessibilityKeepAlive" -> PrefManager.ocrAccessibilityKeepAlive
-                "ocrAccessibilityKeepAlive" -> PrefManager.ocrAccessibilityKeepAlive
                 // 弹窗风格
                 "roundStyle" -> PrefManager.uiRoundStyle
                 "isExpenseRed" -> PrefManager.isExpenseRed
