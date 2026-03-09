@@ -115,7 +115,9 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         },
                         onClick = {
                             lifecycleScope.launch {
-                                OcrTools.requestPermission()
+                                if (OcrTools.requestPermission()) {
+                                    refreshCardStates()
+                                }
                             }
                         },
                         isRequired = false
@@ -210,10 +212,15 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
 
     override fun onResume() {
         super.onResume()
-        // 构建权限卡片，确保 perms 已初始化，避免按钮点击过早导致崩溃
         setupCardsDynamic()
-        // 权限检查可能阻塞（Shell 的 root/shizuku 探测会 spawn 进程或 IPC），放到 IO 协程执行，
-        // 避免在主线程阻塞导致从模式页切换过来时卡顿
+        refreshCardStates()
+    }
+
+    /**
+     * 刷新所有权限卡片的状态图标
+     * 权限检查可能阻塞（Shell 探测等），放到 IO 协程执行
+     */
+    private fun refreshCardStates() {
         viewLifecycleOwner.lifecycleScope.launch {
             val results = withContext(Dispatchers.IO) {
                 perms.map { it.checkGranted() to it.isRequired }
