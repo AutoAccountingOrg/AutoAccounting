@@ -28,7 +28,6 @@ import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.http.api.SettingAPI
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.service.ocr.OcrTools
 import net.ankio.auto.xposed.XposedModule
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -305,10 +304,11 @@ object PrefManager {
         set(value) = putBoolean(Setting.SHOW_DUPLICATED_POPUP, value)
 
     // -------- OCR识别 --------
-    /** OCR授权方式 - root / shizuku / accessibility */
+    /** OCR 授权方式（已废弃，始终为无障碍） */
+    @Deprecated("OCR 仅支持无障碍，此字段保留兼容")
     var ocrAuthMode: String
-        get() = getString(Setting.OCR_AUTH_MODE, OcrTools.getDefault())
-        set(value) = putString(Setting.OCR_AUTH_MODE, value)
+        get() = "accessibility"
+        set(_) { /* 不再支持切换 */ }
 
     /** 是否启用翻转手机触发当前页面识别（非Xposed模式） */
     var ocrFlipTrigger: Boolean
@@ -327,6 +327,14 @@ object PrefManager {
     var ocrShowAnimation: Boolean
         get() = getBoolean(Setting.OCR_SHOW_ANIMATION, DefaultData.OCR_SHOW_ANIMATION)
         set(value) = putBoolean(Setting.OCR_SHOW_ANIMATION, value)
+
+    /** 常驻后台识别：开启时无障碍持续运行；关闭时 OCR 结束后自动停止无障碍 */
+    var ocrAccessibilityKeepAlive: Boolean
+        get() = getBoolean(
+            Setting.OCR_ACCESSIBILITY_KEEP_ALIVE,
+            DefaultData.OCR_ACCESSIBILITY_KEEP_ALIVE
+        )
+        set(value) = putBoolean(Setting.OCR_ACCESSIBILITY_KEEP_ALIVE, value)
 
     // -------- 弹窗风格 --------
     /** 圆角风格开关 - 是否使用圆角 UI 设计 */

@@ -27,7 +27,6 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.xposed.XposedModule
-import net.ankio.shell.Shell
 import net.ankio.auto.service.OverlayService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -102,46 +101,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                 )
             )
 
-            // OCR识别（权限）：3种卡片，按模式只显示对应的一种
-            // OCR 权限（可选）：用户可跳过，后续在设置中配置
-            if (WorkMode.isXposed()) {
-                // Xposed 模式：Root 卡片
-                add(
-                    PermItem(
-                        iconRes = R.drawable.icon_proactive,
-                        titleRes = R.string.perm_ocr_perm_root,
-                        descRes = R.string.ocr_auth_root_description,
-                        checkGranted = {
-                            try {
-                                Shell(ctx.packageName).use { it.rootPermission() }
-                            } catch (_: Throwable) {
-                                false
-                            }
-                        },
-                        onClick = { OcrTools.reqRoot() },
-                        isRequired = false
-                    )
-                )
-            } else if (WorkMode.isLSPatch()) {
-                // LSPatch 模式：Shizuku 卡片
-                add(
-                    PermItem(
-                        iconRes = R.drawable.icon_proactive,
-                        titleRes = R.string.perm_ocr_perm_shizuku,
-                        descRes = R.string.ocr_auth_shizuku_description,
-                        checkGranted = {
-                            try {
-                                Shell(ctx.packageName).use { it.shizukuPermission() }
-                            } catch (_: Throwable) {
-                                false
-                            }
-                        },
-                        onClick = { OcrTools.reqShizuku() },
-                        isRequired = false
-                    )
-                )
-            } else {
-                // OCR 模式：无障碍卡片
+            // OCR 权限（可选）：仅 OCR 模式需要无障碍
+            if (WorkMode.isOcr()) {
                 add(
                     PermItem(
                         iconRes = R.drawable.icon_proactive,
@@ -152,7 +113,11 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                                 SelectToSpeakService::class.java
                             )
                         },
-                        onClick = { OcrTools.reqAccessibility() },
+                        onClick = {
+                            lifecycleScope.launch {
+                                OcrTools.requestPermission()
+                            }
+                        },
                         isRequired = false
                     )
                 )

@@ -74,14 +74,10 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
             }
         }
 
-        // OCR 授权方式选择 - 变化时检查权限，无权限则提示并跳转
-        findPreference<rikka.preference.SimpleMenuPreference>("ocrAuthMode")?.apply {
-            updateOcrAuthModeSummary(this)
-            setOnPreferenceChangeListener { _, newValue ->
-                val mode = newValue as? String ?: return@setOnPreferenceChangeListener true
-                handleOcrAuthModeChange(mode, this)
-                true
-            }
+        // OCR 无障碍权限：点击请求/跳转
+        findPreference<Preference>("ocrAccessibility")?.setOnPreferenceClickListener {
+            OcrTools.reqAccessibility()
+            true
         }
 
         // OCR 翻转触发开关变化时重启服务，使配置即时生效
@@ -113,11 +109,6 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
         }
         findPreference<rikka.preference.SimpleMenuPreference>("toastPosition")?.let {
             updateToastPositionSummary(it)
-        }
-
-        // 更新OCR授权方式摘要
-        findPreference<rikka.preference.SimpleMenuPreference>("ocrAuthMode")?.let {
-            updateOcrAuthModeSummary(it)
         }
 
         if (!WorkMode.isOcr()) {
@@ -193,45 +184,6 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
     }
 
     /**
-     * 处理 OCR 授权方式切换
-     * 检查目标模式的权限，无权限则提示并跳转对应设置页面。
-     */
-    private fun handleOcrAuthModeChange(
-        mode: String,
-        preference: rikka.preference.SimpleMenuPreference
-    ) {
-        when (mode) {
-            "root" -> OcrTools.reqRoot()
-            "shizuku" -> OcrTools.reqShizuku()
-            "accessibility" -> OcrTools.reqAccessibility()
-        }
-        // 无论权限状态，都保存用户选择
-        PrefManager.ocrAuthMode = mode
-        updateOcrAuthModeSummary(preference, mode)
-        if (WorkMode.isOcr()) {
-            CoreService.restart(requireActivity())
-        }
-    }
-
-    /**
-     * 更新OCR授权方式设置的摘要
-     * @param preference 偏好设置项
-     * @param mode 授权方式值，如果为null则从PrefManager读取
-     */
-    private fun updateOcrAuthModeSummary(
-        preference: rikka.preference.SimpleMenuPreference,
-        mode: String? = null
-    ) {
-        val currentMode = mode ?: PrefManager.ocrAuthMode
-        preference.summary = when (currentMode) {
-            "root" -> getString(R.string.ocr_auth_root)
-            "shizuku" -> getString(R.string.ocr_auth_shizuku)
-            "accessibility" -> getString(R.string.ocr_auth_accessibility)
-            else -> getString(R.string.ocr_auth_root)
-        }
-    }
-
-    /**
      * 交互设置数据存储类
      */
     class InteractionDataStore : PreferenceDataStore() {
@@ -245,6 +197,8 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 "ocrFlipTrigger" -> PrefManager.ocrFlipTrigger
                 "ocrAccessibilityAutoTrigger" -> PrefManager.ocrAccessibilityAutoTrigger
                 "ocrShowAnimation" -> PrefManager.ocrShowAnimation
+                "ocrAccessibilityKeepAlive" -> PrefManager.ocrAccessibilityKeepAlive
+                "ocrAccessibilityKeepAlive" -> PrefManager.ocrAccessibilityKeepAlive
                 // 弹窗风格
                 "roundStyle" -> PrefManager.uiRoundStyle
                 "isExpenseRed" -> PrefManager.isExpenseRed
@@ -267,6 +221,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
                 "ocrFlipTrigger" -> PrefManager.ocrFlipTrigger = value
                 "ocrAccessibilityAutoTrigger" -> PrefManager.ocrAccessibilityAutoTrigger = value
                 "ocrShowAnimation" -> PrefManager.ocrShowAnimation = value
+                "ocrAccessibilityKeepAlive" -> PrefManager.ocrAccessibilityKeepAlive = value
                 // 弹窗风格
                 "roundStyle" -> PrefManager.uiRoundStyle = value
                 "isExpenseRed" -> PrefManager.isExpenseRed = value
@@ -280,7 +235,6 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
 
         override fun getString(key: String?, defValue: String?): String? {
             return when (key) {
-                "ocrAuthMode" -> PrefManager.ocrAuthMode
                 "floatTimeoutAction" -> PrefManager.floatTimeoutAction
                 "floatClick" -> PrefManager.floatClick
                 "floatLongClick" -> PrefManager.floatLongClick
@@ -292,7 +246,6 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
 
         override fun putString(key: String?, value: String?) {
             when (key) {
-                "ocrAuthMode" -> PrefManager.ocrAuthMode = value ?: "root"
                 "floatTimeoutAction" -> PrefManager.floatTimeoutAction = value ?: "dismiss"
                 "floatClick" -> PrefManager.floatClick = value ?: "edit"
                 "floatLongClick" -> PrefManager.floatLongClick = value ?: "dismiss"

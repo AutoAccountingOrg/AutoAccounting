@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2025 ankio(ankio@ankio.net)
- * Licensed under the Apache License, Version 3.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-3.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *   limitations under the License.
- */
-
 package net.ankio.auto.service.ocr
 
 import android.accessibilityservice.AccessibilityService
@@ -20,282 +5,125 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.provider.Settings
+import android.view.Display
 import com.google.android.accessibility.selecttospeak.SelectToSpeakService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
-import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.SystemUtils.isAccessibilityServiceEnabled
-import net.ankio.auto.utils.SystemUtils.startActivity
+import net.ankio.auto.utils.SystemUtils
 import net.ankio.shell.Shell
-import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.coroutines.resume
 
 /**
- * OCR 工具类：封装获取前台应用和截图能力。
- *
- * 根据用户选择的授权方式，**分别**调用对应的底层实现：
- * - root：强制通过 [Shell.execAsRoot] 执行
- * - shizuku：强制通过 [Shell.execAsShizuku] 执行
- * - accessibility：通过 [SelectToSpeakService] 的 Android API
- *
- * 每种模式独立检查权限，不足时抛出 [PermissionException] 以便上层给出精准提示。
- *
- * @param shell Shell 实例，Root/Shizuku 模式下使用
+ * OCR 助手：负责截图与前台应用检测
  */
-class OcrTools(private val shell: Shell) {
+object OcrTools {
 
-    /**
-     * 权限不足异常，携带用户可见的错误提示资源 ID
-     * @param errorResId 错误文案资源 ID（如 R.string.ocr_error_accessibility_not_ready）
-     */
-    class PermissionException(val errorResId: Int) :
-        RuntimeException("OCR permission error: $errorResId")
+    private val SERVICE_CLASS = SelectToSpeakService::class.java
+    private val COMPONENT_NAME = "${BuildConfig.APPLICATION_ID}/${SERVICE_CLASS.name}"
 
-    // ======================== 公开接口 ========================
+    // ======================== 核心功能 ========================
 
-    /**
-     * 检查当前授权模式下的权限是否可用
-     * @return true 权限可用
-     */
-    fun hasPermission(): Boolean = when (PrefManager.ocrAuthMode) {
-        "root" -> shell.rootPermission()
-        "shizuku" -> shell.shizukuPermission()
-        "accessibility" -> SelectToSpeakService.instance != null
-        else -> false
-    }
+    /** 获取当前前台包名 */
+    fun getTopApp(): String? = SelectToSpeakService.topPackage
 
-    /**
-     * 获取当前前台应用包名
-     * @return 包名，失败返回 null
-     * @throws PermissionException 权限不足时抛出
-     */
-    suspend fun getTopApp(): String? = when (PrefManager.ocrAuthMode) {
-        "root" -> getTopAppByShell { shell.runAsRoot(it) }
-        "shizuku" -> getTopAppByShell { shell.runAsShizuku(it) }
-        "accessibility" -> getTopAppByAccessibility()
-        else -> throw PermissionException(R.string.ocr_error_no_foreground_app)
-    }
+    /** 截取当前屏幕 */
+    suspend fun takeScreenshot(outFile: File): Boolean = withContext(Dispatchers.IO) {
+        val service = SelectToSpeakService.instance ?: return@withContext false
 
-    /**
-     * 截取当前屏幕到文件
-     * @param outFile 截图输出路径
-     * @return 截图是否成功
-     * @throws PermissionException 权限不足时抛出
-     */
-    suspend fun takeScreenshot(outFile: File): Boolean = when (PrefManager.ocrAuthMode) {
-        "root" -> takeScreenshotByShell(outFile) { shell.runAsRoot(it) }
-        "shizuku" -> takeScreenshotByShell(outFile) { shell.runAsShizuku(it) }
-        "accessibility" -> takeScreenshotByAccessibility(outFile)
-        else -> throw PermissionException(R.string.ocr_error_no_foreground_app)
-    }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return@withContext false
 
-    /**
-     * 收起状态栏/通知栏
-     * 截图前调用，避免通知栏遮挡内容。
-     */
-    suspend fun collapseStatusBar() {
-        when (PrefManager.ocrAuthMode) {
-            "root" -> runCatchingExceptCancel { shell.runAsRoot("service call statusbar 2") }.onFailure {
-                Logger.e("Status bar collapse failed (root)", it)
-            }
-
-            "shizuku" -> runCatchingExceptCancel { shell.runAsShizuku("service call statusbar 2") }.onFailure {
-                Logger.e("Status bar collapse failed (shizuku)", it)
-            }
-
-            "accessibility" -> SelectToSpeakService.instance?.performGlobalAction(
-                AccessibilityService.GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE
-            )
-        }
-        delay(500)
-    }
-    // ======================== Shell 实现 ========================
-
-    /**
-     * Shell 方式获取前台应用包名
-     * 通过传入的 [exec] 函数决定使用 Root 还是 Shizuku。
-     * 依次尝试 topResumedActivity → ResumedActivity → mCurrentFocus，重试3次。
-     */
-    private suspend fun getTopAppByShell(exec: suspend (String) -> String): String? {
-        val commands = listOf(
-            "dumpsys activity activities | grep topResumedActivity",
-            "dumpsys activity activities | grep ResumedActivity",
-            "dumpsys window | grep mCurrentFocus"
-        )
-
-        repeat(3) { attempt ->
-            for (cmd in commands) {
-                val output = runCatchingExceptCancel { exec(cmd) }.getOrElse {
-                    Logger.w("Shell exec failed [$cmd]: ${it.message}")
-                    null
-                }
-                if (output == null) {
-                    Logger.w("Shell exec failed [$cmd]")
-                    continue
-                }
-                Logger.d("Shell output [$cmd]: $output")
-                val pkg = extractPackageFromDumpsys(output)
-                if (!pkg.isNullOrBlank()) {
-                    Logger.d("Got top app: $pkg (attempt ${attempt + 1})")
-                    return pkg
-                }
-            }
-            if (attempt < 2) delay(100)
-        }
-
-        Logger.e("All attempts failed, cannot get foreground app")
-        return null
-    }
-
-    /**
-     * Shell 方式截图
-     * 通过传入的 [exec] 函数决定使用 Root 还是 Shizuku。
-     * @return 截图文件是否生成成功
-     */
-    private suspend fun takeScreenshotByShell(
-        outFile: File,
-        exec: suspend (String) -> String
-    ): Boolean {
-        return runCatchingExceptCancel {
-            exec("screencap -p ${outFile.absolutePath}")
-            outFile.exists() && outFile.length() > 0
-        }.getOrElse {
-            Logger.e("Shell screenshot failed: ${it.message}")
-            false
-        }
-    }
-
-    // ======================== 无障碍实现 ========================
-
-    /**
-     * 无障碍方式获取前台应用包名
-     * 通过 [SelectToSpeakService] 跟踪的窗口变化事件获取。
-     */
-    private fun getTopAppByAccessibility(): String? {
-        val service = SelectToSpeakService.instance
-        if (service == null) {
-            Logger.w("Accessibility service not running")
-            throw PermissionException(R.string.ocr_error_accessibility_not_ready)
-        }
-        val pkg = SelectToSpeakService.topPackage
-        if (pkg.isNullOrBlank()) {
-            Logger.w("Accessibility service: no foreground app detected")
-        }
-        return pkg
-    }
-
-    /**
-     * 无障碍方式截图（Android 11+ API）
-     * @return 截图文件是否生成成功
-     */
-    private suspend fun takeScreenshotByAccessibility(outFile: File): Boolean {
-        // takeScreenshot API 需要 Android 11 (API 30)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            Logger.e("Accessibility screenshot requires Android 11+")
-            return false
-        }
-
-        val service = SelectToSpeakService.instance
-            ?: throw PermissionException(R.string.ocr_error_accessibility_not_ready)
-
-        SelectToSpeakService.structFp = service.collectStructureFingerprint()
-
-        return suspendCancellableCoroutine { cont ->
+        suspendCancellableCoroutine { cont ->
             service.takeScreenshot(
-                android.view.Display.DEFAULT_DISPLAY,
+                Display.DEFAULT_DISPLAY,
                 service.mainExecutor,
                 object : AccessibilityService.TakeScreenshotCallback {
                     override fun onSuccess(result: AccessibilityService.ScreenshotResult) {
-                        val bitmap = Bitmap.wrapHardwareBuffer(
-                            result.hardwareBuffer, result.colorSpace
-                        )
-                        val success = if (bitmap != null) {
-                            FileOutputStream(outFile).use { fos ->
-                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                            }
-                            bitmap.recycle()
-                            true
-                        } else {
-                            false
-                        }
+                        val bitmap =
+                            Bitmap.wrapHardwareBuffer(result.hardwareBuffer, result.colorSpace)
+                        val success = bitmap?.let {
+                            val saved = saveBitmap(it, outFile)
+                            it.recycle()
+                            saved
+                        } ?: false
                         result.hardwareBuffer.close()
                         cont.resume(success)
                     }
 
                     override fun onFailure(errorCode: Int) {
-                        Logger.e("Accessibility screenshot failed, errorCode: $errorCode")
+                        Logger.e("Screenshot failed: $errorCode")
                         cont.resume(false)
                     }
-                }
-            )
-        }
-    }
-
-    // ======================== 辅助方法 ========================
-
-    /**
-     * 从 dumpsys 输出中提取包名（支持多行输出）
-     * 使用正则匹配 "包名/Activity" 格式
-     */
-    private fun extractPackageFromDumpsys(output: String): String? {
-        val regex = Regex(
-            """([a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+)/""",
-            RegexOption.IGNORE_CASE
-        )
-        return output.lineSequence()
-            .mapNotNull { line -> regex.find(line)?.groupValues?.get(1) }
-            .firstOrNull { pkg -> pkg.contains('.') && pkg.length > 3 && !pkg.startsWith(".") }
-    }
-
-    companion object {
-        /** 用于权限检查的 Shell 实例（懒加载，避免无用开销） */
-        private val shell by lazy { Shell(BuildConfig.APPLICATION_ID) }
-
-        fun reqShizuku() {
-            if (!shell.shizukuPermission()) {
-                // 请求 Shizuku 授权
-                shell.requestShizukuPermission()
-                ToastUtils.warn(R.string.ocr_error_shizuku_not_available)
-            }
-        }
-
-        fun reqRoot() {
-            if (!shell.rootPermission()) {
-                ToastUtils.error(R.string.ocr_error_root_not_available)
-            }
-        }
-
-        fun reqAccessibility() {
-            if (!isAccessibilityServiceEnabled(SelectToSpeakService::class.java)) {
-                ToastUtils.warn(R.string.ocr_error_accessibility_not_ready)
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 })
-            }
+        }
+    }
+
+    private fun saveBitmap(bitmap: Bitmap, file: File): Boolean = try {
+        FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        true
+    } catch (e: Exception) {
+        false
+    }
+
+    // ======================== 权限管理 ========================
+
+    fun hasPermission() = SystemUtils.isAccessibilityServiceEnabled(SERVICE_CLASS)
+
+    /** 请求无障碍权限（可从非协程调用，内部启动协程） */
+    fun reqAccessibility() {
+        App.launchIO {
+            requestPermission()
+        }
+    }
+
+    /** 尝试开启无障碍：有 Root 用 Root，没 Root 弹设置 */
+    suspend fun requestPermission(): Boolean {
+        if (hasPermission()) return true
+
+        val shell = Shell(BuildConfig.APPLICATION_ID)
+        val hasShell = shell.rootPermission() || shell.shizukuPermission()
+
+        if (hasShell) {
+            tryEnableViaShell(shell)
+            delay(800) // 等待服务启动
         }
 
-        fun getDefault(): String {
-            return when (PrefManager.workMode) {
-                WorkMode.Ocr -> "accessibility"
-                WorkMode.LSPatch -> "shizuku"
-                WorkMode.Xposed -> "root"
-            }
-        }
+        if (!hasPermission()) {
+            withContext(Dispatchers.Main) { openSettings() }
+            return false
 
-        fun checkPermission() {
-            when (PrefManager.ocrAuthMode) {
-                "root" -> reqRoot()
-                "shizuku" -> reqShizuku()
-                "accessibility" -> reqAccessibility()
-            }
         }
+        return true
+    }
 
+    private suspend fun tryEnableViaShell(shell: Shell) {
+        val cmdGet = "settings get secure enabled_accessibility_services"
+        val current = shell.exec(cmdGet).trim().let { if (it == "null") "" else it }
+
+        if (current.contains(COMPONENT_NAME)) return
+
+        val newList = if (current.isEmpty()) COMPONENT_NAME else "$current:$COMPONENT_NAME"
+        shell.exec("settings put secure enabled_accessibility_services $newList")
+        shell.exec("settings put secure accessibility_enabled 1")
+    }
+
+    private fun openSettings() {
+        SystemUtils.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+
+    suspend fun collapseStatusBar() {
+        SelectToSpeakService.instance?.performGlobalAction(
+            AccessibilityService.GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE
+        )
+        delay(500)
     }
 }

@@ -66,10 +66,6 @@ class OcrService : ICoreService() {
     }
 
 
-    private val shell = Shell(BuildConfig.APPLICATION_ID)
-
-    // OCR 工具类：封装 getTopApp + 截图，根据授权方式自动选择实现
-    private val ocrTools = OcrTools(shell)
 
     private val ocrView = OcrViews()
 
@@ -101,7 +97,7 @@ class OcrService : ICoreService() {
             saveProgressView?.show(this)
         }
 
-        OcrTools.checkPermission()
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
@@ -121,14 +117,13 @@ class OcrService : ICoreService() {
     override fun onDestroy() {
 
         detector.stop()
-
-        shell.close()
         // 释放 OCR 引擎资源，确保跟随服务生命周期关闭。
         ocrProcessor.close()
         // 确保状态横幅被清理
         ocrView.dismiss()
 
         saveProgressView?.destroy()
+
     }
 
     /* -------------------------------- 业务逻辑 ------------------------------- */
@@ -183,30 +178,39 @@ class OcrService : ICoreService() {
             return
         }
 
+        if (PrefManager.landscapeDnd && DisplayUtils.isWindowLandscape(coreService)) {
+            Logger.d("Landscape mode, skipped")
+            return
+        }
+
+        if (!OcrTools.requestPermission()) {
+            if (manual) ocrView.showError(
+                coreService,
+                coreService.getString(R.string.ocr_error_accessibility_not_ready)
+            )
+            ocrDoing = false
+            return
+        }
+
         ocrDoing = true
-        ocrTools.collapseStatusBar()
-        val packageName = try {
-            val pkg = ocrTools.getTopApp() ?: run {
-                if (manual) ocrView.showError(
-                    coreService,
-                    coreService.getString(R.string.ocr_error_no_foreground_app)
-                )
+        OcrTools.collapseStatusBar()
+        val pkg = OcrTools.getTopApp() ?: run {
+            if (manual) ocrView.showError(
+                coreService,
+                coreService.getString(R.string.ocr_error_no_foreground_app)
+            )
+            ocrDoing = false
+            return
+        }
+
+        val packageName = when {
+            manual -> pkg
+            pkg in PrefManager.appWhiteList -> pkg
+            else -> {
+                Logger.d("App $pkg not in whitelist, skipped")
                 ocrDoing = false
                 return
             }
-            when {
-                manual -> pkg
-                pkg in PrefManager.appWhiteList -> pkg
-                else -> {
-                    Logger.d("App $pkg not in whitelist, skipped")
-                    ocrDoing = false
-                    return
-                }
-            }
-        } catch (e: OcrTools.PermissionException) {
-            if (manual) ocrView.showError(coreService, coreService.getString(e.errorResId))
-            ocrDoing = false
-            return
         }
 
         triggerVibration()
@@ -273,6 +277,10 @@ class OcrService : ICoreService() {
                 ocrView.dismiss()
             } finally {
                 ocrDoing = false
+                // 常驻后台关闭时，OCR 结束后停止无障碍服务
+                if (!PrefManager.ocrAccessibilityKeepAlive) {
+                    SelectToSpeakService.instance?.disableSelf()
+                }
             }
         }
 
@@ -316,16 +324,16 @@ class OcrService : ICoreService() {
 
         // 通过 OcrTools 执行截图（根据授权方式分别调用 Root/Shizuku/无障碍）
         runCatchingExceptCancel {
-            val success = ocrTools.takeScreenshot(outFile)
+            val success = OcrTools.takeScreenshot(outFile)
             if (!success) throw IllegalStateException("Screenshot failed")
         }.onFailure {
             Logger.e(it.message ?: "", it)
-            val msgRes = when (it) {
-                is OcrTools.PermissionException -> it.errorResId
-                else -> R.string.ocr_error_capture_failed
-            }
+
             withContext(Dispatchers.Main) {
-                ocrView.showError(coreService, coreService.getString(msgRes))
+                ocrView.showError(
+                    coreService,
+                    coreService.getString(R.string.ocr_error_capture_failed)
+                )
             }
             return null
         }
@@ -484,8 +492,7 @@ class OcrService : ICoreService() {
          * 检查是否有使用情况访问权限
          */
         override fun hasPermission(): Boolean {
-            OcrTools.checkPermission()
-            return true
+            return OcrTools.hasPermission()
         }
 
         /**
@@ -494,11 +501,6 @@ class OcrService : ICoreService() {
         override fun startPermissionActivity(context: Context) {
 
         }
-
-        /**
-         * 无法获取状态栏高度时的默认裁剪高度 (dp)。
-         */
-        private const val DEFAULT_TOP_CROP_DP = 56
 
         /**
          * OCR 识别时图片短边最大值（px）。

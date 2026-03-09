@@ -88,6 +88,8 @@ object Setting {
     const val OCR_ACCESSIBILITY_AUTO_TRIGGER: String =
         "ocr_accessibility_auto_trigger"  // 无障碍模式下页面切换自动触发
     const val OCR_SHOW_ANIMATION: String = "ocr_show_animation"    // OCR识别时显示动画
+    const val OCR_ACCESSIBILITY_KEEP_ALIVE: String =
+        "ocr_accessibility_keep_alive"  // 常驻后台识别，关闭后OCR结束即停止无障碍
 
     // -------- 弹窗风格 --------
     const val USE_ROUND_STYLE = "setting_use_round_style"          // 圆角风格
