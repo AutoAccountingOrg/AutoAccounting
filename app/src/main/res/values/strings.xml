@@ -865,8 +865,6 @@
     <string name="ocr_error_ocr_failed">OCR recognition failed</string>
     <string name="ocr_error_empty_result">No text recognized</string>
     <string name="ocr_error_keyword_filtered">No matching keywords found</string>
-    <string name="setting_ocr_accessibility">Accessibility Service</string>
-    <string name="setting_ocr_accessibility_summary">Required for OCR: get foreground app and take screenshots</string>
     <string name="setting_ocr_accessibility_keep_alive">Keep OCR running in background</string>
     <string name="setting_ocr_accessibility_keep_alive_summary">When off, accessibility service stops after each OCR recognition</string>
     <string name="ocr_auth_root">Root</string>

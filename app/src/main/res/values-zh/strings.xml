@@ -951,8 +951,6 @@
     <string name="ocr_error_ocr_failed">OCR识别失败</string>
     <string name="ocr_error_empty_result">未识别到文字</string>
     <string name="ocr_error_keyword_filtered">未包含识别关键字</string>
-    <string name="setting_ocr_accessibility">无障碍服务</string>
-    <string name="setting_ocr_accessibility_summary">OCR 必需：获取前台应用和截图</string>
     <string name="setting_ocr_accessibility_keep_alive">常驻后台识别</string>
     <string name="setting_ocr_accessibility_keep_alive_summary">关闭后，每次 OCR 识别结束将自动停止无障碍服务</string>
     <string name="ocr_auth_root">Root</string>

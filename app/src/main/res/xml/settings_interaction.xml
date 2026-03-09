@@ -36,11 +36,6 @@
 
     <!-- OCR识别 -->
     <PreferenceCategory android:title="@string/setting_category_ocr">
-        <androidx.preference.Preference
-            android:icon="@drawable/ic_ocr"
-            android:key="ocrAccessibility"
-            android:summary="@string/setting_ocr_accessibility_summary"
-            android:title="@string/setting_ocr_accessibility" />
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
             android:icon="@drawable/ic_ocr"
