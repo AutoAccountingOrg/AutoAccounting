@@ -230,6 +230,7 @@ class OcrService : ICoreService() {
         coreService.lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
             try {
+                val structFp = SelectToSpeakService.structFp ?: ""
                 // 1. 先在IO线程截图（视觉模式返回图片Base64，规则模式返回OCR文本）
                 val useVision = PrefManager.aiVisionRecognition
                 val data = withContext(Dispatchers.IO) { performOcrCapture(useVision) }
@@ -265,7 +266,7 @@ class OcrService : ICoreService() {
                     ocrView.showSuccess(coreService, moneyText) {
                         if (PrefManager.ocrAccessibilityAutoTrigger) {
                             val activityName = SelectToSpeakService.topActivity ?: ""
-                            showRememberPageDialog(packageName, activityName)
+                            showRememberPageDialog(structFp, packageName, activityName)
                         }
                     }
                 } else {
@@ -290,10 +291,10 @@ class OcrService : ICoreService() {
      * 若已有匹配规则则不再弹窗。Service 环境下 BaseSheetDialog 自动使用悬浮窗模式
      */
     private fun showRememberPageDialog(
+        structFp: String,
         packageName: String,
         activityName: String,
     ) {
-        val structFp = SelectToSpeakService.structFp ?: ""
         if (PageSignatureManager.matches(packageName, activityName, structFp)) return
         coreService.lifecycleScope.launch {
             withContext(Dispatchers.Main) {
