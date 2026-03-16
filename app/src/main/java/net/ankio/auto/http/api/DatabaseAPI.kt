@@ -45,7 +45,7 @@ object DatabaseAPI {
      */
     suspend fun import(sourceFile: File) = withContext(Dispatchers.IO) {
         val requestUtils = net.ankio.auto.http.RequestsUtils()
-        val result = requestUtils.upload("http://127.0.0.1:52045/db/import", sourceFile)
+        val result = requestUtils.put("http://127.0.0.1:52045/db/import", sourceFile)
         Logger.i(result.toString())
     }
 

@@ -236,7 +236,7 @@ class RequestsUtils {
             val request = Request.Builder()
                 .url(url)
                 .addHeaders()
-                .put(file.asRequestBody())
+                .put(file.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
                 .build()
 
             executeAndGetBody(request)

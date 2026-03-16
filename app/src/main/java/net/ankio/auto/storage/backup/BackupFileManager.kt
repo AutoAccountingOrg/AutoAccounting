@@ -203,7 +203,7 @@ class BackupFileManager(private val context: Context) {
     private suspend fun restoreDatabase(backupDir: File) {
         val dbFile = File(backupDir, "auto.db")
         val requestUtils = RequestsUtils()
-        val result = requestUtils.upload("http://127.0.0.1:52045/db/import", dbFile)
+        val result = requestUtils.put("http://127.0.0.1:52045/db/import", dbFile)
         Logger.d("数据库导入结果: $result")
     }
 
