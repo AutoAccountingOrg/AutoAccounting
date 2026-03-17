@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.WorkMode
 import androidx.core.content.edit
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import net.ankio.auto.App
@@ -38,6 +39,9 @@ import org.ezbook.server.constant.Setting
  * 提供类型安全的读写接口，并支持与后端同步
  */
 object PrefManager {
+
+    private const val SETTINGS_STORE_ID = "settings"
+    private const val MMKV_MIGRATED_FLAG = "_mmkv_migrated_v1"
 
     // ======== 类型代理：统一封装 SharedPreferences 读写 ========
     // 使用 runCatching 提供容错机制，避免类型转换异常导致崩溃
@@ -77,8 +81,26 @@ object PrefManager {
         App.launch { SettingAPI.set(key, value) }
     }
 
-    /** SharedPreferences 实例 - 存储所有配置项 */
-    private val pref = autoApp.getSharedPreferences("settings", MODE_PRIVATE)
+    /** 配置存储实例 - 由 MMKV 提供底层存储 */
+    private val pref: MMKV = createMmkvPreferences()
+
+    private fun createMmkvPreferences(): MMKV {
+        val mmkv = MMKV.mmkvWithID(SETTINGS_STORE_ID, MMKV.MULTI_PROCESS_MODE)
+        migrateLegacySharedPreferences(mmkv)
+        return mmkv
+    }
+
+    /** 首次启动时把旧 settings.xml 一次性迁移到 MMKV */
+    private fun migrateLegacySharedPreferences(mmkvPreferences: MMKV) {
+        if (mmkvPreferences.getBoolean(MMKV_MIGRATED_FLAG, false)) return
+
+        val legacyPreferences = autoApp.getSharedPreferences(SETTINGS_STORE_ID, MODE_PRIVATE)
+        if (legacyPreferences.all.isNotEmpty()) {
+            mmkvPreferences.importFromSharedPreferences(legacyPreferences)
+        }
+
+        mmkvPreferences.edit { putBoolean(MMKV_MIGRATED_FLAG, true) }
+    }
 
     /** 全量同步时排除的 key（服务端维护或本地专用） */
     private val SYNC_EXCLUDE_KEYS = setOf(
@@ -87,7 +109,7 @@ object PrefManager {
         Setting.LAST_SYNC_TIME, Setting.LAST_BACKUP_TIME,
         Setting.RULE_VERSION, Setting.RULE_UPDATE_TIME,
         Setting.JS_COMMON, Setting.JS_CATEGORY,
-        "canary_warning_version"
+        "canary_warning_version", MMKV_MIGRATED_FLAG
     )
 
     /**
@@ -95,10 +117,11 @@ object PrefManager {
      * 调用方需自行节流（如使用 [Throttle]）。
      */
     suspend fun syncAllToBackend() = withContext(Dispatchers.IO) {
-        val keys = pref.all.keys.filter { it !in SYNC_EXCLUDE_KEYS }
+        val allEntries = pref.all
+        val keys = allEntries.keys.filter { it !in SYNC_EXCLUDE_KEYS }
         keys.forEach { key ->
             runCatching {
-                when (val value = pref.all[key]) {
+                when (val value = allEntries[key]) {
                     is String -> SettingAPI.set(key, value)
                     is Boolean -> SettingAPI.set(key, value.toString())
                     is Int -> SettingAPI.set(key, value.toString())

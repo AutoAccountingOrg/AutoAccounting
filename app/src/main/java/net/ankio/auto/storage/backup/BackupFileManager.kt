@@ -40,7 +40,7 @@ class BackupFileManager(private val context: Context) {
 
     companion object {
         const val SUFFIX = "pk"
-        const val SUPPORT_VERSION = 202
+        const val SUPPORT_VERSION = 203
     }
 
     private var loading = runCatching {
@@ -56,13 +56,9 @@ class BackupFileManager(private val context: Context) {
             loading?.show(context.getString(R.string.backup_preparing))
             val backupDir = prepareBackupDirectory()
 
-            // 下载数据库文件
-            loading?.setText(context.getString(R.string.backup_database))
-            downloadDatabase(backupDir)
-
-            // 备份配置文件
+            // 备份整个 data 目录（排除当前备份工作目录，避免递归打包）
             loading?.setText(context.getString(R.string.backup_preferences))
-            backupPreferences(backupDir)
+            backupDataDirectory(backupDir)
 
             // 创建索引文件
             loading?.setText(context.getString(R.string.backup_creating_index))
@@ -97,15 +93,18 @@ class BackupFileManager(private val context: Context) {
 
             // 验证备份文件
             loading?.setText(context.getString(R.string.restore_validating))
-            validateBackup(backupDir)
+            val backupVersion = validateBackup(backupDir)
 
-            // 恢复数据库
-            loading?.setText(context.getString(R.string.restore_database))
-            restoreDatabase(backupDir)
-
-            // 恢复配置文件
-            loading?.setText(context.getString(R.string.restore_preferences))
-            restorePreferences(backupDir)
+            if (backupVersion >= 203 && File(backupDir, "data").exists()) {
+                loading?.setText(context.getString(R.string.restore_preferences))
+                restoreDataDirectory(backupDir)
+            } else {
+                // 兼容旧格式（v202）：数据库 + settings.xml
+                loading?.setText(context.getString(R.string.restore_database))
+                restoreDatabase(backupDir)
+                loading?.setText(context.getString(R.string.restore_preferences))
+                restorePreferences(backupDir)
+            }
 
             // 清空缓存，确保恢复的数据生效
             loading?.setText(context.getString(R.string.restore_clearing_cache))
@@ -136,21 +135,22 @@ class BackupFileManager(private val context: Context) {
         return backupDir
     }
 
-    /**
-     * 下载数据库文件
-     */
-    private suspend fun downloadDatabase(backupDir: File) {
-        val requestUtils = RequestsUtils()
-        val dbFile = File(backupDir, "auto.db")
-        val result = requestUtils.download("http://127.0.0.1:52045/db/export", dbFile)
+    private fun backupDataDirectory(backupDir: File) {
+        val appDataDir = File(context.applicationInfo.dataDir)
+        val backupDataDir = File(backupDir, "data")
+        backupDataDir.mkdirs()
 
-        if (result.isFailure) {
-            val exception = result.exceptionOrNull()
-            if (exception !== null) {
-                Logger.e(exception)
-            }
+        val excludedPaths = setOf(
+            backupDir.absolutePath,
+            File(appDataDir, "cache").absolutePath
+        )
 
-            throw RestoreBackupException(context.getString(R.string.backup_error))
+        appDataDir.listFiles()?.forEach { source ->
+            copyRecursivelyWithExclude(
+                source,
+                File(backupDataDir, source.name),
+                excludedPaths
+            )
         }
     }
 
@@ -175,7 +175,7 @@ class BackupFileManager(private val context: Context) {
     /**
      * 验证备份文件
      */
-    private fun validateBackup(backupDir: File) {
+    private fun validateBackup(backupDir: File): Int {
         val indexFile = File(backupDir, "auto.index")
         val json = indexFile.readText()
         indexFile.delete()
@@ -185,7 +185,7 @@ class BackupFileManager(private val context: Context) {
 
         // 检查版本兼容性
         val version = backupInfo.get("version").asInt
-        if (version < SUPPORT_VERSION) {
+        if (version < 202) {
             throw RestoreBackupException(
                 context.getString(
                     R.string.unsupport_backup,
@@ -194,7 +194,47 @@ class BackupFileManager(private val context: Context) {
             )
         }
 
+        return version
+    }
 
+    private fun restoreDataDirectory(backupDir: File) {
+        val backupDataDir = File(backupDir, "data")
+        if (!backupDataDir.exists()) {
+            throw RestoreBackupException(context.getString(R.string.backup_error))
+        }
+
+        val appDataDir = File(context.applicationInfo.dataDir)
+        val excludedPaths = setOf(
+            File(appDataDir, "cache").absolutePath,
+            backupDir.absolutePath
+        )
+
+        backupDataDir.listFiles()?.forEach { source ->
+            copyRecursivelyWithExclude(
+                source,
+                File(appDataDir, source.name),
+                excludedPaths
+            )
+        }
+    }
+
+    private fun copyRecursivelyWithExclude(source: File, target: File, excludedPaths: Set<String>) {
+        val sourcePath = source.absolutePath
+        if (excludedPaths.any { sourcePath == it || sourcePath.startsWith("$it/") }) {
+            return
+        }
+
+        if (source.isDirectory) {
+            if (!target.exists()) {
+                target.mkdirs()
+            }
+            source.listFiles()?.forEach { child ->
+                copyRecursivelyWithExclude(child, File(target, child.name), excludedPaths)
+            }
+        } else {
+            target.parentFile?.mkdirs()
+            source.copyTo(target, overwrite = true)
+        }
     }
 
     /**
@@ -207,26 +247,6 @@ class BackupFileManager(private val context: Context) {
         Logger.d("数据库导入结果: $result")
     }
 
-    /**
-     * 备份配置文件
-     */
-    private fun backupPreferences(backupDir: File) {
-        try {
-            // Android SharedPreferences 文件路径
-            val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
-            val settingsFile = File(prefsDir, "settings.xml")
-
-            if (settingsFile.exists()) {
-                val backupPrefsFile = File(backupDir, "settings.xml")
-                settingsFile.copyTo(backupPrefsFile, overwrite = true)
-                Logger.d("配置文件备份完成")
-            } else {
-                Logger.w("配置文件不存在，跳过备份")
-            }
-        } catch (e: Exception) {
-            Logger.w("配置文件备份失败: ${e.message}")
-        }
-    }
 
     /**
      * 恢复配置文件

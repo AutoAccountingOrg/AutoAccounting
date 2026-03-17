@@ -217,6 +217,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("com.tencent.bugly:crashreport:latest.release")
+    implementation("com.tencent:mmkv-static:1.3.5")
     implementation("net.lingala.zip4j:zip4j:2.11.5")
     implementation(kotlin("reflect"))
 
