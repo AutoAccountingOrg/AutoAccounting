@@ -18,20 +18,22 @@ package net.ankio.auto.utils
 import android.content.ComponentName
 import android.content.Context.MODE_PRIVATE
 import android.content.pm.PackageManager
+import android.text.TextUtils
 import androidx.appcompat.app.AppCompatDelegate
-import net.ankio.auto.autoApp
-import net.ankio.auto.constant.WorkMode
 import androidx.core.content.edit
 import com.tencent.mmkv.MMKV
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.autoApp
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.SettingAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.xposed.XposedModule
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+
 
 /**
  * 偏好设置管理器
@@ -111,25 +113,52 @@ object PrefManager {
         Setting.JS_COMMON, Setting.JS_CATEGORY,
         "canary_warning_version", MMKV_MIGRATED_FLAG
     )
-
+    private fun getObjectValue(mmkv: MMKV, key: String?): Any? {
+        // 因为其他基础类型value会读成空字符串,所以不是空字符串即为string or string-set类型
+        val value = mmkv.decodeString(key)
+        if (!TextUtils.isEmpty(value)) {
+            // 判断 string or string-set
+            return if (value!![0].code == 0x01) {
+                mmkv.decodeStringSet(key)
+            } else {
+                value
+            }
+        }
+        // float double类型可通过string-set配合判断
+        // 通过数据分析可以看到类型为float或double时string类型为空字符串且string-set类型读出空数组
+        // 最后判断float为0或NAN的时候可以直接读成double类型,否则读float类型
+        // 该判断方法对于非常小的double类型数据 (0d < value <= 1.0569021313E-314) 不生效
+        val set = mmkv.decodeStringSet(key)
+        if (set != null && set.isEmpty()) {
+            val valueFloat = mmkv.decodeFloat(key)
+            val valueDouble = mmkv.decodeDouble(key)
+            return if (valueFloat.compareTo(0f) == 0 || valueFloat.compareTo(Float.NaN) == 0
+            ) {
+                valueDouble
+            } else {
+                valueFloat
+            }
+        }
+        // int long bool 类型的处理放在一起, int类型1和0等价于bool类型true和false
+        // 判断long或int类型时, 如果数据长度超出int的最大长度, 则long与int读出的数据不等, 可确定为long类型
+        val valueInt = mmkv.decodeInt(key)
+        val valueLong = mmkv.decodeLong(key)
+        return if (valueInt.toLong() != valueLong) {
+            valueLong
+        } else {
+            valueInt
+        }
+    }
     /**
      * 全量同步本地 Pref 到后端。
      * 调用方需自行节流（如使用 [Throttle]）。
      */
     suspend fun syncAllToBackend() = withContext(Dispatchers.IO) {
-        val allEntries = pref.all
-        val keys = allEntries.keys.filter { it !in SYNC_EXCLUDE_KEYS }
+        val allKeys = pref.allKeys() ?: return@withContext
+        val keys = allKeys.filter { it !in SYNC_EXCLUDE_KEYS }
         keys.forEach { key ->
             runCatching {
-                when (val value = allEntries[key]) {
-                    is String -> SettingAPI.set(key, value)
-                    is Boolean -> SettingAPI.set(key, value.toString())
-                    is Int -> SettingAPI.set(key, value.toString())
-                    is Long -> SettingAPI.set(key, value.toString())
-                    is Float -> SettingAPI.set(key, value.toString())
-                    else -> { /* 忽略其他类型 */
-                    }
-                }
+                SettingAPI.set(key, getObjectValue(pref, key).toString())
             }.onFailure { Logger.e("syncAllToBackend set error: $key", it) }
         }
     }
