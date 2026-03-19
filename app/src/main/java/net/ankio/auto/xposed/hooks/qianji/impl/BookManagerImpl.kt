@@ -92,7 +92,7 @@ object BookManagerImpl : HookerClazz() {
             "getAllBooks",
             AppRuntime.application!!,
             true,
-            1
+            -1 // 1 是个人账本，-1 可能是全部账本（共享）
         ) as List<*>
     }
 
