@@ -197,11 +197,7 @@ object BillMerger {
         // 规范化商户和商品名称（去除重复内容）
         val normalizedShopName = normalizeName(billInfoModel.shopName).trim()
         val normalizedShopItem = normalizeName(billInfoModel.shopItem).trim()
-
-        // 使用特殊分隔符合并后再规范化，避免商户和商品名称重复
-        val separator = "/=@=/"
-        val combined = "$normalizedShopName$separator$normalizedShopItem"
-        val (shopName, shopItem) = normalizeName(combined).trim().split(separator)
+        val (shopName, shopItem) = deduplicateRemarkFields(normalizedShopName, normalizedShopItem)
 
         // 替换占位符
         return template
@@ -226,36 +222,42 @@ object BillMerger {
     }
 
     /**
-     * 规范化名称：去除名称中连续重复的子串（长度≥3），例如：
+     * 规范化名称：仅去除名称中相邻重复的子串（长度≥2），例如：
      * - "京东自营京东自营旗舰店" -> "京东自营旗舰店"
      * - "苹果苹果旗舰店旗舰店" -> "苹果旗舰店"
      *
-     * 规则源于需求：去掉重复内容，并移除长度超过 2 个字的叠词（等价于长度≥3 的重复片段）。
+     * 注意：这里只处理“相邻重复”，不能跨位置删除相同片段。
+     * 否则像 “地铁-固戍-2026-03-06 09:01:33-高新园-2026-03-06 09:34:31”
+     * 这类包含相同日期前缀的正常备注会被误删，表现为备注被截断。
      */
-    private fun normalizeName(name: String): String {
+    internal fun normalizeName(name: String): String {
         var result = name.trim()
         if (result.isEmpty()) return result
 
         while (true) {
             var found = false
 
-            // 从长子串开始，避免短子串干扰
-            outer@ for (len in result.length downTo 2) {
-                for (i in 0..result.length - len) {
+            // 只处理相邻重复片段，从长到短扫描，优先保留更具体的结构
+            outer@ for (len in result.length / 2 downTo 2) {
+                for (i in 0..result.length - len * 2) {
                     val sub = result.substring(i, i + len)
-                    val regex = Regex(Regex.escape(sub))
-                    val matches = regex.findAll(result).toList()
-                    if (matches.size > 1) {
-                        // 删除所有重复，只保留第一个
-                        val sb = StringBuilder(result)
-                        // 从后往前删，避免索引错乱
-                        matches.drop(1).reversed().forEach { m ->
-                            sb.delete(m.range.first, m.range.last + 1)
-                        }
-                        result = sb.toString()
-                        found = true
-                        break@outer
+                    val nextStart = i + len
+                    if (!result.startsWith(sub, nextStart)) continue
+
+                    var duplicateEnd = nextStart
+                    while (duplicateEnd + len <= result.length && result.startsWith(
+                            sub,
+                            duplicateEnd
+                        )
+                    ) {
+                        duplicateEnd += len
                     }
+
+                    val sb = StringBuilder(result)
+                    sb.delete(nextStart, duplicateEnd)
+                    result = sb.toString()
+                    found = true
+                    break@outer
                 }
             }
 
@@ -263,6 +265,29 @@ object BillMerger {
         }
 
         return result
+    }
+
+    /**
+     * 去除“商户名称 + 商品名称”拼接边界上的重叠前后缀，避免备注出现首尾重复。
+     *
+     * 例如：
+     * - 商户："京东自营"，商品："京东自营旗舰店" -> Pair("京东自营", "旗舰店")
+     * - 商户："苹果旗舰店"，商品："旗舰店" -> Pair("苹果旗舰店", "")
+     *
+     * 这里只处理“左侧后缀 == 右侧前缀”的安全重叠，不跨位置删普通重复内容。
+     */
+    internal fun deduplicateRemarkFields(shopName: String, shopItem: String): Pair<String, String> {
+        if (shopName.isEmpty() || shopItem.isEmpty()) return shopName to shopItem
+
+        val maxOverlap = minOf(shopName.length, shopItem.length)
+        for (len in maxOverlap downTo 2) {
+            val suffix = shopName.takeLast(len)
+            if (shopItem.startsWith(suffix)) {
+                return shopName to shopItem.removePrefix(suffix)
+            }
+        }
+
+        return shopName to shopItem
     }
 
     /**
