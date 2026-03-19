@@ -18,7 +18,6 @@ package net.ankio.auto.utils
 import android.content.ComponentName
 import android.content.Context.MODE_PRIVATE
 import android.content.pm.PackageManager
-import android.text.TextUtils
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import com.tencent.mmkv.MMKV
@@ -104,63 +103,84 @@ object PrefManager {
         mmkvPreferences.edit { putBoolean(MMKV_MIGRATED_FLAG, true) }
     }
 
-    /** 全量同步时排除的 key（服务端维护或本地专用） */
-    private val SYNC_EXCLUDE_KEYS = setOf(
-        Setting.HASH_ASSET, Setting.HASH_BILL, Setting.HASH_BOOK, Setting.HASH_CATEGORY,
-        Setting.HASH_BAOXIAO_BILL, Setting.HASH_TAG,
-        Setting.LAST_SYNC_TIME, Setting.LAST_BACKUP_TIME,
-        Setting.RULE_VERSION, Setting.RULE_UPDATE_TIME,
-        Setting.JS_COMMON, Setting.JS_CATEGORY,
-        "canary_warning_version", MMKV_MIGRATED_FLAG
-    )
-    private fun getObjectValue(mmkv: MMKV, key: String?): Any? {
-        // 因为其他基础类型value会读成空字符串,所以不是空字符串即为string or string-set类型
-        val value = mmkv.decodeString(key)
-        if (!TextUtils.isEmpty(value)) {
-            // 判断 string or string-set
-            return if (value!![0].code == 0x01) {
-                mmkv.decodeStringSet(key)
-            } else {
-                value
-            }
-        }
-        // float double类型可通过string-set配合判断
-        // 通过数据分析可以看到类型为float或double时string类型为空字符串且string-set类型读出空数组
-        // 最后判断float为0或NAN的时候可以直接读成double类型,否则读float类型
-        // 该判断方法对于非常小的double类型数据 (0d < value <= 1.0569021313E-314) 不生效
-        val set = mmkv.decodeStringSet(key)
-        if (set != null && set.isEmpty()) {
-            val valueFloat = mmkv.decodeFloat(key)
-            val valueDouble = mmkv.decodeDouble(key)
-            return if (valueFloat.compareTo(0f) == 0 || valueFloat.compareTo(Float.NaN) == 0
-            ) {
-                valueDouble
-            } else {
-                valueFloat
-            }
-        }
-        // int long bool 类型的处理放在一起, int类型1和0等价于bool类型true和false
-        // 判断long或int类型时, 如果数据长度超出int的最大长度, 则long与int读出的数据不等, 可确定为long类型
-        val valueInt = mmkv.decodeInt(key)
-        val valueLong = mmkv.decodeLong(key)
-        return if (valueInt.toLong() != valueLong) {
-            valueLong
-        } else {
-            valueInt
-        }
-    }
     /**
      * 全量同步本地 Pref 到后端。
+     * 通过 enum 枚举可同步属性，直接读取 PrefManager 属性，避免遍历 pref 所有键值对。
      * 调用方需自行节流（如使用 [Throttle]）。
      */
     suspend fun syncAllToBackend() = withContext(Dispatchers.IO) {
-        val allKeys = pref.allKeys() ?: return@withContext
-        val keys = allKeys.filter { it !in SYNC_EXCLUDE_KEYS }
-        keys.forEach { key ->
+        SyncablePref.entries.forEach { entry ->
             runCatching {
-                SettingAPI.set(key, getObjectValue(pref, key).toString())
-            }.onFailure { Logger.e("syncAllToBackend set error: $key", it) }
+                SettingAPI.set(entry.key, entry.getValue(this@PrefManager))
+            }.onFailure { Logger.e("syncAllToBackend set error: ${entry.key}", it) }
         }
+    }
+
+    /** 可同步到后端的设置项，与 PrefManager 属性一一对应，通过 entries 遍历 */
+    private enum class SyncablePref(val key: String, val getValue: PrefManager.() -> String) {
+        BOOK_APP(Setting.BOOK_APP_ID, { bookApp }),
+        MANUAL_SYNC(Setting.MANUAL_SYNC, { manualSync.toString() }),
+        DELAYED_SYNC_THRESHOLD(Setting.DELAYED_SYNC_THRESHOLD, { delayedSyncThreshold.toString() }),
+        AUTO_RECORD_BILL(Setting.AUTO_RECORD_BILL, { autoRecordBill.toString() }),
+        LANDSCAPE_DND(Setting.LANDSCAPE_DND, { landscapeDnd.toString() }),
+        AUTO_GROUP(Setting.AUTO_GROUP, { autoGroup.toString() }),
+        AUTO_GROUP_TIME_THRESHOLD(
+            Setting.AUTO_GROUP_TIME_THRESHOLD,
+            { autoGroupTimeThreshold.toString() }),
+        AUTO_TRANSFER_RECOGNITION(
+            Setting.AUTO_TRANSFER_RECOGNITION,
+            { autoTransferRecognition.toString() }),
+        AUTO_TRANSFER_TIME_THRESHOLD(
+            Setting.AUTO_TRANSFER_TIME_THRESHOLD,
+            { autoTransferTimeThreshold.toString() }),
+        AI_BILL_RECOGNITION(Setting.AI_BILL_RECOGNITION, { aiBillRecognition.toString() }),
+        AI_VISION_RECOGNITION(Setting.AI_VISION_RECOGNITION, { aiVisionRecognition.toString() }),
+        SHOW_RULE_NAME(Setting.SHOW_RULE_NAME, { showRuleName.toString() }),
+        SETTING_FEE(Setting.SETTING_FEE, { featureFee.toString() }),
+        SETTING_TAG(Setting.SETTING_TAG, { featureTag.toString() }),
+        NOTE_FORMAT(Setting.NOTE_FORMAT, { noteFormat }),
+        BILL_FLAG_NOT_COUNT(Setting.BILL_FLAG_NOT_COUNT, { billFlagNotCount.toString() }),
+        BILL_FLAG_NOT_BUDGET(Setting.BILL_FLAG_NOT_BUDGET, { billFlagNotBudget.toString() }),
+        AUTO_CREATE_CATEGORY(Setting.AUTO_CREATE_CATEGORY, { rememberCategory.toString() }),
+        AI_CATEGORY_RECOGNITION(
+            Setting.AI_CATEGORY_RECOGNITION,
+            { aiCategoryRecognition.toString() }),
+        SETTING_ASSET_MANAGER(Setting.SETTING_ASSET_MANAGER, { featureAssetManage.toString() }),
+        SETTING_CURRENCY_MANAGER(
+            Setting.SETTING_CURRENCY_MANAGER,
+            { featureMultiCurrency.toString() }),
+        SETTING_BASE_CURRENCY(Setting.SETTING_BASE_CURRENCY, { baseCurrency }),
+        SETTING_SELECTED_CURRENCIES(Setting.SETTING_SELECTED_CURRENCIES, { selectedCurrencies }),
+        SETTING_REIMBURSEMENT(Setting.SETTING_REIMBURSEMENT, { featureReimbursement.toString() }),
+        SETTING_DEBT(Setting.SETTING_DEBT, { featureDebt.toString() }),
+        AUTO_ASSET_MAPPING(Setting.AUTO_ASSET_MAPPING, { autoAssetMapping.toString() }),
+        AI_ASSET_MAPPING(Setting.AI_ASSET_MAPPING, { aiAssetMapping.toString() }),
+        SETTING_BOOK_MANAGER(Setting.SETTING_BOOK_MANAGER, { featureMultiBook.toString() }),
+        DEFAULT_BOOK_NAME(Setting.DEFAULT_BOOK_NAME, { defaultBook }),
+        LOAD_SUCCESS(Setting.LOAD_SUCCESS, { loadSuccess.toString() }),
+        FEATURE_AI_AVAILABLE(Setting.FEATURE_AI_AVAILABLE, { featureAiAvailable.toString() }),
+        API_PROVIDER(Setting.API_PROVIDER, { apiProvider }),
+        API_KEY(Setting.API_KEY, { apiKey }),
+        API_URI(Setting.API_URI, { apiUri }),
+        API_MODEL(Setting.API_MODEL, { apiModel }),
+        AI_BILL_RECOGNITION_PROMPT(Setting.AI_BILL_RECOGNITION_PROMPT, { aiBillRecognitionPrompt }),
+        AI_ASSET_MAPPING_PROMPT(Setting.AI_ASSET_MAPPING_PROMPT, { aiAssetMappingPrompt }),
+        AI_CATEGORY_RECOGNITION_PROMPT(
+            Setting.AI_CATEGORY_RECOGNITION_PROMPT,
+            { aiCategoryRecognitionPrompt }),
+        AI_SUMMARY_PROMPT(Setting.AI_SUMMARY_PROMPT, { aiSummaryPrompt }),
+        AI_MONTHLY_SUMMARY(Setting.AI_MONTHLY_SUMMARY, { aiMonthlySummary.toString() }),
+        RULE_MATCH_INCLUDE_DISABLED(
+            Setting.RULE_MATCH_INCLUDE_DISABLED,
+            { ruleMatchIncludeDisabled.toString() }),
+        DEBUG_MODE(Setting.DEBUG_MODE, { debugMode.toString() }),
+        LISTENER_APP_LIST(Setting.LISTENER_APP_LIST, { appWhiteList.joinToString(",") }),
+        PROACTIVELY_MODEL(Setting.PROACTIVELY_MODEL, { featureLeading.toString() }),
+        DATA_FILTER(Setting.DATA_FILTER, { dataFilter.replace("\n", ",") }),
+        DATA_FILTER_BLACKLIST(
+            Setting.DATA_FILTER_BLACKLIST,
+            { dataFilterBlacklist.replace("\n", ",") }),
+        SYNC_TYPE(Setting.SYNC_TYPE, { syncType }),
     }
 
     // ===================================================================
