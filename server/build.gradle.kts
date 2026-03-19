@@ -73,4 +73,6 @@ dependencies {
 
     // Kotlin反射 - Ktor的reified泛型需要
     implementation(kotlin("reflect"))
+
+    testImplementation(libs.junit)
 }
