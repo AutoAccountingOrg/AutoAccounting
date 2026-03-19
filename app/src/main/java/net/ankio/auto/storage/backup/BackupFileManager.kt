@@ -56,7 +56,11 @@ class BackupFileManager(private val context: Context) {
             loading?.show(context.getString(R.string.backup_preparing))
             val backupDir = prepareBackupDirectory()
 
-            // 备份整个 data 目录（排除当前备份工作目录，避免递归打包）
+            // 下载数据库文件
+            loading?.setText(context.getString(R.string.backup_database))
+            downloadDatabase(backupDir)
+
+            // 备份配置文件
             loading?.setText(context.getString(R.string.backup_preferences))
             backupDataDirectory(backupDir)
 
@@ -93,18 +97,15 @@ class BackupFileManager(private val context: Context) {
 
             // 验证备份文件
             loading?.setText(context.getString(R.string.restore_validating))
-            val backupVersion = validateBackup(backupDir)
+            validateBackup(backupDir)
 
-            if (backupVersion >= 203 && File(backupDir, "data").exists()) {
-                loading?.setText(context.getString(R.string.restore_preferences))
-                restoreDataDirectory(backupDir)
-            } else {
-                // 兼容旧格式（v202）：数据库 + settings.xml
-                loading?.setText(context.getString(R.string.restore_database))
-                restoreDatabase(backupDir)
-                loading?.setText(context.getString(R.string.restore_preferences))
-                restorePreferences(backupDir)
-            }
+            // 恢复数据库
+            loading?.setText(context.getString(R.string.restore_database))
+            restoreDatabase(backupDir)
+
+            // 恢复配置文件
+            loading?.setText(context.getString(R.string.restore_preferences))
+            restoreDataDirectory(backupDir)
 
             // 清空缓存，确保恢复的数据生效
             loading?.setText(context.getString(R.string.restore_clearing_cache))
@@ -127,7 +128,7 @@ class BackupFileManager(private val context: Context) {
      * 准备备份目录
      */
     private fun prepareBackupDirectory(): File {
-        val backupDir = File(context.filesDir, "backup")
+        val backupDir = File(context.cacheDir, "backup")
         if (backupDir.exists()) {
             backupDir.deleteRecursively()
         }
@@ -135,22 +136,21 @@ class BackupFileManager(private val context: Context) {
         return backupDir
     }
 
-    private fun backupDataDirectory(backupDir: File) {
-        val appDataDir = File(context.applicationInfo.dataDir)
-        val backupDataDir = File(backupDir, "data")
-        backupDataDir.mkdirs()
+    /**
+     * 下载数据库文件
+     */
+    private suspend fun downloadDatabase(backupDir: File) {
+        val requestUtils = RequestsUtils()
+        val dbFile = File(backupDir, "auto.db")
+        val result = requestUtils.download("http://127.0.0.1:52045/db/export", dbFile)
 
-        val excludedPaths = setOf(
-            backupDir.absolutePath,
-            File(appDataDir, "cache").absolutePath
-        )
+        if (result.isFailure) {
+            val exception = result.exceptionOrNull()
+            if (exception !== null) {
+                Logger.e(exception)
+            }
 
-        appDataDir.listFiles()?.forEach { source ->
-            copyRecursivelyWithExclude(
-                source,
-                File(backupDataDir, source.name),
-                excludedPaths
-            )
+            throw RestoreBackupException(context.getString(R.string.backup_error))
         }
     }
 
@@ -163,6 +163,7 @@ class BackupFileManager(private val context: Context) {
             "versionName" to BuildConfig.VERSION_NAME,
             "packageName" to BuildConfig.APPLICATION_ID,
             "packageVersion" to BuildConfig.VERSION_CODE,
+            "backupType" to "fullDataDir",
         )
 
         val json = Gson().toJson(indexData)
@@ -175,7 +176,7 @@ class BackupFileManager(private val context: Context) {
     /**
      * 验证备份文件
      */
-    private fun validateBackup(backupDir: File): Int {
+    private fun validateBackup(backupDir: File) {
         val indexFile = File(backupDir, "auto.index")
         val json = indexFile.readText()
         indexFile.delete()
@@ -185,7 +186,7 @@ class BackupFileManager(private val context: Context) {
 
         // 检查版本兼容性
         val version = backupInfo.get("version").asInt
-        if (version < 202) {
+        if (version < SUPPORT_VERSION) {
             throw RestoreBackupException(
                 context.getString(
                     R.string.unsupport_backup,
@@ -194,47 +195,7 @@ class BackupFileManager(private val context: Context) {
             )
         }
 
-        return version
-    }
 
-    private fun restoreDataDirectory(backupDir: File) {
-        val backupDataDir = File(backupDir, "data")
-        if (!backupDataDir.exists()) {
-            throw RestoreBackupException(context.getString(R.string.backup_error))
-        }
-
-        val appDataDir = File(context.applicationInfo.dataDir)
-        val excludedPaths = setOf(
-            File(appDataDir, "cache").absolutePath,
-            backupDir.absolutePath
-        )
-
-        backupDataDir.listFiles()?.forEach { source ->
-            copyRecursivelyWithExclude(
-                source,
-                File(appDataDir, source.name),
-                excludedPaths
-            )
-        }
-    }
-
-    private fun copyRecursivelyWithExclude(source: File, target: File, excludedPaths: Set<String>) {
-        val sourcePath = source.absolutePath
-        if (excludedPaths.any { sourcePath == it || sourcePath.startsWith("$it/") }) {
-            return
-        }
-
-        if (source.isDirectory) {
-            if (!target.exists()) {
-                target.mkdirs()
-            }
-            source.listFiles()?.forEach { child ->
-                copyRecursivelyWithExclude(child, File(target, child.name), excludedPaths)
-            }
-        } else {
-            target.parentFile?.mkdirs()
-            source.copyTo(target, overwrite = true)
-        }
     }
 
     /**
@@ -247,16 +208,79 @@ class BackupFileManager(private val context: Context) {
         Logger.d("数据库导入结果: $result")
     }
 
+    /**
+     * 备份应用 dataDir（包含 shared_prefs、files、databases 等）
+     */
+    private fun backupDataDirectory(backupDir: File) {
+        try {
+            val sourceDataDir = File(context.applicationInfo.dataDir)
+            val snapshotDir = File(backupDir, "data_dir")
+            val backupWorkDir = backupDir.canonicalFile
+
+            if (!sourceDataDir.exists()) {
+                Logger.w("应用 dataDir 不存在，跳过备份")
+                return
+            }
+
+            copyDirectoryWithExcludes(
+                sourceDir = sourceDataDir,
+                targetDir = snapshotDir,
+                excludedRoots = setOf(backupWorkDir),
+            )
+            Logger.d("dataDir 备份完成: ${snapshotDir.absolutePath}")
+        } catch (e: Exception) {
+            Logger.w("dataDir 备份失败: ${e.message}")
+        }
+    }
 
     /**
-     * 恢复配置文件
+     * 恢复应用 dataDir
      */
-    private fun restorePreferences(backupDir: File) {
+    private fun restoreDataDirectory(backupDir: File) {
+        try {
+            val snapshotDir = File(backupDir, "data_dir")
+            if (!snapshotDir.exists()) {
+                Logger.w("备份中没有 data_dir，尝试兼容恢复旧版配置文件")
+                restoreLegacyPreferences(backupDir)
+                return
+            }
+
+            val targetDataDir = File(context.applicationInfo.dataDir)
+            val protectedRoot = backupDir.canonicalFile
+
+            if (!targetDataDir.exists()) {
+                targetDataDir.mkdirs()
+            }
+
+            // 清理现有 dataDir（保留当前恢复流程正在使用的临时备份目录）
+            targetDataDir.listFiles()?.forEach { child ->
+                val childPath = child.canonicalFile
+                val shouldKeep = childPath == protectedRoot ||
+                        childPath.path.startsWith(protectedRoot.path + File.separator)
+                if (!shouldKeep) {
+                    child.deleteRecursively()
+                }
+            }
+
+            copyDirectoryWithExcludes(
+                sourceDir = snapshotDir,
+                targetDir = targetDataDir,
+                excludedRoots = emptySet(),
+            )
+            Logger.d("dataDir 恢复完成")
+        } catch (e: Exception) {
+            Logger.w("dataDir 恢复失败: ${e.message}")
+        }
+    }
+
+    /**
+     * 兼容旧备份：仅恢复 settings.xml
+     */
+    private fun restoreLegacyPreferences(backupDir: File) {
         try {
             val backupPrefsFile = File(backupDir, "settings.xml")
 
             if (backupPrefsFile.exists()) {
-                // Android SharedPreferences 文件路径
                 val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
                 if (!prefsDir.exists()) {
                     prefsDir.mkdirs()
@@ -275,5 +299,35 @@ class BackupFileManager(private val context: Context) {
         } catch (e: Exception) {
             Logger.w("配置文件恢复失败: ${e.message}")
         }
+    }
+
+    /**
+     * 递归复制目录，并排除指定根目录（用于避免把备份工作目录复制进快照）
+     */
+    private fun copyDirectoryWithExcludes(
+        sourceDir: File,
+        targetDir: File,
+        excludedRoots: Set<File>,
+    ) {
+        val excludedPaths = excludedRoots.map { it.canonicalPath }
+
+        sourceDir.walkTopDown()
+            .onEnter { dir ->
+                val dirPath = dir.canonicalPath
+                excludedPaths.none { excluded ->
+                    dirPath == excluded || dirPath.startsWith(excluded + File.separator)
+                }
+            }
+            .forEach { source ->
+                val relativePath = source.relativeTo(sourceDir).path
+                val target =
+                    if (relativePath.isEmpty()) targetDir else File(targetDir, relativePath)
+                if (source.isDirectory) {
+                    target.mkdirs()
+                } else {
+                    target.parentFile?.mkdirs()
+                    source.copyTo(target, overwrite = true)
+                }
+            }
     }
 }
