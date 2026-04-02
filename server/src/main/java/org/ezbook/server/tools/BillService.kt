@@ -543,14 +543,14 @@ class BillService(
         ServerLog.d(
             "Category result: book=${
                 categoryJson.safeGetStringNonBlank(
-                    "bookName",
+                    "book",
                     ""
                 )
             }, cate=${categoryJson.safeGetStringNonBlank("category", "")}"
         )
         // 设置账本名称与分类（优先规则结果，否则默认值）
         // 将账本指针（如"默认账本"）解析为数据库中真实存在的账本名称
-        val rawBookName = categoryJson.safeGetStringNonBlank("bookName", SettingUtils.bookName())
+        val rawBookName = categoryJson.safeGetStringNonBlank("book", SettingUtils.bookName())
         bill.bookName = resolveBookByNameOrDefault(rawBookName).name
         bill.cateName = categoryJson.safeGetStringNonBlank("category", "其他")
         bill.remark = categoryJson.safeGetStringNonBlank("remark", "")
