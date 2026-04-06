@@ -33,8 +33,11 @@ import net.ankio.auto.service.api.IService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.tools.MD5HashTable
 
 class NotificationService : NotificationListenerService() {
+    private val hashTable = MD5HashTable()
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return super.onStartCommand(intent, flags, startId)
     }
@@ -85,6 +88,13 @@ class NotificationService : NotificationListenerService() {
             Logger.d("Notification skipped: pkg=$pkg, title and text empty")
             return
         }
+
+        val key = "$pkg$title$text"
+        if (hashTable.contains(key)) {
+            Logger.d("Notification skipped: pkg=$pkg, duplicate content")
+            return
+        }
+        hashTable.put(key)
 
         if (!apps.contains(pkg)) {
             Logger.d("Notification skipped: pkg=$pkg not in app whitelist")
