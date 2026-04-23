@@ -294,10 +294,12 @@ class FloatingTip(
                     params.width = WindowManager.LayoutParams.MATCH_PARENT
                     params.height = WindowManager.LayoutParams.WRAP_CONTENT
                 } else {
-                    // 左右布局：基于内容计算尺寸（logo 容器 + 金额）
+                    // 左右布局：基于内容计算尺寸，常量必须按 dp 转 px，避免高密度设备金额被截断
                     val logoW = b.logoContainer?.width ?: b.logo.width
-                    val width = logoW + b.moneyView.width + 120
-                    val height = (b.logoContainer?.height ?: b.logo.height) + 60
+                    val extraWidthPx = (120 * context.resources.displayMetrics.density).toInt()
+                    val extraHeightPx = (60 * context.resources.displayMetrics.density).toInt()
+                    val width = logoW + b.moneyView.width + extraWidthPx
+                    val height = (b.logoContainer?.height ?: b.logo.height) + extraHeightPx
                     params.width = width
                     params.height = height
                 }
