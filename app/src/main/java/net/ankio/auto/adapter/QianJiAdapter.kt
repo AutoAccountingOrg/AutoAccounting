@@ -59,7 +59,7 @@ class QianJiAdapter : IAppAdapter {
             listOf(
                 BookFeatures.MULTI_BOOK,
                 BookFeatures.FEE,
-                //  BookFeatures.TAG,
+                BookFeatures.TAG,
                 BookFeatures.DEBT,
                 BookFeatures.ASSET_MANAGE,
                 BookFeatures.MULTI_CURRENCY,

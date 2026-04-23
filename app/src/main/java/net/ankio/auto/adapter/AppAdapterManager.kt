@@ -71,11 +71,8 @@ object AppAdapterManager {
 
     }
 
-    fun isCreditAccount(accountName: String): Boolean {
-        runBlocking {
-            val asset = AssetsAPI.getByName(accountName)
-            return@runBlocking asset?.type == AssetsType.CREDIT
-        }
-        return false
+    fun isCreditAccount(accountName: String): Boolean = runBlocking {
+        val asset = AssetsAPI.getByName(accountName)
+        return@runBlocking asset?.type == AssetsType.CREDIT
     }
 }
