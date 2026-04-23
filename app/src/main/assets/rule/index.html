@@ -102,8 +102,8 @@
             <input type="text" name="money" id="money" placeholder="使用$1、$2或直接填写" required>
         </div>
 
-        <!-- 手续费 -->
-        <div class="form-group fee-area" style="display:none;">
+        <!-- 手续费：默认显示，避免 AI 自动填充后无法手动修正 -->
+        <div class="form-group fee-area">
             <label>手续费</label>
             <input type="text" name="fee" id="fee" placeholder="没有留空">
         </div>
@@ -215,7 +215,7 @@
         const $account1Label = $('.account1-label');
         const $account2Label = $('.account2-label');
 
-        // 默认隐藏账户2和手续费
+        // 默认隐藏转入账户区域
         $account2Area.hide();
 
         // 根据类型更新标签和显示
