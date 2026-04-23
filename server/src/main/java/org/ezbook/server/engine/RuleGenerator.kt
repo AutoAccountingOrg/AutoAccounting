@@ -154,7 +154,15 @@ object RuleGenerator {
             var window = JSON.parse(data);
             $commonJs
             function getCategory(money,type,shopName,shopItem,time,ruleName){ $categoryCustom return null;};
-            var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time,window.ruleName);
+            // 自定义分类规则优先使用清洗后的商户元数据，避免动态数字影响匹配稳定性
+            var categoryInfo = getCategory(
+                window.money,
+                window.type,
+                window.shopNameSanitized || window.shopName,
+                window.shopItemSanitized || window.shopItem,
+                window.time,
+                window.ruleName
+            );
             if(categoryInfo !== null) { 
                 print(JSON.stringify(categoryInfo));  
             } else {

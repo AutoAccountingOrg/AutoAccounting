@@ -521,12 +521,18 @@ class BillService(
      * @param bill 需要分类的账单信息
      */
     private suspend fun categorize(bill: BillInfoModel, dataType: DataType) {
+        // 自定义分类规则匹配前统一清洗商户元数据：
+        // 与自动记住分类时的清洗策略保持一致，避免“保存时清洗、匹配时未清洗”导致规则失效。
+        val sanitizedShopName = sanitizeCategoryMetaForRule(bill.shopName)
+        val sanitizedShopItem = sanitizeCategoryMetaForRule(bill.shopItem)
 
         val win = JsonObject().apply {
             addProperty("type", bill.type.name)
             addProperty("money", bill.money)
             addProperty("shopName", bill.shopName)
             addProperty("shopItem", bill.shopItem)
+            addProperty("shopNameSanitized", sanitizedShopName)
+            addProperty("shopItemSanitized", sanitizedShopItem)
             // 注入格式化后的实际账单时间（24小时制：HH:mm），供分类规则使用
             val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(bill.time))
             addProperty("time", timeStr)
@@ -569,6 +575,28 @@ class BillService(
 
         // 设置分类映射、查找
         CategoryProcessor().setCategoryMap(bill)
+    }
+
+    /**
+     * 清洗用于“自定义分类规则匹配”的商户元数据。
+     *
+     * 设计目标：
+     * 1) 移除金额噪声（货币符号、金额单位）以提高规则稳定性
+     * 2) 保留业务数字特征（如 12306、iPhone15），避免过度清洗导致误伤
+     * 3) 与客户端自动记住分类的清洗逻辑保持一致
+     */
+    private fun sanitizeCategoryMetaForRule(inputRaw: String): String {
+        if (inputRaw.isEmpty()) return inputRaw
+        return inputRaw
+            // 清理金额格式：¥100.00 / $5.5
+            .replace(Regex("[¥$€£￥]\\s*\\d+(?:\\.\\d+)?"), "")
+            // 清理带金额单位的片段：100元 / 88.8块 / 30円
+            .replace(Regex("\\d+(?:\\.\\d+)?\\s*[元円块]"), "")
+            // 清理纯字母长串（订单号残余）
+            .replace(Regex("[A-Za-z]{6,}"), "")
+            // 清理多余空白和标点残留
+            .replace(Regex("[\\s\\-_/]+"), " ")
+            .trim()
     }
 
     /**
