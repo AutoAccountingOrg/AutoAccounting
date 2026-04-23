@@ -38,13 +38,19 @@ import org.ezbook.server.constant.BillState
 
 
 open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
+    /** 时间筛选模式：按月或全部 */
+    private enum class TimeFilterMode { MONTH, ALL }
+
     // 同步状态筛选：初始化为全部状态
     private var syncType = mutableListOf(
         BillState.Synced.name,
         BillState.Edited.name,
         BillState.Wait2Edit.name
     )
-    
+
+    /** 默认按月筛选，保持现有行为不变 */
+    private var timeFilterMode: TimeFilterMode = TimeFilterMode.MONTH
+
     private var currentYear: Int = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
     private var currentMonth: Int =
         java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
@@ -54,7 +60,11 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
      */
     override suspend fun loadData(): List<OrderGroup> {
         // 服务端已经完成分组，直接返回
-        return BillAPI.listGrouped(syncType, currentYear, currentMonth)
+        return if (timeFilterMode == TimeFilterMode.ALL) {
+            BillAPI.listGrouped(syncType)
+        } else {
+            BillAPI.listGrouped(syncType, currentYear, currentMonth)
+        }
     }
 
     private val adapter = BillAdapter()
@@ -111,21 +121,59 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
      * 设置月份筛选器
      */
     private fun setupMonthFilter() {
-        binding.inputMonthButton.text = formatMonthLabel(currentYear, currentMonth)
+        updateMonthFilterLabel()
         binding.inputMonthChevron.setOnClickListener {
-            BaseSheetDialog.create<net.ankio.auto.ui.dialog.DateTimePickerDialog>(requireContext())
-                .setTitle(getString(R.string.select_month))
-                .setYearMonthOnly(true)
-                .setOnDateTimeSelected { year, month, _, _, _ ->
-                    currentYear = year
-                    currentMonth = month
-                    binding.inputMonthButton.text = formatMonthLabel(currentYear, currentMonth)
-                    reload()
+            val filterOptions = linkedMapOf(
+                getString(R.string.filter_time_month) to TimeFilterMode.MONTH,
+                getString(R.string.filter_time_all) to TimeFilterMode.ALL,
+            )
+            ListPopupUtilsGeneric.create<Map.Entry<String, TimeFilterMode>>(requireContext())
+                .setAnchor(it)
+                .setList(
+                    filterOptions.entries.associateBy(
+                        { entry -> entry.key },
+                        { value -> value })
+                )
+                .setOnItemClick { _, _, entry ->
+                    if (entry.value == TimeFilterMode.MONTH) {
+                        showMonthPickerDialog()
+                    } else {
+                        timeFilterMode = TimeFilterMode.ALL
+                        updateMonthFilterLabel()
+                        reload()
+                    }
                 }
                 .setOnDismiss {
                     binding.inputMonthChevron.isChecked = false
                 }
                 .show()
+        }
+    }
+
+    /** 显示月份选择弹窗，并在确认后更新筛选条件 */
+    private fun showMonthPickerDialog() {
+        BaseSheetDialog.create<net.ankio.auto.ui.dialog.DateTimePickerDialog>(requireContext())
+            .setTitle(getString(R.string.select_month))
+            .setYearMonthOnly(true)
+            .setOnDateTimeSelected { year, month, _, _, _ ->
+                timeFilterMode = TimeFilterMode.MONTH
+                currentYear = year
+                currentMonth = month
+                updateMonthFilterLabel()
+                reload()
+            }
+            .setOnDismiss {
+                binding.inputMonthChevron.isChecked = false
+            }
+            .show()
+    }
+
+    /** 按当前筛选模式刷新时间筛选按钮文案 */
+    private fun updateMonthFilterLabel() {
+        binding.inputMonthButton.text = if (timeFilterMode == TimeFilterMode.ALL) {
+            getString(R.string.filter_time_all)
+        } else {
+            formatMonthLabel(currentYear, currentMonth)
         }
     }
 

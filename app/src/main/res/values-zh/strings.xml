@@ -264,6 +264,8 @@
 
     <!-- Rule type filter options -->
     <string name="filter_type_all">全部</string>
+    <string name="filter_time_all">全部时间</string>
+    <string name="filter_time_month">按月</string>
     <string name="filter_type_data">数据</string>
     <string name="filter_type_notify">通知</string>
 

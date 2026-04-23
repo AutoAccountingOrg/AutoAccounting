@@ -275,6 +275,8 @@
 
     <!-- Rule type filter options -->
     <string name="filter_type_all">All</string>
+    <string name="filter_time_all">All time</string>
+    <string name="filter_time_month">Monthly</string>
     <string name="filter_type_data">Data</string>
     <string name="filter_type_notify">Notification</string>
 

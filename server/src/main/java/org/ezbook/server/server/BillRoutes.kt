@@ -46,8 +46,8 @@ fun Route.billRoutes() {
          * 服务端完成分组，避免客户端重复计算，提升性能
          * 
          * @param type 状态筛选，默认包含已编辑、已同步、待编辑状态
-         * @param year 年份，必填
-         * @param month 月份，必填
+         * @param year 年份，可选；不传表示全部时间
+         * @param month 月份，可选；与 year 同时传入时按月筛选
          * @return ResultModel 包含按日期分组的账单数据
          */
         get("/list-grouped") {
@@ -58,20 +58,28 @@ fun Route.billRoutes() {
             )
             val type = call.request.queryParameters["type"]?.split(", ") ?: defaultStates
 
-            // 月份为必填
-            val year = call.request.queryParameters["year"]?.toInt()
-                ?: return@get call.respond(ResultModel.error(400, "Year parameter is required"))
-            val month = call.request.queryParameters["month"]?.toInt()
-                ?: return@get call.respond(ResultModel.error(400, "Month parameter is required"))
+            val year = call.request.queryParameters["year"]?.toIntOrNull()
+            val month = call.request.queryParameters["month"]?.toIntOrNull()
 
-            // 计算时间范围
-            val calendar = java.util.Calendar.getInstance().apply {
-                set(year, month - 1, 1, 0, 0, 0)
-                set(java.util.Calendar.MILLISECOND, 0)
+            // 计算时间范围：
+            // - 传 year+month：按月过滤
+            // - 不传：返回全部时间
+            val calendar = java.util.Calendar.getInstance()
+            val startTime = if (year != null && month != null) {
+                calendar.apply {
+                    set(year, month - 1, 1, 0, 0, 0)
+                    set(java.util.Calendar.MILLISECOND, 0)
+                }
+                calendar.timeInMillis
+            } else {
+                0L
             }
-            val startTime = calendar.timeInMillis
-            calendar.add(java.util.Calendar.MONTH, 1)
-            val endTime = calendar.timeInMillis
+            val endTime = if (year != null && month != null) {
+                calendar.add(java.util.Calendar.MONTH, 1)
+                calendar.timeInMillis
+            } else {
+                Long.MAX_VALUE
+            }
 
             ServerLog.d("获取分组账单列表：year=$year, month=$month, type=$type")
 

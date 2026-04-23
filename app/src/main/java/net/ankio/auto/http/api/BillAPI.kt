@@ -87,8 +87,8 @@ object BillAPI {
      */
     suspend fun listGrouped(
         type: MutableList<String>,
-        year: Int,
-        month: Int
+        year: Int? = null,
+        month: Int? = null
     ): List<OrderGroup> =
         withContext(Dispatchers.IO) {
             val typeName = listOf(
@@ -99,7 +99,13 @@ object BillAPI {
             val syncType = if (type.isNotEmpty()) type.joinToString() else typeName
 
             return@withContext runCatchingExceptCancel {
-                val url = "bill/list-grouped?type=$syncType&year=$year&month=$month"
+                // 时间参数改为可选：传入年月时按月筛选；不传时返回全部时间范围
+                val timeQuery = if (year != null && month != null) {
+                    "&year=$year&month=$month"
+                } else {
+                    ""
+                }
+                val url = "bill/list-grouped?type=$syncType$timeQuery"
                 val resp = LocalNetwork.get<List<OrderGroup>>(url).getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {
