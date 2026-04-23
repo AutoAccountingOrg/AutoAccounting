@@ -390,6 +390,26 @@ class RuleEditV3Fragment : BaseWebViewFragment<FragmentRuleV3EditBinding>() {
                             currency = currency.replaceAll(placeholder, value);
                             time = time.replaceAll(placeholder, value);
                         }
+
+                        // 统一金额格式，兼容 1,234.56 / ¥1,234.56 / -1,234.56 等常见输入
+                        const normalizeAmount = (value) => {
+                            const raw = (value ?? '').toString().trim();
+                            if (!raw) return '';
+                            // 保留数字、符号和小数点，移除货币符号、空格、千分位逗号等干扰字符
+                            const cleaned = raw.replace(/[^\d.\-+]/g, '');
+                            // 仅保留首个符号和首个小数点后的有效数字
+                            const sign = cleaned.startsWith('-') ? '-' : '';
+                            const unsigned = cleaned.replace(/^[+\-]/, '');
+                            const firstDotIndex = unsigned.indexOf('.');
+                            const normalized = firstDotIndex >= 0
+                                ? unsigned.slice(0, firstDotIndex + 1) + unsigned.slice(firstDotIndex + 1).replace(/\./g, '')
+                                : unsigned;
+                            const parsed = parseFloat(sign + normalized);
+                            return Number.isFinite(parsed) ? parsed.toString() : '';
+                        };
+
+                        money = normalizeAmount(money);
+                        fee = normalizeAmount(fee);
                         
                         // 返回解析结果
                         return {
