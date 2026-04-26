@@ -151,6 +151,9 @@ object SearchPresenterImpl : HookerClazz() {
 
                 // 13. TagsFilter（可选）
                 if (refreshMethod.parameterTypes.size > 13) add(null)
+
+                // 14. CategoriesFilter（可选）
+                if (refreshMethod.parameterTypes.size > 14) add(null)
             }
 
             // 触发搜索
