@@ -20,6 +20,7 @@ import net.ankio.auto.App
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.http.api.BillAPI
+import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillState
@@ -74,5 +75,9 @@ object AppAdapterManager {
     fun isCreditAccount(accountName: String): Boolean = runBlocking {
         val asset = AssetsAPI.getByName(accountName)
         return@runBlocking asset?.type == AssetsType.CREDIT
+    }
+
+    fun bookSize(): Int = runBlocking {
+        return@runBlocking BookNameAPI.list().size
     }
 }
