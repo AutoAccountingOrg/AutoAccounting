@@ -15,6 +15,7 @@
 
 package net.ankio.auto.http.api
 
+import android.net.Uri
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -83,29 +84,22 @@ object BillAPI {
      * @param type 账单类型列表
      * @param year 年份
      * @param month 月份
+     * @param keyword 搜索关键字
      * @return 按日期分组的账单列表
      */
     suspend fun listGrouped(
         type: MutableList<String>,
         year: Int? = null,
-        month: Int? = null
+        month: Int? = null,
+        keyword: String = "" // 新增关键字参数
     ): List<OrderGroup> =
         withContext(Dispatchers.IO) {
-            val typeName = listOf(
-                BillState.Edited.name,
-                BillState.Synced.name,
-                BillState.Wait2Edit.name
-            ).joinToString()
-            val syncType = if (type.isNotEmpty()) type.joinToString() else typeName
+            val syncType = type.joinToString(",")
+            val timeQuery = if (year != null && month != null) "&year=$year&month=$month" else ""
+            // 在 URL 中增加 keyword 参数
+            val url = "bill/list-grouped?type=$syncType$timeQuery&keyword=${Uri.encode(keyword)}"
 
             return@withContext runCatchingExceptCancel {
-                // 时间参数改为可选：传入年月时按月筛选；不传时返回全部时间范围
-                val timeQuery = if (year != null && month != null) {
-                    "&year=$year&month=$month"
-                } else {
-                    ""
-                }
-                val url = "bill/list-grouped?type=$syncType$timeQuery"
                 val resp = LocalNetwork.get<List<OrderGroup>>(url).getOrThrow()
                 resp.data ?: emptyList()
             }.getOrElse {

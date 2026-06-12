@@ -17,7 +17,9 @@
 package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
@@ -26,6 +28,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.components.MaterialSearchView
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.dialog.BillMoreDialog
@@ -55,15 +58,19 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
     private var currentMonth: Int =
         java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
 
+    private var searchKeyword = ""
+
+    override val pageSize: Int = Int.MAX_VALUE
+
     /**
      * 加载数据：使用服务端分组，避免客户端重复分组导致的性能问题
      */
     override suspend fun loadData(): List<OrderGroup> {
         // 服务端已经完成分组，直接返回
         return if (timeFilterMode == TimeFilterMode.ALL) {
-            BillAPI.listGrouped(syncType)
+            BillAPI.listGrouped(syncType, keyword = searchKeyword)
         } else {
-            BillAPI.listGrouped(syncType, currentYear, currentMonth)
+            BillAPI.listGrouped(syncType, currentYear, currentMonth, searchKeyword)
         }
     }
 
@@ -277,6 +284,38 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                 else -> false
             }
         }
+        setUpSearch()
+    }
+
+    private var searchJob: kotlinx.coroutines.Job? = null
+
+    private fun setUpSearch() {
+        val searchItem = binding.topAppBar.menu.findItem(R.id.action_search) ?: return
+        val searchView = searchItem.actionView as? MaterialSearchView ?: return
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean = true
+            override fun onQueryTextChange(newText: String?): Boolean {
+                searchKeyword = newText ?: ""
+                searchJob?.cancel()
+                searchJob = launch {
+                    kotlinx.coroutines.delay(300)
+                    reloadSilently() // 实时触发静默刷新，避免闪烁
+                }
+                return true
+            }
+        })
+
+        // 监听搜索框展开和收起
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean = true
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                searchKeyword = ""
+                searchJob?.cancel()
+                reload()
+                return true
+            }
+        })
     }
 
     // 抽取删除数据的逻辑
