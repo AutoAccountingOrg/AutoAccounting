@@ -15,6 +15,7 @@
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -59,21 +60,25 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <!-- 过滤器容器 - 与规则页一致使用 MaterialSplitButton -->
+                <!-- ViewFlipper requires one concrete child container for this filter page. -->
                 <LinearLayout
                     android:id="@+id/filterContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:baselineAligned="false"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:gravity="start|center_vertical"
+                    android:orientation="horizontal"
+                    tools:ignore="UselessParent">
 
                     <!-- 左侧过滤器组 -->
+                    <!-- The weighted child keeps the filter controls grouped at the start. -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="start|center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        tools:ignore="UselessParent">
 
                         <!-- 应用筛选 -->
                         <com.google.android.material.button.MaterialSplitButton

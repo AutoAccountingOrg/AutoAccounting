@@ -12,6 +12,7 @@
   ~  See the License for the specific language governing permissions and
   ~   limitations under the License.
   -->
+<!-- RecyclerView item root intentionally owns its pressed-state ripple. -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -20,7 +21,8 @@
     android:background="?android:attr/selectableItemBackground"
     android:minHeight="48dp"
     android:paddingHorizontal="16dp"
-    android:paddingVertical="12dp">
+    android:paddingVertical="12dp"
+    tools:ignore="Overdraw">
 
     <!-- 分组标题 -->
     <com.google.android.material.textview.MaterialTextView

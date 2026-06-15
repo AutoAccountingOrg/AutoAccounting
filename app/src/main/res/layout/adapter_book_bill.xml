@@ -1,3 +1,4 @@
+<!-- RecyclerView item root intentionally owns its pressed-state ripple. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -10,7 +11,8 @@
     android:minHeight="?attr/listPreferredItemHeight"
     android:paddingVertical="16dp"
     android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:paddingEnd="16dp"
+    tools:ignore="Overdraw">
 
     <LinearLayout
         android:layout_width="0dp"

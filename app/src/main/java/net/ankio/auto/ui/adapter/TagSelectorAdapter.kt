@@ -67,7 +67,7 @@ class TagSelectorAdapter(
         this.selectedTags.addAll(
             if (selectionLimit > 0) selectedTags.take(selectionLimit) else selectedTags
         )
-        notifyDataSetChanged()
+        notifySelectionStateChanged()
     }
 
     companion object {
@@ -222,7 +222,13 @@ class TagSelectorAdapter(
     fun clearSelection() {
         if (isEditMode) return
         selectedTags.clear()
-        notifyDataSetChanged()
+        notifySelectionStateChanged()
+    }
+
+    private fun notifySelectionStateChanged() {
+        if (itemCount > 0) {
+            notifyItemRangeChanged(0, itemCount)
+        }
     }
 
     override fun areItemsSame(oldItem: TagModel, newItem: TagModel): Boolean {
