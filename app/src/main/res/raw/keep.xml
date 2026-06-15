@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- These layouts are inflated through generic ViewBinding reflection. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@layout/about_dialog,@layout/adapter_asset_group_header,@layout/adapter_assets,@layout/adapter_backup,@layout/adapter_data_rule,@layout/adapter_order,@layout/adapter_replace_preview,@layout/adapter_rule" />
