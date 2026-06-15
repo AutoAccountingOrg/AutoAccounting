@@ -31,7 +31,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     var page = 1
 
     /** 每页数据条数 */
-    val pageSize = 100
+    open val pageSize = 100
 
     /**
      * 加载数据的抽象方法，子类需要实现
@@ -46,7 +46,9 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     abstract fun onCreateAdapter(): RecyclerView.Adapter<*>
 
     /** 是否正在加载数据 */
-    private var isLoading = false
+    protected var isLoading = false
+
+    protected var loadJob: kotlinx.coroutines.Job? = null
 
     /** 是否还有更多数据可以加载 */
     private var hasMoreData = true
@@ -177,6 +179,25 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         resetPage()
         hasMoreData = true
         statusPage.showLoading()
+        
+        loadJob?.cancel()
+        isLoading = false
+        
+        loadDataInside()
+    }
+
+    /**
+     * 静默重新加载数据
+     * 不显示全屏加载动画，避免用户输入时界面闪烁
+     */
+    fun reloadSilently() {
+        Logger.d("静默重新加载数据：从第一页开始")
+        resetPage()
+        hasMoreData = true
+        
+        loadJob?.cancel()
+        isLoading = false
+        
         loadDataInside()
     }
 
@@ -197,26 +218,36 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         isLoading = true
         Logger.d("开始加载数据：第${page}页")
 
-        launch {
+        loadJob = launch {
 
-            // 在IO线程中执行数据加载，避免阻塞UI
-            val resultData = withIO { loadData() }
+            try {
+                // 在IO线程中执行数据加载，避免阻塞UI
+                val resultData = withIO { loadData() }
 
-            // 根据加载结果更新UI状态
-            if (resultData.isEmpty()) {
-                Logger.d("第${page}页无数据返回")
-                statusPage.showEmpty()
-                hasMoreData = false
-                callback?.invoke(true, false)
-            } else {
-                Logger.d("第${page}页加载成功：${resultData.size}条数据")
-                baseAdapter?.submitItems(resultData)
-                statusPage.showContent()
-                hasMoreData = resultData.size >= pageSize
-                callback?.invoke(true, hasMoreData)
-                restoreScrollPosition()
+                // 根据加载结果更新UI状态
+                if (resultData.isEmpty()) {
+                    Logger.d("第${page}页无数据返回")
+                    if (page == 1) {
+                        statusPage.showEmpty()
+                    }
+                    hasMoreData = false
+                    callback?.invoke(true, false)
+                } else {
+                    Logger.d("第${page}页加载成功：${resultData.size}条数据")
+                    baseAdapter?.submitItems(resultData)
+                    statusPage.showContent()
+                    hasMoreData = resultData.size >= pageSize
+                    callback?.invoke(true, hasMoreData)
+                    restoreScrollPosition()
+                }
+            } catch (e: Exception) {
+                if (page == 1) {
+                    statusPage.showError()
+                }
+                callback?.invoke(false, hasMoreData)
+            } finally {
+                isLoading = false
             }
-            isLoading = false
         }
 
     }
