@@ -126,6 +126,7 @@
                     android:layout_height="40dp"
                     android:layout_marginEnd="12dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:importantForAccessibility="no"
                     android:scaleType="fitCenter"
                     android:padding="6dp"
                     android:tint="?colorPrimary"

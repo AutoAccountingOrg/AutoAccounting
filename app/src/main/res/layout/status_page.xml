@@ -31,6 +31,7 @@
             android:id="@+id/empty_icon"
             android:layout_width="200dp"
             android:layout_height="200dp"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_empty" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -54,6 +55,7 @@
             android:id="@+id/error_icon"
             android:layout_width="200dp"
             android:layout_height="200dp"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_net_error" />
 
         <com.google.android.material.textview.MaterialTextView
