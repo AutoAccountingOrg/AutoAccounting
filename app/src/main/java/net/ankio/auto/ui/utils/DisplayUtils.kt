@@ -15,12 +15,14 @@
 
 package net.ankio.auto.ui.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
 import android.util.TypedValue
 import android.view.Display
+import android.view.WindowInsets
 import android.view.WindowManager
 import net.ankio.auto.autoApp
 
@@ -51,9 +53,14 @@ object DisplayUtils {
         if (navHeight < 0) {
             synchronized(this) {
                 if (navHeight < 0) {  // 双重检查锁定
-                    val res = context.resources
-                    val navId = res.getIdentifier("navigation_bar_height", "dimen", "android")
-                    navHeight = if (navId > 0) res.getDimensionPixelSize(navId) else 0
+                    navHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        val windowManager =
+                            context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                        windowManager.currentWindowMetrics.windowInsets
+                            .getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars()).bottom
+                    } else {
+                        getApi29NavigationBarHeight(context)
+                    }
                 }
             }
         }
@@ -69,13 +76,33 @@ object DisplayUtils {
         if (statusHeight < 0) {
             synchronized(this) {
                 if (statusHeight < 0) {  // 双重检查锁定
-                    val res = context.resources
-                    val statusId = res.getIdentifier("status_bar_height", "dimen", "android")
-                    statusHeight = if (statusId > 0) res.getDimensionPixelSize(statusId) else 0
+                    statusHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        val windowManager =
+                            context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                        windowManager.currentWindowMetrics.windowInsets
+                            .getInsetsIgnoringVisibility(WindowInsets.Type.statusBars()).top
+                    } else {
+                        getApi29StatusBarHeight(context)
+                    }
                 }
             }
         }
         return statusHeight
+    }
+
+    // API 29 has no supported Context-only WindowMetrics inset API.
+    @SuppressLint("DiscouragedApi", "InternalInsetResource")
+    private fun getApi29NavigationBarHeight(context: Context): Int {
+        val resourceId =
+            context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        return if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId) else 0
+    }
+
+    // API 29 has no supported Context-only WindowMetrics inset API.
+    @SuppressLint("DiscouragedApi", "InternalInsetResource")
+    private fun getApi29StatusBarHeight(context: Context): Int {
+        val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId) else 0
     }
 
     /**
