@@ -146,8 +146,18 @@ android {
     }
 
     lint {
-        checkReleaseBuilds = false
-        abortOnError = false
+        checkReleaseBuilds = true
+        abortOnError = true
+        warningsAsErrors = false
+        fatal += setOf(
+            "CheckResult",
+            "InlinedApi",
+            "NewApi",
+            "Recycle",
+            "MissingPermission",
+            "WrongConstant",
+            "LaunchActivityFromNotification",
+        )
     }
 
 }
