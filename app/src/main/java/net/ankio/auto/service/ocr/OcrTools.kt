@@ -125,9 +125,21 @@ object OcrTools {
     }
 
     suspend fun collapseStatusBar() {
-        SelectToSpeakService.instance?.performGlobalAction(
-            AccessibilityService.GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            SelectToSpeakService.instance?.performGlobalAction(
+                AccessibilityService.GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE
+            )
+        } else {
+            withContext(Dispatchers.IO) {
+                Shell(BuildConfig.APPLICATION_ID).use { shell ->
+                    runCatching {
+                        if (shell.checkPermission()) {
+                            shell.exec("cmd statusbar collapse")
+                        }
+                    }
+                }
+            }
+        }
         delay(500)
     }
 }

@@ -15,6 +15,7 @@ import net.ankio.auto.constant.WorkMode
 import org.ezbook.server.intent.IntentType
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.utils.PrefManager
 
 /**
@@ -144,18 +145,24 @@ class CoreService : LifecycleService() {
      * 创建一个低优先级、静默的通知，点击触发手动 OCR（通知不清除）
      */
     private fun buildNotification(): Notification {
+        val appIntent = Intent(this, MainActivity::class.java)
+        val appPendingIntent = PendingIntent.getActivity(
+            this, 0, appIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         val ocrIntent = Intent(this, CoreService::class.java).apply {
             putExtra("intentType", IntentType.OCR.name)
             putExtra("manual", true)
         }
-        val pendingIntent = PendingIntent.getService(
-            this, 0, ocrIntent,
+        val ocrPendingIntent = PendingIntent.getService(
+            this, 1, ocrIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.icon_auto)
             .setContentTitle(getString(R.string.service_notification_title))
-            .setContentIntent(pendingIntent)
+            .setContentIntent(appPendingIntent)
+            .addAction(R.drawable.ic_ocr, getString(R.string.ocr_tile_title), ocrPendingIntent)
             .setOngoing(true)
             .setShowWhen(false)
             .setSilent(true)
