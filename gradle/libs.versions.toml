@@ -46,7 +46,7 @@ htmlKtx = "1.1.2"
 
 # Image Loading
 glide = "4.16.0"
-bugly = "latest.release"
+bugly = "4.1.9.3"
 mmkv = "1.3.5"
 zip4j = "2.11.5"
 
