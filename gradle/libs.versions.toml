@@ -73,7 +73,7 @@ materialThemeBuilder = "1.5.1"
 autoresconfig = "1.2.2"
 lifecycleService = "2.10.0"
 # Machine learning (Columbus-style back tap detection)
-liteRt = "2.1.0"
+liteRt = "2.1.5"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
