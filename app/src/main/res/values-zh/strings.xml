@@ -88,7 +88,7 @@
     <string name="useless_condition">条件不能为空</string>
     <string name="useless_book">账本不能为空</string>
     <string name="useless_category">分类不能为空</string>
-    <string name="upload_waiting">上传中...</string>
+    <string name="upload_waiting">上传中…</string>
     <string name="sure_update">更新</string>
     <string name="share_file">分享日志</string>
     <string name="setting_debug">调试模式</string>
@@ -112,12 +112,12 @@
     <string name="title_book_edit">编辑账本</string>
     <string name="edit_book">编辑账本</string>
     <string name="book_name_hint">输入账本名称</string>
-    <string name="book_name_helper">账本名称应为 1-20 个字符</string>
+    <string name="book_name_helper">账本名称应为 1–20 个字符</string>
     <string name="book_icon_label">账本图标</string>
     <string name="tap_to_select_icon">点击选择图标</string>
     <string name="icon_selected">图标已选择</string>
     <string name="btn_create">创建</string>
-    <string name="saving">保存中...</string>
+    <string name="saving">保存中…</string>
 
     <!-- Book Edit Messages -->
     <string name="book_name_required">账本名称是必需的</string>
@@ -195,7 +195,7 @@
     <string name="setting_backup">备份</string>
     <string name="setting_webdav_host">WebDav 服务提供商</string>
     <string name="backup_success">备份成功</string>
-    <string name="restore_loading">恢复中...</string>
+    <string name="restore_loading">恢复中…</string>
     <string name="unsupport_backup">无法恢复 【%s】 版本数据，请将应用降级到该版本后重试。</string>
     <string name="backup_error">数据库备份失败。</string>
     <string name="restore_success">恢复成功</string>
@@ -203,8 +203,8 @@
     <string name="net_error_msg_rule">网络错误，请在设置中更改源后重试。</string>
     <string name="backup_not_found">服务器上未找到备份文件</string>
     <string name="restore_webdav">下载备份文件</string>
-    <string name="backup_webdav">准备上传...</string>
-    <string name="backup_pack">打包数据...</string>
+    <string name="backup_webdav">准备上传…</string>
+    <string name="backup_pack">打包数据…</string>
 
     <!-- Backup and Restore Error Messages -->
     <string name="backup_error_select_path">请先选择备份保存路径</string>
@@ -248,9 +248,9 @@
     <string name="update_rule">更新规则：%s</string>
     <string name="no_empty">两侧的替换内容不能为空。</string>
     <string name="no_replace">没有内容被替换</string>
-    <string name="loading_logs">打包日志...</string>
+    <string name="loading_logs">打包日志…</string>
     <string name="no_need_to_update">无需更新。长按强制更新。</string>
-    <string name="check_update">检查更新...</string>
+    <string name="check_update">检查更新…</string>
     <string name="delete_bill_message">您确定要删除此账单吗？</string>
     <string name="delete_data_message">您确定要删除此数据吗？</string>
     <string name="copy">复制</string>
@@ -278,15 +278,15 @@
     <string name="filter_match_only">仅匹配</string>
     <string name="filter_unmatched_only">仅未匹配</string>
 
-    <string name="downloading">下载规则...</string>
+    <string name="downloading">下载规则…</string>
     <string name="update_error">更新失败</string>
-    <string name="delete_rule">移除无效规则...</string>
+    <string name="delete_rule">移除无效规则…</string>
     <string name="add_rule">添加规则：%s</string>
     <string name="unzip_finish">解压完成</string>
     <string name="unzip">解压：%s</string>
     <string name="auto_record">自动</string>
 
-    <string name="item_search">搜索...</string>
+    <string name="item_search">搜索…</string>
     <string name="item_purchase">购买</string>
     <string name="title_notice">通知监控</string>
     <string name="auto_apps">请选择记账应用</string>
@@ -335,8 +335,8 @@
     <string name="setting_bill_show_rule">在账单页面显示识别规则</string>
     <string name="auto_create">自动生成</string>
     <string name="setting_ai">AI 功能</string>
-    <string name="rule_testing">测试规则...</string>
-    <string name="loading">加载中...</string>
+    <string name="rule_testing">测试规则…</string>
+    <string name="loading">加载中…</string>
     <string name="setting_bill_one_api_uri">API 地址</string>
     <string name="setting_bill_auto_record">自动记录账单时显示提醒</string>
     <string name="setting_clear_database">清除数据库</string>
@@ -602,7 +602,7 @@
 
     <string name="action_run">运行</string>
     <string name="ai_assist">AI 辅助</string>
-    <string name="ai_assist_optimizing">AI 正在优化您的代码...</string>
+    <string name="ai_assist_optimizing">AI 正在优化您的代码…</string>
     <string name="ai_assist_failed">AI 优化失败：%s</string>
     <string name="ai_assist_no_result">AI 未返回优化代码</string>
     <string name="ai_assist_empty_code">没有代码可优化</string>
@@ -934,7 +934,7 @@
     <string name="item_count_format">共 %1$d 项</string>
 
     <!-- 浮窗动作显示名称 & 通用字符串 -->
-    <string name="clearing">清除中...</string>
+    <string name="clearing">清除中…</string>
     <string name="never">从不</string>
     <string name="setting_not_set">未设置</string>
     <string name="setting_timeout_seconds">%d 秒</string>
@@ -984,18 +984,18 @@
     <string name="setting_auto_asset_mapping_disabled">必须先启用资产管理功能</string>
 
     <!-- 备份恢复过程提示 -->
-    <string name="backup_preparing">准备备份...</string>
-    <string name="backup_database">备份数据库...</string>
-    <string name="backup_preferences">备份偏好设置...</string>
-    <string name="backup_creating_index">创建索引文件...</string>
-    <string name="backup_compressing">压缩文件...</string>
-    <string name="restore_preparing">准备恢复...</string>
-    <string name="restore_extracting">解压备份...</string>
-    <string name="restore_validating">验证备份...</string>
-    <string name="restore_database">恢复数据库...</string>
-    <string name="restore_preferences">恢复偏好设置...</string>
-    <string name="restore_clearing_cache">清理缓存...</string>
-    <string name="restore_restarting">重启应用...</string>
+    <string name="backup_preparing">准备备份…</string>
+    <string name="backup_database">备份数据库…</string>
+    <string name="backup_preferences">备份偏好设置…</string>
+    <string name="backup_creating_index">创建索引文件…</string>
+    <string name="backup_compressing">压缩文件…</string>
+    <string name="restore_preparing">准备恢复…</string>
+    <string name="restore_extracting">解压备份…</string>
+    <string name="restore_validating">验证备份…</string>
+    <string name="restore_database">恢复数据库…</string>
+    <string name="restore_preferences">恢复偏好设置…</string>
+    <string name="restore_clearing_cache">清理缓存…</string>
+    <string name="restore_restarting">重启应用…</string>
 
     <!-- Canary版本警告 -->
     <string name="canary_warning_title">Canary版本风险警告</string>
@@ -1011,7 +1011,7 @@
 
     <!-- JS编辑器相关 -->
     <string name="js_code_empty">JS代码为空</string>
-    <string name="js_executing">执行中...</string>
+    <string name="js_executing">执行中…</string>
     <string name="js_execution_result">执行结果</string>
     <string name="js_saved">已保存</string>
     <string name="test_data_empty">测试数据为空</string>
@@ -1064,7 +1064,7 @@
     <string name="log_level_error">错误</string>
 
     <!-- 同步状态消息 -->
-    <string name="sync_starting">开始同步...</string>
+    <string name="sync_starting">开始同步…</string>
     <string name="sync_completed">同步完成！已同步 %1$d 条账单</string>
     <string name="sync_no_bills">没有需要同步的账单</string>
     <string name="repeat_toast_action_dont_merge">不去重</string>
@@ -1144,4 +1144,5 @@
     <string name="clear_all_analysis_message">确定要删除所有财务分析任务吗？此操作不可恢复。</string>
     <string name="clear_all_analysis_success">已清空所有分析任务</string>
     <string name="clear_all_analysis_failed">清空失败，请重试</string>
+    <string name="switch_transfer_direction">切换转账方向</string>
 </resources>

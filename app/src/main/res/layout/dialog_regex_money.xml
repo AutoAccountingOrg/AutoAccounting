@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/border_side"
-        android:text=" ~ " />
+        android:text="@string/range_separator" />
 
     <com.google.android.material.textfield.TextInputLayout
 

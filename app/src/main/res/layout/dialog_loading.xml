@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
-        android:text="Loading..."
+        android:text="@string/loading"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="?colorOnPrimary" />
 </LinearLayout>

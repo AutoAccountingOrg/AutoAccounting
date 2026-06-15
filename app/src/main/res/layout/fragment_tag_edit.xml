@@ -92,6 +92,7 @@
                         android:id="@+id/tag_group_input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:hint="@string/tag_group"
                         android:inputType="text"
                         android:maxLength="20"
                         android:completionThreshold="0" />
