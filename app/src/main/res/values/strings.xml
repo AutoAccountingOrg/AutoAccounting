@@ -40,7 +40,10 @@
     <string name="sure_msg">Confirm</string>
     <string name="batch_delete">Batch delete</string>
     <string name="batch_delete_title">Batch delete</string>
-    <string name="batch_delete_confirm">Are you sure you want to delete %d rules? This action cannot be undone.</string>
+    <plurals name="batch_delete_confirm">
+        <item quantity="one">Are you sure you want to delete %d rule? This action cannot be undone.</item>
+        <item quantity="other">Are you sure you want to delete %d rules? This action cannot be undone.</item>
+    </plurals>
     <string name="select_all">Select all</string>
     <string name="cancel_select_all">Deselect all</string>
     <string name="add">Add</string>
@@ -333,7 +336,10 @@
     <string name="lend">Lend</string>
     <string name="borrow">Borrow</string>
     <string name="float_choose_bill">Please select bill</string>
-    <string name="float_choose_bills">Selected %d bills</string>
+    <plurals name="float_choose_bills">
+        <item quantity="one">Selected %d bill</item>
+        <item quantity="other">Selected %d bills</item>
+    </plurals>
     <string name="version_stable">Stable</string>
     <string name="version_beta">Beta</string>
     <string name="version_canary">Canary</string>
@@ -552,7 +558,10 @@
     <string name="action_continue">Continue</string>
     <string name="perm_required_not_complete">Some required permissions are still missing. Please grant them before continuing.</string>
     <string name="perm_optional">optional</string>
-    <string name="perm_optional_missing_hint">%d optional permissions not granted, may affect some features</string>
+    <plurals name="perm_optional_missing_hint">
+        <item quantity="one">%d optional permission not granted, may affect some features</item>
+        <item quantity="other">%d optional permissions not granted, may affect some features</item>
+    </plurals>
 
     <!-- Shell capability (Root or Shizuku) -->
     <string name="perm_shell_title">Root or Shizuku</string>
@@ -706,7 +715,10 @@
     <string name="disable_rule_title">Disable Rule</string>
     <string name="disable_rule_message">Are you sure you want to disable the rule \"%s\"?</string>
     <string name="rule_not_found">Rule not found</string>
-    <string name="rule_disabled_success">Successfully disabled %d rule(s)</string>
+    <plurals name="rule_disabled_success">
+        <item quantity="one">Successfully disabled %d rule</item>
+        <item quantity="other">Successfully disabled %d rules</item>
+    </plurals>
     <string name="rule_disable_failed">Failed to disable rule</string>
 
 
@@ -721,7 +733,10 @@
     <string name="btn_confirm">Confirm</string>
     <string name="replace_preview_title">Replace Preview</string>
     <string name="btn_confirm_replace">Confirm Replace</string>
-    <string name="item_count_format">%1$d items total</string>
+    <plurals name="item_count_format">
+        <item quantity="one">%1$d item total</item>
+        <item quantity="other">%1$d items total</item>
+    </plurals>
     <string name="rule_issue">Rules contain errors</string>
 
     <!-- Category Fragment -->
@@ -762,7 +777,10 @@
     <string name="tag_group_hint">Select or enter group name</string>
     <string name="bill_tag_title">Tags</string>
     <string name="bill_tag_empty">No tags available</string>
-    <string name="bill_tag_limit">You can select up to %d tags</string>
+    <plurals name="bill_tag_limit">
+        <item quantity="one">You can select up to %d tag</item>
+        <item quantity="other">You can select up to %d tags</item>
+    </plurals>
     <string name="bill_tag_unselected">Select tags</string>
     <string name="select_color">Select Color</string>
     <string name="delete_tag_message">Are you sure to delete tag "%s"?</string>
@@ -822,11 +840,17 @@
     <string name="setting_auto_group">Automatic deduplication</string>
     <string name="setting_auto_group_summary">Automatically detect and merge duplicate bills</string>
     <string name="setting_auto_group_time_threshold">Deduplication Time Threshold</string>
-    <string name="setting_auto_group_time_threshold_summary">Similar bills within %d seconds will be deduplicated</string>
+    <plurals name="setting_auto_group_time_threshold_summary">
+        <item quantity="one">Similar bills within %d second will be deduplicated</item>
+        <item quantity="other">Similar bills within %d seconds will be deduplicated</item>
+    </plurals>
     <string name="setting_auto_transfer_recognition">Auto Transfer Recognition</string>
     <string name="setting_auto_transfer_recognition_summary">Identify income and expense bills with the same amount within a short time as transfer bills</string>
     <string name="setting_auto_transfer_time_threshold">Transfer Merge Time Threshold</string>
-    <string name="setting_auto_transfer_time_threshold_summary">Income and expense bills with the same amount within %d seconds will be identified as transfer</string>
+    <plurals name="setting_auto_transfer_time_threshold_summary">
+        <item quantity="one">Income and expense bills with the same amount within %d second will be identified as transfer</item>
+        <item quantity="other">Income and expense bills with the same amount within %d seconds will be identified as transfer</item>
+    </plurals>
     <string name="setting_bill_auto_record_summary">Show notification when auto recording bills</string>
     <string name="setting_load_success_summary">Show notification when loading successfully</string>
     <string name="setting_default_book">Default Book</string>
@@ -902,7 +926,10 @@
     <string name="clearing">Clearing…</string>
     <string name="never">Never</string>
     <string name="setting_not_set">Not Set</string>
-    <string name="setting_timeout_seconds">%d seconds</string>
+    <plurals name="setting_timeout_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
     <string name="float_action_edit">Edit Bill</string>
     <string name="setting_asset_manager">Asset Management</string>
     <string name="setting_asset_manager_summary">Enable asset management features</string>
@@ -911,7 +938,11 @@
     <string name="setting_base_currency">Base Currency</string>
     <string name="setting_base_currency_summary">Current: %s</string>
     <string name="setting_selected_currencies">Favorite Currencies</string>
-    <string name="setting_selected_currencies_summary">Selected %d currencies for quick access</string>
+    <plurals name="setting_selected_currencies_summary">
+        <item quantity="one">Selected %d currency for quick access</item>
+        <item quantity="other">Selected %d currencies for quick access</item>
+    </plurals>
+    <string name="setting_selected_currencies_summary_default">Configure currencies for quick access</string>
     <string name="setting_reimbursement">Reimbursement</string>
     <string name="setting_reimbursement_summary">Enable reimbursement tracking</string>
     <string name="setting_debt">Debt Management</string>
@@ -925,7 +956,11 @@
     <string name="setting_auto_backup">Auto Backup</string>
     <string name="setting_auto_backup_summary">Automatically backup data locally</string>
     <string name="setting_backup_keep_count">Backup Keep Count</string>
-    <string name="setting_backup_keep_count_summary">Keep %d backup files (applies to both local and WebDAV backups)</string>
+    <plurals name="setting_backup_keep_count_summary">
+        <item quantity="one">Keep %d backup file (applies to both local and WebDAV backups)</item>
+        <item quantity="other">Keep %d backup files (applies to both local and WebDAV backups)</item>
+    </plurals>
+    <string name="setting_backup_keep_count_summary_default">Configure how many local and WebDAV backups to keep</string>
     <string name="setting_backup_keep_count_updated">Backup keep count updated to %d</string>
     <string name="setting_backup_keep_count_invalid">Please enter a valid number between 1 and 100</string>
     <string name="setting_webdav_url">WebDAV Server URL</string>
@@ -1028,7 +1063,10 @@
 
     <!-- Sync status messages -->
     <string name="sync_starting">Starting sync…</string>
-    <string name="sync_completed">Sync completed! %1$d bills synced</string>
+    <plurals name="sync_completed">
+        <item quantity="one">Sync completed! %1$d bill synced</item>
+        <item quantity="other">Sync completed! %1$d bills synced</item>
+    </plurals>
     <string name="sync_no_bills">No bills to sync</string><!-- Period selection -->
     <string name="period_last_week">Last Week</string>
     <string name="period_last_30_days">Last 30 Days</string>

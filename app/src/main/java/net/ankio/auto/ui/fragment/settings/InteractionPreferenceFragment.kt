@@ -132,7 +132,7 @@ class InteractionPreferenceFragment : BasePreferenceFragment() {
     private fun Preference.updateSummary() {
         val timeoutValue = PrefManager.floatTimeoutOff
         summary = if (timeoutValue > 0) {
-            getString(R.string.setting_timeout_seconds, timeoutValue)
+            resources.getQuantityString(R.plurals.setting_timeout_seconds, timeoutValue, timeoutValue)
         } else {
             getString(R.string.setting_float_badge_disabled)
         }

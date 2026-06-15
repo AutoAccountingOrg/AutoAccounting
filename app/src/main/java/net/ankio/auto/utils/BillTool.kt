@@ -186,7 +186,9 @@ object BillTool {
                 }
             }
 
-            ToastUtils.info(autoApp.getString(R.string.sync_completed, syncedCount))
+            ToastUtils.info(
+                autoApp.resources.getQuantityString(R.plurals.sync_completed, syncedCount, syncedCount)
+            )
 
 
         }

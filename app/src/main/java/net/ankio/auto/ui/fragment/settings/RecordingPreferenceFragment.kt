@@ -208,7 +208,11 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
     private fun updateSelectedCurrenciesSummary() {
         findPreference<Preference>("selectedCurrencies")?.apply {
             val count = PrefManager.getSelectedCurrencySet().size
-            summary = getString(R.string.setting_selected_currencies_summary, count)
+            summary = resources.getQuantityString(
+                R.plurals.setting_selected_currencies_summary,
+                count,
+                count
+            )
         }
     }
 
@@ -336,13 +340,21 @@ class RecordingPreferenceFragment : BasePreferenceFragment() {
         // 自动去重时间阈值
         findPreference<Preference>("autoGroupTimeThreshold")?.apply {
             val threshold = PrefManager.autoGroupTimeThreshold
-            summary = getString(R.string.setting_auto_group_time_threshold_summary, threshold)
+            summary = resources.getQuantityString(
+                R.plurals.setting_auto_group_time_threshold_summary,
+                threshold,
+                threshold
+            )
         }
 
         // 转账合并时间阈值
         findPreference<Preference>("autoTransferTimeThreshold")?.apply {
             val threshold = PrefManager.autoTransferTimeThreshold
-            summary = getString(R.string.setting_auto_transfer_time_threshold_summary, threshold)
+            summary = resources.getQuantityString(
+                R.plurals.setting_auto_transfer_time_threshold_summary,
+                threshold,
+                threshold
+            )
         }
     }
 

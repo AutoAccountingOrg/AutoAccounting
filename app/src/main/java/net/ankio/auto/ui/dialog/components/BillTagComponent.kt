@@ -82,7 +82,9 @@ class BillTagComponent(
                 updateBillTags(selected)
             },
             onSelectionLimitReached = { limit ->
-                ToastUtils.info(context.getString(R.string.bill_tag_limit, limit))
+                ToastUtils.info(
+                    context.resources.getQuantityString(R.plurals.bill_tag_limit, limit, limit)
+                )
             }
         )
         recyclerView.adapter = adapter

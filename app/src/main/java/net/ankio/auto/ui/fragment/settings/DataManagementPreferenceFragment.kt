@@ -400,7 +400,11 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
         // 更新备份保留数量显示
         findPreference<Preference>("setting_backup_keep_count")?.apply {
             summary =
-                getString(R.string.setting_backup_keep_count_summary, PrefManager.backupKeepCount)
+                resources.getQuantityString(
+                    R.plurals.setting_backup_keep_count_summary,
+                    PrefManager.backupKeepCount,
+                    PrefManager.backupKeepCount
+                )
         }
 
         // 更新WebDAV配置显示

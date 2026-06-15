@@ -330,7 +330,7 @@ class CategoryRulePageFragment :
     private fun showBatchDeleteConfirmDialog(count: Int) {
         BaseSheetDialog.create<BottomSheetDialogBuilder>(requireActivity())
             .setTitle(getString(R.string.batch_delete_title))
-            .setMessage(getString(R.string.batch_delete_confirm, count))
+            .setMessage(resources.getQuantityString(R.plurals.batch_delete_confirm, count, count))
             .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
                 performBatchDelete()
             }
