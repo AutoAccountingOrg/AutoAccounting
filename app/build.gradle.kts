@@ -139,6 +139,12 @@ android {
         )
     }
 
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     lint {
         checkReleaseBuilds = false
         abortOnError = false

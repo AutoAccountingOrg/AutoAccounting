@@ -52,7 +52,6 @@ class BreathingGradientView @JvmOverloads constructor(
 
     init {
         setWillNotDraw(false)
-        setupAnimator()
     }
 
     private fun setupAnimator() {
@@ -65,13 +64,16 @@ class BreathingGradientView @JvmOverloads constructor(
                 progress = it.animatedValue as Float
                 invalidate()
             }
+            start()
         }
     }
 
     // Start animation when attached to window
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        animator?.start()
+        if (animator == null) {
+            setupAnimator()
+        }
     }
 
     // Stop animation when detached from window

@@ -87,7 +87,7 @@ fun ImageView.load(
     defaultResId: Int? = null,
 ) {
 
-    val glide = Glide.with(this)
+    var glide = Glide.with(this)
         .load(
             when {
                 src.isNullOrBlank() -> defaultResId          // 空串直接用占位图
@@ -96,7 +96,7 @@ fun ImageView.load(
         )
         .error(defaultResId)
     if (defaultResId != null) {
-        glide.fallback(defaultResId)
+        glide = glide.fallback(defaultResId)
     }
     glide.into(this)
 }

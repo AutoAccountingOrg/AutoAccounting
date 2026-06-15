@@ -299,7 +299,7 @@ class BackupManager(private val context: Context) {
                 DocumentsContract.getTreeDocumentId(uri)
             )
 
-            context.contentResolver.query(
+            val cursor = context.contentResolver.query(
                 childrenUri,
                 arrayOf(
                     DocumentsContract.Document.COLUMN_DISPLAY_NAME,
@@ -308,7 +308,9 @@ class BackupManager(private val context: Context) {
                 null,
                 null,
                 null
-            )?.use { cursor ->
+            )
+            try {
+                if (cursor == null) return@withIO
                 val nameIndex =
                     cursor.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
                 val idIndex =
@@ -322,6 +324,8 @@ class BackupManager(private val context: Context) {
                         backupFiles.add(Pair(name, fileUri))
                     }
                 }
+            } finally {
+                cursor?.close()
             }
 
             // 按文件名排序（文件名包含时间戳，降序排列）
