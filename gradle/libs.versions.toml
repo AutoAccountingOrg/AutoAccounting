@@ -57,7 +57,7 @@ appcenterAnalytics = "5.0.6"
 appcenterCrashes = "5.0.6"
 
 # Coroutines
-kotlinxCoroutinesAndroid = "1.8.0"
+kotlinxCoroutinesAndroid = "1.10.2"
 
 # Android System and Xposed
 xposed = "82"
