@@ -112,7 +112,8 @@ class AnalysisTaskAdapter : BaseAdapter<ItemAnalysisTaskBinding, AnalysisTaskMod
         if (data.status == AnalysisTaskStatus.PROCESSING) {
             binding.progressContainer.visibility = View.VISIBLE
             binding.progressBar.progress = data.progress
-            binding.progressText.text = "${data.progress}%"
+            binding.progressText.text =
+                binding.root.context.getString(R.string.percentage_format, data.progress)
             binding.progressText.setTextColor(DynamicColors.Primary)
         } else {
             binding.progressContainer.visibility = View.GONE

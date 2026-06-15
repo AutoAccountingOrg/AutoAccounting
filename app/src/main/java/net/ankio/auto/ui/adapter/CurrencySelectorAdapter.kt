@@ -24,6 +24,7 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.utils.load
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.db.model.CurrencyModel
+import java.util.Locale
 
 /**
  * 币种选择适配器
@@ -118,7 +119,11 @@ class CurrencySelectorAdapter(
                 && data.code != baseCurrencyCode
                 && data.rate > 0
         if (showRate) {
-            binding.rateText.text = "≈ ${formatRate(data.rate)} $baseCurrencyCode"
+            binding.rateText.text = context.getString(
+                R.string.approximate_rate_format,
+                formatRate(data.rate),
+                baseCurrencyCode
+            )
             binding.rateText.visibility = View.VISIBLE
         } else {
             binding.rateText.visibility = View.GONE
@@ -127,9 +132,9 @@ class CurrencySelectorAdapter(
 
     /** 格式化汇率数值：保留合理精度 */
     private fun formatRate(rate: Double): String = when {
-        rate >= 100 -> String.format("%.0f", rate)
-        rate >= 1 -> String.format("%.2f", rate)
-        else -> String.format("%.4f", rate)
+        rate >= 100 -> String.format(Locale.getDefault(), "%.0f", rate)
+        rate >= 1 -> String.format(Locale.getDefault(), "%.2f", rate)
+        else -> String.format(Locale.getDefault(), "%.4f", rate)
     }
 
     override fun areItemsSame(oldItem: CurrencyModel, newItem: CurrencyModel): Boolean =

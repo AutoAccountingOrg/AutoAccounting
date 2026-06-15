@@ -118,19 +118,19 @@ object BillTool {
         view.setTextColor(color)
         // 有货币单位则追加到金额后面，如 "- 100.0 USD"
         val suffix = if (currencyUnit.isNullOrEmpty()) "" else " $currencyUnit"
-        when (t) {
+        val sign = when (t) {
             BillType.Expend, BillType.ExpendReimbursement, BillType.ExpendLending, BillType.ExpendRepayment -> {
-                view.text = "- $price$suffix"
+                "- "
             }
 
             BillType.Income, BillType.IncomeLending, BillType.IncomeRepayment, BillType.IncomeReimbursement -> {
-                view.text = "+ $price$suffix"
+                "+ "
             }
 
-            else -> {
-                view.text = "$price$suffix"
-            }
+            else -> ""
         }
+        view.text =
+            view.context.getString(R.string.bill_amount_format, sign, price.toString(), suffix)
     }
 
     /**

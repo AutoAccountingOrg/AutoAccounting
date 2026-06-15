@@ -312,7 +312,7 @@ class CategoryRulePageFragment :
      */
     private fun updateBatchDeleteUI(selectedCount: Int) {
         // 更新删除按钮文本和状态
-        binding.batchDeleteButton.text = getString(R.string.delete_data) + "($selectedCount)"
+        binding.batchDeleteButton.text = getString(R.string.delete_data_count, selectedCount)
         binding.batchDeleteButton.isEnabled = selectedCount > 0
 
         // 更新全选按钮文本

@@ -1145,4 +1145,6 @@
     <string name="clear_all_analysis_success">已清空所有分析任务</string>
     <string name="clear_all_analysis_failed">清空失败，请重试</string>
     <string name="switch_transfer_direction">切换转账方向</string>
+    <string name="approximate_rate_format">≈ %1$s %2$s</string>
+    <string name="delete_data_count">删除（%d）</string>
 </resources>

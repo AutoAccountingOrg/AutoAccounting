@@ -1168,4 +1168,9 @@
     <string name="switch_transfer_direction">Switch transfer direction</string>
     <string name="transfer_direction_arrow" translatable="false">➜</string>
     <string name="range_separator" translatable="false">–</string>
+    <string name="percentage_format" translatable="false">%d%%</string>
+    <string name="approximate_rate_format">≈ %1$s %2$s</string>
+    <string name="delete_data_count">Delete (%d)</string>
+    <string name="version_format" translatable="false">v%s</string>
+    <string name="bill_amount_format" translatable="false">%1$s%2$s%3$s</string>
 </resources>
