@@ -18,7 +18,7 @@ recyclerviewSelection = "1.1.0"
 
 # Navigation and Lifecycle
 navigationFragment = "2.9.0"
-lifecycleRuntimeKtx = "2.9.3"
+lifecycleRuntimeKtx = "2.10.0"
 lifecycleLiveDataKtx = "2.8.7"
 fragmentKtx = "1.8.6"
 
@@ -70,7 +70,7 @@ quickjsAndroid = "35726a9d28"
 # Theme and Resources
 materialThemeBuilder = "1.5.1"
 autoresconfig = "1.2.2"
-lifecycleService = "2.9.2"
+lifecycleService = "2.10.0"
 # Machine learning (Columbus-style back tap detection)
 liteRt = "2.1.0"
 junit = "4.13.2"
