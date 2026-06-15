@@ -3,7 +3,6 @@
 
     <style name="ThemeOverlay" />
 
-    <style name="ThemeOverlay.Dark" />
 
     <style name="ThemeOverlay.Black">
         <item name="colorSurface">@android:color/black</item>

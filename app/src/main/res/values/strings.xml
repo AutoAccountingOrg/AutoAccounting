@@ -19,7 +19,6 @@
     <string name="title_home">Home</string>
     <string name="title_data">Data</string>
     <string name="title_rule">Rule</string>
-    <string name="title_rule_manage">Rule Management</string>
     <string name="title_rule_edit">Edit Rule</string>
     <string name="tab_data_rules">Data Rules</string>
     <string name="tab_category_rules">Category Rules</string>
@@ -93,7 +92,6 @@
     <string name="upload_waiting">Uploading…</string>
     <string name="sure_update">Update</string>
     <string name="share_file">Share log</string>
-    <string name="setting_debug">Debug mode</string>
     <string name="auto_success">Auto accounting success, amount is %s</string>
     <string name="btn_save">Save</string>
     <string name="float_remark">Remark</string>
@@ -104,7 +102,6 @@
     <string name="float_income_debt">Creditor</string>
     <string name="restart">Restart auto accounting</string>
     <string name="copy_command_success">Copied to clipboard</string>
-    <string name="setting_app">Auto check app updates</string>
     <string name="cancel">Close</string>
 
     <string name="title_books">Books</string>
@@ -164,10 +161,8 @@
     <!-- Rule Edit labels -->
     <string name="rule_name">Name</string>
     <string name="rule_type">Type</string>
-    <string name="rule_enable">Enable</string>
     <string name="rule_edit_rule">Edit Rule</string>
     <string name="rule_tap_to_edit">Tap to edit rule</string>
-    <string name="rule_name_required">Rule name is required</string>
     <string name="save_rule_success">Rule saved successfully</string>
     <string name="rule_enabled_successfully">Rule enabled successfully</string>
     <string name="rule_disabled_successfully">Rule disabled successfully</string>
@@ -188,21 +183,17 @@
     <string name="reapply_confirm_message">Are you sure you want to reapply asset mapping to the last 3 months of historical data? This operation cannot be undone.</string>
     <string name="reapply_started">Asset mapping reapplication started</string>
     <string name="reapply_success">Asset mapping reapplication completed successfully</string>
-    <string name="drag_to_sort">Drag to sort</string>
     <string name="delete_title">Delete confirmation</string>
     <string name="delete_message">Are you sure you want to delete %s?</string>
 
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="item_clear">Clear</string>
-    <string name="setting_backup">Backup</string>
-    <string name="setting_webdav_host">WebDav service provider</string>
     <string name="backup_success">Backup successful</string>
     <string name="restore_loading">Restoring…</string>
     <string name="unsupport_backup">Cannot restore 【%s】 version data, please downgrade the app to that version and try again.</string>
     <string name="backup_error">Database backup failed.</string>
     <string name="restore_success">Restore successful</string>
-    <string name="net_error_msg">Network error</string>
     <string name="net_error_msg_rule">Network error, please change source in settings and try again.</string>
     <string name="backup_not_found">No backup file found on server</string>
     <string name="restore_webdav">Downloading backup file</string>
@@ -250,8 +241,6 @@
     <string name="restore_restarting">Restarting app…</string>
     <string name="setting_bill_remark">Remark format</string>
     <string name="setting_bill_remark_desc">Supports using the following Chinese variables:\nBasic: 【Merchant name】, 【Item name】, 【Amount】, 【Category】, 【Book】, 【Source】, 【Original asset】, 【Target asset】, 【Channel】\nExtended: 【Rule name】, 【AI】, 【Currency type】, 【Fee】, 【Tags】, 【Transaction type】, 【Time】</string>
-    <string name="setting_float_time">Countdown duration (seconds)</string>
-    <string name="setting_category">Category</string>
     <string name="setting_auto_create_category">Remember category</string>
     <string name="item_sync">Sync</string>
     <string name="auto_category">Detected that the category used when saving the bill is inconsistent with the category identified by the automatic accounting rule. Would you like to generate a new category rule?</string>
@@ -268,7 +257,6 @@
     <string name="delete_bill_message">Are you sure you want to delete this bill?</string>
     <string name="delete_data_message">Are you sure you want to delete this data?</string>
     <string name="copy">Copy</string>
-    <string name="title_data_rule">Data rules</string>
 
     <!-- Filter dropdown options -->
     <string name="filter_app">Application</string>
@@ -305,13 +293,6 @@
     <string name="data_type_app">Data</string>
     <string name="data_type_notice">Notification</string>
     <string name="data_type_ocr">OCR</string>
-    <string name="action_button_desc">Action button</string>
-    <string name="rule_desc_official_template">%1$s - Automatically recognize and record %2$s</string>
-    <string name="rule_desc_user_custom">Custom rule created by user</string>
-    <string name="rule_desc_type_notice">notification data</string>
-    <string name="rule_desc_type_app">app data</string>
-    <string name="rule_desc_type_sms">SMS data</string>
-    <string name="rule_desc_type_data">data</string>
     <string name="rule_desc_wechat_notice">%1$s - Follow the official account to receive notifications</string>
     <string name="rule_desc_alipay_app">%1$s - Keep Alipay running in background for data capture</string>
     <string name="rule_desc_sms_hint">%1$s - Enable SMS notifications from your bank</string>
@@ -319,7 +300,6 @@
 
     <string name="item_search">Search…</string>
     <string name="item_purchase">Purchase</string>
-    <string name="title_notice">Notification monitoring</string>
     <string name="auto_apps">Please select accounting app</string>
     <string name="type_credit">Credit account</string>
     <string name="type_normal">Normal asset</string>
@@ -362,8 +342,6 @@
     <string name="setting_clear_database">Clear database</string>
     <string name="clear_db_desc">Irreversible operation, only use when uninstalling auto accounting.</string>
     <string name="clear_db_msg">Are you sure you want to clear the database? Please ensure backup before clearing database.</string>
-    <string name="clearing_database">Clearing database…</string>
-    <string name="clear_database_success">Database cleared successfully</string>
     <string name="clear_database_failed">Failed to clear database: %s</string>
     <string name="clear_success">Clear successful</string>
 
@@ -377,7 +355,6 @@
     <string name="setting_ai_config_summary">Configure AI model and API settings</string>
     <string name="setting_ai_feature_available">Enable AI Features</string>
     <string name="setting_ai_feature_available_summary">Master switch for AI recognition and analysis</string>
-    <string name="setting_category_ai_config">AI Configuration</string>
     <string name="ai_test_connection">Test Connection</string>
     <string name="ai_test_result">Test Result</string>
     <string name="ai_test_success_message">AI connection successful! The model is working properly.</string>
@@ -399,7 +376,6 @@
     <string name="unknown">Unknown</string>
     <string name="title_category_rule">Auto category rules</string>
     <string name="title_sms_edit">Edit data filter conditions</string>
-    <string name="add_filter">Filter keywords</string>
     <string name="data_filter_whitelist_hint">Whitelist (one keyword per line, pass if any matches)</string>
     <string name="data_filter_blacklist_hint">Blacklist (one keyword per line, exclude if any matches)</string>
     <string name="picker_year">Year</string>
@@ -407,11 +383,9 @@
     <string name="picker_day">Day</string>
     <string name="picker_hour">:</string>
     <string name="date">Date</string>
-    <string name="status">Status</string>
     <string name="select_month">Select month</string>
     <string name="date_time">Time</string>
     <string name="title_bill">Bill list</string>
-    <string name="clear_db">Completely delete database</string>
     <string name="setting_landscape_dnd">Landscape do not disturb</string>
     <string name="un_group_title">Split into independent order</string>
     <string name="un_group_message">Are you sure you want to split this order from the current order into an independent order?</string>
@@ -422,11 +396,9 @@
     <string name="income_reimbursement_info">Reimbursement - %s</string>
     <string name="income_refund_info">Refund - %s</string>
     <string name="refund">Refund</string>
-    <string name="container">Fuzzy</string>
     <string name="item_wait_sync">Pending sync</string>
     <string name="item_wait_edit">Pending edit</string>
     <string name="item_synced">Synced</string>
-    <string name="setting_category_ai">Use AI-assisted categorization</string>
     <string name="service_channel_description">Auto-accounting background listener services</string>
     <string name="service_notification_title">Auto-accounting background service is running</string>
 
@@ -486,10 +458,6 @@
     </string>
 
     <!-- OCR Auth Mode Selection -->
-    <string name="select_ocr_auth_mode">Select OCR Authorization Method</string>
-    <string name="select_ocr_auth_mode_subtitle">Choose how to get foreground app and take screenshots</string>
-    <string name="ocr_auth_root_description">Use Root permission to get foreground app and take screenshots. Requires rooted device.</string>
-    <string name="ocr_auth_shizuku_description">Use Shizuku authorization to get foreground app and take screenshots. No root needed but requires Shizuku installed.</string>
     <string name="ocr_auth_accessibility_description">Use Accessibility Service to get foreground app and take screenshots. No root needed, suitable for most users.</string>
 
     <!-- OCR Tile -->
@@ -508,18 +476,14 @@
     <string name="auth_subtitle">To extract bill data, please grant the following permissions:</string>
 
     <string name="perm_notification_title">Notification Access</string>
-    <string name="perm_notification_desc">Allows the app to read incoming notifications to capture bill alerts.</string>
     <string name="perm_notification_desc_optional">Allows the app to read incoming notifications to capture bill alerts. This is optional for OCR mode.</string>
 
     <string name="perm_sms_title">SMS Read Access</string>
-    <string name="perm_sms_desc">Allows the app to read SMS messages for payment confirmation codes.</string>
     <string name="perm_sms_desc_optional">Allows the app to read SMS messages for payment confirmation codes. This is optional for OCR mode.</string>
 
     <string name="perm_overlay_title">Overlay Permission</string>
     <string name="perm_overlay_desc">Allows displaying floating windows for quick extraction tools.</string>
 
-    <string name="perm_ocr_perm_root">OCR Recognition (Root)</string>
-    <string name="perm_ocr_perm_shizuku">OCR Recognition (Shizuku)</string>
     <string name="perm_ocr_perm_accessibility">OCR Recognition (Accessibility)</string>
 
 
@@ -564,8 +528,6 @@
     </plurals>
 
     <!-- Shell capability (Root or Shizuku) -->
-    <string name="perm_shell_title">Root or Shizuku</string>
-    <string name="perm_shell_desc">Grant root (su) or Shizuku permission so the app can execute shell commands (e.g., screenshot). If Shizuku output fails on some MediaTek devices, try version 3.5.x.</string>
 
     <!-- Battery optimization -->
     <string name="keepalive_battery_fail">
@@ -647,10 +609,6 @@
     <!-- Common actions -->
     <string name="action_run">Run</string>
     <string name="ai_assist">AI Assist</string>
-    <string name="ai_assist_optimizing">AI is optimizing your code…</string>
-    <string name="ai_assist_failed">AI optimization failed: %s</string>
-    <string name="ai_assist_no_result">AI returned no optimized code</string>
-    <string name="ai_assist_empty_code">No code to optimize</string>
 
     <!-- Runtime messages -->
     <string name="sync_state_success">Synchronized data</string>
@@ -664,7 +622,6 @@
 
     <!-- Common toast: target app missing / cannot handle intent -->
     <string name="toast_target_app_not_installed">Target app "%1$s" not installed, unable to proceed</string>
-    <string name="toast_shell_not_ready">Root is not granted or Shizuku is not running</string>
     <!-- Finance card labels -->
     <string name="month_income">Monthly income</string>
     <string name="month_expense">Monthly expense</string>
@@ -679,7 +636,6 @@
     <string name="keepalive_notification_desc">Allow the app to send notifications to keep the foreground service running.</string>
 
 
-    <string name="settings_theme">Theme</string>
     <string name="settings_system_theme_color">System Theme Color</string>
     <string name="settings_theme_color">Theme Color</string>
     <string name="dark_theme">Dark Theme</string>
@@ -702,7 +658,6 @@
     <string name="no_discount">No discount</string>
     <string name="discounted">Discounted %.2f</string>
     <string name="handling_fee">Handling fee %.2f</string>
-    <string name="fee">Fee %.2f</string>
     <!-- Amount display: bill flags -->
     <string name="bill_flag_not_count">Exclude from totals</string>
     <string name="bill_flag_not_budget">Exclude from budget</string>
@@ -715,10 +670,6 @@
     <string name="disable_rule_title">Disable Rule</string>
     <string name="disable_rule_message">Are you sure you want to disable the rule \"%s\"?</string>
     <string name="rule_not_found">Rule not found</string>
-    <plurals name="rule_disabled_success">
-        <item quantity="one">Successfully disabled %d rule</item>
-        <item quantity="other">Successfully disabled %d rules</item>
-    </plurals>
     <string name="rule_disable_failed">Failed to disable rule</string>
 
 
@@ -731,12 +682,6 @@
     <string name="label_content">Content</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_confirm">Confirm</string>
-    <string name="replace_preview_title">Replace Preview</string>
-    <string name="btn_confirm_replace">Confirm Replace</string>
-    <plurals name="item_count_format">
-        <item quantity="one">%1$d item total</item>
-        <item quantity="other">%1$d items total</item>
-    </plurals>
     <string name="rule_issue">Rules contain errors</string>
 
     <!-- Category Fragment -->
@@ -772,11 +717,8 @@
     <string name="tag_name_required">Tag name is required</string>
     <string name="tag_name_too_long">Tag name is too long</string>
     <string name="tag_name_exists">Tag name already exists</string>
-    <string name="tag_color">Tag Color</string>
     <string name="tag_group">Tag Group</string>
     <string name="tag_group_hint">Select or enter group name</string>
-    <string name="bill_tag_title">Tags</string>
-    <string name="bill_tag_empty">No tags available</string>
     <plurals name="bill_tag_limit">
         <item quantity="one">You can select up to %d tag</item>
         <item quantity="other">You can select up to %d tags</item>
@@ -803,21 +745,11 @@
 
     <!-- JS Editor Strings -->
     <string name="unknown_error">Unknown error</string><!-- JS Template Comments --><!-- 设置分类标题 -->
-    <string name="setting_category_auto_record">Auto Recording</string>
-    <string name="setting_category_notification">Notifications</string>
-    <string name="setting_category_display">Display Settings</string>
-    <string name="setting_category_remark">Remark Settings</string>
-    <string name="setting_category_popup_style">Rounded Popup Style</string>
     <string name="setting_category_float_badge">Float Badge Settings</string>
-    <string name="setting_category_float_events">Float Badge Event Settings</string>
     <string name="setting_category_ocr">OCR</string>
     <string name="setting_category_asset_management">Asset Management</string>
-    <string name="setting_category_advanced_features">Advanced Features</string>
-    <string name="setting_category_ai_features">AI Features</string>
     <string name="setting_category_local_backup">Local Backup</string>
-    <string name="setting_category_system">System Settings</string>
     <string name="setting_category_update">Update Settings</string>
-    <string name="setting_category_dangerous">Dangerous Operations</string>
 
     <!-- 更新设置 -->
     <string name="setting_auto_check_app_update">Auto Check App Updates</string>
@@ -874,7 +806,6 @@
     <string name="setting_float_click">Click Action</string>
     <string name="setting_float_long_click">Long Click Action</string>
     <string name="setting_float_badge_position">Panel Display Position</string>
-    <string name="setting_float_badge_position_summary">Select the display position of the accounting panel</string>
     <string name="float_position_left">Left</string>
     <string name="float_position_right">Right</string>
     <string name="float_position_top">Top</string>
@@ -891,23 +822,15 @@
     <string name="ocr_status_recognizing">OCR recognizing…</string>
     <string name="ocr_status_ai_analyzing">AI analyzing…</string>
     <string name="ocr_error_no_foreground_app">Cannot detect foreground app</string>
-    <string name="ocr_error_not_in_whitelist">App not in whitelist</string>
-    <string name="ocr_error_shell_not_ready">Shell not ready, check Root/Shizuku</string>
     <string name="ocr_error_capture_failed">Screenshot decode failed</string>
     <string name="ocr_error_ocr_failed">OCR recognition failed</string>
     <string name="ocr_error_empty_result">No text recognized</string>
     <string name="ocr_error_keyword_filtered">No matching keywords found</string>
     <string name="setting_ocr_accessibility_keep_alive">Keep OCR running in background</string>
     <string name="setting_ocr_accessibility_keep_alive_summary">When off, accessibility service stops after each OCR recognition</string>
-    <string name="ocr_auth_root">Root</string>
-    <string name="ocr_auth_shizuku">Shizuku</string>
-    <string name="ocr_auth_accessibility">Accessibility Service</string>
     <string name="accessibility_service_label">Auto Accounting OCR</string>
     <string name="accessibility_service_description">Used for OCR screen recognition: detecting foreground app and taking screenshots</string>
-    <string name="ocr_error_root_not_available">Root permission not available</string>
-    <string name="ocr_error_shizuku_not_available">Shizuku not running or not authorized</string>
     <string name="ocr_error_accessibility_not_ready">Accessibility service not running, please enable it in system settings</string>
-    <string name="ocr_accessibility_enabled">Accessibility service enabled</string>
     <string name="ocr_remember_page_title">Remember this page?</string>
     <string name="ocr_remember_page_message">Remember this page (%s) for automatic recognition next time?</string>
     <string name="ocr_remember_page_activity_unknown">unknown activity</string>
@@ -924,8 +847,6 @@
 
     <!-- Common strings -->
     <string name="clearing">Clearing…</string>
-    <string name="never">Never</string>
-    <string name="setting_not_set">Not Set</string>
     <plurals name="setting_timeout_seconds">
         <item quantity="one">%d second</item>
         <item quantity="other">%d seconds</item>
@@ -991,7 +912,6 @@
     <string name="setting_ai_monthly_summary_summary">Generate financial analysis and summary reports</string>
 
     <!-- AI Advanced Settings -->
-    <string name="setting_category_ai_advanced">Advanced Settings</string>
     <string name="setting_ai_summary_prompt">Custom AI Summary Prompt</string>
     <string name="setting_ai_summary_prompt_summary">Customize the prompt template used by AI for generating summaries</string>
     <string name="setting_ai_bill_recognition_prompt">Bill Recognition Prompt</string>
@@ -1002,12 +922,7 @@
     <string name="setting_ai_category_recognition_prompt_summary">Customize the prompt used by AI for category recognition</string>
 
     <!-- 新增：分类设置相关 -->
-    <string name="setting_category_popup_interaction">Popup Interaction</string>
-    <string name="setting_category_bill_display">Bill Display</string>
-    <string name="setting_category_category_asset">Categories &amp; Assets</string>
     <string name="setting_category_appearance">Appearance</string>
-    <string name="setting_category_backup_sync">Backup &amp; Sync</string>
-    <string name="setting_category_about">About</string>
 
     <!-- New category titles -->
     <string name="setting_category_book_app">Book App</string>
@@ -1028,19 +943,10 @@
     <!-- 保留的旧字符串（兼容性） -->
 
     <!-- WebDAV 相关字符串 -->
-    <string name="setting_use_webdav">Use WebDAV</string><!-- AI Summary 相关字符串 -->
+<!-- AI Summary 相关字符串 -->
     <string name="ai_summary_title">AI Analysis</string><!-- Statistics page -->
     <string name="stat_title">Statistics</string>
-    <string name="stat_summary">Summary</string>
-    <string name="total_expense">Total expense</string>
-    <string name="total_income">Total income</string>
-    <string name="net_balance">Net balance</string>
-    <string name="daily_avg_expense">Daily average expense</string>
-    <string name="stat_trend">Trend</string>
-    <string name="stat_category">Categories</string>
-    <string name="period_this_week">This week</string><!-- JS Editor UI Strings -->
-    <string name="js_code_empty">JS code is empty</string>
-    <string name="test_data_empty">Test data is empty</string>
+<!-- JS Editor UI Strings -->
     <string name="js_executing">Executing…</string>
     <string name="js_execution_result">Execution Result</string>
     <string name="js_saved">Saved</string>
@@ -1105,11 +1011,8 @@
     <string name="analysis_result_not_found">Analysis result not found</string>
     <string name="analysis_result_empty">AI analysis result is empty, please regenerate</string>
     <string name="analysis_result_parse_error">Analysis result format error, please regenerate</string>
-    <string name="analysis_load_error">Load error: %s</string>
     <string name="analysis_generating_image">Generating image…</string>
-    <string name="analysis_image_error">Image error: %s</string>
     <string name="analysis_share_title">Share Analysis</string>
-    <string name="analysis_share_failed">Share failed</string>
 
     <!-- Delete Analysis Task -->
     <string name="delete_analysis_task">Delete Analysis Task</string>
@@ -1151,43 +1054,30 @@
 
     <!-- About App Related -->
     <string name="setting_open_source_code">Open Source</string>
-    <string name="setting_open_source_code_summary">View source code on GitHub</string>
     <string name="setting_open_source_code_url" translatable="false">https://github.com/AutoAccountingOrg/AutoAccounting</string>
     <string name="setting_official_website">Official Website</string>
-    <string name="setting_official_website_summary">Visit the official website</string>
     <string name="setting_official_website_url" translatable="false">https://ez-book.org</string>
     <string name="setting_activation_code">Activation Code</string>
-    <string name="setting_activation_code_summary">Enter activation code to activate Pro features</string>
     <string name="setting_activation_code_url" translatable="false">https://license.ez-book.org/search</string>
     <string name="setting_update_log">Update Log</string>
-    <string name="setting_update_log_summary">View app update history</string>
     <string name="setting_update_log_url" translatable="false">https://github.com/AutoAccountingOrg/AutoAccounting/releases</string>
     <string name="setting_forum">Forum</string>
-    <string name="setting_forum_summary">Visit user discussion forum</string>
     <string name="setting_forum_url" translatable="false">https://forum.ez-book.org</string>
     <string name="setting_qq_group">QQ Group</string>
-    <string name="setting_qq_group_summary">Join QQ group for discussion</string>
     <string name="setting_qq_group_url" translatable="false">https://qm.qq.com/q/dnM8WvrpTO</string>
     <string name="setting_telegram">Telegram</string>
-    <string name="setting_telegram_summary">Join Telegram group</string>
     <string name="setting_telegram_url" translatable="false">https://t.me/qianji_auto</string>
     <string name="setting_author_blog">Blog</string>
-    <string name="setting_author_blog_summary">Visit author\'s blog</string>
     <string name="setting_author_blog_url" translatable="false">https://ankio.net</string>
     <string name="setting_author_github">Github</string>
-    <string name="setting_author_github_summary">Visit author\'s GitHub profile</string>
     <string name="setting_author_github_url" translatable="false">https://github.com/AnkioTomas</string>
     <string name="setting_author_contact">Contact</string>
-    <string name="setting_author_contact_summary">Send email to contact author</string>
     <string name="setting_author_contact_url" translatable="false">mailto:ankio@ankio.net</string>
     <string name="setting_author_coolapk">Coolapk</string>
-    <string name="setting_author_coolapk_summary">Follow author on Coolapk</string>
     <string name="setting_author_coolapk_url" translatable="false">http://www.coolapk.com/u/1503334</string>
     <string name="setting_author_wechat">WeChat Official Account</string>
-    <string name="setting_author_wechat_summary">Follow WeChat Official Account</string>
     <string name="setting_author_wechat_name" translatable="false">Ankio</string>
     <string name="setting_author_bilibili">Bilibili</string>
-    <string name="setting_author_bilibili_summary">Follow author on Bilibili</string>
     <string name="setting_author_bilibili_url" translatable="false">https://space.bilibili.com/442001950</string>
 
     <!-- Rule Editor -->

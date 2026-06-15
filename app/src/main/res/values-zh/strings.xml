@@ -14,13 +14,11 @@
   -->
 
 <resources tools:locale="zh" xmlns:tools="http://schemas.android.com/tools">
-    <string name="status">状态</string>
     <string name="select_month">选择月份</string>
     <string name="about_view_source_code"><![CDATA[在 %s 上查看源代码]]></string>
     <string name="title_home">首页</string>
     <string name="title_data">数据</string>
     <string name="title_rule">规则</string>
-    <string name="title_rule_manage">规则管理</string>
     <string name="title_rule_edit">编辑规则</string>
     <string name="tab_data_rules">数据规则</string>
     <string name="tab_category_rules">分类规则</string>
@@ -93,7 +91,6 @@
     <string name="upload_waiting">上传中…</string>
     <string name="sure_update">更新</string>
     <string name="share_file">分享日志</string>
-    <string name="setting_debug">调试模式</string>
     <string name="auto_success">自动记账成功，金额为 %s</string>
     <string name="btn_save">保存</string>
     <string name="float_remark">备注</string>
@@ -104,7 +101,6 @@
     <string name="float_income_debt">债主</string>
     <string name="restart">重启自动记账</string>
     <string name="copy_command_success">已复制到剪贴板</string>
-    <string name="setting_app">自动检查应用更新</string>
     <string name="cancel">关闭</string>
 
     <string name="title_books">账本</string>
@@ -164,10 +160,8 @@
     <!-- Rule Edit labels -->
     <string name="rule_name">名称</string>
     <string name="rule_type">类型</string>
-    <string name="rule_enable">启用</string>
     <string name="rule_edit_rule">编辑规则</string>
     <string name="rule_tap_to_edit">点击编辑规则</string>
-    <string name="rule_name_required">规则名称是必需的</string>
     <string name="save_rule_success">规则保存成功</string>
     <string name="rule_enabled_successfully">规则启用成功</string>
     <string name="rule_disabled_successfully">规则禁用成功</string>
@@ -187,21 +181,17 @@
     <string name="reapply_confirm_message">您确定要将资产映射重新应用到最近 3 个月的历史数据吗？此操作无法撤销。</string>
     <string name="reapply_started">资产映射重新应用已开始</string>
     <string name="reapply_success">资产映射重新应用成功完成</string>
-    <string name="drag_to_sort">拖拽排序</string>
     <string name="delete_title">删除确认</string>
     <string name="delete_message">您确定要删除 %s 吗？</string>
 
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
     <string name="item_clear">清除</string>
-    <string name="setting_backup">备份</string>
-    <string name="setting_webdav_host">WebDav 服务提供商</string>
     <string name="backup_success">备份成功</string>
     <string name="restore_loading">恢复中…</string>
     <string name="unsupport_backup">无法恢复 【%s】 版本数据，请将应用降级到该版本后重试。</string>
     <string name="backup_error">数据库备份失败。</string>
     <string name="restore_success">恢复成功</string>
-    <string name="net_error_msg">网络错误</string>
     <string name="net_error_msg_rule">网络错误，请在设置中更改源后重试。</string>
     <string name="backup_not_found">服务器上未找到备份文件</string>
     <string name="restore_webdav">下载备份文件</string>
@@ -238,8 +228,6 @@
 
     <string name="setting_bill_remark">备注格式</string>
     <string name="setting_bill_remark_desc">支持使用以下中文变量：\n基础信息：【商户名称】、【商品名称】、【金额】、【分类】、【账本】、【来源】、【原始资产】、【目标资产】、【渠道】\n扩展信息：【规则名称】、【AI】、【货币类型】、【手续费】、【标签】、【交易类型】、【时间】</string>
-    <string name="setting_float_time">倒计时持续时间（秒）</string>
-    <string name="setting_category">分类</string>
     <string name="setting_auto_create_category">记住分类</string>
     <string name="item_sync">同步</string>
     <string name="auto_category">检测到保存账单时使用的分类与自动记账规则识别的分类不一致。是否要生成新的分类规则？</string>
@@ -256,7 +244,6 @@
     <string name="delete_bill_message">您确定要删除此账单吗？</string>
     <string name="delete_data_message">您确定要删除此数据吗？</string>
     <string name="copy">复制</string>
-    <string name="title_data_rule">数据规则</string>
 
     <!-- Filter dropdown options -->
     <string name="filter_app">应用</string>
@@ -290,7 +277,6 @@
 
     <string name="item_search">搜索…</string>
     <string name="item_purchase">购买</string>
-    <string name="title_notice">通知监控</string>
     <string name="auto_apps">请选择记账应用</string>
     <string name="type_credit">信用账户</string>
     <string name="type_normal">普通资产</string>
@@ -304,13 +290,6 @@
     <string name="data_type_app">数据</string>
     <string name="data_type_notice">通知</string>
     <string name="data_type_ocr">OCR</string>
-    <string name="action_button_desc">操作按钮</string>
-    <string name="rule_desc_official_template">%1$s - 自动识别并记录%2$s</string>
-    <string name="rule_desc_user_custom">用户自定义规则</string>
-    <string name="rule_desc_type_notice">通知数据</string>
-    <string name="rule_desc_type_app">应用数据</string>
-    <string name="rule_desc_type_sms">短信数据</string>
-    <string name="rule_desc_type_data">数据</string>
     <string name="rule_desc_wechat_notice">%1$s - 需关注对应的公众号以接收通知</string>
     <string name="rule_desc_alipay_app">%1$s - 需保持支付宝后台运行以抓取数据</string>
     <string name="rule_desc_sms_hint">%1$s - 需开通银行短信提醒服务</string>
@@ -346,8 +325,6 @@
     <string name="setting_clear_database">清除数据库</string>
     <string name="clear_db_desc">不可逆操作，仅在卸载自动记账时使用。</string>
     <string name="clear_db_msg">您确定要清除数据库吗？请确保在清除数据库前进行备份。</string>
-    <string name="clearing_database">正在清除数据库…</string>
-    <string name="clear_database_success">数据库清除成功</string>
     <string name="clear_database_failed">数据库清除失败：%s</string>
     <string name="clear_success">清除成功</string>
 
@@ -361,7 +338,6 @@
     <string name="setting_ai_config_summary">配置 AI 模型和 API 设置</string>
     <string name="setting_ai_feature_available">启用 AI 功能</string>
     <string name="setting_ai_feature_available_summary">AI 功能总开关，关闭后将禁用识别与分析</string>
-    <string name="setting_category_ai_config">AI 配置</string>
     <string name="ai_test_connection">测试连接</string>
     <string name="ai_test_result">测试结果</string>
     <string name="ai_test_success_message">AI 连接成功！模型工作正常。</string>
@@ -383,7 +359,6 @@
     <string name="unknown">未知</string>
     <string name="title_category_rule">自动分类规则</string>
     <string name="title_sms_edit">编辑数据过滤条件</string>
-    <string name="add_filter">过滤关键词</string>
     <string name="data_filter_whitelist_hint">白名单（每行一个关键词，匹配任一则通过）</string>
     <string name="data_filter_blacklist_hint">黑名单（每行一个关键词，匹配任一则排除）</string>
     <string name="picker_year">年</string>
@@ -393,7 +368,6 @@
     <string name="date">日期</string>
     <string name="date_time">时间</string>
     <string name="title_bill">账单列表</string>
-    <string name="clear_db">完全删除数据库</string>
     <string name="setting_landscape_dnd">横屏勿扰</string>
     <string name="un_group_title">拆分为独立账单</string>
     <string name="un_group_message">您确定要将此账单从当前账单中拆分为独立账单吗？</string>
@@ -404,11 +378,9 @@
     <string name="income_reimbursement_info">报销 - %s</string>
     <string name="income_refund_info">退款 - %s</string>
     <string name="refund">退款</string>
-    <string name="container">模糊</string>
     <string name="item_wait_sync">待同步</string>
     <string name="item_wait_edit">待编辑</string>
     <string name="item_synced">已同步</string>
-    <string name="setting_category_ai">使用 AI 辅助分类</string>
     <string name="service_channel_description">自动记账后台监听服务</string>
     <string name="service_notification_title">自动记账后台服务正在运行</string>
 
@@ -464,10 +436,6 @@
     </string>
 
     <!-- OCR Auth Mode Selection -->
-    <string name="select_ocr_auth_mode">选择OCR授权方式</string>
-    <string name="select_ocr_auth_mode_subtitle">选择获取前台应用和截图的方式</string>
-    <string name="ocr_auth_root_description">使用Root权限获取前台应用和截图，需要设备已Root</string>
-    <string name="ocr_auth_shizuku_description">使用Shizuku授权获取前台应用和截图，无需Root但需要安装Shizuku</string>
     <string name="ocr_auth_accessibility_description">使用无障碍服务获取前台应用和截图，无需Root，适合大多数用户</string>
 
     <!-- OCR Tile -->
@@ -485,16 +453,12 @@
     <string name="auth_subtitle">要提取账单数据，请授予以下权限：</string>
 
     <string name="perm_notification_title">通知访问</string>
-    <string name="perm_notification_desc">允许应用读取传入通知以捕获账单提醒。</string>
 
     <string name="perm_sms_title">短信读取权限</string>
-    <string name="perm_sms_desc">允许应用读取短信以获取支付确认码。</string>
 
     <string name="perm_overlay_title">悬浮窗权限</string>
     <string name="perm_overlay_desc">允许显示悬浮窗以快速提取工具。</string>
 
-    <string name="perm_ocr_perm_root">OCR识别（Root）</string>
-    <string name="perm_ocr_perm_shizuku">OCR识别（Shizuku）</string>
     <string name="perm_ocr_perm_accessibility">OCR识别（无障碍）</string>
     <string name="perm_network_title">网络访问</string>
     <string name="perm_network_desc">
@@ -528,8 +492,6 @@
     </string>
 
     <string name="action_continue">继续</string><!-- Shell 能力（Root 或 Shizuku） -->
-    <string name="perm_shell_title">Root 或 Shizuku</string>
-    <string name="perm_shell_desc">授予 root（su）或 Shizuku 权限，使应用可执行 shell 命令（如截图）。若部分联发科设备通过 Shizuku 获取输出异常，请尝试使用 3.5.x 版本。</string>
 
     <!-- Battery optimization -->
     <string name="keepalive_battery_fail">
@@ -606,10 +568,6 @@
 
     <string name="action_run">运行</string>
     <string name="ai_assist">AI 辅助</string>
-    <string name="ai_assist_optimizing">AI 正在优化您的代码…</string>
-    <string name="ai_assist_failed">AI 优化失败：%s</string>
-    <string name="ai_assist_no_result">AI 未返回优化代码</string>
-    <string name="ai_assist_empty_code">没有代码可优化</string>
 
     <!-- Runtime messages -->
     <string name="sync_state_success">已同步数据</string>
@@ -627,7 +585,6 @@
     <string name="keepalive_notification_title">通知权限</string>
     <string name="keepalive_notification_desc">允许应用发送通知以保持前台服务运行。</string>
 
-    <string name="settings_theme">主题</string>
     <string name="settings_system_theme_color">系统主题颜色</string>
     <string name="settings_theme_color">主题颜色</string>
     <string name="dark_theme">深色主题</string>
@@ -688,11 +645,8 @@
     <string name="tag_name_required">标签名称是必需的</string>
     <string name="tag_name_too_long">标签名称太长</string>
     <string name="tag_name_exists">标签名称已存在</string>
-    <string name="tag_color">标签颜色</string>
     <string name="tag_group">标签组</string>
     <string name="tag_group_hint">选择或输入组名</string>
-    <string name="bill_tag_title">标签</string>
-    <string name="bill_tag_empty">暂无可用标签</string>
     <plurals name="bill_tag_limit">
         <item quantity="other">最多选择 %d 个标签</item>
     </plurals>
@@ -717,20 +671,11 @@
 
     <!-- JS Editor Strings -->
     <string name="unknown_error">未知错误</string><!-- 设置分类标题 -->
-    <string name="setting_category_auto_record">自动记录</string>
-    <string name="setting_category_notification">通知</string>
-    <string name="setting_category_remark">备注设置</string>
-    <string name="setting_category_popup_style">圆角弹窗风格</string>
     <string name="setting_category_float_badge">记账小面板设置</string>
-    <string name="setting_category_float_events">记账小面板事件设置</string>
     <string name="setting_category_ocr">OCR</string>
     <string name="setting_category_asset_management">资产管理</string>
-    <string name="setting_category_advanced_features">高级功能</string>
-    <string name="setting_category_ai_features">AI 功能</string>
     <string name="setting_category_local_backup">本地备份</string>
-    <string name="setting_category_system">系统设置</string>
     <string name="setting_category_update">更新设置</string>
-    <string name="setting_category_dangerous">危险操作</string>
 
     <!-- 新的分类标题 -->
     <string name="setting_category_book_app">记账应用</string>
@@ -781,7 +726,6 @@
 
     <!-- 记账小面板位置设置 -->
     <string name="setting_float_badge_position">面板显示位置</string>
-    <string name="setting_float_badge_position_summary">选择记账小面板的显示位置</string>
     <string name="float_position_left">左侧</string>
     <string name="float_position_right">右侧</string>
     <string name="float_position_top">顶部</string>
@@ -845,7 +789,6 @@
     <string name="setting_ai_monthly_summary_summary">生成财务分析和摘要报告</string>
 
     <!-- AI Advanced Settings -->
-    <string name="setting_category_ai_advanced">高级设置</string>
     <string name="setting_ai_summary_prompt">自定义 AI 摘要提示</string>
     <string name="setting_ai_summary_prompt_summary">自定义 AI 用于生成摘要的提示模板</string>
     <string name="setting_ai_bill_recognition_prompt">账单识别提示词</string>
@@ -856,7 +799,7 @@
     <string name="setting_ai_category_recognition_prompt_summary">自定义 AI 用于分类识别的提示词</string>
 
     <!-- WebDAV 相关字符串 -->
-    <string name="setting_use_webdav">使用 WebDAV</string><!-- AI Summary 相关字符串 -->
+<!-- AI Summary 相关字符串 -->
     <string name="ai_summary_title">AI分析</string><!-- 分析任务状态 -->
     <string name="analysis_status_pending">待处理</string>
     <string name="analysis_status_processing">分析中</string>
@@ -868,11 +811,8 @@
     <string name="analysis_result_not_found">未找到分析结果</string>
     <string name="analysis_result_empty">AI 分析结果为空，请重新生成</string>
     <string name="analysis_result_parse_error">分析结果格式错误，请重新生成</string>
-    <string name="analysis_load_error">加载错误：%s</string>
     <string name="analysis_generating_image">生成图片中…</string>
-    <string name="analysis_image_error">图片错误：%s</string>
     <string name="analysis_share_title">分享分析</string>
-    <string name="analysis_share_failed">分享失败</string>
 
     <!-- 删除分析任务 -->
     <string name="delete_analysis_task">删除分析任务</string>
@@ -890,14 +830,6 @@
 
     <!-- 统计页面 -->
     <string name="stat_title">统计</string>
-    <string name="stat_summary">概览</string>
-    <string name="total_expense">总支出</string>
-    <string name="total_income">总收入</string>
-    <string name="net_balance">净余额</string>
-    <string name="daily_avg_expense">日均支出</string>
-    <string name="stat_trend">趋势</string>
-    <string name="stat_category">分类</string>
-    <string name="period_this_week">本周</string>
 
     <!-- 周期选择 -->
     <string name="period_last_week">最近一周</string>
@@ -921,7 +853,6 @@
 
     <!-- 通用提示与吐司 -->
     <string name="toast_target_app_not_installed">未安装目标应用"%1$s"，无法继续</string>
-    <string name="toast_shell_not_ready">未授予 Root 或 Shizuku 未运行</string>
 
     <!-- 金额与手续费编辑相关 -->
     <string name="edit_amount">编辑金额</string>
@@ -930,7 +861,6 @@
     <string name="no_discount">无折扣</string>
     <string name="discounted">已优惠 %.2f</string>
     <string name="handling_fee">手续费 %.2f</string>
-    <string name="fee">费用 %.2f</string>
     <!-- 金额显示组件：账单标志位 -->
     <string name="bill_flag_not_count">不计收支</string>
     <string name="bill_flag_not_budget">不计预算</string>
@@ -943,22 +873,12 @@
     <string name="disable_rule_title">禁用规则</string>
     <string name="disable_rule_message">确定要禁用规则"%s"吗？</string>
     <string name="rule_not_found">未找到规则</string>
-    <plurals name="rule_disabled_success">
-        <item quantity="other">已成功禁用 %d 条规则</item>
-    </plurals>
     <string name="rule_disable_failed">禁用规则失败</string>
 
     <!-- 替换预览对话框补全 -->
-    <string name="replace_preview_title">替换预览</string>
-    <string name="btn_confirm_replace">确认替换</string>
-    <plurals name="item_count_format">
-        <item quantity="other">共 %1$d 项</item>
-    </plurals>
 
     <!-- 浮窗动作显示名称 & 通用字符串 -->
     <string name="clearing">清除中…</string>
-    <string name="never">从不</string>
-    <string name="setting_not_set">未设置</string>
     <plurals name="setting_timeout_seconds">
         <item quantity="other">%d 秒</item>
     </plurals>
@@ -971,23 +891,15 @@
     <string name="ocr_status_recognizing">正在OCR识别…</string>
     <string name="ocr_status_ai_analyzing">正在AI识别…</string>
     <string name="ocr_error_no_foreground_app">无法获取前台应用</string>
-    <string name="ocr_error_not_in_whitelist">应用不在白名单中</string>
-    <string name="ocr_error_shell_not_ready">Shell未就绪，请检查Root/Shizuku</string>
     <string name="ocr_error_capture_failed">截图解码失败</string>
     <string name="ocr_error_ocr_failed">OCR识别失败</string>
     <string name="ocr_error_empty_result">未识别到文字</string>
     <string name="ocr_error_keyword_filtered">未包含识别关键字</string>
     <string name="setting_ocr_accessibility_keep_alive">常驻后台识别</string>
     <string name="setting_ocr_accessibility_keep_alive_summary">关闭后，每次 OCR 识别结束将自动停止无障碍服务</string>
-    <string name="ocr_auth_root">Root</string>
-    <string name="ocr_auth_shizuku">Shizuku</string>
-    <string name="ocr_auth_accessibility">无障碍服务</string>
     <string name="accessibility_service_label">自动记账OCR</string>
     <string name="accessibility_service_description">用于OCR屏幕识别：检测前台应用和截取屏幕</string>
-    <string name="ocr_error_root_not_available">设备未获取Root权限</string>
-    <string name="ocr_error_shizuku_not_available">Shizuku未运行或未授权</string>
     <string name="ocr_error_accessibility_not_ready">无障碍服务未运行，请在系统设置中开启</string>
-    <string name="ocr_accessibility_enabled">无障碍服务已启用</string>
     <string name="ocr_remember_page_title">记住此页面？</string>
     <string name="ocr_remember_page_message">是否记住此页面（%s）以便下次自动识别？</string>
     <string name="ocr_remember_page_activity_unknown">未知页面</string>
@@ -1034,11 +946,9 @@
     <string name="help_doc_reminder_negative">稍后</string>
 
     <!-- JS编辑器相关 -->
-    <string name="js_code_empty">JS代码为空</string>
     <string name="js_executing">执行中…</string>
     <string name="js_execution_result">执行结果</string>
     <string name="js_saved">已保存</string>
-    <string name="test_data_empty">测试数据为空</string>
 
     <!-- 权限相关 -->
     <string name="perm_required_not_complete">某些必需权限仍然缺失。请在继续之前授予它们。</string>
@@ -1053,13 +963,7 @@
     <string name="setting_book_app">记账软件</string>
     <string name="setting_book_app_summary">目标记账应用包名</string>
     <string name="setting_category_book_config">账本配置</string>
-    <string name="setting_category_display">显示设置</string>
-    <string name="setting_category_popup_interaction">弹窗交互</string>
-    <string name="setting_category_bill_display">账单显示</string>
-    <string name="setting_category_category_asset">分类与资产</string>
     <string name="setting_category_appearance">外观</string>
-    <string name="setting_category_backup_sync">备份与同步</string>
-    <string name="setting_category_about">关于</string>
     <string name="setting_local_backup_path">本地备份路径</string>
     <string name="setting_local_backup_path_summary">本地备份存储路径</string>
 
@@ -1131,31 +1035,18 @@
 
     <!-- 关于应用相关 -->
     <string name="setting_open_source_code">源代码</string>
-    <string name="setting_open_source_code_summary">在GitHub上查看源代码</string>
     <string name="setting_official_website">官网</string>
-    <string name="setting_official_website_summary">访问应用官方网站</string>
     <string name="setting_activation_code">激活记录</string>
-    <string name="setting_activation_code_summary">查询该激活码使用的记录</string>
     <string name="setting_update_log">更新日志</string>
-    <string name="setting_update_log_summary">查看应用更新历史</string>
     <string name="setting_forum">论坛</string>
-    <string name="setting_forum_summary">访问用户交流论坛</string>
     <string name="setting_qq_group">QQ群</string>
-    <string name="setting_qq_group_summary">加入QQ群交流</string>
     <string name="setting_telegram">Telegram</string>
-    <string name="setting_telegram_summary">加入Telegram群组</string>
     <string name="setting_author_blog">博客</string>
-    <string name="setting_author_blog_summary">访问作者博客</string>
     <string name="setting_author_github">Github</string>
-    <string name="setting_author_github_summary">访问作者GitHub主页</string>
     <string name="setting_author_contact">联系方式</string>
-    <string name="setting_author_contact_summary">发送邮件联系作者</string>
     <string name="setting_author_coolapk">酷安</string>
-    <string name="setting_author_coolapk_summary">在酷安关注作者</string>
     <string name="setting_author_wechat">微信公众号</string>
-    <string name="setting_author_wechat_summary">关注微信公众号</string>
     <string name="setting_author_bilibili">哔哩哔哩</string>
-    <string name="setting_author_bilibili_summary">在B站关注作者</string>
 
     <!-- 规则编辑器 -->
     <string name="rule_parse_form_failed">解析表单数据失败</string>
