@@ -27,7 +27,7 @@ fragmentKtx = "1.8.9"
 roomVersion = "2.8.4"
 
 # UI Components
-material = "1.13.0"
+material = "1.14.0"
 flexbox = "3.0.0"
 round = "1.1.2"
 toaster = "12.6"
