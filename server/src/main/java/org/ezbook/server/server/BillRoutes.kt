@@ -56,10 +56,11 @@ fun Route.billRoutes() {
                 BillState.Synced.name,
                 BillState.Wait2Edit.name
             )
-            val type = call.request.queryParameters["type"]?.split(", ") ?: defaultStates
+            val type = call.request.queryParameters["type"]?.split(",") ?: defaultStates
 
             val year = call.request.queryParameters["year"]?.toIntOrNull()
             val month = call.request.queryParameters["month"]?.toIntOrNull()
+            val keyword = call.request.queryParameters["keyword"] ?: ""
 
             // 计算时间范围：
             // - 传 year+month：按月过滤
@@ -81,11 +82,21 @@ fun Route.billRoutes() {
                 Long.MAX_VALUE
             }
 
-            ServerLog.d("获取分组账单列表：year=$year, month=$month, type=$type")
+            ServerLog.d("获取分组账单列表：year=$year, month=$month, type=$type, keyword=$keyword")
 
             // 获取整月数据（不分页）
             val bills = Db.get().billInfoDao().getBillsByTimeRange(startTime, endTime)
                 .filter { it.groupId == -1L && type.contains(it.state.name) }
+                .filter {
+                    keyword.isEmpty() ||
+                            it.shopName.contains(keyword, ignoreCase = true) ||
+                            it.shopItem.contains(keyword, ignoreCase = true) ||
+                            it.remark.contains(keyword, ignoreCase = true) ||
+                            it.cateName.contains(keyword, ignoreCase = true) ||
+                            it.tags.contains(keyword, ignoreCase = true) ||
+                            it.accountNameFrom.contains(keyword, ignoreCase = true) ||
+                            it.accountNameTo.contains(keyword, ignoreCase = true)
+                }
                 .sortedByDescending { it.time }
 
             // 服务端按日期分组
