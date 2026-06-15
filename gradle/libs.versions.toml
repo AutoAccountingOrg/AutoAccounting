@@ -24,7 +24,7 @@ lifecycleLiveDataKtx = "2.8.7"
 fragmentKtx = "1.8.9"
 
 # Database and Storage
-roomVersion = "2.7.1"
+roomVersion = "2.8.4"
 
 # UI Components
 material = "1.13.0"
