@@ -2,17 +2,18 @@
 # Android and Kotlin core
 agp = "8.9.1" # Android Gradle Plugin
 kotlin = "2.3.0"
+#noinspection GradleDependency -- 1.19.0 requires compileSdk 37 and AGP 9.1; preserve the verified API 36 toolchain.
 core-ktx = "1.17.0"
 ksp = "2.3.0"
 # AndroidX Components
 appcompat = "1.6.1"
 appcompatResources = "1.7.0"
-activity = "1.10.1"
-browser = "1.8.0"
+activity = "1.13.0"
+browser = "1.10.0"
 constraintlayout = "2.2.1"
 # JitPack: https://jitpack.io/#equationl/paddleocr4android（子模块 ncnnandroidppocr）
 paddleocr4android = "v1.3.0"
-swiperefreshlayout = "1.1.0"
+swiperefreshlayout = "1.2.0"
 preferenceKtx = "1.2.1"
 recyclerviewSelection = "1.1.0"
 
@@ -20,7 +21,7 @@ recyclerviewSelection = "1.1.0"
 navigationFragment = "2.9.0"
 lifecycleRuntimeKtx = "2.10.0"
 lifecycleLiveDataKtx = "2.8.7"
-fragmentKtx = "1.8.6"
+fragmentKtx = "1.8.9"
 
 # Database and Storage
 roomVersion = "2.7.1"
