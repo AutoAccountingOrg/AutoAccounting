@@ -82,7 +82,7 @@ fun Route.billRoutes() {
                 Long.MAX_VALUE
             }
 
-            ServerLog.d("获取分组账单列表：year=$year, month=$month, type=$type, keyword=$keyword")
+            ServerLog.d("获取分组账单列表：year=$year, month=$month, type=$type, hasKeyword=${keyword.isNotEmpty()}")
 
             // 获取整月数据（不分页）
             val bills = Db.get().billInfoDao().getBillsByTimeRange(startTime, endTime)

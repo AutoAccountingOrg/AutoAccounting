@@ -12,6 +12,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.components.StatusPage
 import net.ankio.auto.ui.theme.DynamicColors
 import net.ankio.auto.utils.CoroutineUtils.withIO
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 基础分页Fragment抽象类
@@ -219,6 +220,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         Logger.d("开始加载数据：第${page}页")
 
         loadJob = launch {
+            val currentJob = coroutineContext[kotlinx.coroutines.Job]
 
             try {
                 // 在IO线程中执行数据加载，避免阻塞UI
@@ -240,13 +242,18 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
                     callback?.invoke(true, hasMoreData)
                     restoreScrollPosition()
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 if (page == 1) {
                     statusPage.showError()
                 }
                 callback?.invoke(false, hasMoreData)
             } finally {
-                isLoading = false
+                if (loadJob === currentJob) {
+                    isLoading = false
+                    loadJob = null
+                }
             }
         }
 
