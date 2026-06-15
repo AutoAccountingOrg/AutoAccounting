@@ -18,7 +18,7 @@ preferenceKtx = "1.2.1"
 recyclerviewSelection = "1.1.0"
 
 # Navigation and Lifecycle
-navigationFragment = "2.9.0"
+navigationFragment = "2.9.8"
 lifecycleRuntimeKtx = "2.10.0"
 lifecycleLiveDataKtx = "2.8.7"
 fragmentKtx = "1.8.9"
