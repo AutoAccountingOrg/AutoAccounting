@@ -1,6 +1,7 @@
 [versions]
 # Android and Kotlin core
-agp = "8.9.1" # Android Gradle Plugin
+#noinspection AndroidGradlePluginVersion -- AGP 9.2 requires a separate Gradle 9, built-in Kotlin, and new DSL migration.
+agp = "8.9.3" # Android Gradle Plugin
 kotlin = "2.3.0"
 #noinspection GradleDependency -- 1.19.0 requires compileSdk 37 and AGP 9.1; preserve the verified API 36 toolchain.
 core-ktx = "1.17.0"
