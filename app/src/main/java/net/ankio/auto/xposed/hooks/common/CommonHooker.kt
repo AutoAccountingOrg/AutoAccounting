@@ -19,24 +19,15 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.logger.XposedLogger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.Server
-import java.io.File
-import java.net.ServerSocket
 
 object CommonHooker {
     /**
      * 检查端口是否被占用。
      * 占用则返回 true；未占用则返回 false。
      */
-    private fun isPortOccupied(port: Int): Boolean {
-        return try {
-            ServerSocket(port).use { false }
-        } catch (_: Throwable) {
-            true
-        }
-    }
     fun init() {
         XposedLogger.d("CommonHooker: start server for ${AppRuntime.manifest.packageName}")
-        if (isPortOccupied(Server.PORT)) {
+        if (Server.isPortOccupied()) {
             XposedLogger.d("CommonHooker: port ${Server.PORT} occupied, skip")
             return
         }

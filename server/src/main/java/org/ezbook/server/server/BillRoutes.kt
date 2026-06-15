@@ -274,8 +274,8 @@ fun Route.billRoutes() {
             calendar.add(java.util.Calendar.MONTH, 1)
             val endTime = calendar.timeInMillis
 
-            val income = Db.get().billInfoDao().getMonthlyIncome(startTime, endTime) ?: 0.0
-            val expense = Db.get().billInfoDao().getMonthlyExpense(startTime, endTime) ?: 0.0
+            val income = Db.get().billInfoDao().getMonthlyIncome(startTime, endTime)
+            val expense = Db.get().billInfoDao().getMonthlyExpense(startTime, endTime)
 
             call.respond(ResultModel.ok(mapOf("income" to income, "expense" to expense)))
         }
@@ -333,4 +333,4 @@ fun Route.billRoutes() {
             call.respond(ResultModel.ok("OK"))
         }
     }
-} 
+}

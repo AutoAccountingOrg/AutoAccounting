@@ -61,7 +61,11 @@ class IconView : ConstraintLayout {
 
             val textSizePx = a.getDimension(
                 R.styleable.IconView_textSize,
-                14f * resources.displayMetrics.scaledDensity
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    14f,
+                    resources.displayMetrics
+                )
             )
             binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx)
 

@@ -17,7 +17,7 @@ package net.ankio.auto.xposed.core.ui
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Color
+import androidx.core.graphics.toColorInt
 
 open class ColorUtils {
     open fun isDarkMode(context: Context): Boolean {
@@ -34,15 +34,15 @@ open class ColorUtils {
     open val backgroundColorDark = "#2e2e2e"
 
     open fun getMainColor(context: Context): Int {
-        return Color.parseColor(if (isDarkMode(context)) mainColorDark else mainColorLight)
+        return (if (isDarkMode(context)) mainColorDark else mainColorLight).toColorInt()
     }
 
     open fun getSubColor(context: Context): Int {
-        return Color.parseColor(if (isDarkMode(context)) subColorDark else subColorLight)
+        return (if (isDarkMode(context)) subColorDark else subColorLight).toColorInt()
     }
 
     open fun getBackgroundColor(context: Context): Int {
-        return Color.parseColor(if (isDarkMode(context)) backgroundColorDark else backgroundColorLight)
+        return (if (isDarkMode(context)) backgroundColorDark else backgroundColorLight).toColorInt()
     }
 
 }

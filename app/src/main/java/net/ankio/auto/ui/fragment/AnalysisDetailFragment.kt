@@ -302,6 +302,7 @@ class AnalysisDetailFragment : BaseWebViewFragment<FragmentAnalysisDetailBinding
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun shareAsImage() {
         val isJsonMode = taskModel?.resultHtml?.trimStart()?.startsWith("{") == true
         if (isJsonMode) {

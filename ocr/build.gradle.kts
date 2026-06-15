@@ -43,4 +43,7 @@ android {
 dependencies {
     implementation(libs.paddleocr4android)
     implementation(libs.core.ktx)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.junit)
 }

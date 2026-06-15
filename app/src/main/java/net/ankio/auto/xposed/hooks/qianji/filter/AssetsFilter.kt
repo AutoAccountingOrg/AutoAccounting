@@ -75,7 +75,7 @@ class AssetsFilter private constructor(private var filterObj: Any?) {
         (XposedHelpers.callMethod(
             filterObj,
             "getFirst"
-        ) as Any?)?.let { QjAssetAccountModel.fromObject(it) }
+        ))?.let { QjAssetAccountModel.fromObject(it) }
 
     /** 键名固定为 "assets" */
     fun getKey(): String = XposedHelpers.callMethod(filterObj, "getKey") as String

@@ -15,8 +15,11 @@
 
 package org.ezbook.server.tools
 
+import org.ezbook.server.ai.tools.CategoryTool
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.CategoryMapModel
+import org.ezbook.server.db.model.CategoryModel
 
 /**
  * 分类处理工具
@@ -26,36 +29,23 @@ import org.ezbook.server.db.model.BillInfoModel
  * 2) 统一输出格式为："父类 - 子类"；若无子类则返回父类本身
  * 3) 从分类名中解析父/子分类；若只有子类，通过映射后的结果获取父类
  */
-class CategoryProcessor {
+class CategoryProcessor(
+    private val loadMappings: suspend () -> List<CategoryMapModel> = {
+        Db.get().categoryMapDao().loadWithoutLimit()
+    }
+) {
 
-    suspend fun setCategoryMap(billInfoModel: BillInfoModel) {
+    suspend fun setCategoryMap(
+        billInfoModel: BillInfoModel,
+        categories: List<CategoryModel>
+    ): String? {
         // 1) 先做字符串映射替换（长度降序），不改变格式
         billInfoModel.cateName = mapCategory(billInfoModel.cateName)
 
-        // 2) 若当前没有子类，尝试从分类表判断它其实是子类
-        val (parent, child) = billInfoModel.categoryPair()
-        if (child.isEmpty()) {
-            val typeName = billInfoModel.type.name
-            // 按名称+类型查询（book 传 null，避免因 remoteBookId 不可得而漏判）
-            val model = runCatchingExceptCancel {
-                // bookName 已在 BillService.categorize() 中解析为真实名称，直接查找
-                val book = Db.get().bookNameDao().load()
-                    .firstOrNull { it.name == billInfoModel.bookName }
-                Db.get().categoryDao().getByName(book?.remoteId ?: "", typeName, parent)
-            }.getOrNull()
-
-            if (model != null && model.isChild()) {
-                // 直接按 remoteId 查询父类，避免全表扫描
-                val parentModel = runCatchingExceptCancel {
-                    Db.get().categoryDao().getByRemoteId(model.remoteParentId)
-                }.getOrNull()
-                val parentName = parentModel?.name?.trim().orEmpty()
-                val childName = model.name?.trim().orEmpty()
-                if (parentName.isNotEmpty() && childName.isNotEmpty()) {
-                    billInfoModel.cateName = "$parentName - $childName"
-                }
-            }
-        }
+        // 2) 仅当当前账本中存在唯一匹配路径时，才展开裸子分类名。
+        val resolvedCategory = CategoryTool.resolveCategoryPath(billInfoModel.cateName, categories)
+        resolvedCategory?.let { billInfoModel.cateName = it }
+        return resolvedCategory
     }
 
     /**
@@ -67,7 +57,7 @@ class CategoryProcessor {
     private suspend fun mapCategory(original: String): String {
         if (original.isEmpty()) return original
 
-        val mappings = runCatchingExceptCancel { Db.get().categoryMapDao().loadWithoutLimit() }
+        val mappings = runCatchingExceptCancel { loadMappings() }
             .getOrNull()
             .orEmpty()
 

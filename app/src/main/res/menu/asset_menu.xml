@@ -12,13 +12,12 @@
   ~  See the License for the specific language governing permissions and
   ~   limitations under the License.
   -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/action_add_asset"
         android:icon="@drawable/float_add"
         android:title="@string/add_asset"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 
 </menu>

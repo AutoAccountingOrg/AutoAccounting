@@ -19,8 +19,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 
 data class ToolbarMenuItem(
-    @StringRes val title: Int,
-    @DrawableRes val drawable: Int,
+    @param:StringRes val title: Int,
+    @param:DrawableRes val drawable: Int,
     var search: Boolean = false,
     val callback: () -> Unit,
 

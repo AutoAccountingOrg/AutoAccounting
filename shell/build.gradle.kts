@@ -42,6 +42,9 @@ dependencies {
 
     implementation(libs.core.ktx)
     // Shizuku API - 用于以 shell/system 身份访问系统服务
-    implementation("dev.rikka.shizuku:api:13.1.5")
-    implementation("dev.rikka.shizuku:provider:13.1.5")
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.junit)
 }

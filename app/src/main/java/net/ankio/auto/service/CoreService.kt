@@ -232,6 +232,7 @@ class CoreService : LifecycleService() {
         /**
          * 检查CoreService是否正在运行
          */
+        @Suppress("DEPRECATION")
         fun isRunning(context: Context): Boolean {
             val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             for (service in manager.getRunningServices(Integer.MAX_VALUE)) {

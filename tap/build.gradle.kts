@@ -28,7 +28,7 @@ android {
 
 dependencies {
     // Columbus / TapTap hybrid pipeline: ML inference on device
-    implementation(libs.tensorflow.lite)
+    implementation(libs.litert)
 
     implementation(libs.androidx.appcompat)
     implementation(libs.core.ktx)

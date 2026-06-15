@@ -17,10 +17,6 @@ kotlin {       // KotlinJvmDsl
     jvmToolchain(21)
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(libs.dexlib2)
 }

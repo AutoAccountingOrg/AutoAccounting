@@ -38,8 +38,8 @@ object PaletteManager {
      * 双色结果（同一色系下的 强调/背景）
      */
     data class Duo(
-        @ColorInt val emphasis: Int,
-        @ColorInt val background: Int
+        @param:ColorInt val emphasis: Int,
+        @param:ColorInt val background: Int
     )
 
     // 简单缓存：key=index(1..50)，value=颜色 int

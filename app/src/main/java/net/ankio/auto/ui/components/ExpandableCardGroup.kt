@@ -20,6 +20,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
+import androidx.core.view.isVisible
 import com.google.android.material.card.MaterialCardView
 
 /**
@@ -91,7 +92,7 @@ open class ExpandableCardGroup @JvmOverloads constructor(
         val visibleChildren = mutableListOf<View>()
         for (i in 0 until childCount) {
             val child = getChildAt(i)
-            if (child.visibility == View.VISIBLE) {
+            if (child.isVisible) {
                 visibleChildren.add(child)
             }
         }

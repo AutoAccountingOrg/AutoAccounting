@@ -28,7 +28,6 @@ import java.util.*
  */
 object SummaryService {
     private val gson = Gson()
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     /**
      * 周期数据
@@ -50,8 +49,8 @@ object SummaryService {
     suspend fun getPeriodData(startTime: Long, endTime: Long): PeriodData {
         val dao = Db.get().billInfoDao()
 
-        val income = dao.getMonthlyIncome(startTime, endTime) ?: 0.0
-        val expense = dao.getMonthlyExpense(startTime, endTime) ?: 0.0
+        val income = dao.getMonthlyIncome(startTime, endTime)
+        val expense = dao.getMonthlyExpense(startTime, endTime)
         val netIncome = income - expense
         val savingsRate = if (income > 0) (netIncome / income) * 100 else 0.0
         val expenseIncomeRatio = if (income > 0) (expense / income) * 100 else 0.0
@@ -101,6 +100,7 @@ object SummaryService {
         }
 
         val periodDays = ((endTime - startTime) / (24L * 3600_000L)).coerceAtLeast(1)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         // 构建分类历史对比
         val categoryHistory = current.expenseCategories.map { curr ->

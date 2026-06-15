@@ -20,7 +20,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.*
 import java.io.File
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import kotlin.system.measureTimeMillis
 
 /**
@@ -93,7 +93,7 @@ abstract class BaseTest {
                     "&type=${item.type}" +
                     "&fromAppData=${item.fromAppData}"
 
-            val url = URL(urlString)
+            val url = URI(urlString).toURL()
             val connection = url.openConnection() as HttpURLConnection
 
             connection.requestMethod = "POST"

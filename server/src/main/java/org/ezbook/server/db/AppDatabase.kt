@@ -1,3 +1,5 @@
+@file:Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+
 /*
  * Copyright (C) 2023 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");

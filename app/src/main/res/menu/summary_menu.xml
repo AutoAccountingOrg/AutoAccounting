@@ -13,16 +13,15 @@
   ~   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_privacy_mode"
         android:icon="@drawable/ic_visibility"
         android:title="@string/setting_privacy"
-        app:showAsAction="always" />
+        android:showAsAction="always" />
     <item
         android:id="@+id/action_filter_period"
         android:icon="@drawable/ic_date_range"
-        app:showAsAction="always"
+        android:showAsAction="always"
         android:title="@string/period_custom_range" />
 </menu>

@@ -152,7 +152,7 @@ class TapBackDetector(
         TapLogger.i(
             SUB,
             "started builtin=${model.id} path=${model.assetPath} samsung=${model.isSamsungRegi()} " +
-                    "sensitivity=$sensitivity sensorThread=${looper.thread?.name} callback=${callbackLooper.thread?.name}",
+                    "sensitivity=$sensitivity sensorThread=${looper.thread.name} callback=${callbackLooper.thread.name}",
         )
     }
 

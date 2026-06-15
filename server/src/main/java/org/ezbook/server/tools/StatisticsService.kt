@@ -41,15 +41,15 @@ object StatisticsService {
         val periodDays = ((endTime - startTime) / (24L * 3600_000L)).coerceAtLeast(1)
 
         // 查询本期数据
-        val totalIncome = dao.getMonthlyIncome(startTime, endTime) ?: 0.0
-        val totalExpense = dao.getMonthlyExpense(startTime, endTime) ?: 0.0
+        val totalIncome = dao.getMonthlyIncome(startTime, endTime)
+        val totalExpense = dao.getMonthlyExpense(startTime, endTime)
         val netIncome = totalIncome - totalExpense
 
         // 查询上期数据（用于同比）
         val duration = endTime - startTime
         val prevStart = startTime - duration
-        val prevIncome = dao.getMonthlyIncome(prevStart, startTime) ?: 0.0
-        val prevExpense = dao.getMonthlyExpense(prevStart, startTime) ?: 0.0
+        val prevIncome = dao.getMonthlyIncome(prevStart, startTime)
+        val prevExpense = dao.getMonthlyExpense(prevStart, startTime)
 
         // 查询分类统计（查询后删掉父类，仅保留子类；无子类则保留原分类）
         val expenseCategoryRows = dao.getExpenseCategoryStats(startTime, endTime)
@@ -276,9 +276,9 @@ object StatisticsService {
      * 构建消费时间洞察数据
      */
     private fun buildTimeInsight(hourStats: Map<String, Any?>): Map<String, Any?> {
-        val hours = hourStats["hours"] as? List<String> ?: emptyList()
-        val amounts = hourStats["amounts"] as? List<Double> ?: emptyList()
-        val counts = hourStats["counts"] as? List<Int> ?: emptyList()
+        val hours = (hourStats["hours"] as? List<*>)?.filterIsInstance<String>().orEmpty()
+        val amounts = (hourStats["amounts"] as? List<*>)?.filterIsInstance<Double>().orEmpty()
+        val counts = (hourStats["counts"] as? List<*>)?.filterIsInstance<Int>().orEmpty()
 
         var peakIndex = 0
         var peakAmount = 0.0

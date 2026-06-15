@@ -9,6 +9,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Base64
+import androidx.core.graphics.scale
 import androidx.lifecycle.lifecycleScope
 import com.google.android.accessibility.selecttospeak.SelectToSpeakService
 import kotlinx.coroutines.Dispatchers
@@ -406,7 +407,7 @@ class OcrService : ICoreService() {
         val scale = OCR_MAX_SHORT_EDGE.toFloat() / shortSide
         val newW = (source.width * scale).toInt()
         val newH = (source.height * scale).toInt()
-        return Bitmap.createScaledBitmap(source, newW, newH, true)
+        return source.scale(newW, newH)
     }
 
     /**
@@ -485,7 +486,6 @@ class OcrService : ICoreService() {
 
     }
 }
-
 
 
 

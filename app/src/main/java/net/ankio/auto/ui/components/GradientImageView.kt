@@ -31,6 +31,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.withClip
 import net.ankio.auto.R
 
 /**
@@ -131,10 +133,9 @@ class GradientImageView @JvmOverloads constructor(
             clipPath.reset()
             clipPath.addRoundRect(rectF, cornerRadii, Path.Direction.CW)
 
-            canvas.save()
-            canvas.clipPath(clipPath)
-            canvas.drawRect(rectF, paint)
-            canvas.restore()
+            canvas.withClip(clipPath) {
+                drawRect(rectF, paint)
+            }
         }
     }
 
@@ -200,7 +201,7 @@ class GradientImageView @JvmOverloads constructor(
         val drawableWidth = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 1
         val drawableHeight = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 1
 
-        val bitmap = Bitmap.createBitmap(drawableWidth, drawableHeight, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(drawableWidth, drawableHeight)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)

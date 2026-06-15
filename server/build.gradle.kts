@@ -44,13 +44,6 @@ android {
     }
 }
 
-/* ---------- repositories ---------- */
-repositories {
-    google() // Required for Android dependencies
-    mavenCentral() // Required for KSP and other dependencies
-    maven { url = uri("https://www.jitpack.io") }
-}
-
 /* ---------- dependencies ---------- */
 dependencies {
 

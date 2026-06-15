@@ -32,7 +32,7 @@ private fun currencyIcon(code: String): String =
  * - 包含所有可用币种；用户通过设置页面勾选常用币种，下拉选择器仅展示常用项
  */
 enum class Currency(
-    @StringRes val currencyNameResId: Int,
+    @param:StringRes val currencyNameResId: Int,
     val currencyIconUrl: String
 ) {
     // 人民币（中国）

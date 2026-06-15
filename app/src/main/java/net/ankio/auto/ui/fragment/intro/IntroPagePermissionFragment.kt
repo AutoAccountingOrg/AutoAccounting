@@ -68,9 +68,9 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
      * @param viewId 权限项视图ID
      */
     data class PermItem(
-        @DrawableRes val iconRes: Int,
-        @StringRes val titleRes: Int,
-        @StringRes val descRes: Int,
+        @param:DrawableRes val iconRes: Int,
+        @param:StringRes val titleRes: Int,
+        @param:StringRes val descRes: Int,
         val checkGranted: () -> Boolean,        // 检查权限的方法
         val onClick: () -> Unit,                 // 点击跳转的方法
         val isRequired: Boolean = true,          // 是否为必需权限，默认为必需

@@ -46,6 +46,9 @@ htmlKtx = "1.1.2"
 
 # Image Loading
 glide = "4.16.0"
+bugly = "latest.release"
+mmkv = "1.3.5"
+zip4j = "2.11.5"
 
 # Development and Debug Tools
 leakcanaryAndroid = "2.14"
@@ -59,6 +62,7 @@ kotlinxCoroutinesAndroid = "1.8.0"
 # Android System and Xposed
 xposed = "82"
 dexlib2 = "2.5.2"
+shizuku = "13.1.5"
 
 # JavaScript Engine
 quickjsAndroid = "35726a9d28"
@@ -68,7 +72,7 @@ materialThemeBuilder = "1.5.1"
 autoresconfig = "1.2.2"
 lifecycleService = "2.9.2"
 # Machine learning (Columbus-style back tap detection)
-tensorflowLite = "2.14.0"
+liteRt = "2.1.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -112,6 +116,9 @@ html-ktx = { module = "dev.rikka.rikkax.html:html-ktx", version.ref = "htmlKtx" 
 # Image Loading
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 glideCompiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
+bugly = { module = "com.tencent.bugly:crashreport", version.ref = "bugly" }
+mmkv = { module = "com.tencent:mmkv-static", version.ref = "mmkv" }
+zip4j = { module = "net.lingala.zip4j:zip4j", version.ref = "zip4j" }
 
 # Development and Debug Tools
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
@@ -122,6 +129,8 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 # Android System and Xposed
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 dexlib2 = { module = "org.smali:dexlib2", version.ref = "dexlib2" }
+shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
+shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
 
 # JavaScript Engine
 quickjs-android = { module = "com.github.AutoAccountingOrg:quickjs-android", version.ref = "quickjsAndroid" }
@@ -133,7 +142,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompatVersion" }
-tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLite" }
+litert = { module = "com.google.ai.edge.litert:litert", version.ref = "liteRt" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -283,7 +283,7 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
                 }
 
                 // 设置选中的图标
-                asset.icon?.let { iconUrl ->
+                asset.icon.let { iconUrl ->
                     val matchedIcon = allIcons.find { it.icon == iconUrl }
                     matchedIcon?.let { onIconSelected(it) }
                 }

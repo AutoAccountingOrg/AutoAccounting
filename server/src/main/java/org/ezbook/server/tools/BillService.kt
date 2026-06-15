@@ -32,6 +32,7 @@ import org.ezbook.server.db.AppDatabase
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.CurrencyModel
 import org.ezbook.server.engine.JsExecutor
 import org.ezbook.server.engine.RuleGenerator
@@ -53,6 +54,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.ezbook.server.log.ServerLog
 
+internal suspend fun resolveMappedCategory(
+    bill: BillInfoModel,
+    categories: List<CategoryModel>,
+    processor: CategoryProcessor = CategoryProcessor()
+): String? = processor.setCategoryMap(bill, categories)
 
 /**
  * 账单核心业务服务类
@@ -547,35 +553,42 @@ class BillService(
                 JsonObject::class.java
             )
         }.getOrNull()
-        ServerLog.d(
-            "Category result: book=${
-                categoryJson.safeGetStringNonBlank(
-                    "book",
-                    ""
-                )
-            }, cate=${categoryJson.safeGetStringNonBlank("category", "")}"
-        )
+        ServerLog.d("Category rule evaluated")
         // 设置账本名称与分类（优先规则结果，否则默认值）
         // 将账本指针（如"默认账本"）解析为数据库中真实存在的账本名称
         val rawBookName = categoryJson.safeGetStringNonBlank("book", SettingUtils.bookName())
-        bill.bookName = resolveBookByNameOrDefault(rawBookName).name
+        val resolvedBook = resolveBookByNameOrDefault(rawBookName)
+        bill.bookName = resolvedBook.name
         bill.cateName = categoryJson.safeGetStringNonBlank("category", "其他")
         bill.remark = categoryJson.safeGetStringNonBlank("remark", "")
+        val categoryTool = CategoryTool()
+        val categories = categoryTool.loadCategories(resolvedBook.remoteId, bill.type)
+
+        // 先应用用户分类映射，再判断分类规则结果是否真实存在于当前账本。
+        var resolvedCategory = resolveMappedCategory(bill, categories)
+        val needsAiCategory = !bill.hasValidCategory()
+
         // AI分类识别需要总开关和分类开关同时开启
-        if (!bill.hasValidCategory() &&
+        if ((needsAiCategory || resolvedCategory == null) &&
             SettingUtils.featureAiAvailable() &&
             SettingUtils.aiCategoryRecognition()
         ) {
-            bill.cateName = CategoryTool().execute(
+            bill.cateName = categoryTool.execute(
                 win.toString(),
                 bill.app,
-                dataType
-            ).takeUnless { it.isNullOrEmpty() } ?: "其他"
-            ServerLog.d("AI category: ${bill.cateName}")
+                dataType,
+                categories
+            ).takeUnless { it.isNullOrEmpty() } ?: bill.cateName
+            ServerLog.d("AI category evaluated")
+
+            resolvedCategory = resolveMappedCategory(bill, categories)
         }
 
-        // 设置分类映射、查找
-        CategoryProcessor().setCategoryMap(bill)
+        if (resolvedCategory == null) {
+            bill.cateName = CategoryTool.fallbackCategory(CategoryTool.categoryPaths(categories))
+                ?: bill.cateName
+            ServerLog.d("Category fallback evaluated")
+        }
     }
 
     /**
@@ -677,4 +690,3 @@ class BillService(
         }
     }
 }
-

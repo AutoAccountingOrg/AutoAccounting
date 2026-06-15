@@ -13,6 +13,8 @@
  *   limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.google.android.accessibility.selecttospeak
 
 import android.accessibilityservice.AccessibilityService
@@ -310,7 +312,7 @@ class SelectToSpeakService : AccessibilityService() {
     private fun buildNodeDescriptor(node: AccessibilityNodeInfo): String {
         val cls = node.className?.toString()?.substringAfterLast('.') ?: "?"
         val id =
-            node.viewIdResourceName?.toString()?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
+            node.viewIdResourceName?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
         val name = node.contentDescription?.toString()
             ?.replace(Regex("\\d+(\\.\\d+)?"), "#")
             ?.replace(Regex("\\s+"), " ")

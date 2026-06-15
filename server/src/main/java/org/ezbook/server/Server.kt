@@ -29,6 +29,7 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.server.module
 import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.SettingUtils
+import java.net.ServerSocket
 
 
 class Server(private val context: Application) {
@@ -74,6 +75,14 @@ class Server(private val context: Application) {
         var packageName = "net.ankio.auto"
         var debugPackage = false
         lateinit var application: Application
+
+        fun isPortOccupied(): Boolean {
+            return try {
+                ServerSocket(PORT).use { false }
+            } catch (_: Throwable) {
+                true
+            }
+        }
 
         /**
          * 统一的协程异常处理器：防止单个异常导致整个作用域崩溃

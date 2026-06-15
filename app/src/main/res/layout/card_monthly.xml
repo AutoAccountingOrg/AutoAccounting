@@ -14,6 +14,7 @@
             android:id="@+id/incomeExpenseLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:orientation="horizontal"
 
             app:layout_constraintEnd_toEndOf="parent"

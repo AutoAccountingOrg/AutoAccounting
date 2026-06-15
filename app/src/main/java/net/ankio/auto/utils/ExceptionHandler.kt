@@ -85,7 +85,7 @@ class ExceptionHandler private constructor(private val context: Context) :
         saveLogToLocal(context, msg)
         // Bugly 上报
         if (!PrefManager.debugMode)
-        CrashReport.postCatchedException(e)
+            CrashReport.postCatchedException(e)
 
         // 跳转错误界面
         try {

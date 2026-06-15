@@ -182,8 +182,8 @@ class BookCardComponent(binding: CardBookBinding) :
      * 数据模型 - 基于 label 动态分配颜色
      * ----------------------------------------------------- */
     data class ActionTile(
-        @DrawableRes val icon: Int,
-        @StringRes val label: Int,
+        @param:DrawableRes val icon: Int,
+        @param:StringRes val label: Int,
         val onClick: () -> Unit
     )
 

@@ -51,6 +51,13 @@ materialThemeBuilder {
     generatePalette = true
 }
 
+val appVersionCode = calculateVersionCode()
+val appVersionName = "4.0.2"
+
+base {
+    archivesName.set("app-$appVersionName($appVersionCode)")
+}
+
 android {
     namespace = "net.ankio.auto"
     compileSdk = 36
@@ -60,11 +67,10 @@ android {
         applicationId = "net.ankio.auto"
         minSdk = 29
         targetSdk = 36
-        versionCode = calculateVersionCode()
-        versionName = "4.0.2"
+        versionCode = appVersionCode
+        versionName = appVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions += "version"
-        setProperty("archivesBaseName", "app-${versionName}(${versionCode})")
 
 
 
@@ -117,8 +123,9 @@ android {
             )
         }
 
-        // 如果以后要过滤 .so，改用 jniLibs.excludes += "lib/**/foo.so"
-        // jniLibs { excludes += "lib/**/yourNative.so" }
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
 
@@ -213,11 +220,11 @@ dependencies {
     implementation(libs.rikkaMaterialPreference)
     implementation(libs.about)
 
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.glide)
 
-    implementation("com.tencent.bugly:crashreport:latest.release")
-    implementation("com.tencent:mmkv-static:1.3.5")
-    implementation("net.lingala.zip4j:zip4j:2.11.5")
+    implementation(libs.bugly)
+    implementation(libs.mmkv)
+    implementation(libs.zip4j)
     implementation(kotlin("reflect"))
 
 

@@ -222,15 +222,15 @@
     <string name="webdav_error_auth">WebDAV authentication failed (HTTP %d), please check username and password</string>
     <string name="webdav_error_path_not_found">WebDAV path does not exist (HTTP %d), please check configured path</string>
     <string name="webdav_error_server_error">WebDAV server error (HTTP %d), please try again later</string>
-    <string name="webdav_error_request_failed">WebDAV request failed (HTTP %d): %s</string>
+    <string name="webdav_error_request_failed">WebDAV request failed (HTTP %1$d): %2$s</string>
     <string name="webdav_error_connect">Unable to connect to WebDAV server, please check network connection and server address</string>
     <string name="webdav_error_connect_restore">Unable to connect to WebDAV server, please check network connection</string>
     <string name="webdav_error_auth_simple">WebDAV authentication failed, please check username and password</string>
     <string name="webdav_error_backup_failed">WebDAV backup failed: %s</string>
     <string name="webdav_error_restore_failed">WebDAV restore failed: %s</string>
-    <string name="webdav_error_list_failed">Failed to get backup list (HTTP %d): %s</string>
+    <string name="webdav_error_list_failed">Failed to get backup list (HTTP %1$d): %2$s</string>
     <string name="webdav_error_list_failed_simple">Failed to get backup list: %s</string>
-    <string name="webdav_error_file_not_found">Backup file does not exist (HTTP %d): %s</string>
+    <string name="webdav_error_file_not_found">Backup file does not exist (HTTP %1$d): %2$s</string>
     <string name="webdav_error_download_failed">Failed to download backup file: %s</string>
 
     <string name="backup_preparing">Preparing backup...</string>

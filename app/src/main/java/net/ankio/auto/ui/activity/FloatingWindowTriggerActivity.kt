@@ -75,6 +75,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
      * 创建快捷方式的返回结果
      * 用于兼容老式启动器的 CREATE_SHORTCUT 机制
      */
+    @Suppress("DEPRECATION")
     private fun createShortcutResult() {
         // 创建启动 OCR 功能的 Intent
         val launchIntent = Intent(this, FloatingWindowTriggerActivity::class.java).apply {

@@ -91,7 +91,7 @@ object LanguageUtils {
 
 
     private fun getLocale(language: String): Locale {
-        return if (language == "SYSTEM") getSystemLocale() else Locale(language)
+        return if (language == "SYSTEM") getSystemLocale() else Locale.forLanguageTag(language)
     }
 
     private fun updateResourcesLocale(

@@ -66,7 +66,7 @@ class SamsungBackTapDetectionService(
                 lastT,
                 sSamplingIntervalInNano,
             )
-            val v = Math.toDegrees(acos((lastZ / f).toDouble()).toDouble()).toInt()
+            val v = Math.toDegrees(acos((lastZ / f).toDouble())).toInt()
             mIsFlat[mFlatIndex] = if (v < 10 || v > 170) 1 else 0
             val v1 = mFlatIndex + 1
             mFlatIndex = v1

@@ -21,6 +21,11 @@ class BackgroundHttpService : ICoreService() {
         super.onCreate(coreService)
 
         if (WorkMode.isOcrOrLSPatch()) {
+            if (Server.isPortOccupied()) {
+                Logger.d("Server port ${Server.PORT} already occupied, skip duplicate initialization")
+                return
+            }
+
             Logger.d("Initializing Xposed hooks for OCR mode or LSPatch mode")
             AppRuntime.manifest = AutoHooker()
             AppRuntime.modulePath = coreService.packageManager
