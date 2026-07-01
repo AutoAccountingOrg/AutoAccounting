@@ -35,6 +35,9 @@ import java.util.Locale
  */
 object BillMerger {
 
+    private const val MAX_REMARK_NORMALIZATION_LENGTH = 512
+    private const val MAX_REMARK_NORMALIZATION_SCAN_LENGTH = 64
+
     /**
      * 合并账单数据
      *
@@ -273,31 +276,31 @@ object BillMerger {
      * 这类包含相同日期前缀的正常备注会被误删，表现为备注被截断。
      */
     internal fun normalizeName(name: String): String {
-        var result = name.trim()
-        if (result.isEmpty()) return result
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return trimmed
 
+        // 超长文本在监听流程中可能非常频繁，直接跳过繁重的规范化，避免把 UI/监听线程拖死。
+        if (trimmed.length > MAX_REMARK_NORMALIZATION_LENGTH) return trimmed
+
+        var result = trimmed
         while (true) {
             var found = false
 
-            // 只处理相邻重复片段，从长到短扫描，优先保留更具体的结构
-            outer@ for (len in result.length / 2 downTo 2) {
-                for (i in 0..result.length - len * 2) {
+            // 只处理相邻重复片段，从长到短扫描，优先保留更具体的结构。
+            // 同时限制扫描长度，避免对超长字符串做指数级扫描。
+            outer@ for (len in minOf(result.length / 2, MAX_REMARK_NORMALIZATION_SCAN_LENGTH) downTo 2) {
+                val maxStart = result.length - len * 2
+                for (i in 0..maxStart) {
                     val sub = result.substring(i, i + len)
                     val nextStart = i + len
                     if (!result.startsWith(sub, nextStart)) continue
 
                     var duplicateEnd = nextStart
-                    while (duplicateEnd + len <= result.length && result.startsWith(
-                            sub,
-                            duplicateEnd
-                        )
-                    ) {
+                    while (duplicateEnd + len <= result.length && result.startsWith(sub, duplicateEnd)) {
                         duplicateEnd += len
                     }
 
-                    val sb = StringBuilder(result)
-                    sb.delete(nextStart, duplicateEnd)
-                    result = sb.toString()
+                    result = result.removeRange(nextStart, duplicateEnd)
                     found = true
                     break@outer
                 }

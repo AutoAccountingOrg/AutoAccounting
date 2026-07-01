@@ -18,6 +18,8 @@ package org.ezbook.server.tools
 import org.ezbook.server.db.model.BillInfoModel
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class BillMergerRemarkNormalizationTest {
 
@@ -55,6 +57,19 @@ class BillMergerRemarkNormalizationTest {
             shopName to shopItem,
             BillMerger.deduplicateRemarkFields(shopName, shopItem)
         )
+    }
+
+    @Test
+    fun normalizeName_handlesLargeRepeatedTextWithoutBlocking() {
+        val input = "abc123".repeat(500)
+        val executor = Executors.newSingleThreadExecutor()
+        try {
+            val future = executor.submit<String> { BillMerger.normalizeName(input) }
+            val result = future.get(2, TimeUnit.SECONDS)
+            assertEquals(input, result)
+        } finally {
+            executor.shutdownNow()
+        }
     }
 
     @Test
