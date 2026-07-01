@@ -1,0 +1,81 @@
+name: Build Android APK
+
+# 触发条件：
+# 1. push 到 main 分支时 -> 构建 Debug APK
+# 2. 创建 tag (如 v1.0) 时 -> 构建 Release APK
+# 3. 手动在网页点击 Run workflow
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # 允许手动触发
+  release:
+    types: [ created ]
+
+env:
+  # 核心环境变量配置
+  JAVA_VERSION: '17'        # Gradle 8.x 必须使用 Java 17
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 设置 JDK 17 环境 (针对 Gradle 8.11.1 的关键步骤)
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      # 3. 设置 Gradle 并启用缓存 (大幅提升构建速度)
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' }}
+
+      # 4. 赋予 gradlew 执行权限
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 5. 执行构建
+      # 分开构建 Debug 和 Release，避免签名问题导致 Debug 构建失败
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Build Release APK (Unsigned)
+        run: ./gradlew assembleRelease --stacktrace
+        # 注意：如果没有配置签名，生成的 Release APK 将未签名，无法直接安装，
+        # 但可以用于验证代码编译是否通过。如需签名，需添加解密密钥步骤。
+
+      # 6. 上传 Debug APK (构建产物)
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          # Gradle 8 默认输出路径通常如下
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 30
+
+      # 7. 上传 Release APK (构建产物)
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+      # 8. (可选) 如果是创建 Tag 触发，将 Release APK 附加到 GitHub Release 页面
+      - name: Upload Release Asset
+        if: github.event_name == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-asset
+          path: app/build/outputs/apk/release/*.apk
