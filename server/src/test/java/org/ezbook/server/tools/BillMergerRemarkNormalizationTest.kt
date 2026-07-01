@@ -58,6 +58,36 @@ class BillMergerRemarkNormalizationTest {
     }
 
     @Test
+    fun formatLocationAddressParts_dropsCountryAndProvinceAndKeepsCityDistrictDetail() {
+        val format = BillMerger.formatLocationAddressParts(
+            city = "中国浙江省嘉兴市南湖区xx路xx小区6号",
+            district = "",
+            detail = ""
+        )
+
+        assertEquals("嘉兴市南湖区xx路xx小区6号", format)
+    }
+
+    @Test
+    fun formatLocationAddressParts_ignoresBlankSegments() {
+        val format = BillMerger.formatLocationAddressParts(
+            city = "",
+            district = "南湖区",
+            detail = ""
+        )
+
+        assertEquals("南湖区", format)
+    }
+
+    @Test
+    fun formatLocationAddressParts_returnsFallbackWhenAddressMissing() {
+        assertEquals(
+            "未授权位置信息",
+            BillMerger.formatLocationAddressParts(city = "", district = "", detail = "")
+        )
+    }
+
+    @Test
     fun mergeChannelInfo_joinsDistinctSources() {
         val parent = BillInfoModel(channel = "微信[招商银行]")
         val child = BillInfoModel(channel = "建设银行动账")

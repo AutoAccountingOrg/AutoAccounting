@@ -55,6 +55,7 @@ class RemarkFormatFragment : BaseFragment<FragmentRemarkFormatBinding>() {
         "【原始资产】",
         "【目标资产】",
         "【渠道】",
+        "【位置信息】",
         // 扩展信息
         "【规则名称】",
         "【AI】",

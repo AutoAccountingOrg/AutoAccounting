@@ -512,6 +512,9 @@
     <string name="perm_overlay_title">Overlay Permission</string>
     <string name="perm_overlay_desc">Allows displaying floating windows for quick extraction tools.</string>
 
+    <string name="perm_location_title">Location Permission</string>
+    <string name="perm_location_desc">Allows the app to read your current location so the bill remark template can include location details.</string>
+
     <string name="perm_ocr_perm_root">OCR Recognition (Root)</string>
     <string name="perm_ocr_perm_shizuku">OCR Recognition (Shizuku)</string>
     <string name="perm_ocr_perm_accessibility">OCR Recognition (Accessibility)</string>

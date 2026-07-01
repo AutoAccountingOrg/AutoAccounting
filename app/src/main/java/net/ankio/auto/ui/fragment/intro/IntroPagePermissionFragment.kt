@@ -39,6 +39,10 @@ import kotlinx.coroutines.withContext
  */
 class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermissionBinding>() {
 
+    companion object {
+        private const val REQ_LOCATION_PERMISSION = 1002
+    }
+
     // ──────────────────────────────────────────────────────────────────────────────
     // Lifecycle
     // ──────────────────────────────────────────────────────────────────────────────
@@ -98,6 +102,26 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                     descRes = R.string.perm_overlay_desc,
                     checkGranted = { OverlayService.hasPermission() },
                     onClick = { OverlayService.startPermissionActivity(ctx) }
+                )
+            )
+
+            // 位置信息权限（可选）：用于备注中的位置信息占位符
+            add(
+                PermItem(
+                    iconRes = R.drawable.icon_map,
+                    titleRes = R.string.perm_location_title,
+                    descRes = R.string.perm_location_desc,
+                    checkGranted = {
+                        ContextCompat.checkSelfPermission(
+                            ctx,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                            ctx,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    },
+                    onClick = { requestLocationPermission() },
+                    isRequired = false
                 )
             )
 
@@ -214,6 +238,36 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
         super.onResume()
         setupCardsDynamic()
         refreshCardStates()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_LOCATION_PERMISSION) {
+            refreshCardStates()
+        }
+    }
+
+    private fun requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            refreshCardStates()
+            return
+        }
+
+        requestPermissions(
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            REQ_LOCATION_PERMISSION
+        )
     }
 
     /**

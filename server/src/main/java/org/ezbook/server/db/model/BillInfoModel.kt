@@ -122,6 +122,12 @@ data class BillInfoModel(
     var remark: String = "",
 
     /**
+     * 当前 GPS 定位得到的地址信息，格式化后可用于备注模板。
+     * 例如：嘉兴市南湖区xx路xx小区6号
+     */
+    var locationInfo: String = "",
+
+    /**
      * 是否为自动记录的账单
      */
     var auto: Boolean = false,

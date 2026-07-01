@@ -489,6 +489,9 @@
     <string name="perm_overlay_title">悬浮窗权限</string>
     <string name="perm_overlay_desc">允许显示悬浮窗以快速提取工具。</string>
 
+    <string name="perm_location_title">位置信息权限</string>
+    <string name="perm_location_desc">允许应用读取当前位置信息，以便在备注格式中填入位置信息。</string>
+
     <string name="perm_ocr_perm_root">OCR识别（Root）</string>
     <string name="perm_ocr_perm_shizuku">OCR识别（Shizuku）</string>
     <string name="perm_ocr_perm_accessibility">OCR识别（无障碍）</string>

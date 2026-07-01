@@ -206,6 +206,11 @@ object BillMerger {
         val normalizedShopName = normalizeName(billInfoModel.shopName).trim()
         val normalizedShopItem = normalizeName(billInfoModel.shopItem).trim()
         val (shopName, shopItem) = deduplicateRemarkFields(normalizedShopName, normalizedShopItem)
+        val locationInfo = formatLocationAddressParts(
+            city = billInfoModel.locationInfo,
+            district = "",
+            detail = ""
+        )
 
         // 替换占位符
         return template
@@ -219,6 +224,7 @@ object BillMerger {
             .replace("【原始资产】", billInfoModel.accountNameFrom)
             .replace("【目标资产】", billInfoModel.accountNameTo)
             .replace("【渠道】", billInfoModel.channel)
+            .replace("【位置信息】", locationInfo)
             // 扩展信息
             .replace("【规则名称】", billInfoModel.ruleName)
             .replace("【AI】", getAIProvider(billInfoModel))
@@ -227,6 +233,34 @@ object BillMerger {
             .replace("【标签】", billInfoModel.tags)
             .replace("【交易类型】", billInfoModel.type.toChineseString())
             .replace("【时间】", formatTime(billInfoModel.time))
+    }
+
+    fun formatLocationAddressParts(city: String, district: String, detail: String): String {
+        val rawAddress = listOf(city, district, detail)
+            .map(String::trim)
+            .filter(String::isNotEmpty)
+            .joinToString(separator = "")
+
+        val normalizedAddress = stripCountryAndProvincePrefix(rawAddress)
+            .replace(Regex("[，,/\\s]+"), "")
+            .trim()
+
+        return normalizedAddress.ifEmpty { "未授权位置信息" }
+    }
+
+    private fun stripCountryAndProvincePrefix(address: String): String {
+        val normalized = address.trim()
+        if (normalized.isEmpty()) return ""
+
+        val withoutCountry = normalized
+            .removePrefix("中国")
+            .removePrefix("中华人民共和国")
+            .trimStart()
+
+        val provincePrefix = Regex("^[^省自治区特别行政区]+(?:省|自治区|特别行政区)")
+        return provincePrefix.find(withoutCountry)?.let {
+            withoutCountry.substring(it.value.length).trimStart()
+        } ?: withoutCountry
     }
 
     /**

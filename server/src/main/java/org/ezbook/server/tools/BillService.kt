@@ -486,6 +486,7 @@ class BillService(
             accountNameFrom = json.safeGetString("accountNameFrom")
             accountNameTo = json.safeGetString("accountNameTo")
             channel = json.safeGetString("channel")
+            locationInfo = json.safeGetString("locationInfo")
 
             // 构造 CurrencyModel：获取币种代码并查询汇率
             val rawCurrency = json.safeGetString("currency").uppercase().ifEmpty { "CNY" }
