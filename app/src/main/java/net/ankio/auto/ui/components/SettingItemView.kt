@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
+import androidx.core.content.res.use
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ViewSettingItemBinding
 import net.ankio.auto.ui.theme.DynamicColors
@@ -22,24 +23,20 @@ class SettingItemView @JvmOverloads constructor(
 
 
         // 获取自定义属性
-        context.obtainStyledAttributes(attrs, R.styleable.SettingItemView).apply {
-            try {
+        context.obtainStyledAttributes(attrs, R.styleable.SettingItemView).use {
                 // 设置图标
-                val iconRes = getResourceId(R.styleable.SettingItemView_settingIcon, 0)
+                val iconRes = it.getResourceId(R.styleable.SettingItemView_settingIcon, 0)
                 if (iconRes != 0) {
                     binding.settingIcon.setImageResource(iconRes)
                 }
 
                 // 设置标题
-                binding.settingTitle.text = getString(R.styleable.SettingItemView_settingTitle)
+                binding.settingTitle.text = it.getString(R.styleable.SettingItemView_settingTitle)
 
                 // 设置描述
-                binding.settingDesc.text = getString(R.styleable.SettingItemView_settingDesc)
+                binding.settingDesc.text = it.getString(R.styleable.SettingItemView_settingDesc)
 
                 binding.root.setCardBackgroundColor(DynamicColors.SurfaceColor1)
-            } finally {
-                recycle()
-            }
         }
     }
 

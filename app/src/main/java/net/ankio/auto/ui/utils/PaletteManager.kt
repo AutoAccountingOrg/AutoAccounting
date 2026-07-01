@@ -7,6 +7,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import net.ankio.auto.R
 import kotlin.math.abs
 
 /**
@@ -48,6 +49,26 @@ object PaletteManager {
 
     // 基于 label 的颜色缓存：key=label.hashCode()，value=Duo
     private val cacheLabelColors = mutableMapOf<String, Duo>()
+
+    private val backgroundColorResources = intArrayOf(
+        R.color.palette_01_bg, R.color.palette_02_bg, R.color.palette_03_bg,
+        R.color.palette_04_bg, R.color.palette_05_bg, R.color.palette_06_bg,
+        R.color.palette_07_bg, R.color.palette_08_bg, R.color.palette_09_bg,
+        R.color.palette_10_bg, R.color.palette_11_bg, R.color.palette_12_bg,
+        R.color.palette_13_bg, R.color.palette_14_bg, R.color.palette_15_bg,
+        R.color.palette_16_bg, R.color.palette_17_bg, R.color.palette_18_bg,
+        R.color.palette_19_bg, R.color.palette_20_bg, R.color.palette_21_bg,
+        R.color.palette_22_bg, R.color.palette_23_bg, R.color.palette_24_bg,
+        R.color.palette_25_bg, R.color.palette_26_bg, R.color.palette_27_bg,
+        R.color.palette_28_bg, R.color.palette_29_bg, R.color.palette_30_bg,
+        R.color.palette_31_bg, R.color.palette_32_bg, R.color.palette_33_bg,
+        R.color.palette_34_bg, R.color.palette_35_bg, R.color.palette_36_bg,
+        R.color.palette_37_bg, R.color.palette_38_bg, R.color.palette_39_bg,
+        R.color.palette_40_bg, R.color.palette_41_bg, R.color.palette_42_bg,
+        R.color.palette_43_bg, R.color.palette_44_bg, R.color.palette_45_bg,
+        R.color.palette_46_bg, R.color.palette_47_bg, R.color.palette_48_bg,
+        R.color.palette_49_bg, R.color.palette_50_bg
+    )
 
     /**
      * 基于 label 获取颜色
@@ -198,22 +219,12 @@ object PaletteManager {
      * 命名规则：palette_XX_bg
      */
     fun getBgColorResId(
+        @Suppress("UNUSED_PARAMETER")
         context: Context,
         @IntRange(from = 1, to = TOTAL_FAMILIES.toLong()) index: Int
     ): Int {
         val normalized = normalizeIndex(index)
-        val name = buildBgName(normalized)
-        val resId = context.resources.getIdentifier(name, "color", context.packageName)
-        // 理论上应当存在；若异常缺失，回退到 palette_01（兜底不崩溃）
-        if (resId == 0) {
-            val fallback = context.resources.getIdentifier(
-                buildBgName(1),
-                "color",
-                context.packageName
-            )
-            return if (fallback != 0) fallback else android.R.color.transparent
-        }
-        return resId
+        return backgroundColorResources.getOrElse(normalized - 1) { R.color.palette_01_bg }
     }
 
     /**
@@ -234,11 +245,6 @@ object PaletteManager {
             mod == 0 -> TOTAL_FAMILIES
             else -> (mod + TOTAL_FAMILIES)
         }
-    }
-
-    private fun buildBgName(index: Int): String {
-        val idx = String.format("%02d", index)
-        return "palette_${idx}_bg"
     }
 
     // 颜色计算参数 - 基于可访问性标准
@@ -280,5 +286,3 @@ object PaletteManager {
         )
     }
 }
-
-

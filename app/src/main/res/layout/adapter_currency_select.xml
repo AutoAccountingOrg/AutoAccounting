@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   币种多选列表项布局：CheckBox + 图标 + 币种代码 + 币种名称
   -->
+<!-- RecyclerView item root intentionally owns its pressed-state ripple. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -11,7 +12,8 @@
     android:focusable="true"
     android:paddingVertical="8dp"
     android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:paddingEnd="16dp"
+    tools:ignore="Overdraw">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

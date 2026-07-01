@@ -105,7 +105,7 @@ class StatusCardComponent(binding: CardStatusBinding) :
                 drawable = R.drawable.home_active_error
             )
         }
-        binding.subtitleText.text = "v${data.versionName}"
+        binding.subtitleText.text = context.getString(R.string.version_format, data.versionName)
         binding.ruleVersionText.text = data.ruleVersion
         binding.ruleUpdateText.text = data.ruleUpdate
 

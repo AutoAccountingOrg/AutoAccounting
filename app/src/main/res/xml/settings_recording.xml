@@ -168,7 +168,7 @@
             android:icon="@drawable/float_money"
             android:key="selectedCurrencies"
             app:dependency="featureMultiCurrency"
-            android:summary="@string/setting_selected_currencies_summary"
+            android:summary="@string/setting_selected_currencies_summary_default"
             android:title="@string/setting_selected_currencies" />
 
         <rikka.material.preference.MaterialSwitchPreference

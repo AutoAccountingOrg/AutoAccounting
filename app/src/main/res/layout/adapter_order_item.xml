@@ -120,7 +120,7 @@
         android:id="@+id/flexContainer"
         android:layout_marginTop="6dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
 
         app:alignItems="center"
@@ -268,7 +268,6 @@
             android:layout_height="20dp"
             android:layout_marginEnd="4dp"
             android:layout_gravity="center_vertical"
-            android:contentDescription=""
             android:importantForAccessibility="no"
             android:src="@drawable/ic_sync"
             app:tint="?colorPrimary" />

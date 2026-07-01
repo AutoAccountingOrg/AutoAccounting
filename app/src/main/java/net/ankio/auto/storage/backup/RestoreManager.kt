@@ -62,12 +62,14 @@ class RestoreManager(private val context: Context) {
                     throwable = null
                 )
 
-            inputStream.use { stream ->
+            try {
                 val file = File(context.cacheDir, filename)
-                file.writeBytes(stream.readBytes())
+                file.writeBytes(inputStream.readBytes())
 
                 // 解包并恢复数据
                 fileManager.unpackData(file)
+            } finally {
+                inputStream.close()
             }
 
             Logger.i("本地恢复完成")

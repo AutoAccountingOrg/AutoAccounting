@@ -1,3 +1,4 @@
+<!-- RecyclerView item root intentionally owns its pressed-state ripple. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,7 +10,8 @@
     android:minHeight="?attr/listPreferredItemHeight"
     android:paddingVertical="16dp"
     android:paddingStart="16dp"
-    android:paddingEnd="24dp">
+    android:paddingEnd="24dp"
+    tools:ignore="Overdraw">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/item_root"

@@ -14,10 +14,13 @@
   -->
 
 <!-- 账簿头部组件 - 显示账簿封面图片 -->
+<!-- The reusable included overlay requires a concrete FrameLayout root for ViewBinding. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:ignore="MergeRootFrame">
 
     <!-- 账簿背景图片 -->
     <net.ankio.auto.ui.components.GradientImageView

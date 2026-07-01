@@ -56,7 +56,7 @@ fun Route.billRoutes() {
                 BillState.Synced.name,
                 BillState.Wait2Edit.name
             )
-            val type = call.request.queryParameters["type"]?.split(",") ?: defaultStates
+            val type = parseBillListStates(call.request.queryParameters["type"], defaultStates)
 
             val year = call.request.queryParameters["year"]?.toIntOrNull()
             val month = call.request.queryParameters["month"]?.toIntOrNull()
@@ -82,7 +82,7 @@ fun Route.billRoutes() {
                 Long.MAX_VALUE
             }
 
-            ServerLog.d("获取分组账单列表：year=$year, month=$month, type=$type, keyword=$keyword")
+            ServerLog.d("获取分组账单列表：year=$year, month=$month, type=$type, hasKeyword=${keyword.isNotEmpty()}")
 
             // 获取整月数据（不分页）
             val bills = Db.get().billInfoDao().getBillsByTimeRange(startTime, endTime)
@@ -333,4 +333,13 @@ fun Route.billRoutes() {
             call.respond(ResultModel.ok("OK"))
         }
     }
+}
+
+internal fun parseBillListStates(typeParam: String?, defaultStates: List<String>): List<String> {
+    return typeParam
+        ?.split(",")
+        ?.map { it.trim() }
+        ?.filter { it.isNotEmpty() }
+        ?.takeIf { it.isNotEmpty() }
+        ?: defaultStates
 }

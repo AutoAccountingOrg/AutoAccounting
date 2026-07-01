@@ -252,7 +252,13 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
             // 如果有可选权限未授予，给出提示但仍允许继续
             if (optionalGrantedCount < optionalPerms.size) {
                 val missingOptional = optionalPerms.size - optionalGrantedCount
-                ToastUtils.info(getString(R.string.perm_optional_missing_hint, missingOptional))
+                ToastUtils.info(
+                    resources.getQuantityString(
+                        R.plurals.perm_optional_missing_hint,
+                        missingOptional,
+                        missingOptional
+                    )
+                )
             }
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.KEEP
         } else {

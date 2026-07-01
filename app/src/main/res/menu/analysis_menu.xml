@@ -18,5 +18,5 @@
         android:id="@+id/action_clear_all"
         android:icon="@drawable/menu_icon_clear"
         android:showAsAction="ifRoom"
-        android:title="清空所有分析" />
-</menu> 
+        android:title="@string/clear_all_analysis" />
+</menu>

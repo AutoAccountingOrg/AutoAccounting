@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.adapter
 
 import android.content.pm.PackageManager
+import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterAppBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
@@ -114,7 +115,7 @@ class AppAdapter : BaseAdapter<AdapterAppBinding, AppInfo>() {
         } catch (e: Exception) {
             // 处理包信息获取异常，设置默认值
             binding.appName.text = data.packageName
-            binding.appVersionName.text = "Unknown"
+            binding.appVersionName.text = binding.root.context.getString(R.string.unknown)
             binding.appPackageName.text = data.packageName
             binding.checkbox.isChecked = data.isSelected
         }

@@ -74,8 +74,9 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
+                android:contentDescription="@string/switch_transfer_direction"
                 android:gravity="center"
-                android:text="➜" />
+                android:text="@string/transfer_direction_arrow" />
 
             <net.ankio.auto.ui.components.IconView
                 android:id="@+id/transfer_to"
@@ -117,8 +118,9 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
+                android:contentDescription="@string/switch_transfer_direction"
                 android:gravity="center"
-                android:text="➜" />
+                android:text="@string/transfer_direction_arrow" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/debt_person_input_layout"
@@ -174,8 +176,9 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
+                android:contentDescription="@string/switch_transfer_direction"
                 android:gravity="center"
-                android:text="➜" />
+                android:text="@string/transfer_direction_arrow" />
 
         <net.ankio.auto.ui.components.IconView
             android:id="@+id/debt_account2"

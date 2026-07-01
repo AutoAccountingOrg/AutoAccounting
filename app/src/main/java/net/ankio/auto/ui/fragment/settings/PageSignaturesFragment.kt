@@ -18,7 +18,9 @@ package net.ankio.auto.ui.fragment.settings
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPageSignaturesBinding
@@ -79,14 +81,7 @@ class PageSignaturesFragment : BaseFragment<FragmentPageSignaturesBinding>() {
 
     private class Adapter(
         private val onDelete: (PageSignature) -> Unit
-    ) : RecyclerView.Adapter<Adapter.VH>() {
-
-        private var items: List<PageSignature> = emptyList()
-
-        fun submitList(list: List<PageSignature>) {
-            items = list
-            notifyDataSetChanged()
-        }
+    ) : ListAdapter<PageSignature, Adapter.VH>(DiffCallback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val b =
@@ -95,7 +90,7 @@ class PageSignaturesFragment : BaseFragment<FragmentPageSignaturesBinding>() {
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            val sig = items[position]
+            val sig = getItem(position)
             val appInfo = getAppInfoFromPackageName(sig.packageName)
             holder.binding.appIcon.setImageDrawable(appInfo?.icon)
             holder.binding.appName.text = appInfo?.name ?: sig.packageName
@@ -109,8 +104,14 @@ class PageSignaturesFragment : BaseFragment<FragmentPageSignaturesBinding>() {
             holder.itemView.setOnLongClickListener { onDelete(sig); true }
         }
 
-        override fun getItemCount(): Int = items.size
-
         class VH(val binding: ItemPageSignatureBinding) : RecyclerView.ViewHolder(binding.root)
+
+        private object DiffCallback : DiffUtil.ItemCallback<PageSignature>() {
+            override fun areItemsTheSame(oldItem: PageSignature, newItem: PageSignature): Boolean =
+                oldItem.key() == newItem.key()
+
+            override fun areContentsTheSame(oldItem: PageSignature, newItem: PageSignature): Boolean =
+                oldItem == newItem
+        }
     }
 }

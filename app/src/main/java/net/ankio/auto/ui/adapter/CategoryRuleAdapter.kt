@@ -71,7 +71,7 @@ class CategoryRuleAdapter(
             if (!value) {
                 selectedIds.clear()
             }
-            notifyDataSetChanged()
+            notifySelectionStateChanged()
         }
 
     /**
@@ -229,8 +229,14 @@ class CategoryRuleAdapter(
             selectedIds.clear()
             selectedIds.addAll(getItems().map { it.id })
         }
-        notifyDataSetChanged()
+        notifySelectionStateChanged()
         onSelectionChanged?.invoke(selectedIds.size)
+    }
+
+    private fun notifySelectionStateChanged() {
+        if (itemCount > 0) {
+            notifyItemRangeChanged(0, itemCount)
+        }
     }
 
     /**

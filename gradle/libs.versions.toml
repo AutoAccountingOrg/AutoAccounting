@@ -1,32 +1,34 @@
 [versions]
 # Android and Kotlin core
-agp = "8.9.1" # Android Gradle Plugin
+#noinspection AndroidGradlePluginVersion -- AGP 9.2 requires a separate Gradle 9, built-in Kotlin, and new DSL migration.
+agp = "8.9.3" # Android Gradle Plugin
 kotlin = "2.3.0"
+#noinspection GradleDependency -- 1.19.0 requires compileSdk 37 and AGP 9.1; preserve the verified API 36 toolchain.
 core-ktx = "1.17.0"
 ksp = "2.3.0"
 # AndroidX Components
 appcompat = "1.6.1"
 appcompatResources = "1.7.0"
-activity = "1.10.1"
-browser = "1.8.0"
+activity = "1.13.0"
+browser = "1.10.0"
 constraintlayout = "2.2.1"
 # JitPack: https://jitpack.io/#equationl/paddleocr4android（子模块 ncnnandroidppocr）
 paddleocr4android = "v1.3.0"
-swiperefreshlayout = "1.1.0"
+swiperefreshlayout = "1.2.0"
 preferenceKtx = "1.2.1"
 recyclerviewSelection = "1.1.0"
 
 # Navigation and Lifecycle
-navigationFragment = "2.9.0"
-lifecycleRuntimeKtx = "2.9.3"
+navigationFragment = "2.9.8"
+lifecycleRuntimeKtx = "2.10.0"
 lifecycleLiveDataKtx = "2.8.7"
-fragmentKtx = "1.8.6"
+fragmentKtx = "1.8.9"
 
 # Database and Storage
-roomVersion = "2.7.1"
+roomVersion = "2.8.4"
 
 # UI Components
-material = "1.13.0"
+material = "1.14.0"
 flexbox = "3.0.0"
 round = "1.1.2"
 toaster = "12.6"
@@ -46,8 +48,8 @@ htmlKtx = "1.1.2"
 
 # Image Loading
 glide = "4.16.0"
-bugly = "latest.release"
-mmkv = "1.3.5"
+bugly = "4.1.9.3"
+mmkv = "2.3.0"
 zip4j = "2.11.5"
 
 # Development and Debug Tools
@@ -57,7 +59,7 @@ appcenterAnalytics = "5.0.6"
 appcenterCrashes = "5.0.6"
 
 # Coroutines
-kotlinxCoroutinesAndroid = "1.8.0"
+kotlinxCoroutinesAndroid = "1.10.2"
 
 # Android System and Xposed
 xposed = "82"
@@ -70,12 +72,12 @@ quickjsAndroid = "35726a9d28"
 # Theme and Resources
 materialThemeBuilder = "1.5.1"
 autoresconfig = "1.2.2"
-lifecycleService = "2.9.2"
+lifecycleService = "2.10.0"
 # Machine learning (Columbus-style back tap detection)
-liteRt = "2.1.0"
+liteRt = "2.1.5"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
 appcompatVersion = "1.7.1"
 [libraries]
 # AndroidX Core

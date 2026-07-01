@@ -198,7 +198,11 @@ class PaymentInfoComponent(
         val text = if (selectedBills.isEmpty()) {
             context.getString(R.string.float_choose_bill)
         } else {
-            context.getString(R.string.float_choose_bills, selectedBills.size)
+            context.resources.getQuantityString(
+                R.plurals.float_choose_bills,
+                selectedBills.size,
+                selectedBills.size
+            )
         }
         binding.chooseBillButton.text = text
     }

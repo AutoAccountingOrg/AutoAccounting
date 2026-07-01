@@ -35,6 +35,7 @@ import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
+import java.text.NumberFormat
 import kotlin.math.abs
 
 /**
@@ -247,7 +248,7 @@ class AmountDisplayComponent(
      * @param amount 金额数值
      */
     private fun setAmount(amount: Double) {
-        binding.amountContainer.text = amount.toString()
+        binding.amountContainer.text = NumberFormat.getNumberInstance().format(amount)
     }
 
     /**

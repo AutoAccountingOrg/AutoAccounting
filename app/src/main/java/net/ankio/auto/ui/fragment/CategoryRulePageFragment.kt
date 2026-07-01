@@ -312,7 +312,7 @@ class CategoryRulePageFragment :
      */
     private fun updateBatchDeleteUI(selectedCount: Int) {
         // 更新删除按钮文本和状态
-        binding.batchDeleteButton.text = getString(R.string.delete_data) + "($selectedCount)"
+        binding.batchDeleteButton.text = getString(R.string.delete_data_count, selectedCount)
         binding.batchDeleteButton.isEnabled = selectedCount > 0
 
         // 更新全选按钮文本
@@ -330,7 +330,7 @@ class CategoryRulePageFragment :
     private fun showBatchDeleteConfirmDialog(count: Int) {
         BaseSheetDialog.create<BottomSheetDialogBuilder>(requireActivity())
             .setTitle(getString(R.string.batch_delete_title))
-            .setMessage(getString(R.string.batch_delete_confirm, count))
+            .setMessage(resources.getQuantityString(R.plurals.batch_delete_confirm, count, count))
             .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
                 performBatchDelete()
             }

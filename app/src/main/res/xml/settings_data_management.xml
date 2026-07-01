@@ -13,7 +13,7 @@
         <androidx.preference.Preference
             android:icon="@drawable/setting2_icon_backup"
             android:key="setting_backup_keep_count"
-            android:summary="@string/setting_backup_keep_count_summary"
+            android:summary="@string/setting_backup_keep_count_summary_default"
             android:title="@string/setting_backup_keep_count" />
     </PreferenceCategory>
 

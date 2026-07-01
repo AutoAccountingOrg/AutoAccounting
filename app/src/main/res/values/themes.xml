@@ -72,12 +72,6 @@
         <item name="android:minHeight">56dp</item>
     </style>
 
-    <style name="CardLine">
-        <item name="android:padding">@dimen/cardPadding</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:background">@drawable/ripple_effect</item>
-    </style>
 
     <style name="HomeCard" parent="Widget.Material3.CardView.Elevated">
         <item name="android:layout_marginBottom">@dimen/padding</item>

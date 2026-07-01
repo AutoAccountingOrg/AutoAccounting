@@ -15,6 +15,7 @@
 
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/groupCard"
     style="?attr/materialCardViewElevatedStyle"
     android:layout_width="match_parent"
@@ -38,9 +39,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding"
-            android:text="1月12日"
             android:textColor="?colorPrimary"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="1月12日" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

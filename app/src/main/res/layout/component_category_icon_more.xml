@@ -16,6 +16,7 @@
         android:layout_height="@dimen/image_size"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/rounded_border"
+        android:importantForAccessibility="no"
         android:padding="7dp"
         android:scaleType="fitCenter"
         android:src="@drawable/default_cate" />
@@ -26,6 +27,7 @@
         android:layout_height="@dimen/image_size_small_min"
         android:layout_gravity="end|bottom"
         android:background="@drawable/rounded_border_2"
+        android:importantForAccessibility="no"
         android:padding="2dp"
         android:src="@drawable/ic_more2" />
 

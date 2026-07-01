@@ -17,11 +17,11 @@
     <item
         android:id="@+id/action_privacy_mode"
         android:icon="@drawable/ic_visibility"
-        android:title="@string/setting_privacy"
-        android:showAsAction="always" />
+        android:showAsAction="ifRoom"
+        android:title="@string/setting_privacy" />
     <item
         android:id="@+id/action_filter_period"
         android:icon="@drawable/ic_date_range"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="@string/period_custom_range" />
 </menu>

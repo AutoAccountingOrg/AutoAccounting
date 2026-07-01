@@ -64,30 +64,13 @@
     <color name="log_debug">#B0BEC5</color>
     <color name="black">#000000</color>
     <color name="gray40">#66000000</color>
-    <color name="gray30">#47000000</color>
-    <color name="cardScrim">#47000000</color>
-    <color name="syncBarBg">#66000000</color>
-    <color name="scrimLabel">#FFCACACA</color>
-    <color name="scrimSync">#B3FFFFFF</color>
-    <color name="amountIncome">#FF90CAF9</color>
-    <color name="amountExpense">#FFFF8A80</color>
-    <color name="textPrimary">#FFFFFFFF</color>
-    <color name="textSecondary">#B3FFFFFF</color>
-    <color name="tile_bg_books">#FF4E2F30</color>
-    <color name="tile_bg_category">#FF5A4C21</color>
-    <color name="tile_bg_category_map">#FF543654</color>
-    <color name="tile_bg_assets">#FF2E5050</color>
-    <color name="tile_bg_assets_map">#FF4A356B</color>
-    <color name="tile_bg_tag">#FF4C3A10</color>
-    <color name="tile_bg_app_whitelist">#FF2F4F2F</color>
-    <color name="tile_bg_data_filter">#FF5C3D26</color>
 
     <!-- 基础色暗色版本 -->
     <color name="white">#FFE6E1E5</color>  <!-- 暗色主题下的白色，使用 Material Design 的 onSurface 色 -->
     <color name="transparent">#00000000</color>  <!-- 透明色保持不变 -->
 
     <!-- 渐变色暗色版本 -->
-    <color name="scrimStart">#00000000</color>  <!-- 渐变起始保持透明 -->
-    <color name="scrimEnd">#B3000000</color>    <!-- 渐变结束保持70%黑色，在暗色主题下仍然有效 -->
+<!-- 渐变起始保持透明 -->
+<!-- 渐变结束保持70%黑色，在暗色主题下仍然有效 -->
 
 </resources>

@@ -57,7 +57,7 @@
             android:enabled="false"
             android:minHeight="24dp"
             android:text="@string/regexLabel"
-            android:textSize="10sp"
+            android:textSize="11sp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -72,7 +72,6 @@
         android:layout_height="@dimen/image_size_small"
         android:layout_gravity="center_vertical"
         android:layout_marginHorizontal="@dimen/one_padding"
-        android:contentDescription=""
         android:importantForAccessibility="no"
         android:scaleType="centerInside"
         android:src="@drawable/icon_map_right" />

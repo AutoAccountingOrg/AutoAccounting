@@ -74,7 +74,7 @@ object QianJiUri {
 private fun formatTime(time: Long): String {
     // 时间格式为yyyy-MM-dd HH:mm:ss
     val date = Date(time)
-    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     return sdf.format(date)
 
 }
