@@ -89,7 +89,7 @@ def get_commits_since_tag(tag):
 def get_and_set_version(channel,workspace):
     with open(workspace + '/app/build.gradle.kts') as file:
         content = file.read()
-    versionName = re.search(r'versionName = "(.*)"', content).group(1)
+    versionName = re.search(r'val appVersionName = "(.*)"', content).group(1)
     print(f"versionName: {versionName}")
     
     # 获取版本代码 (需要先计算)
@@ -99,7 +99,7 @@ def get_and_set_version(channel,workspace):
     # 新的版本号
     tagVersionName = f"{versionName}-{channel}.{datetime.datetime.now().strftime('%Y%m%d_%H%M')}"
     # 替换 versionName
-    content = re.sub(r'versionName = "(.*)"', f'versionName = "{tagVersionName}"', content)
+    content = re.sub(r'val appVersionName = "(.*)"', f'val appVersionName = "{tagVersionName}"', content)
     with open(workspace+'/app/build.gradle.kts', 'w') as file:
         file.write(content)
     return tagVersionName, versionCode
