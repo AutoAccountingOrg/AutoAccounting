@@ -138,9 +138,9 @@ git clone https://github.com/AutoAccountingOrg/AutoAccounting
 > 提交代码/PR 前请**务必**先阅读 [贡献指南](CONTRIBUTING.md)。
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date" />
-  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date&theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date" />
+  <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date" />
 </picture>
 
 ## 📝 License
