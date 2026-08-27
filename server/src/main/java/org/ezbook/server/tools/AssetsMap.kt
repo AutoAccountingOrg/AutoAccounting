@@ -85,6 +85,14 @@ class AssetsMap {
         // 始终使用 raw 字段做查找和创建，不可用时回退到当前值（兼容历史数据重映射）
         val rawFrom = billInfoModel.rawAccountNameFrom.ifBlank { billInfoModel.accountNameFrom }
         val rawTo = billInfoModel.rawAccountNameTo.ifBlank { billInfoModel.accountNameTo }
+
+        // 有原始名时先还原，避免重映射时残留旧映射结果
+        if (billInfoModel.rawAccountNameFrom.isNotBlank()) {
+            billInfoModel.accountNameFrom = billInfoModel.rawAccountNameFrom
+        }
+        if (billInfoModel.rawAccountNameTo.isNotBlank()) {
+            billInfoModel.accountNameTo = billInfoModel.rawAccountNameTo
+        }
         ServerLog.d("开始资产映射: type=${billInfoModel.type} rawFrom='$rawFrom' rawTo='$rawTo'")
 
         // 处理来源账户映射
@@ -139,9 +147,10 @@ class AssetsMap {
      * 1. 直接资产查找 - 在资产表中查找完全匹配
      * 2. 自定义映射查找 - 使用用户定义的映射规则
      * 3. 正则表达式匹配 - 使用模式匹配进行灵活映射
-     * 4. 创建空映射占位符
-     * 5. AI映射
-     * 6. 算法匹配
+     * 4. 过于宽泛的账户名（如以"支付"结尾）跳过以下自动策略
+     * 5. 创建空映射占位符
+     * 6. AI映射
+     * 7. 算法匹配
      *
      * @param rawName 原始账户名称（映射前）
      * @param rawOtherName 对方原始账户名称（传给AI做上下文）
@@ -158,8 +167,8 @@ class AssetsMap {
         useAi: Boolean = true
     ): String? {
         ServerLog.d("映射账户开始: rawName='$rawName' isAccountName2=$isAccountName2")
-        if (rawName.isBlank() || rawName.endsWith("支付")) {
-            ServerLog.d("映射账户跳过: 账户名为空或者过于宽泛")
+        if (rawName.isBlank()) {
+            ServerLog.d("映射账户跳过: 账户名为空")
             return null
         }
 
@@ -181,6 +190,12 @@ class AssetsMap {
         }?.let { mapping ->
             ServerLog.d("正则映射命中: /${mapping.name}/ -> '${mapping.mapName}'")
             return mapping.mapName
+        }
+
+        // 仅对自动 fallback 忽略过于宽泛的账户名；用户自定义/正则映射已在上方处理
+        if (rawName.endsWith("支付")) {
+            ServerLog.d("映射账户跳过自动匹配: 账户名过于宽泛 '$rawName'")
+            return null
         }
 
         // 4. 创建空白占位符（在 AI 之前，避免 AI 不稳定导致错过创建）
