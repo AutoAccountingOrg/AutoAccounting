@@ -66,8 +66,8 @@ class ExpendRepaymentUtils :
             saveBill(bill)
         }
 
-        // 更新loan
-        updateLoan(bill1!!, accountFrom)
+        // 更新债主的还款进度；扣款资产不是债务账户
+        updateLoan(bill1!!, accountTo)
         // 更新资产
         updateAsset(accountFrom, accountTo, bill1)
 
