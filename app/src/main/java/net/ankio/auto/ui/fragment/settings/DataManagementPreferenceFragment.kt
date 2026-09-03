@@ -23,6 +23,7 @@ import androidx.core.net.toUri
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import net.ankio.auto.R
+import net.ankio.auto.export.BillExportScheduler
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.backup.BackupManager
 import net.ankio.auto.storage.backup.BackupResult
@@ -121,6 +122,7 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
 
         // WebDAV配置
         setupWebDAVConfigPreferences()
+        setupBillExportPreferences()
 
         // 备份保留数量设置
         setPreferenceClickListener("setting_backup_keep_count") {
@@ -301,6 +303,34 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
         }
     }
 
+    private fun setupBillExportPreferences() {
+        setPreferenceClickListener("bill_export_url") {
+            showEditDialog(
+                getString(R.string.setting_bill_export_url),
+                PrefManager.billExportUrl,
+                "https://example.invalid/autoaccounting/v1/bills"
+            ) {
+                PrefManager.billExportUrl = it
+                updatePreferenceDisplays()
+            }
+        }
+        setPreferenceClickListener("bill_export_token") {
+            showEditDialog(
+                getString(R.string.setting_bill_export_token),
+                PrefManager.billExportToken,
+                "Bearer token",
+                true
+            ) {
+                PrefManager.billExportToken = it
+                updatePreferenceDisplays()
+            }
+        }
+        setPreferenceClickListener("bill_export_test") {
+            BillExportScheduler.enqueueImmediate(requireContext())
+            ToastUtils.info(getString(R.string.setting_bill_export_test_queued))
+        }
+    }
+
     /**
      * 显示编辑对话框
      */
@@ -418,6 +448,14 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
             summary = if (PrefManager.webdavPassword.isNotEmpty()) "••••••••"
             else getString(R.string.setting_webdav_password_summary)
         }
+        findPreference<Preference>("bill_export_url")?.summary =
+            PrefManager.billExportUrl.ifEmpty { getString(R.string.setting_bill_export_url_summary) }
+        findPreference<Preference>("bill_export_token")?.summary =
+            if (PrefManager.billExportToken.isEmpty()) {
+                getString(R.string.setting_bill_export_token_summary)
+            } else {
+                "••••••••"
+            }
     }
 
     /**
@@ -468,6 +506,7 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
             return when (key) {
                 "auto_backup" -> PrefManager.autoBackup
                 "setting_use_webdav" -> PrefManager.useWebdav
+                "bill_export_enabled" -> PrefManager.billExportEnabled
                 else -> defValue
             }
         }
@@ -476,8 +515,11 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
             when (key) {
                 "auto_backup" -> PrefManager.autoBackup = value
                 "setting_use_webdav" -> PrefManager.useWebdav = value
+                "bill_export_enabled" -> {
+                    PrefManager.billExportEnabled = value
+                    BillExportScheduler.configure(net.ankio.auto.autoApp)
+                }
             }
         }
     }
 }
-

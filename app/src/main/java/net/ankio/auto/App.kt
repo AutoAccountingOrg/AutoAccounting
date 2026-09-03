@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LicenseNetwork
+import net.ankio.auto.export.BillExportScheduler
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CoroutineUtils
@@ -31,6 +32,7 @@ import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.PrefManager.darkTheme
 import net.ankio.auto.utils.SystemUtils
+import org.ezbook.server.tools.BillExportSignal
 import rikka.material.app.LocaleDelegate
 import java.util.Locale
 import kotlin.coroutines.CoroutineContext
@@ -81,6 +83,8 @@ open class App : Application() {
         initBuglyIfRelease()
         initUI()
         initNetwork()
+        BillExportSignal.register { BillExportScheduler.enqueueImmediate(this) }
+        BillExportScheduler.configure(this)
     }
 
     /**

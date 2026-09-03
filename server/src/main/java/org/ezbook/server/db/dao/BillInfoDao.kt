@@ -83,6 +83,14 @@ interface BillInfoDao {
         endTime: Long
     ): List<BillInfoModel>
 
+    /** Read-only export query. It deliberately does not touch sync state. */
+    @Query("SELECT * FROM BillInfoModel WHERE groupId = -1 AND state = :state AND time >= :startTime AND time < :endTime ORDER BY time ASC, id ASC")
+    suspend fun exportByStateAndTimeRange(
+        state: BillState,
+        startTime: Long,
+        endTime: Long
+    ): List<BillInfoModel>
+
     @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
     suspend fun deleteGroup(groupId: Long)
 

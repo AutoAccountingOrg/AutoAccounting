@@ -1101,4 +1101,14 @@
     <string name="delete_data_count">Delete (%d)</string>
     <string name="version_format" translatable="false">v%s</string>
     <string name="bill_amount_format" translatable="false">%1$s%2$s%3$s</string>
+    <string name="setting_bill_export_category">Bill export</string>
+    <string name="setting_bill_export_enabled">Export bills to NAS</string>
+    <string name="setting_bill_export_enabled_summary">Read-only hourly export; never changes the accounting sync queue</string>
+    <string name="setting_bill_export_url">NAS endpoint</string>
+    <string name="setting_bill_export_url_summary">Full HTTPS endpoint ending in /autoaccounting/v1/bills</string>
+    <string name="setting_bill_export_token">NAS token</string>
+    <string name="setting_bill_export_token_summary">Independent Bearer token stored on this device</string>
+    <string name="setting_bill_export_test">Export now</string>
+    <string name="setting_bill_export_test_summary">Read and upload today’s three bill states</string>
+    <string name="setting_bill_export_test_queued">Bill export started</string>
 </resources>

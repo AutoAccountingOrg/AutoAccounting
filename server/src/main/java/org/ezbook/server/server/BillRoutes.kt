@@ -30,6 +30,7 @@ import org.ezbook.server.models.OrderGroupDto
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.log.ServerLog
 import org.ezbook.server.tools.StatisticsService
+import org.ezbook.server.tools.BillExportSignal
 import org.ezbook.server.tools.roundAmount
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -155,6 +156,7 @@ fun Route.billRoutes() {
             } else {
                 Db.get().billInfoDao().insert(bill)
             }
+            BillExportSignal.notifyCommitted()
             call.respond(ResultModel.ok(id))
         }
 
@@ -197,6 +199,24 @@ fun Route.billRoutes() {
         }
 
         /**
+         * GET /bill/export/list - read-only side-channel export.
+         * Requires one concrete state and a [start,end) millisecond window.
+         */
+        get("/export/list") {
+            val state = call.request.queryParameters["state"]?.let {
+                runCatching { BillState.valueOf(it) }.getOrNull()
+            }
+            val start = call.request.queryParameters["start"]?.toLongOrNull()
+            val end = call.request.queryParameters["end"]?.toLongOrNull()
+            if (state == null || start == null || end == null || start >= end) {
+                call.respond(ResultModel.error(400, "state/start/end 参数无效"))
+                return@get
+            }
+            val result = Db.get().billInfoDao().exportByStateAndTimeRange(state, start, end)
+            call.respond(ResultModel.ok(result))
+        }
+
+        /**
          * POST /bill/status - 更新账单同步状态
          *
          * @param body 包含id和sync的JSON对象
@@ -210,6 +230,7 @@ fun Route.billRoutes() {
             val status = json?.get("sync")?.asBoolean ?: false
             val newState = if (status) BillState.Synced else BillState.Edited
             Db.get().billInfoDao().updateStatus(id, newState)
+            BillExportSignal.notifyCommitted()
             call.respond(ResultModel.ok(0))
         }
 

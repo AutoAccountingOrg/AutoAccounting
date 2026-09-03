@@ -1064,4 +1064,14 @@
     <string name="switch_transfer_direction">切换转账方向</string>
     <string name="approximate_rate_format">≈ %1$s %2$s</string>
     <string name="delete_data_count">删除（%d）</string>
+    <string name="setting_bill_export_category">账单导出</string>
+    <string name="setting_bill_export_enabled">同步账单到 NAS</string>
+    <string name="setting_bill_export_enabled_summary">每小时只读导出，不修改记账同步队列</string>
+    <string name="setting_bill_export_url">NAS 接收地址</string>
+    <string name="setting_bill_export_url_summary">完整 HTTPS 地址，以 /autoaccounting/v1/bills 结尾</string>
+    <string name="setting_bill_export_token">NAS 令牌</string>
+    <string name="setting_bill_export_token_summary">独立 Bearer Token，仅保存在本机</string>
+    <string name="setting_bill_export_test">立即导出</string>
+    <string name="setting_bill_export_test_summary">读取并上传今天的三种账单状态</string>
+    <string name="setting_bill_export_test_queued">账单导出已启动</string>
 </resources>

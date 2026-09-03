@@ -73,6 +73,7 @@ quickjsAndroid = "35726a9d28"
 materialThemeBuilder = "1.5.1"
 autoresconfig = "1.2.2"
 lifecycleService = "2.10.0"
+workManager = "2.10.5"
 # Machine learning (Columbus-style back tap detection)
 liteRt = "2.1.5"
 junit = "4.13.2"
@@ -82,6 +83,7 @@ appcompatVersion = "1.7.1"
 [libraries]
 # AndroidX Core
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workManager" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }

@@ -892,6 +892,19 @@ object PrefManager {
         get() = getBoolean("home_privacy_mode", false)
         set(value) = putBoolean("home_privacy_mode", value)
 
+    /** Side-channel bill export is opt-in and keeps its credential on device. */
+    var billExportEnabled: Boolean
+        get() = getBoolean("bill_export_enabled", false)
+        set(value) = putBoolean("bill_export_enabled", value)
+
+    var billExportUrl: String
+        get() = getString("bill_export_url", "")
+        set(value) = putString("bill_export_url", value.trim())
+
+    var billExportToken: String
+        get() = getString("bill_export_token", "")
+        set(value) = putString("bill_export_token", value.trim())
+
     /**
      * 是否已通过应用内入口打开过帮助文档（与「关于 → 官网」同一地址）。
      * 为 true 时首页不再弹出阅读文档提醒。

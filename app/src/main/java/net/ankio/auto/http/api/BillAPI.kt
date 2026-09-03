@@ -32,6 +32,18 @@ import org.ezbook.server.tools.runCatchingExceptCancel
  * 所有方法都是挂起函数，需要在协程作用域内调用
  */
 object BillAPI {
+    /** Strict read-only export call; failures remain distinguishable from an empty result. */
+    suspend fun exportList(
+        state: BillState,
+        startTime: Long,
+        endTime: Long
+    ): Result<List<BillInfoModel>> = withContext(Dispatchers.IO) {
+        runCatchingExceptCancel {
+            val path = "bill/export/list?state=${state.name}&start=$startTime&end=$endTime"
+            LocalNetwork.get<List<BillInfoModel>>(path).getOrThrow().data ?: emptyList()
+        }
+    }
+
     /**
      * 添加或更新账单信息
      * @param billInfoModel 账单信息模型
