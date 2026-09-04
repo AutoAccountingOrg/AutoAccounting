@@ -12,6 +12,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
@@ -40,7 +41,7 @@ object BillExporter {
     suspend fun exportDay(day: LocalDate): Result<BillExportResult> = withContext(Dispatchers.IO) {
         val counts = linkedMapOf<String, Int>()
         var posted = 0
-        runCatching {
+        runCatchingExceptCancel {
             check(PrefManager.billExportEnabled) { "disabled" }
             val endpoint = PrefManager.billExportUrl.trim()
             val token = PrefManager.billExportToken.trim()

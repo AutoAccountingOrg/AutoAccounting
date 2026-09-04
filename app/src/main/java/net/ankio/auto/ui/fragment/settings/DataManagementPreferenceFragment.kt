@@ -351,7 +351,8 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
                         )
                     },
                     onFailure = {
-                        val kind = (it as? BillExportFailure)?.kind ?: "unknown"
+                        val kind = (it as? BillExportFailure)?.kind
+                            ?: getString(R.string.unknown_error)
                         ToastUtils.error(
                             getString(R.string.setting_bill_export_test_failed, kind)
                         )
