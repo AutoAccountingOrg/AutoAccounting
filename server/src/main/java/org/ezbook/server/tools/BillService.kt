@@ -282,6 +282,8 @@ class BillService(
                 // 拉起悬浮窗（仅外部数据）
                 if (!analysisParams.fromAppData) startAutoPanel(billInfo, parentBill)
 
+                BillExportSignal.notifyCommitted()
+
                 // 返回父账单供后续使用
                 parentBill
             }

@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?><!-- 数据管理：自动备份、本地备份、WebDAV备份 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory android:title="@string/setting_bill_export_category">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:key="bill_export_enabled"
+            android:defaultValue="false"
+            android:icon="@drawable/ic_sync"
+            android:title="@string/setting_bill_export_enabled"
+            android:summary="@string/setting_bill_export_enabled_summary" />
+        <androidx.preference.Preference
+            android:key="bill_export_url"
+            android:dependency="bill_export_enabled"
+            android:icon="@drawable/ic_open_in_new"
+            android:title="@string/setting_bill_export_url"
+            android:summary="@string/setting_bill_export_url_summary" />
+        <androidx.preference.Preference
+            android:key="bill_export_token"
+            android:dependency="bill_export_enabled"
+            android:icon="@drawable/ic_lock"
+            android:title="@string/setting_bill_export_token"
+            android:summary="@string/setting_bill_export_token_summary" />
+        <androidx.preference.Preference
+            android:key="bill_export_test"
+            android:dependency="bill_export_enabled"
+            android:icon="@drawable/ic_sync"
+            android:title="@string/setting_bill_export_test"
+            android:summary="@string/setting_bill_export_test_summary" />
+    </PreferenceCategory>
+
     <!-- 自动备份 -->
     <PreferenceCategory android:title="@string/setting_category_auto_backup">
         <rikka.material.preference.MaterialSwitchPreference
@@ -84,4 +111,3 @@
     </PreferenceCategory>
 
 </PreferenceScreen>
-
