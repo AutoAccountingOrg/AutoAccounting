@@ -1,6 +1,9 @@
 package net.ankio.auto.export
 
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.http.RequestsUtils
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.utils.PrefManager
 import okhttp3.MediaType.Companion.toMediaType
@@ -9,6 +12,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
@@ -34,10 +38,10 @@ object BillExporter {
         .build()
     private val states = listOf(BillState.Synced, BillState.Edited, BillState.Wait2Edit)
 
-    suspend fun exportDay(day: LocalDate): Result<BillExportResult> {
+    suspend fun exportDay(day: LocalDate): Result<BillExportResult> = withContext(Dispatchers.IO) {
         val counts = linkedMapOf<String, Int>()
         var posted = 0
-        return runCatching {
+        runCatchingExceptCancel {
             check(PrefManager.billExportEnabled) { "disabled" }
             val endpoint = PrefManager.billExportUrl.trim()
             val token = PrefManager.billExportToken.trim()
@@ -77,6 +81,7 @@ object BillExporter {
     private fun shortError(error: Throwable): String = when {
         error.message in setOf("disabled", "endpoint_must_be_https", "token_missing") -> error.message!!
         error.message?.startsWith("nas_http_") == true -> error.message!!
+        error is RequestsUtils.HttpException -> "local_http_${error.code}"
         error is java.io.IOException -> "network_io"
         else -> error.javaClass.simpleName.take(40)
     }

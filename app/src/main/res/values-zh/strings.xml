@@ -1074,4 +1074,6 @@
     <string name="setting_bill_export_test">立即导出</string>
     <string name="setting_bill_export_test_summary">读取并上传今天的三种账单状态</string>
     <string name="setting_bill_export_test_queued">账单导出已启动</string>
+    <string name="setting_bill_export_test_success">账单导出完成：读取 %1$d 条，发送 %2$d 条</string>
+    <string name="setting_bill_export_test_failed">账单导出失败：%1$s</string>
 </resources>
