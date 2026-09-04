@@ -23,6 +23,8 @@ import androidx.core.net.toUri
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import net.ankio.auto.R
+import net.ankio.auto.export.BillExporter
+import net.ankio.auto.export.BillExportFailure
 import net.ankio.auto.export.BillExportScheduler
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.backup.BackupManager
@@ -39,6 +41,8 @@ import net.ankio.auto.utils.CoroutineUtils.withIO
 import net.ankio.auto.utils.CoroutineUtils.withMain
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DefaultData
+import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * 数据管理设置页面
@@ -326,8 +330,36 @@ class DataManagementPreferenceFragment : BasePreferenceFragment() {
             }
         }
         setPreferenceClickListener("bill_export_test") {
-            BillExportScheduler.enqueueImmediate(requireContext())
-            ToastUtils.info(getString(R.string.setting_bill_export_test_queued))
+            runBillExportTest()
+        }
+    }
+
+    private fun runBillExportTest() {
+        val preference = findPreference<Preference>("bill_export_test")
+        preference?.isEnabled = false
+        launch {
+            try {
+                val day = LocalDate.now(ZoneId.of("Asia/Shanghai"))
+                BillExporter.exportDay(day).fold(
+                    onSuccess = {
+                        ToastUtils.info(
+                            getString(
+                                R.string.setting_bill_export_test_success,
+                                it.pulled,
+                                it.posted
+                            )
+                        )
+                    },
+                    onFailure = {
+                        val kind = (it as? BillExportFailure)?.kind ?: "unknown"
+                        ToastUtils.error(
+                            getString(R.string.setting_bill_export_test_failed, kind)
+                        )
+                    }
+                )
+            } finally {
+                preference?.isEnabled = true
+            }
         }
     }
 

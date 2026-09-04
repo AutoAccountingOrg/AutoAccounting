@@ -1111,4 +1111,6 @@
     <string name="setting_bill_export_test">Export now</string>
     <string name="setting_bill_export_test_summary">Read and upload today’s three bill states</string>
     <string name="setting_bill_export_test_queued">Bill export started</string>
+    <string name="setting_bill_export_test_success">Bill export complete: pulled %1$d, posted %2$d</string>
+    <string name="setting_bill_export_test_failed">Bill export failed: %1$s</string>
 </resources>
