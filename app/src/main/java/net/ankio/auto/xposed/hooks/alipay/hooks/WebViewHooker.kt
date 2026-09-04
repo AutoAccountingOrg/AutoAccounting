@@ -17,13 +17,16 @@ package net.ankio.auto.xposed.hooks.alipay.hooks
 
 import android.webkit.ValueCallback
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.CoroutineUtils
 import org.ezbook.server.constant.DataType
+import kotlin.time.Duration.Companion.milliseconds
 
 class WebViewHooker : PartHooker() {
 
@@ -81,6 +84,7 @@ class WebViewHooker : PartHooker() {
                     null,
                 )
 
+
                 var needWait = true
 
                 val resultCallback =
@@ -92,17 +96,20 @@ class WebViewHooker : PartHooker() {
                         d("WebViewHooker: Alipay bill data received")
                         analysisData(DataType.DATA, result)
                     }
+                // 轮询睡在 IO；仅 evaluateJavascript 切主线程（WebView 线程约束）
                 CoroutineUtils.withIO {
                     runCatching {
-                        withTimeout(MAX_WAIT_MS) {
+                        withTimeout(MAX_WAIT_MS.milliseconds) {
                             while (needWait) {
-                                XposedHelpers.callMethod(
-                                    obj,
-                                    "evaluateJavascript",
-                                    "javascript:window.ankioResults",
-                                    resultCallback,
-                                )
-                                delay(WAIT_TIME)
+                                withContext(Dispatchers.Main) {
+                                    XposedHelpers.callMethod(
+                                        obj,
+                                        "evaluateJavascript",
+                                        "javascript:window.ankioResults",
+                                        resultCallback,
+                                    )
+                                }
+                                delay(WAIT_TIME.milliseconds)
                             }
                         }
                     }.onFailure { e ->
