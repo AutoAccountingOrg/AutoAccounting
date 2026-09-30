@@ -165,7 +165,8 @@ object Hooker {
         hook: (XC_MethodHook.MethodHookParam) -> Boolean
     ) {
         try {
-            val hookKey = "$clazz-$method-${parameterTypes.joinToString()}"
+            // 带 after 前缀，避免与同一方法上的 onceBefore 互相覆盖
+            val hookKey = "after-$clazz-$method-${parameterTypes.joinToString()}"
             hookMap[hookKey]?.unhook()
             val unhook = XposedHelpers.findAndHookMethod(
                 clazz,
@@ -200,7 +201,8 @@ object Hooker {
         hook: (XC_MethodHook.MethodHookParam) -> Boolean
     ) {
         try {
-            val hookKey = "$clazz-$method-${parameterTypes.joinToString()}"
+            // 带 before 前缀，避免与同一方法上的 onceAfter 互相覆盖
+            val hookKey = "before-$clazz-$method-${parameterTypes.joinToString()}"
             hookMap[hookKey]?.unhook()
             val unhook = XposedHelpers.findAndHookMethod(
                 clazz,
