@@ -223,7 +223,7 @@ class QianJiAdapter : IAppAdapter {
 
         // 14) 发起隐式 Intent 调起钱迹
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         Logger.i("目标应用uri：${uriBuilder}")
         // Xposed 下由 Hook 在钱迹写库成功后标已同步；非 Xposed 没有回执，只能拉起成功即标记

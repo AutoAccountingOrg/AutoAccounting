@@ -20,11 +20,14 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
+import net.ankio.auto.adapter.QianJiAdapter
 import net.ankio.auto.autoApp
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
@@ -32,6 +35,7 @@ import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 object BillTool {
 
@@ -178,7 +182,14 @@ object BillTool {
             // 逐个同步账单
             billsToSync.forEach { bill ->
                 try {
-                    syncBill(bill)
+                    val adapter = AppAdapterManager.adapter()
+                    // 不走 syncBill，避免与 adapter.sleep() 叠加延迟
+                    adapter.syncBill(prepareBillForSync(bill))
+                    if (adapter is QianJiAdapter && WorkMode.isXposedOrLSPatch()) {
+                        waitSynced(bill.id)
+                    } else {
+                        delay(3000L.milliseconds)
+                    }
                     syncedCount++
                 } catch (e: Exception) {
                     Logger.e("同步账单失败: ${bill.id}", e)
@@ -214,6 +225,20 @@ object BillTool {
             syncBill.accountNameTo = ""
         }
         return syncBill
+    }
+
+    /**
+     * 等待账单被标记为已同步，超时即放弃。
+     *
+     * 钱迹写库成功后才回写状态；不等回执就拉起下一笔，
+     * 多笔账单会在钱迹内并发处理，Hook 上下文互相覆盖导致串单、漏单。
+     */
+    private suspend fun waitSynced(id: Long) {
+        withTimeoutOrNull(5000L.milliseconds) {
+            while (BillAPI.get(id)?.state != BillState.Synced) {
+                delay(200L.milliseconds)
+            }
+        }
     }
 
     suspend fun syncBill(billInfoModel: BillInfoModel) {
