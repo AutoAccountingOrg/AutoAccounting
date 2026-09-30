@@ -221,23 +221,14 @@ class QianJiAdapter : IAppAdapter {
             uriBuilder.append("&showresult=0")
         }
 
-        // Xposed / LSPatch 由模块接管写入。
-        // 同步前先标未同步：Intent 一发出就标已同步，会和 Hook 抢状态，失败时账单已经被当成同步完成。
-        // 非 Xposed 没有回执，仍在拉起成功后标已同步。
-        val xposed = WorkMode.isXposedOrLSPatch()
-        if (xposed && billInfoModel.id > 0) {
-            runBlocking {
-                BillAPI.status(billInfoModel.id, false)
-            }
-        }
-
         // 14) 发起隐式 Intent 调起钱迹
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         Logger.i("目标应用uri：${uriBuilder}")
+        // Xposed 下由 Hook 在钱迹写库成功后标已同步；非 Xposed 没有回执，只能拉起成功即标记
         SystemUtils.startActivityIfResolvable(intent, name) {
-            if (!xposed) {
+            if (!WorkMode.isXposedOrLSPatch()) {
                 AppAdapterManager.markSynced(billInfoModel)
             }
         }

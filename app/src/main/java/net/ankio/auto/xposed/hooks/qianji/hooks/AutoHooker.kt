@@ -235,6 +235,20 @@ class AutoHooker : PartHooker() {
 
             return@onceBefore false
         }
+
+        // 钱迹写库完成才算同步成功；失败会抛异常，此时保持未同步
+        Hooker.onceAfter(BillDbHelper.clazz(), "saveOrUpdateBill", QjBillModel.clazz()) {
+            if (!Throwable().stackTraceToString().contains(AddBillIntentAct.CLAZZ)) {
+                return@onceAfter false
+            }
+            val id = uri.getQueryParameter("id")?.toLongOrNull() ?: 0
+            if (it.throwable == null && id > 0) {
+                CoroutineUtils.withIO {
+                    BillAPI.status(id, true)
+                }
+            }
+            return@onceAfter true
+        }
     }
 
 
