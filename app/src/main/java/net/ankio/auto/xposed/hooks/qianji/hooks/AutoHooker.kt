@@ -209,7 +209,7 @@ class AutoHooker : PartHooker() {
 
         if (rawBillModel != null) {
             billModel.setBillid(rawBillModel.getBillid())
-            billModel.set_id(billModel.get_id())
+            billModel.set_id(rawBillModel.get_id())
 
         }
 
