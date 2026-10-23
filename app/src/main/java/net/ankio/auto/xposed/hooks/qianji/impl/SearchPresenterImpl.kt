@@ -78,89 +78,48 @@ object SearchPresenterImpl : HookerClazz() {
                 }
             }
             // public void searchLocal(
-            // String str, 0
-            // BookFilter bookFilter, 1
-            // DateFilter dateFilter, 2
-            // TypesFilter typesFilter, 3
-            // MoneyFilter moneyFilter, 4
-            // ImageFilter imageFilter, 5
-            // PlatformFilter platformFilter, 6
-            // boolean z10, 7
-            // boolean z11, 8
-            // boolean z12, 9
-            // SortFilter sortFilter, 10
-            // BillFlagFilter billFlagFilter, 11
-            // AssetsFilter assetsFilter, 12
-            // TagsFilter tagsFilter 13
+            // String, BookFilter, DateFilter, TypesFilter,
+            // MoneyFilter, ImageFilter, PlatformFilter,
+            // boolean, boolean, boolean,
+            // SortFilter, BillFlagFilter,
+            // AssetsFilter?, TagsFilter?, CategoriesFilter?,
+            // boolean includeNotCount?, boolean includeNotBudget?  // 钱迹 4.5.4+
             // ) {
             val refreshMethod = searchImpl.declaredMethods.find { it.name == "searchLocal" }!!
 
-            // 确保至少有12个参数
-            if (refreshMethod.parameterTypes.size < 12) {
-                throw IllegalStateException("searchLocal method must have at least 12 parameters")
+            // BookFilter：指定账本名时仅匹配该账本；否则为全部账本
+            val bookFilter = BookFilter.newInstance().also { wrapper ->
+                val target = runBlocking { BookManagerImpl.getBookByName(bookName) }
+                wrapper.set(target)
             }
 
-            // 基础参数准备（使用包装的 Filter 类构造宿主对象）
-            val params = mutableListOf<Any?>().apply {
-                // 0. 搜索字符串
-                add("")
+            // DateFilter：最近 10 天
+            val fromCalendar = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -10) }
+            val toCalendar = Calendar.getInstance()
+            val dateFilter = DataFilter.newInstance()
+                .setTimeRangeFilter(fromCalendar, toCalendar)
 
-                // 1. BookFilter
-                //    优化：当传入 bookName 非空时，仅匹配该账本；未命中将抛出异常；否则为“全部账本”
-                val bookFilter = BookFilter.newInstance().also { wrapper ->
-                    val target = runBlocking { BookManagerImpl.getBookByName(bookName) }
-                    wrapper.set(target)
-                }
-                add(bookFilter.toObject())
+            // TypesFilter：类型 0（支出）
+            val typesFilter = TypesFilter.newInstance().apply { add(0) }
 
-                // 2. DateFilter（最近10天）
-                val fromCalendar = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -10) }
-                val toCalendar = Calendar.getInstance()
-                val dateFilter = DataFilter.newInstance()
-                    .setTimeRangeFilter(fromCalendar, toCalendar)
+            // SortFilter：时间降序
+            val sortFilter = SortFilter.newTimeDesc(false)
 
-                add(dateFilter.toObject())
-
-                // 3. TypesFilter（示例：添加类型0）
-                val typesFilter = TypesFilter.newInstance().apply { add(0) }
-                add(typesFilter.toObject())
-
-                // 4. MoneyFilter
-                add(null)
-
-                // 5. ImageFilter
-                add(null)
-
-                // 6. PlatformFilter
-                add(null)
-
-                // 7-9. 布尔值参数
-                add(false) // z10
-                add(false) // z11
-                add(true)  // z12
-
-                // 10. SortFilter（时间降序）
-                val sortFilter = SortFilter.newTimeDesc(false)
-                add(sortFilter.toObject())
-
-                // 11. BillFlagFilter
-                add(BillFlagFilter.withFlag(0).toObject())
-
-                // 12. AssetsFilter（可选）
-                if (refreshMethod.parameterTypes.size > 12) add(null)
-
-                // 13. TagsFilter（可选）
-                if (refreshMethod.parameterTypes.size > 13) add(null)
-
-                // 14. CategoriesFilter（可选）
-                if (refreshMethod.parameterTypes.size > 14) add(null)
-            }
+            // 按宿主 searchLocal 实际参数个数组装（钱迹 4.5.4 增至 17 参）
+            val params = SearchLocalArgs.build(
+                paramCount = refreshMethod.parameterTypes.size,
+                bookFilter = bookFilter.toObject(),
+                dateFilter = dateFilter.toObject(),
+                typesFilter = typesFilter.toObject(),
+                sortFilter = sortFilter.toObject(),
+                billFlagFilter = BillFlagFilter.withFlag(0).toObject(),
+            )
 
             // 触发搜索
             XposedHelpers.callMethod(
                 XposedHelpers.newInstance(searchImpl, param1Object),
                 "searchLocal",
-                *params.toTypedArray()
+                *params
             )
 
         }
