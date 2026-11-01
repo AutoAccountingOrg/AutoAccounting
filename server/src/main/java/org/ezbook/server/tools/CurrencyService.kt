@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit
  * 所有公开方法均为 suspend，内部自行切 IO 线程，调用方无需关心线程。
  *
  * 汇率 API：https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/{base}.json
+ * （失败时依次尝试 [RATE_API_URLS] 中的备用地址，返回格式相同）
  * 返回格式：{ "date": "2024-01-15", "{base}": { "usd": 0.139, ... } }
  * 含义：1 单位 base = x 单位 target
  */
@@ -47,6 +48,19 @@ object CurrencyService {
         .build()
 
     private val gson = Gson()
+
+    /**
+     * 汇率接口地址，按顺序尝试，第一个解析成功的结果即返回。
+     * {base} 为小写本位币代码。
+     * - jsDelivr：主地址
+     * - currency-api.pages.dev：上游 README 推荐的备用地址
+     * - allratestoday.com：同格式兼容接口（ECB 法币子集，不支持的币种返回 404）
+     */
+    private val RATE_API_URLS = listOf(
+        "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/{base}.json",
+        "https://latest.currency-api.pages.dev/v1/currencies/{base}.json",
+        "https://allratestoday.com/api/compat/currency-api/latest/v1/currencies/{base}.json"
+    )
 
     /** 缓存：币种代码(大写) → CurrencyModel（rate 含义：1 单位该币种 = rate 单位本位币） */
     private var cachedModels: Map<String, CurrencyModel>? = null
@@ -180,19 +194,29 @@ object CurrencyService {
 
     /**
      * 从 CDN API 获取原始汇率数据
+     * 依次尝试 [RATE_API_URLS]，任一地址返回非空结果即停止
      */
     private fun fetchRatesFromApi(baseCurrency: String): Map<String, Double> {
         val base = baseCurrency.lowercase()
-        val url =
-            "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/$base.json"
+        for (template in RATE_API_URLS) {
+            val rates = fetchRatesFromUrl(template.replace("{base}", base), base)
+            if (rates.isNotEmpty()) return rates
+        }
+        ServerLog.e("CurrencyService all rate APIs failed | base=$base")
+        return emptyMap()
+    }
 
+    /**
+     * 请求单个地址并解析汇率；失败（非 2xx、缺少 base 字段、异常）返回空 Map
+     */
+    private fun fetchRatesFromUrl(url: String, base: String): Map<String, Double> {
         ServerLog.d("CurrencyService fetching: $url")
 
         return runCatching {
             val request = Request.Builder().url(url).get().build()
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    ServerLog.e("CurrencyService API failed: HTTP ${response.code}")
+                    ServerLog.e("CurrencyService API failed: HTTP ${response.code} | $url")
                     return@runCatching emptyMap()
                 }
 
@@ -210,11 +234,11 @@ object CurrencyService {
                     }
                 }
 
-                ServerLog.d("CurrencyService API success: ${result.size} rates parsed")
+                ServerLog.d("CurrencyService API success: ${result.size} rates parsed | $url")
                 result
             }
         }.onFailure {
-            ServerLog.e("CurrencyService fetch error: ${it.message}", it)
+            ServerLog.e("CurrencyService fetch error: ${it.message} | $url", it)
         }.getOrDefault(emptyMap())
     }
 
